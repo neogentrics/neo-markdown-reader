@@ -41,6 +41,31 @@ function setScrollRatio(r) {
   els.desk.scrollTop = r * Math.max(0, els.desk.scrollHeight - els.desk.clientHeight);
 }
 
+// Restoring a reading position has to survive the page still growing (images, fonts and diagrams
+// finish loading after the first layout). Keep the target and re-apply it whenever the page
+// resizes, until the reader scrolls themselves or a few seconds pass.
+let pendingRestore = null;                         // { id, ratio, until }
+function restoreScroll(tab) {
+  setScrollRatio(tab.scroll);
+  pendingRestore = tab.scroll > 0 ? { id: tab.id, ratio: tab.scroll, until: Date.now() + 5000 } : null;
+}
+function reapplyRestore() {
+  const p = pendingRestore;
+  if (!p) return;
+  if (p.id !== activeId || Date.now() > p.until) { pendingRestore = null; return; }
+  setScrollRatio(p.ratio);
+}
+/** The tab's reading position: the pending target while a restore is in progress, else the live scroll. */
+function currentScroll(tab) {
+  if (pendingRestore && pendingRestore.id === tab.id && Date.now() <= pendingRestore.until) return pendingRestore.ratio;
+  return tab.id === activeId ? scrollRatio() : tab.scroll;
+}
+new ResizeObserver(reapplyRestore).observe(els.pages);
+for (const ev of ['wheel', 'mousedown', 'touchstart']) els.desk.addEventListener(ev, () => { pendingRestore = null; }, { passive: true });
+document.addEventListener('keydown', (e) => {
+  if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) pendingRestore = null;
+});
+
 function renderInto(tab, doc) {
   const result = render(doc.content, { baseUrl: doc.baseUrl });
   tab.doc = doc;
@@ -101,7 +126,7 @@ function activate(id) {
   const next = tabs.find((t) => t.id === id);
   if (!next) return;
   const prev = activeTab();
-  if (prev && prev !== next) { prev.scroll = scrollRatio(); prev.el.hidden = true; prev.btn.classList.remove('active'); prev.btn.setAttribute('aria-selected', 'false'); }
+  if (prev && prev !== next) { prev.scroll = currentScroll(prev); prev.el.hidden = true; prev.btn.classList.remove('active'); prev.btn.setAttribute('aria-selected', 'false'); }
   activeId = id;
   next.el.hidden = false;
   next.btn.classList.add('active');
@@ -109,7 +134,7 @@ function activate(id) {
   next.btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   if (!els.findBar.hidden) closeFind();
   showActiveDoc();
-  requestAnimationFrame(() => { setScrollRatio(next.scroll); updateActiveHeading(); });
+  requestAnimationFrame(() => { restoreScroll(next); updateActiveHeading(); });
   syncSoon();
 }
 
@@ -117,7 +142,7 @@ function closeTab(id) {
   const i = tabIndex(id);
   if (i < 0) return;
   const tab = tabs[i];
-  if (tab.id === activeId) tab.scroll = scrollRatio();
+  tab.scroll = currentScroll(tab);
   closedTabs.push({ path: tab.doc.path, scroll: tab.scroll, index: i });
   if (closedTabs.length > 25) closedTabs.shift();
   tabs.splice(i, 1);
@@ -153,7 +178,7 @@ function moveTab(id, toIndex) {
 async function detachTab(id, at = {}) {
   const tab = tabs.find((t) => t.id === id);
   if (!tab || tabs.length < 2) return;
-  const scroll = tab.id === activeId ? scrollRatio() : tab.scroll;
+  const scroll = currentScroll(tab);
   const ok = await api.detachTab({ path: tab.doc.path, scroll, screenX: at.x, screenY: at.y });
   if (ok) { closeTab(id); closedTabs.pop(); }
 }
@@ -191,31 +216,34 @@ function updateChrome() {
 
 let syncTimer = 0;
 let syncDue = 0;
+function sendSync() {
+  const active = activeTab();
+  if (active) active.scroll = currentScroll(active);
+  api.syncTabs({
+    tabs: tabs.map((t) => ({ path: t.doc.path, scroll: t.scroll })),
+    active: Math.max(0, tabIndex(activeId)),
+    title: active ? active.doc.name : '',
+  });
+}
+// Report the final state (e.g. the reading position just scrolled to) the moment the window closes.
+window.addEventListener('beforeunload', () => { clearTimeout(syncTimer); syncTimer = 0; sendSync(); });
 /** Report open tabs to the main process. A later, longer delay (scrolling) never postpones a sooner one. */
 function syncSoon(delay = 120) {
   const due = Date.now() + delay;
   if (syncTimer && syncDue <= due) return;
   clearTimeout(syncTimer);
   syncDue = due;
-  syncTimer = setTimeout(() => {
-    syncTimer = 0;
-    const active = activeTab();
-    if (active) active.scroll = scrollRatio();
-    api.syncTabs({
-      tabs: tabs.map((t) => ({ path: t.doc.path, scroll: t.scroll })),
-      active: Math.max(0, tabIndex(activeId)),
-      title: active ? active.doc.name : '',
-    });
-  }, delay);
+  syncTimer = setTimeout(() => { syncTimer = 0; sendSync(); }, delay);
 }
 
 // ================================================================ navigation inside a tab
 async function navigateTab(tab, doc) {
-  tab.history.push({ path: tab.doc.path, scroll: tab.id === activeId ? scrollRatio() : tab.scroll });
+  tab.history.push({ path: tab.doc.path, scroll: currentScroll(tab) });
   if (tab.history.length > 50) tab.history.shift();
   await renderInto(tab, doc);
   tab.scroll = 0;
   if (tab.id === activeId) {
+    pendingRestore = null;
     showActiveDoc();
     els.desk.scrollTop = 0;
     if (doc.hash) scrollToId(doc.hash);
@@ -233,7 +261,7 @@ async function goBack() {
   await renderInto(tab, res.doc);
   tab.scroll = prev.scroll;
   showActiveDoc();
-  requestAnimationFrame(() => { setScrollRatio(prev.scroll); updateActiveHeading(); });
+  requestAnimationFrame(() => { restoreScroll(tab); updateActiveHeading(); });
   syncSoon();
 }
 
@@ -247,7 +275,7 @@ async function reloadActive() {
 
 async function refreshTab(tab, doc) {
   const isActive = tab.id === activeId;
-  const ratio = isActive ? scrollRatio() : tab.scroll;
+  const ratio = currentScroll(tab);
   await renderInto(tab, { ...doc, position: 0 });
   if (isActive) {
     showActiveDoc();
@@ -384,7 +412,7 @@ function updateActiveHeading() {
 }
 els.desk.addEventListener('scroll', () => {
   if (!scrollRaf) scrollRaf = requestAnimationFrame(updateActiveHeading);
-  syncSoon(1500);            // remember reading position
+  syncSoon(600);             // remember reading position
 }, { passive: true });
 
 // ================================================================ links & images in documents
@@ -636,7 +664,7 @@ api.onCommand(({ cmd, arg }) => {
     case 'select-tab': { const t = arg === -1 ? tabs[tabs.length - 1] : tabs[arg]; if (t) activate(t.id); break; }
     case 'close-tab': if (target) closeTab(target.id); else api.closeWindow(); break;
     case 'reopen-closed-tab': reopenClosedTab(); break;
-    case 'duplicate-tab': if (target) openInTab(target.doc, { duplicate: true, index: tabIndex(target.id) + 1, scroll: target.id === activeId ? scrollRatio() : target.scroll }); break;
+    case 'duplicate-tab': if (target) openInTab(target.doc, { duplicate: true, index: tabIndex(target.id) + 1, scroll: currentScroll(target) }); break;
     case 'move-tab-to-window': if (target) detachTab(target.id); break;
     case 'close-other-tabs': if (target) for (const t of [...tabs]) if (t.id !== target.id) closeTab(t.id); break;
     case 'close-tabs-right': if (target) for (const t of tabs.slice(tabIndex(target.id) + 1)) closeTab(t.id); break;

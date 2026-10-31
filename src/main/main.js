@@ -21,6 +21,8 @@ let updater;
 let quitting = false;
 /** webContents.id -> { win, startup, tabs: [{ path, scroll }], active, watchers: Map(path -> unwatch) } */
 const windows = new Map();
+/** webContents.id -> last reported { bounds, tabs, active }. Survives a window closing while the app quits. */
+const sessionById = new Map();
 /** Files requested before the app was ready (macOS Finder). */
 const pendingOpen = [];
 let lastFocusedId = null;
@@ -152,6 +154,7 @@ function createWindow(opts = {}) {
   const saveBounds = () => {
     if (win.isDestroyed() || win.isMinimized() || win.isFullScreen()) return;
     settings.update({ windowBounds: { ...win.getNormalBounds(), maximized: win.isMaximized() } });
+    snapshot(state);
     persistSession();
   };
   win.on('resize', saveBounds);
@@ -165,7 +168,7 @@ function createWindow(opts = {}) {
   win.on('closed', () => {
     for (const unwatch of state.watchers.values()) unwatch();
     windows.delete(id);
-    if (state.forget) persistSession();
+    if (state.forget) { sessionById.delete(id); persistSession(); }
   });
 
   win.loadFile(RENDERER_HTML);
@@ -256,14 +259,21 @@ function syncWatchers(state) {
 }
 
 // ---------------------------------------------------------------- session
+/** Record a window's tabs and bounds for session restore. */
+function snapshot(state) {
+  const id = state.win.isDestroyed() ? null : state.win.webContents.id;
+  if (id == null) return;
+  if (!state.tabs.length) { sessionById.delete(id); return; }
+  sessionById.set(id, {
+    bounds: { ...state.win.getNormalBounds(), maximized: state.win.isMaximized() },
+    tabs: state.tabs,
+    active: state.active,
+  });
+}
+
 function persistSession() {
   if (!settings) return;
-  const sessionWindows = liveStates().filter((s) => !s.forget && s.tabs.length).map((s) => ({
-    bounds: s.win.isDestroyed() ? null : { ...s.win.getNormalBounds(), maximized: s.win.isMaximized() },
-    tabs: s.tabs,
-    active: s.active,
-  }));
-  settings.update({ session: sessionWindows });
+  settings.update({ session: [...sessionById.values()].filter((w) => w.tabs.length) });
 }
 
 // ---------------------------------------------------------------- links
@@ -562,6 +572,7 @@ function registerIpc() {
     if (isMac) st.win.setRepresentedFilename(st.tabs[st.active]?.path || '');
     syncWatchers(st);
     if (st.tabs.length) settings.setPositions(Object.fromEntries(st.tabs.map((t) => [t.path, t.scroll])));
+    snapshot(st);
     persistSession();
   });
   ipcMain.handle('tab:detach', (e, payload) => {
@@ -632,8 +643,12 @@ app.whenReady().then(() => {
 
 app.on('before-quit', () => {
   quitting = true;
-  // When the last window was closed by hand it is already gone; keep the session saved for it.
-  if (liveStates().length) persistSession();
+  persistSession();
+  settings?.flush();
+});
+// Windows send their final tab state as they close, which can arrive after before-quit.
+app.on('will-quit', () => {
+  persistSession();
   settings?.flush();
 });
 app.on('window-all-closed', () => {

@@ -163,8 +163,9 @@ const windowCount = (app) => app.evaluate(({ BrowserWindow }) => BrowserWindow.g
   });
 
   assert.deepEqual(errors, []);
+  // Scroll and quit straight away: the final position must still be saved.
   await win.evaluate(() => document.getElementById('desk').scrollTo(0, 99999));
-  await new Promise((r) => setTimeout(r, 2000));      // let the reading position be saved
+  await new Promise((r) => setTimeout(r, 100));
   await app.close();
 
   // ------------------------------------------------------------------ relaunch: session restore
