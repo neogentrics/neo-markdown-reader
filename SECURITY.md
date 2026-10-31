@@ -41,3 +41,11 @@ Markdown files are treated as **untrusted input**:
 - Files that the operating system reports as not writable (e.g. the Windows read-only attribute) are
   never written.
 - *Save As* only writes to the location the user picked in the native save dialog.
+
+### Folders, highlights and bookmarks (since 1.3)
+
+- Only a folder the user picked in the native folder dialog (or reopened from *Open Recent Folder*) can
+  be listed or searched, and only by the window it was opened in. Searching reads Markdown files inside
+  that folder; it never follows into `node_modules` or hidden folders and skips files over 2 MB.
+- Highlights and notes are stored in the app's data folder (`annotations.json`), validated and size-capped.
+  They are never written into documents.

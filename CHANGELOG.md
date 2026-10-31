@@ -4,6 +4,30 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-10-31
+
+### Added
+- **Open Folder** (`Ctrl+Shift+O`): browse every Markdown file in a folder from the sidebar's **Files** panel
+  (a tree with a filter box), with *Open Recent Folder* and *Close Folder*. It skips `node_modules`, hidden
+  folders and folders without Markdown. The folder is restored with your session and refreshes when
+  files change.
+- **Find in Folder** (`Ctrl+Shift+F`): search the text of every file in the open folder; results show the
+  line, and clicking one opens the file at that line.
+- **Quick Open** (`Ctrl+K`): fuzzy-find open tabs, bookmarks, recent files and folder files; type `#` to
+  jump to a heading in the current document.
+- **Split view** (`Ctrl+\`, *Open to the Side*): two documents side by side, choose or swap the right one,
+  with optional **linked scrolling**.
+- **Compare**: a line-by-line diff with changed words highlighted. Compare two tabs, the current document
+  with any file, or your unsaved edits with the saved version.
+- **Highlights & notes**: select text and highlight it (`Ctrl+Shift+H`) or add a note; four colours; a
+  **Notes** panel lists them. Stored privately by the app, never in the file, and found again after the
+  document changes.
+- **Bookmarks** (`Ctrl+D`): starred files appear at the top of the Files panel and in Quick Open.
+- The sidebar now has four panels: **Outline · Files · Search · Notes**. View menu items open each one.
+
+### Changed
+- `Ctrl+B` shows or hides the whole sidebar (outside the editor, where it still means bold).
+
 ## [1.2.0] - 2026-10-31
 
 ### Added

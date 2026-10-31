@@ -7,6 +7,8 @@ const { Settings } = require('./settings');
 const { isMarkdownPath, fileFromArgv, readMarkdown } = require('./files');
 const { Updater, RELEASES_URL } = require('./updater');
 const { Editing } = require('./editing');
+const { scanFolder, searchFolder } = require('./folders');
+const { AnnotationStore } = require('./annotations');
 
 const isMac = process.platform === 'darwin';
 const ROOT = path.join(__dirname, '..', '..');
@@ -20,6 +22,7 @@ if (process.env.NMR_USER_DATA) app.setPath('userData', process.env.NMR_USER_DATA
 let settings;
 let updater;
 let editing;
+let annotations;
 let quitting = false;
 /** webContents.id -> { win, startup, tabs: [{ path, scroll }], active, watchers: Map(path -> unwatch) } */
 const windows = new Map();
@@ -98,7 +101,7 @@ function applyMenuBarSetting(win) {
 
 // ---------------------------------------------------------------- windows
 /**
- * @param {{ tabs?: {path:string, scroll?:number}[], active?: number, bounds?: object, at?: {x:number,y:number} }} opts
+ * @param {{ tabs?: {path:string, scroll?:number}[], active?: number, bounds?: object, at?: {x:number,y:number}, folder?: string|null }} opts
  */
 function createWindow(opts = {}) {
   const base = opts.bounds && visibleOnSomeDisplay(opts.bounds) ? opts.bounds : defaultBounds();
@@ -135,7 +138,8 @@ function createWindow(opts = {}) {
   const id = win.webContents.id;
   const state = {
     win,
-    startup: { tabs: opts.tabs || [], active: opts.active || 0 },
+    startup: { tabs: opts.tabs || [], active: opts.active || 0, folder: opts.folder || null },
+    folder: null,             // { root, scan, unwatch } once a folder is open in this window
     tabs: [],
     active: 0,
     watchers: new Map(),
@@ -181,6 +185,7 @@ function createWindow(opts = {}) {
   });
   win.on('closed', () => {
     for (const unwatch of state.watchers.values()) unwatch();
+    state.folder?.unwatch?.();
     windows.delete(id);
     if (state.forget) { sessionById.delete(id); persistSession(); }
   });
@@ -277,17 +282,19 @@ function syncWatchers(state) {
 function snapshot(state) {
   const id = state.win.isDestroyed() ? null : state.win.webContents.id;
   if (id == null) return;
-  if (!state.tabs.length) { sessionById.delete(id); return; }
+  const folder = state.folder?.root || null;
+  if (!state.tabs.length && !folder) { sessionById.delete(id); return; }
   sessionById.set(id, {
     bounds: { ...state.win.getNormalBounds(), maximized: state.win.isMaximized() },
     tabs: state.tabs,
     active: state.active,
+    folder,
   });
 }
 
 function persistSession() {
   if (!settings) return;
-  settings.update({ session: [...sessionById.values()].filter((w) => w.tabs.length) });
+  settings.update({ session: [...sessionById.values()].filter((w) => w.tabs.length || w.folder) });
 }
 
 // ---------------------------------------------------------------- links
@@ -438,6 +445,14 @@ function rebuildMenu() {
         { type: 'separator' },
         { id: 'open', label: 'Open…', accelerator: 'CmdOrCtrl+O', click: () => openViaDialog(targetState()) },
         { label: 'Open Recent', submenu: recentItems },
+        { id: 'open-folder', label: 'Open Folder…', accelerator: 'CmdOrCtrl+Shift+O', click: () => { const st = targetState(); if (st) openFolderDialog(st); } },
+        {
+          label: 'Open Recent Folder',
+          submenu: s.recentFolders.length
+            ? s.recentFolders.map((f) => ({ label: f.length > 80 ? '…' + f.slice(-78) : f, click: () => openRecentFolder(targetState(), f) }))
+            : [{ label: 'No recent folders', enabled: false }],
+        },
+        cmd('close-folder', 'Close Folder'),
         cmd('reopen-closed-tab', 'Reopen Closed Tab', 'CmdOrCtrl+Shift+T'),
         { type: 'separator' },
         cmd('save', 'Save', 'CmdOrCtrl+S'),
@@ -472,6 +487,13 @@ function rebuildMenu() {
         cmd('find', 'Find…', 'CmdOrCtrl+F'),
         cmd('find-next', 'Find Next', 'F3'),
         cmd('find-prev', 'Find Previous', 'Shift+F3'),
+        cmd('find-in-folder', 'Find in Folder…', 'CmdOrCtrl+Shift+F'),
+        { type: 'separator' },
+        cmd('compare-saved', 'Compare with Saved Version'),
+        cmd('compare-file', 'Compare with File…'),
+        { type: 'separator' },
+        cmd('highlight', 'Highlight Selection', 'CmdOrCtrl+Shift+H'),
+        cmd('bookmark', 'Bookmark This File', 'CmdOrCtrl+D'),
         { type: 'separator' },
         cmd('grants', 'Editing Permissions…'),
         { id: 'open-backups', label: 'Open Backups Folder', click: () => openBackups() },
@@ -484,7 +506,15 @@ function rebuildMenu() {
         { label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif')] },
         { label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] },
         { type: 'separator' },
-        { id: 'toggle-outline', label: 'Outline Sidebar', type: 'checkbox', checked: s.showToc, accelerator: 'CmdOrCtrl+B', click: () => setSetting({ showToc: !settings.get().showToc }) },
+        cmd('quick-open', 'Go to File or Heading…', 'CmdOrCtrl+K'),
+        { type: 'separator' },
+        { id: 'toggle-outline', label: 'Sidebar', type: 'checkbox', checked: s.showToc, accelerator: 'CmdOrCtrl+B', click: () => setSetting({ showToc: !settings.get().showToc }) },
+        cmd('panel-outline', 'Show Outline'),
+        cmd('panel-files', 'Show Files'),
+        cmd('panel-highlights', 'Show Highlights'),
+        { type: 'separator' },
+        cmd('split-toggle', 'Split View', 'CmdOrCtrl+\\'),
+        cmd('split-link', 'Link Scrolling in Split View'),
         ...(isMac ? [] : [{ id: 'toggle-menubar', label: 'Always Show Menu Bar', type: 'checkbox', checked: s.showMenuBar, click: () => setSetting({ showMenuBar: !settings.get().showMenuBar }) }]),
         { type: 'separator' },
         { label: 'Larger Text', accelerator: 'CmdOrCtrl+=', click: () => setSetting({ fontScale: settings.get().fontScale + 0.1 }) },
@@ -506,6 +536,8 @@ function rebuildMenu() {
         cmd('prev-tab', 'Previous Tab', 'CmdOrCtrl+PageUp', { id: 'prev-tab-alt', visible: false, acceleratorWorksWhenHidden: true }),
         { type: 'separator' },
         cmd('duplicate-tab', 'Duplicate Tab'),
+        cmd('open-side', 'Open Tab to the Side'),
+        cmd('compare-tabs', 'Compare Tab with…'),
         cmd('move-tab-to-window', 'Move Tab to New Window'),
         { type: 'separator' },
         cmd('close-other-tabs', 'Close Other Tabs'),
@@ -559,6 +591,8 @@ function showTabContextMenu(state, { index, count, path: tabPath }) {
   Menu.buildFromTemplate([
     { label: 'Move to New Window', enabled: count > 1, click: send('move-tab-to-window') },
     { label: 'Duplicate', click: send('duplicate-tab') },
+    { label: 'Open to the Side', enabled: count > 1, click: send('open-side') },
+    { label: 'Compare with…', enabled: count > 1, click: send('compare-tabs') },
     { type: 'separator' },
     { label: 'Copy Path', click: () => clipboard.writeText(tabPath) },
     { label: 'Show in Folder', click: () => shell.showItemInFolder(tabPath) },
@@ -569,22 +603,108 @@ function showTabContextMenu(state, { index, count, path: tabPath }) {
   ]).popup({ window: state.win });
 }
 
+// ---------------------------------------------------------------- folders (File > Open Folder…)
+/** Open `root` as this window's folder: scan it, watch it for changes, remember it. */
+async function setFolder(state, root) {
+  state.folder?.unwatch?.();
+  state.folder = null;
+  if (!root) { snapshot(state); persistSession(); return null; }
+  const stat = await fs.promises.stat(root).catch(() => null);
+  if (!stat?.isDirectory()) return null;
+  const scan = await scanFolder(root);
+  const folder = { root, scan, unwatch: null };
+  state.folder = folder;
+  let timer = null;
+  try {
+    const watcher = fs.watch(root, { recursive: true }, () => {
+      clearTimeout(timer);
+      timer = setTimeout(async () => {
+        if (state.folder !== folder || state.win.isDestroyed()) return;
+        folder.scan = await scanFolder(root);
+        state.win.webContents.send('folder:changed', folderInfo(folder.scan));
+      }, 700);
+    });
+    watcher.on('error', () => {});
+    folder.unwatch = () => { clearTimeout(timer); watcher.close(); };
+  } catch { /* watching isn't available everywhere; the Refresh button still works */ }
+  const recentFolders = [root, ...settings.get().recentFolders.filter((f) => f.toLowerCase() !== root.toLowerCase())];
+  settings.update({ recentFolders });
+  snapshot(state);
+  persistSession();
+  rebuildMenu();
+  return folderInfo(scan);
+}
+
+const folderInfo = (scan) => ({ root: scan.root, name: scan.name, tree: scan.tree, count: scan.files.length, truncated: scan.truncated });
+
+async function openFolderDialog(state) {
+  const res = await dialog.showOpenDialog(state.win, {
+    title: 'Open Folder', properties: ['openDirectory'],
+    defaultPath: settings.get().recentFolders[0] || app.getPath('documents'),
+  });
+  if (res.canceled || !res.filePaths[0]) return null;
+  const info = await setFolder(state, res.filePaths[0]);
+  if (info) state.win.webContents.send('folder:opened', info);
+  return info;
+}
+
+async function openRecentFolder(state, root) {
+  if (!state) return;
+  const info = await setFolder(state, root);
+  if (info) state.win.webContents.send('folder:opened', info);
+  else state.win.webContents.send('doc:error', { message: `Folder not found:\n${root}` });
+}
+
 // ---------------------------------------------------------------- IPC
 // Every handler validates its input: the page renders untrusted documents.
 const isStr = (v, max = 8192) => typeof v === 'string' && v.length > 0 && v.length <= max;
 
 function registerIpc() {
-  ipcMain.handle('app:init', (e) => {
+  ipcMain.handle('app:init', async (e) => {
     const st = stateFor(e);
-    const startup = st ? st.startup : { tabs: [], active: 0 };
-    if (st) st.startup = { tabs: [], active: 0 };
+    const startup = st ? st.startup : { tabs: [], active: 0, folder: null };
+    if (st) st.startup = { tabs: [], active: 0, folder: null };
+    const folder = st && startup.folder ? await setFolder(st, startup.folder) : null;
     return {
       settings: rendererSettings(),
       platform: process.platform,
       version: app.getVersion(),
-      startup: { ...startup, tabs: startup.tabs.map((t) => ({ path: t.path, scroll: t.scroll ?? settings.get().positions[t.path] ?? 0 })) },
+      startup: { ...startup, folder, tabs: startup.tabs.map((t) => ({ path: t.path, scroll: t.scroll ?? settings.get().positions[t.path] ?? 0 })) },
       update: updater.status,
     };
+  });
+
+  // ---- folders: only the folder the user opened in this window can be listed or searched
+  ipcMain.handle('folder:open', (e) => { const st = stateFor(e); return st ? openFolderDialog(st) : null; });
+  ipcMain.handle('folder:close', (e) => { const st = stateFor(e); if (st) setFolder(st, null); });
+  ipcMain.handle('folder:refresh', async (e) => {
+    const st = stateFor(e);
+    if (!st?.folder) return null;
+    st.folder.scan = await scanFolder(st.folder.root);
+    return folderInfo(st.folder.scan);
+  });
+  ipcMain.handle('folder:search', async (e, query) => {
+    const st = stateFor(e);
+    if (!st?.folder || !isStr(query, 200)) return { results: [], total: 0, truncated: false };
+    return searchFolder(st.folder.scan, query);
+  });
+  ipcMain.handle('doc:pick', async (e) => {
+    const st = stateFor(e);
+    const files = await showOpenDialog(st?.win);
+    if (!files[0]) return null;
+    try { return { doc: await loadDoc(files[0], { remember: false }) }; } catch (err) { return { error: errorMessage(err, files[0]) }; }
+  });
+
+  // ---- private highlights & bookmarks (stored by the app, never in the file)
+  ipcMain.handle('annotations:get', (_e, p) => (isStr(p, 4096) && isMarkdownPath(p) ? annotations.get(p) : []));
+  ipcMain.handle('annotations:set', (_e, p, list) => (isStr(p, 4096) && isMarkdownPath(p) && Array.isArray(list) ? annotations.set(p, list) : []));
+  ipcMain.handle('bookmarks:toggle', (_e, p) => {
+    if (!isStr(p, 4096) || !isMarkdownPath(p)) return settings.get().bookmarks;
+    const list = settings.get().bookmarks;
+    const has = list.some((b) => b.toLowerCase() === p.toLowerCase());
+    settings.update({ bookmarks: has ? list.filter((b) => b.toLowerCase() !== p.toLowerCase()) : [p, ...list] });
+    broadcastSettings();
+    return settings.get().bookmarks;
   });
 
   ipcMain.handle('doc:read', async (e, p, opts = {}) => {
@@ -724,6 +844,7 @@ app.whenReady().then(() => {
   settings = new Settings(app.getPath('userData'));
   updater = new Updater(onUpdateStatus);
   editing = new Editing({ settings, dialog, backupDir: backupDir(), defaultDir: app.getPath('documents') });
+  annotations = new AnnotationStore(app.getPath('userData'));
   // Documents never need camera, mic, notifications, etc.; only clipboard writes for "Copy".
   session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));
   nativeTheme.on('updated', () => { if (settings.get().theme === 'system') broadcastSettings(); });
@@ -735,7 +856,7 @@ app.whenReady().then(() => {
   if (files.length) {
     createWindow({ tabs: files.map((p) => ({ path: p })) });
   } else if (saved.restoreSession && saved.session.length) {
-    for (const w of saved.session) createWindow({ tabs: w.tabs, active: w.active, bounds: w.bounds });
+    for (const w of saved.session) createWindow({ tabs: w.tabs, active: w.active, bounds: w.bounds, folder: w.folder });
   } else {
     createWindow();
   }
@@ -753,6 +874,7 @@ app.on('before-quit', () => {
 app.on('will-quit', () => {
   persistSession();
   settings?.flush();
+  annotations?.flush();
 });
 app.on('window-all-closed', () => {
   if (isMac) return;
