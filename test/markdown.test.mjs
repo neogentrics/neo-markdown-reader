@@ -29,6 +29,7 @@ test('relative and Windows-style image paths resolve against the document folder
   assert.match(html, /src="https:\/\/x.org\/y.png"/);
   assert.match(html, /src="file:\/\/\/C:\/pics\/z.png"/);
   assert.equal(resolveMediaUrl('#anchor', BASE), '#anchor');
+  assert.doesNotMatch(html, /loading="lazy"/, 'local images must load eagerly so they appear without scrolling');
 });
 
 test('headings get GitHub-style ids and build the outline', () => {

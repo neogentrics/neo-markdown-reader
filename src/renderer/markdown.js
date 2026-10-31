@@ -143,7 +143,6 @@ export function createRenderer(window) {
       node.setAttribute(attr, resolveMediaUrl(node.getAttribute(attr), currentBase));
     }
     if (node.nodeName === 'IMG') {
-      node.setAttribute('loading', 'lazy');
       node.setAttribute('decoding', 'async');
     }
     if (node.nodeName === 'A' && node.hasAttribute('target')) node.removeAttribute('target');
