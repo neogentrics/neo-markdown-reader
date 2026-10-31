@@ -22,8 +22,8 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v1.0](#v10--the-reader) | The reader | ✅ Released |
 | [v1.1](#v11--everyday-comfort) | Everyday comfort | ✅ Released (1.1.0) |
 | [v1.2](#v12--create--edit) | Create & edit | ✅ Released (1.2.0) |
-| [v1.3](#v13--compare--organize) | Compare & organize | ✅ Done — ships in 1.3.0 |
-| [v1.4](#v14--publish-beautifully) | Publish beautifully | ⏭️ Next |
+| [v1.3](#v13--compare--organize) | Compare & organize | ✅ Released ([1.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.3.0)) |
+| [v1.4](#v14--publish-beautifully) | Publish beautifully | 🚧 In progress |
 | [v2.0](#v20--power-features) | Power features | Planned |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Planned |
 
@@ -64,7 +64,7 @@ updates itself from here on.
 
 ## v1.3 — Compare & organize
 
-✅ **Done — ships in 1.3.0.**
+✅ **Released in [1.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.3.0).**
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -74,6 +74,8 @@ updates itself from here on.
 | ✅ Bookmarks & highlights | M | Private highlights and notes, stored by the app — never written into the file. |
 
 ## v1.4 — Publish beautifully
+
+🚧 **In progress.**
 
 | Feature | Size | Details |
 |---|:-:|---|

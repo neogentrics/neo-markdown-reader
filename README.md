@@ -158,10 +158,10 @@ On macOS use `Cmd` instead of `Ctrl`.
 
 - **v1.1** added tabs, a proper menu bar, session restore, automatic updates, an image viewer and rich copy.
 - **v1.2** added new documents, templates and editing with a permission step.
-- **v1.3, Compare & organize** adds folders, search across files, Quick Open, split view, Compare,
+- **v1.3** added folders, search across files, Quick Open, split view, Compare,
   highlights, notes and bookmarks.
 
-Next up is **v1.4, Publish beautifully**: a PDF designer with cover and contents pages, Word and HTML
+Now in progress is **v1.4, Publish beautifully**: a PDF designer with cover and contents pages, Word and HTML
 export, and presentation mode. Later releases add sandboxed code running and password-locked files.
 
 **[See the full roadmap →](ROADMAP.md)**
