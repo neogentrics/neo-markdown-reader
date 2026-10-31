@@ -10,6 +10,8 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
+**[Features](#features)** · **[Install](#install-windows)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
 ![License](https://img.shields.io/badge/license-proprietary-lightgrey)
@@ -82,6 +84,14 @@ macOS (`.dmg`) and Linux (`.AppImage`) builds are published on the same Releases
 | `Alt` | Show the menu bar |
 
 On macOS use `Cmd` instead of `Ctrl`.
+
+## Roadmap
+
+Next up is **v1.1, Everyday comfort**: an always-visible menu bar, tabs (with *Move to New Window*),
+restoring your last session, automatic updates, an image viewer and rich copy. Later releases add
+editing with permission, side-by-side compare, a PDF designer, and sandboxed code running.
+
+**[See the full roadmap →](ROADMAP.md)**
 
 ## Building from source
 
