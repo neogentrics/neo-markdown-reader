@@ -35,6 +35,14 @@ contextBridge.exposeInMainWorld('reader', {
   // find
   find: invoke('find:start'),
   stopFind: invoke('find:stop'),
+  // editing (every write is checked and performed by the main process)
+  requestEdit: invoke('edit:request'),
+  save: invoke('doc:save'),
+  saveAs: invoke('doc:save-as'),
+  confirmUnsaved: invoke('dialog:unsaved'),
+  listGrants: invoke('grants:list'),
+  revokeGrant: invoke('grants:revoke'),
+  openBackups: invoke('backups:open'),
   // updates
   installUpdate: invoke('update:install'),
   openUpdatePage: invoke('update:open-page'),

@@ -35,7 +35,7 @@ test('relative and Windows-style image paths resolve against the document folder
 test('headings get GitHub-style ids and build the outline', () => {
   const { toc, html, title } = render('# Hello World!\n\n## Step 1: Install\n\n### `code` heading\n\n## Step 1: Install');
   assert.deepEqual(toc.map((h) => h.id), ['hello-world', 'step-1-install', 'code-heading', 'step-1-install-1']);
-  assert.match(html, /<h2 id="step-1-install">/);
+  assert.match(html, /<h2 id="step-1-install" data-line="2">/);      // data-line drives editor/preview scroll sync
   assert.equal(title, 'Hello World!');
   assert.equal(slugify('Ünïcode Wörds & Stuff'), 'ünïcode-wörds--stuff');
 });

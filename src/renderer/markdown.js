@@ -78,6 +78,13 @@ function buildMarkdownIt(state) {
     .use(alerts)
     .use(texmath, { engine: katex, delimiters: ['dollars', 'beg_end'], katexOptions: { throwOnError: false, output: 'htmlAndMathml' } });
 
+  // Tag block elements with their source line so the editor and preview can scroll together.
+  md.core.ruler.push('source_lines', (state) => {
+    for (const token of state.tokens) {
+      if (token.map && token.nesting === 1 && token.level === 0) token.attrSet('data-line', String(token.map[0]));
+    }
+  });
+
   // Tables get a wrapper so wide tables scroll instead of breaking the page layout.
   md.renderer.rules.table_open = () => '<div class="table-wrap"><table>\n';
   md.renderer.rules.table_close = () => '</table></div>\n';

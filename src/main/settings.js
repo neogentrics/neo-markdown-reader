@@ -15,6 +15,7 @@ const DEFAULTS = Object.freeze({
   recent: [],             // most-recent-first absolute paths
   positions: {},          // path -> scroll ratio (0..1), remembered reading positions
   session: [],            // [{ bounds, tabs: [{ path, scroll }], active }]
+  editGrants: { files: [], folders: [] },   // "Always allow editing" choices; "Just this time" is never saved
   windowBounds: null,
 });
 
@@ -50,8 +51,13 @@ function cleanPositions(obj) {
   return Object.fromEntries(entries.slice(-MAX_POSITIONS).map(([k, v]) => [k, ratio(v)]));
 }
 
+function cleanGrants(g) {
+  const list = (v) => [...new Set((Array.isArray(v) ? v : []).filter(isPath))].slice(0, 500);
+  return { files: list(g?.files), folders: list(g?.folders) };
+}
+
 function sanitize(input) {
-  const s = { ...DEFAULTS, recent: [], positions: {}, session: [] };
+  const s = { ...DEFAULTS, recent: [], positions: {}, session: [], editGrants: { files: [], folders: [] } };
   if (!input || typeof input !== 'object') return s;
   if (THEMES.includes(input.theme)) s.theme = input.theme;
   if (FONTS.includes(input.font)) s.font = input.font;
@@ -62,6 +68,7 @@ function sanitize(input) {
   if (Array.isArray(input.recent)) s.recent = input.recent.filter(isPath).slice(0, MAX_RECENT);
   s.positions = cleanPositions(input.positions);
   s.session = cleanSession(input.session);
+  s.editGrants = cleanGrants(input.editGrants);
   s.windowBounds = cleanBounds(input.windowBounds);
   return s;
 }

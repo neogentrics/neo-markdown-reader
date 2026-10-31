@@ -14,6 +14,9 @@
     <button class="tb-btn tb-primary" id="btn-open" title="Open a Markdown file (Ctrl+O)"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7.5a2 2 0 0 0-1.9 1.4L3 19z"/><path d="M3 19l2.6-7.6A2 2 0 0 1 7.5 10H22l-2.7 7.7a2 2 0 0 1-1.9 1.3z"/></svg><span>Open</span></button>
     <div class="tb-title" id="doc-title" title=""><span class="tb-title-name">Neo Markdown Reader</span><span class="tb-title-meta" id="doc-meta"></span></div>
     <div class="tb-group">
+      <button class="tb-btn tb-save" id="btn-save" title="Save (Ctrl+S)" hidden><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7 3v5h8V3M7 21v-7h10v7"/></svg><span>Save</span></button>
+      <button class="tb-btn tb-edit" id="btn-edit" title="Edit this document (Ctrl+E)" hidden><svg class="ico-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><svg class="ico-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span class="edit-label">Edit</span></button>
+      <span class="tb-sep"></span>
       <button class="tb-btn" id="btn-find" title="Find in document (Ctrl+F)" aria-label="Find"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
       <button class="tb-btn" id="btn-smaller" title="Smaller text (Ctrl+−)" aria-label="Smaller text"><svg viewBox="0 0 24 24"><text x="4" y="17" font-size="11" font-weight="700" fill="currentColor" stroke="none">A</text><path d="M14 12h7"/></svg></button>
       <button class="tb-btn" id="btn-larger" title="Larger text (Ctrl+=)" aria-label="Larger text"><svg viewBox="0 0 24 24"><text x="2" y="19" font-size="15" font-weight="700" fill="currentColor" stroke="none">A</text><path d="M14 12h7M17.5 8.5v7"/></svg></button>
@@ -65,6 +68,40 @@
       <div class="side-foot" id="side-foot"></div>
     </aside>
 
+    <section class="editor-pane" id="editor-pane" hidden aria-label="Editor">
+      <div class="fmt-bar" id="fmt-bar" role="toolbar" aria-label="Formatting">
+        <button data-cmd="h1" title="Heading 1">H1</button>
+        <button data-cmd="h2" title="Heading 2">H2</button>
+        <button data-cmd="h3" title="Heading 3">H3</button>
+        <span class="fmt-sep"></span>
+        <button data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+        <button data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+        <button data-cmd="strike" title="Strikethrough (Ctrl+Shift+X)"><s>S</s></button>
+        <button data-cmd="code" title="Inline code (Ctrl+`)"><code>&lt;/&gt;</code></button>
+        <span class="fmt-sep"></span>
+        <button data-cmd="bullet" title="Bulleted list"><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.3"/><circle cx="5" cy="12" r="1.3"/><circle cx="5" cy="17" r="1.3"/><path d="M9 7h11M9 12h11M9 17h11"/></svg></button>
+        <button data-cmd="numbered" title="Numbered list"><svg viewBox="0 0 24 24"><path d="M10 7h10M10 12h10M10 17h10"/><text x="2.5" y="9" font-size="6" fill="currentColor" stroke="none">1</text><text x="2.5" y="14.5" font-size="6" fill="currentColor" stroke="none">2</text><text x="2.5" y="20" font-size="6" fill="currentColor" stroke="none">3</text></svg></button>
+        <button data-cmd="task" title="Checklist"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="6" height="6" rx="1.2"/><path d="M4.5 8l1.2 1.2L8 6.8M12 8h9M3 15h6v6H3zM12 18h9"/></svg></button>
+        <button data-cmd="quote" title="Quote"><svg viewBox="0 0 24 24"><path d="M5 6v12M9 9h11M9 14h8"/></svg></button>
+        <span class="fmt-sep"></span>
+        <button data-cmd="link" title="Link (Ctrl+K)"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+        <button data-cmd="image" title="Image"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg></button>
+        <button data-cmd="table" title="Table"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M3 15h18M9 5v14M15 5v14"/></svg></button>
+        <button data-cmd="codeblock" title="Code block"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg></button>
+        <button data-cmd="hr" title="Divider line"><svg viewBox="0 0 24 24"><path d="M3 12h18"/></svg></button>
+        <span class="fmt-sep"></span>
+        <button data-cmd="undo" title="Undo (Ctrl+Z)"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+        <button data-cmd="redo" title="Redo (Ctrl+Y)"><svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
+        <span class="fmt-status" id="edit-status"></span>
+      </div>
+      <div class="disk-banner" id="disk-banner" hidden role="alert">
+        <span>This file was changed by another program.</span>
+        <button class="link-btn" id="disk-load">Load that version</button>
+        <button class="link-btn" id="disk-keep">Keep mine</button>
+      </div>
+      <div class="editors" id="editors"></div>
+    </section>
+
     <main class="desk" id="desk">
       <section class="welcome" id="welcome">
         <div class="welcome-card">
@@ -75,7 +112,8 @@
             <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7.5a2 2 0 0 0-1.9 1.4L3 19z"/><path d="M3 19l2.6-7.6A2 2 0 0 1 7.5 10H22l-2.7 7.7a2 2 0 0 1-1.9 1.3z"/></svg>
             Open a Markdown file
           </button>
-          <p class="welcome-hint">…or drag a <code>.md</code> file anywhere onto this window.</p>
+          <p class="welcome-hint">…or drag a <code>.md</code> file anywhere onto this window, or
+            <button class="link-btn" id="welcome-new">start a new document</button>.</p>
           <div class="recent" id="recent-wrap" hidden>
             <div class="recent-head"><span>Recent files</span><button class="link-btn" id="recent-clear">Clear</button></div>
             <ul id="recent-list"></ul>
@@ -94,6 +132,16 @@
 
   <div class="drop-overlay" id="drop-overlay" hidden><div>Drop to open</div></div>
   <div class="toast" id="toast" hidden></div>
+  <dialog class="shortcuts grants" id="grants">
+    <h3>Editing permissions</h3>
+    <p class="grants-intro">Files and folders you chose <em>Always allow</em> for. Everything else asks first; <em>Just this time</em> ends when you close the tab.</p>
+    <div id="grants-body"></div>
+    <div class="grants-actions">
+      <button class="link-btn" id="grants-backups">Open backups folder</button>
+      <button class="big-btn sm" id="grants-close">Close</button>
+    </div>
+  </dialog>
+
   <dialog class="shortcuts" id="shortcuts">
     <h3>Keyboard shortcuts</h3>
     <table>
@@ -104,6 +152,10 @@
       <tr><td><kbd>Ctrl</kbd> <kbd>1</kbd>…<kbd>9</kbd></td><td>Jump to tab</td></tr>
       <tr><td><kbd>Ctrl</kbd> + click a link</td><td>Open linked document in a new tab</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>C</kbd></td><td>Copy as formatted text</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>N</kbd></td><td>New document</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>E</kbd></td><td>Edit / finish editing</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>S</kbd> / <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>S</kbd></td><td>Save / Save As</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>B</kbd> · <kbd>I</kbd> · <kbd>K</kbd> (while editing)</td><td>Bold · italic · link</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>F</kbd></td><td>Find in document</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>B</kbd></td><td>Toggle outline</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>=</kbd> / <kbd>−</kbd> / <kbd>0</kbd></td><td>Text size</td></tr>
@@ -111,7 +163,7 @@
       <tr><td><kbd>Ctrl</kbd> <kbd>P</kbd></td><td>Print</td></tr>
       <tr><td><kbd>F5</kbd></td><td>Reload file</td></tr>
       <tr><td><kbd>Alt</kbd> <kbd>←</kbd></td><td>Back to previous document</td></tr>
-      <tr><td><kbd>Ctrl</kbd> <kbd>N</kbd></td><td>New window</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>N</kbd></td><td>New window</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>W</kbd></td><td>Close window</td></tr>
       <tr><td><kbd>F1</kbd></td><td>This list</td></tr>
       <tr><td>Right-click a tab</td><td>Move to new window, duplicate, close others…</td></tr>

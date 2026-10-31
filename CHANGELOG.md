@@ -4,6 +4,32 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-10-31
+
+### Added
+- **New documents.** *File → New Document* (`Ctrl+N`) and *New from Template*: meeting notes, README,
+  checklist, report with a title page. New documents open in the editor; saving asks where. *New Window*
+  moves to `Ctrl+Shift+N`.
+- **Editing with permission.** Documents open read-only. **Edit** (`Ctrl+E`) asks first:
+  - **Just this time** (the default; ends when the tab closes), **Always for this file**, or
+    **Always for this folder**.
+  - "Always" choices can be reviewed and removed under *Edit → Editing Permissions…*.
+  - Files marked read-only by Windows stay locked.
+- **Editor beside the live preview.**
+  - Markdown on the left, the formatted page on the right, scrolling together.
+  - Formatting toolbar: headings, bold, italic, strikethrough, code, lists, checklists, quotes, links,
+    images, tables, code blocks, dividers.
+  - Shortcuts (`Ctrl+B`/`I`/`K`), undo/redo, find & replace, and spell check with suggestions on
+    right-click.
+- **Safe saving.**
+  - *Save* (`Ctrl+S`) and *Save As* (`Ctrl+Shift+S`); `.txt` files can be saved as `.md`.
+  - The original is backed up before the first save (*Edit → Open Backups Folder*).
+  - If another program changed the file while you edited, the app asks before replacing those changes,
+    and a banner offers to load their version.
+  - The file's original line endings and byte-order mark are preserved.
+  - Closing a tab or window with unsaved changes asks first.
+- Edit menu: Undo, Redo, Cut, Paste. Right-click in the editor: spelling suggestions and clipboard actions.
+
 ## [1.1.0] - 2026-10-31
 
 ### Added
