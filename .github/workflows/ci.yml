@@ -55,5 +55,6 @@ jobs:
         with:
           name: NeoMarkdownReader-windows-${{ github.sha }}
           path: |
-            release/*.exe
+            release/NeoMarkdownReader-*-Setup.exe
+            release/NeoMarkdownReader-*-Portable.exe
           retention-days: 14

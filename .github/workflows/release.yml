@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: windows, os: windows-latest, script: dist:win,   files: 'release/*.exe' }
+          - { name: windows, os: windows-latest, script: dist:win,   files: "release/NeoMarkdownReader-*-Setup.exe\nrelease/NeoMarkdownReader-*-Portable.exe" }
           - { name: macos,   os: macos-latest,   script: dist:mac,   files: 'release/*.dmg' }
           - { name: linux,   os: ubuntu-latest,  script: dist:linux, files: 'release/*.AppImage' }
     steps:
