@@ -106,7 +106,7 @@ function fmValue(v) {
 }
 
 function renderFrontMatter(data) {
-  const { title, subtitle, description, author, date, tags, ...rest } = data;
+  const { title, subtitle, description, author, date, tags, logo, ...rest } = data;   // logo: used on PDF cover pages
   let out = '<header class="doc-meta">';
   if (title) out += `<div class="doc-meta-title">${escapeHtml(fmValue(title))}</div>`;
   if (subtitle || description) out += `<div class="doc-meta-sub">${escapeHtml(fmValue(subtitle || description))}</div>`;

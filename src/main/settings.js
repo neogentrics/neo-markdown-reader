@@ -18,8 +18,24 @@ const DEFAULTS = Object.freeze({
   editGrants: { files: [], folders: [] },   // "Always allow editing" choices; "Just this time" is never saved
   bookmarks: [],          // starred files (shown in the Files panel and Quick Open)
   recentFolders: [],      // most-recent-first folders opened with File > Open Folder
+  exportOptions: null,    // last choices in the PDF designer (see EXPORT_DEFAULTS)
+  brand: null,            // custom theme: accent colour, fonts, brand stylesheet (see BRAND_DEFAULTS)
   windowBounds: null,
 });
+
+const EXPORT_DEFAULTS = Object.freeze({
+  paper: 'auto',          // auto (Letter in the US & Canada, A4 elsewhere) | letter | a4 | legal | a5
+  margins: 'normal',      // narrow | normal | wide
+  cover: true,            // title page from the front matter
+  contents: true,         // table-of-contents page with page numbers
+  header: true,           // document title at the top of each page
+  pageNumbers: true,      // "3 / 12" at the bottom of each page
+  chapterBreaks: false,   // start every top-level heading on a new page
+  colors: 'paper',        // paper (always light) | theme (the theme you read in)
+});
+const EXPORT_CHOICES = { paper: ['auto', 'letter', 'a4', 'legal', 'a5'], margins: ['narrow', 'normal', 'wide'], colors: ['paper', 'theme'] };
+
+const BRAND_DEFAULTS = Object.freeze({ accent: '', bodyFont: '', headingFont: '', codeFont: '', stylesheet: '' });
 
 const THEMES = ['system', 'light', 'dark', 'sepia'];
 const FONTS = ['sans', 'serif'];
@@ -58,8 +74,33 @@ function cleanGrants(g) {
   return { files: list(g?.files), folders: list(g?.folders) };
 }
 
+function cleanExportOptions(o) {
+  const out = { ...EXPORT_DEFAULTS };
+  if (!o || typeof o !== 'object') return out;
+  for (const [k, list] of Object.entries(EXPORT_CHOICES)) if (list.includes(o[k])) out[k] = o[k];
+  for (const k of ['cover', 'contents', 'header', 'pageNumbers', 'chapterBreaks']) if (typeof o[k] === 'boolean') out[k] = o[k];
+  return out;
+}
+
+/** A font family name safe to put in CSS: letters, digits, spaces and a few punctuation marks. */
+function cleanFont(v) {
+  if (typeof v !== 'string') return '';
+  return v.replace(/[^\p{L}\p{N} ._-]/gu, '').replace(/\s+/g, ' ').trim().slice(0, 60);
+}
+
+function cleanBrand(b) {
+  const out = { ...BRAND_DEFAULTS };
+  if (!b || typeof b !== 'object') return out;
+  if (typeof b.accent === 'string' && /^#[0-9a-f]{6}$/i.test(b.accent)) out.accent = b.accent.toLowerCase();
+  for (const k of ['bodyFont', 'headingFont', 'codeFont']) out[k] = cleanFont(b[k]);
+  if (isPath(b.stylesheet) && /\.css$/i.test(b.stylesheet)) out.stylesheet = b.stylesheet;
+  return out;
+}
+
 function sanitize(input) {
   const s = { ...DEFAULTS, recent: [], positions: {}, session: [], editGrants: { files: [], folders: [] }, bookmarks: [], recentFolders: [] };
+  s.exportOptions = cleanExportOptions(null);
+  s.brand = cleanBrand(null);
   if (!input || typeof input !== 'object') return s;
   if (THEMES.includes(input.theme)) s.theme = input.theme;
   if (FONTS.includes(input.font)) s.font = input.font;
@@ -73,6 +114,8 @@ function sanitize(input) {
   s.editGrants = cleanGrants(input.editGrants);
   if (Array.isArray(input.bookmarks)) s.bookmarks = [...new Set(input.bookmarks.filter(isPath))].slice(0, 300);
   if (Array.isArray(input.recentFolders)) s.recentFolders = [...new Set(input.recentFolders.filter(isPath))].slice(0, 10);
+  s.exportOptions = cleanExportOptions(input.exportOptions);
+  s.brand = cleanBrand(input.brand);
   s.windowBounds = cleanBounds(input.windowBounds);
   return s;
 }
@@ -112,4 +155,4 @@ class Settings {
   }
 }
 
-module.exports = { Settings, sanitize, DEFAULTS };
+module.exports = { Settings, sanitize, DEFAULTS, EXPORT_DEFAULTS, BRAND_DEFAULTS, cleanExportOptions, cleanBrand, cleanFont };

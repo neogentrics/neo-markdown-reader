@@ -24,3 +24,14 @@ application (`resources/app.asar/dist/app.js.LEGAL.txt` and the Electron `LICENS
 | mermaid | 12.2.0 | MIT | https://github.com/mermaid-js/mermaid |
 | dompurify | 3.4.17 | (MPL-2.0 OR Apache-2.0) | https://github.com/cure53/DOMPurify |
 | js-yaml | 5.5.0 | MIT | https://github.com/nodeca/js-yaml |
+| electron-updater | 6.8.11 | MIT | https://github.com/electron-userland/electron-builder |
+| CodeMirror 6 (`codemirror`, `@codemirror/*`, `@lezer/*`) | 6.x | MIT | https://codemirror.net |
+| diff (jsdiff) | 9.0.0 | BSD-3-Clause | https://github.com/kpdecker/jsdiff |
+| pdf-lib (with `@pdf-lib/standard-fonts`, `@pdf-lib/upng`, `pako`) | 1.17.1 | MIT (pako: MIT AND Zlib) | https://pdf-lib.js.org |
+| docx | 9.15.1 | MIT | https://docx.js.org |
+| fflate | 0.8.3 | MIT | https://github.com/101arrowz/fflate |
+| tslib | 2.9.1 | 0BSD | https://www.typescriptlang.org/ |
+| nanoid | 6.0.2 | MIT | https://github.com/ai/nanoid |
+
+The PDF and Word export libraries are bundled into `resources/app.asar/dist/export-tools.cjs`; their
+license texts are in `export-tools.cjs.LEGAL.txt` next to it.

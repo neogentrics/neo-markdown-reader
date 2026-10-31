@@ -49,3 +49,19 @@ Markdown files are treated as **untrusted input**:
   that folder; it never follows into `node_modules` or hidden folders and skips files over 2 MB.
 - Highlights and notes are stored in the app's data folder (`annotations.json`), validated and size-capped.
   They are never written into documents.
+
+### Exports, presentation and themes (since 1.4)
+
+- Exports are built by the main process. PDFs, and the pictures of diagrams and equations in Word documents,
+  are made in hidden windows with **JavaScript disabled**. These windows can't navigate or open other
+  windows, and they load only the already-sanitized page content and the app's own stylesheet. Temporary
+  files are deleted afterwards.
+- Exports are only written where the user chose in the native save dialog.
+- Exported web pages contain no scripts. Local images are embedded only if they're image files the
+  document already showed.
+- For Word export, web images the page already displayed are downloaded again by the main process
+  (10-second timeout, 25 MB limit) so they can be embedded.
+- A brand stylesheet is chosen in the native open dialog and read as text (1 MB limit). It is applied as
+  CSS and never run as code. Font names are reduced to letters, digits and a few punctuation marks
+  before they're used in CSS.
+- Private highlights and notes are removed from every export.

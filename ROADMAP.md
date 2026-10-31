@@ -23,8 +23,8 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v1.1](#v11--everyday-comfort) | Everyday comfort | ✅ Released (1.1.0) |
 | [v1.2](#v12--create--edit) | Create & edit | ✅ Released (1.2.0) |
 | [v1.3](#v13--compare--organize) | Compare & organize | ✅ Released ([1.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.3.0)) |
-| [v1.4](#v14--publish-beautifully) | Publish beautifully | 🚧 In progress |
-| [v2.0](#v20--power-features) | Power features | Planned |
+| [v1.4](#v14--publish-beautifully) | Publish beautifully | ✅ Done — ships in 1.4.0 |
+| [v2.0](#v20--power-features) | Power features | ⏭️ Next |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Planned |
 
 ## v1.0 — The reader
@@ -75,14 +75,14 @@ updates itself from here on.
 
 ## v1.4 — Publish beautifully
 
-🚧 **In progress.**
+✅ **Done — ships in 1.4.0.**
 
 | Feature | Size | Details |
 |---|:-:|---|
-| PDF designer | M | Letter or A4, margins, cover page from front matter, table-of-contents page, headers and footers with page numbers. |
-| More export formats | M | Word (`.docx`), self-contained web page (`.html`), plain text. |
-| Presentation mode | S | Full-screen slides, using `---` as slide breaks. |
-| Custom themes | S | Your own accent color and fonts, or a brand stylesheet (e.g. a Neo Gentrics house style). |
+| ✅ PDF designer | M | Letter, A4, Legal or A5, three margin sizes, a cover page from the front matter (with an optional logo), a contents page with real page numbers, title header and page-number footer, chapters on new pages, PDF bookmarks and document properties. |
+| ✅ More export formats | M | Word (`.docx`) with real headings, lists, tables, links, images and pictures of diagrams and equations; a self-contained web page (`.html`) with no scripts; plain text. |
+| ✅ Presentation mode | S | Full-screen slides, using `---` as slide breaks (or the main headings), with the front matter as a title slide. |
+| ✅ Custom themes | S | Your own accent colour and fonts, or a brand stylesheet (e.g. a Neo Gentrics house style). Exports use them too. |
 
 ## v2.0 — Power features
 

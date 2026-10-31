@@ -1,7 +1,7 @@
 {
   "name": "neo-markdown-reader",
   "productName": "Neo Markdown Reader",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A beautiful, distraction-free Markdown reader for Windows, macOS and Linux.",
   "author": "Neo Gentrics <author@neogentrics.com>",
   "license": "SEE LICENSE IN LICENSE",
@@ -16,7 +16,7 @@
     "dist:linux": "npm run build:renderer && electron-builder --linux AppImage --publish never",
     "dev": "node scripts/build-renderer.mjs && electron . samples/showcase.md",
     "icons": "node scripts/make-icons.mjs",
-    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs"
+    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs"
   },
   "build": {
     "appId": "com.neogentrics.markdownreader",
@@ -84,7 +84,7 @@
       ],
       "artifactName": "NeoMarkdownReader-${version}-linux-${arch}.${ext}"
     },
-    "copyright": "Copyright \u00a9 2026 Neo Gentrics. All rights reserved.",
+    "copyright": "Copyright © 2026 Neo Gentrics. All rights reserved.",
     "dmg": {
       "artifactName": "NeoMarkdownReader-${version}-mac-${arch}.dmg"
     },
@@ -107,10 +107,12 @@
     "@codemirror/view": "^6.43.15",
     "codemirror": "^6.0.2",
     "diff": "^9.0.0",
+    "docx": "^9.15.1",
     "dompurify": "^3.4.17",
     "electron": "^45.2.1",
     "electron-builder": "^26.18.0",
     "esbuild": "^0.28.2",
+    "fflate": "^0.8.3",
     "highlight.js": "^11.12.0",
     "js-yaml": "^5.5.0",
     "jsdom": "^30.1.3",
@@ -128,6 +130,7 @@
     "markdown-it-task-lists": "^2.1.1",
     "markdown-it-texmath": "^1.0.0",
     "mermaid": "^12.2.0",
+    "pdf-lib": "^1.17.1",
     "playwright-core": "^1.64.1"
   },
   "homepage": "https://github.com/neogentrics/neo-markdown-reader",

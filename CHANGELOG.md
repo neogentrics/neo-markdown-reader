@@ -4,6 +4,33 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2026-10-31
+
+### Added
+- **PDF designer** (*File → Export → PDF…*, `Ctrl+Shift+E`). Choose:
+  - paper (Letter, A4, Legal, A5, or *Auto* by country) and margins;
+  - a **cover page** from the front matter (`title`, `subtitle`, `author`, `date`, `tags`, `organization`,
+    `version`, `logo`);
+  - a **contents page** with real page numbers and clickable entries;
+  - a title header and page-number footer;
+  - chapters on new pages, and paper or on-screen colours.
+
+  A live sketch previews the first pages. PDFs get bookmarks for every heading and their title, author and
+  keywords set. Choices are remembered.
+- **Export to Word** (`.docx`): headings, lists, task lists, tables, links (including links to headings),
+  images, code and page numbers. Mermaid diagrams and display equations are included as pictures.
+- **Export as a web page** (`.html`): a single file with styles, images and maths fonts built in, and no scripts.
+- **Export as plain text** (`.txt`).
+- **Presentation mode** (*View → Present as Slides*, `Ctrl+Shift+P`): full-screen slides split on `---` (or
+  at the main headings), the front matter as a title slide, keyboard and click navigation, and text that
+  shrinks to fit.
+- **Customize theme** (*View → Customize Theme…*): accent colour, text/heading/code fonts and an optional
+  brand stylesheet. They apply on screen and to every export.
+
+### Changed
+- The toolbar's PDF button opens the PDF designer. *File → Export* replaces *Export as PDF…*.
+- A `logo` front-matter key is no longer listed in the document header (it's used on PDF cover pages).
+
 ## [1.3.0] - 2026-10-31
 
 ### Added
