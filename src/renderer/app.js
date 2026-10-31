@@ -1,6 +1,7 @@
 // Renderer: tabs, toolbar, outline, find, drag & drop, image viewer.
 // All OS access goes through window.reader (see src/main/preload.js).
 import { createRenderer } from './markdown.js';
+import { createEditMode } from './editmode.js';
 import './styles/app.css';
 
 const api = window.reader;
@@ -26,6 +27,7 @@ const tabs = [];
 let activeId = null;
 const closedTabs = [];       // [{ path, scroll, index }] most recent last
 let nextId = 1;
+let editMode = null;         // created once the tab functions below exist (see bottom of file)
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -66,9 +68,10 @@ document.addEventListener('keydown', (e) => {
   if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) pendingRestore = null;
 });
 
-function renderInto(tab, doc) {
+/** Render `doc` into the tab's page. With preview=true (live preview while editing) the tab keeps its saved doc. */
+function renderInto(tab, doc, { preview = false } = {}) {
   const result = render(doc.content, { baseUrl: doc.baseUrl });
-  tab.doc = doc;
+  if (!preview) tab.doc = doc;
   tab.result = result;
   tab.el.innerHTML = result.html;
   enhance(tab.el);
@@ -87,6 +90,7 @@ function makeTabButton(tab) {
   btn.querySelector('.tab-close').addEventListener('click', (e) => { e.stopPropagation(); closeTab(tab.id); });
   btn.addEventListener('contextmenu', (e) => {
     e.preventDefault();
+    if (!tab.doc.path) { toast('Save this document first (Ctrl+S)'); return; }
     api.tabContextMenu({ index: tabIndex(tab.id), count: tabs.length, path: tab.doc.path });
   });
   wireTabDrag(btn, tab);
@@ -96,7 +100,10 @@ function makeTabButton(tab) {
 function updateTabButton(tab) {
   const label = tab.doc.name.replace(/\.(md|markdown|mdown|mkdn?|mdwn|mdx|txt)$/i, '');
   tab.btn.querySelector('.tab-label').textContent = label;
-  tab.btn.title = `${tab.result.title && tab.result.title !== label ? tab.result.title + '\n' : ''}${tab.doc.path}`;
+  tab.btn.title = `${tab.result?.title && tab.result.title !== label ? tab.result.title + '\n' : ''}${tab.doc.path || 'Not saved yet'}${tab.dirty ? '\nUnsaved changes' : ''}`;
+  tab.btn.classList.toggle('dirty', !!tab.dirty);
+  tab.btn.classList.toggle('untitled', !!tab.untitled);
+  if (tab.id === activeId) editMode?.refresh();
 }
 
 /** Open a document in a new tab (or focus the existing tab for the same file). */
@@ -134,6 +141,7 @@ function activate(id) {
   next.btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   if (!els.findBar.hidden) closeFind();
   showActiveDoc();
+  editMode?.show(next);
   // Restore synchronously (reading scrollHeight forces layout): animation frames are paused for
   // windows hidden behind others on macOS, and the position must not wait for the window to show.
   restoreScroll(next);
@@ -141,12 +149,22 @@ function activate(id) {
   syncSoon();
 }
 
-function closeTab(id) {
-  const i = tabIndex(id);
-  if (i < 0) return;
+/** Close a tab, asking first if it holds unsaved edits. Resolves to false if the user cancelled. */
+async function closeTab(id) {
+  let i = tabIndex(id);
+  if (i < 0) return true;
   const tab = tabs[i];
+  if (editMode.hasUnsaved(tab)) {
+    if (tab.id !== activeId) activate(tab.id);
+    const choice = await api.confirmUnsaved({ name: tab.doc.name });
+    if (choice === 'cancel') return false;
+    if (choice === 'save' && !(await editMode.save(tab))) return false;
+  }
+  if (tab.editing) await editMode.exit(tab, { force: true });
+  i = tabIndex(id);
+  if (i < 0) return true;
   tab.scroll = currentScroll(tab);
-  closedTabs.push({ path: tab.doc.path, scroll: tab.scroll, index: i });
+  if (tab.doc.path) closedTabs.push({ path: tab.doc.path, scroll: tab.scroll, index: i });
   if (closedTabs.length > 25) closedTabs.shift();
   tabs.splice(i, 1);
   tab.el.remove();
@@ -154,10 +172,11 @@ function closeTab(id) {
   if (tab.id === activeId) {
     activeId = null;
     const neighbor = tabs[i] || tabs[i - 1];
-    if (neighbor) activate(neighbor.id);
+    if (neighbor) activate(neighbor.id); else editMode.show(null);
   }
   updateChrome();
   syncSoon();
+  return true;
 }
 
 async function reopenClosedTab() {
@@ -181,9 +200,10 @@ function moveTab(id, toIndex) {
 async function detachTab(id, at = {}) {
   const tab = tabs.find((t) => t.id === id);
   if (!tab || tabs.length < 2) return;
+  if (tab.editing || !tab.doc.path) { toast('Finish editing (click Done) before moving this tab to another window'); return; }
   const scroll = currentScroll(tab);
   const ok = await api.detachTab({ path: tab.doc.path, scroll, screenX: at.x, screenY: at.y });
-  if (ok) { closeTab(id); closedTabs.pop(); }
+  if (ok && (await closeTab(id))) closedTabs.pop();
 }
 
 /** Show the chrome (title, outline, footer, back) for the active tab, or the welcome screen. */
@@ -193,12 +213,12 @@ function showActiveDoc() {
   const { doc, result } = tab;
   document.title = `${doc.name} — Neo Markdown Reader`;
   els.title.querySelector('.tb-title-name').textContent = result.title && result.title !== doc.name ? result.title : doc.name;
-  els.title.title = doc.path;
+  els.title.title = doc.path || 'Not saved yet';
   els.meta.textContent = result.title && result.title !== doc.name ? doc.name : '';
-  els.back.disabled = tab.history.length === 0;
+  els.back.disabled = tab.history.length === 0 || !!tab.editing;
   buildToc(result.toc);
-  els.sideFoot.innerHTML = `<span>${result.stats.words.toLocaleString()} words</span><span>${result.stats.minutes} min read</span><button class="link-btn" id="reveal">Show in folder</button>`;
-  $('reveal').onclick = () => api.reveal(doc.path);
+  els.sideFoot.innerHTML = `<span>${result.stats.words.toLocaleString()} words</span><span>${result.stats.minutes} min read</span>${doc.path ? '<button class="link-btn" id="reveal">Show in folder</button>' : ''}`;
+  if (doc.path) $('reveal').onclick = () => api.reveal(doc.path);
   updateChrome();
 }
 
@@ -206,6 +226,7 @@ function updateChrome() {
   const has = tabs.length > 0;
   document.body.classList.toggle('has-doc', has);
   els.welcome.hidden = has;
+  editMode?.refresh();
   if (!has) {
     document.title = 'Neo Markdown Reader';
     els.title.querySelector('.tb-title-name').textContent = 'Neo Markdown Reader';
@@ -222,14 +243,21 @@ let syncDue = 0;
 function sendSync() {
   const active = activeTab();
   if (active) active.scroll = currentScroll(active);
+  const saved = tabs.filter((t) => t.doc.path);          // unsaved new documents aren't restored
   api.syncTabs({
-    tabs: tabs.map((t) => ({ path: t.doc.path, scroll: t.scroll })),
-    active: Math.max(0, tabIndex(activeId)),
+    tabs: saved.map((t) => ({ path: t.doc.path, scroll: t.scroll })),
+    active: Math.max(0, saved.indexOf(active)),
     title: active ? active.doc.name : '',
   });
 }
 // Report the final state (e.g. the reading position just scrolled to) the moment the window closes.
-window.addEventListener('beforeunload', () => { clearTimeout(syncTimer); syncTimer = 0; sendSync(); });
+window.addEventListener('beforeunload', (e) => {
+  clearTimeout(syncTimer);
+  syncTimer = 0;
+  sendSync();
+  // Unsaved edits: refuse to unload; the main process then asks whether to close anyway.
+  if (editMode && tabs.some((t) => editMode.hasUnsaved(t))) { e.preventDefault(); e.returnValue = ''; }
+});
 /** Report open tabs to the main process. A later, longer delay (scrolling) never postpones a sooner one. */
 function syncSoon(delay = 120) {
   const due = Date.now() + delay;
@@ -271,7 +299,8 @@ async function goBack() {
 
 async function reloadActive() {
   const tab = activeTab();
-  if (!tab) return;
+  if (!tab || !tab.doc.path) return;
+  if (tab.editing) { toast('You’re editing this document — save it, or click Done first'); return; }
   const res = await api.readDoc(tab.doc.path, { remember: false });
   if (res.error) { toast(res.error); return; }
   await refreshTab(tab, res.doc);
@@ -427,7 +456,8 @@ async function followLink(a, { newTab = false } = {}) {
   if (href.startsWith('#')) { scrollToId(href.slice(1)); return; }
   const res = await api.resolveLink(href, tab.doc.path);
   if (res.kind === 'doc') {
-    if (newTab) await openInTab(res.doc, { activate: true, duplicate: false, scroll: 0 });
+    // While editing, a link never navigates the tab away from the editor: it opens in a new tab.
+    if (newTab || tab.editing) await openInTab(res.doc, { activate: true, duplicate: false, scroll: 0 });
     else await navigateTab(tab, res.doc);
   } else if (res.kind === 'error') {
     toast(res.message);
@@ -614,6 +644,7 @@ $('btn-open').onclick = () => api.openDialog();
 $('tab-add').onclick = () => api.openDialog();
 $('welcome-open').onclick = () => api.openDialog();
 $('welcome-showcase').onclick = async () => { const res = await api.showcase(); if (res?.doc) openInTab(res.doc, { scroll: 0 }); };
+$('welcome-new').onclick = () => editMode.newDocument('blank');
 $('recent-clear').onclick = () => api.clearRecent();
 $('btn-back').onclick = () => goBack();
 $('btn-toc').onclick = () => api.setSettings({ showToc: !settings.showToc });
@@ -655,8 +686,8 @@ api.onCommand(({ cmd, arg }) => {
     case 'shortcuts': if (!els.shortcuts.open) els.shortcuts.showModal(); break;
     case 'back': goBack(); break;
     case 'reload': reloadActive(); break;
-    case 'reveal': if (activeTab()) api.reveal(activeTab().doc.path); break;
-    case 'copy-path': if (activeTab()) { api.copyText(activeTab().doc.path); toast('Path copied'); } break;
+    case 'reveal': if (activeTab()?.doc.path) api.reveal(activeTab().doc.path); else if (activeTab()) toast('Not saved yet'); break;
+    case 'copy-path': if (activeTab()?.doc.path) { api.copyText(activeTab().doc.path); toast('Path copied'); } else if (activeTab()) toast('Not saved yet'); break;
     case 'copy-rich': copyRich(); break;
     case 'next-tab':
     case 'prev-tab': {
@@ -668,13 +699,25 @@ api.onCommand(({ cmd, arg }) => {
     case 'select-tab': { const t = arg === -1 ? tabs[tabs.length - 1] : tabs[arg]; if (t) activate(t.id); break; }
     case 'close-tab': if (target) closeTab(target.id); else api.closeWindow(); break;
     case 'reopen-closed-tab': reopenClosedTab(); break;
-    case 'duplicate-tab': if (target) openInTab(target.doc, { duplicate: true, index: tabIndex(target.id) + 1, scroll: currentScroll(target) }); break;
+    case 'duplicate-tab': if (target?.doc.path) openInTab(target.doc, { duplicate: true, index: tabIndex(target.id) + 1, scroll: currentScroll(target) }); break;
     case 'move-tab-to-window': if (target) detachTab(target.id); break;
-    case 'close-other-tabs': if (target) for (const t of [...tabs]) if (t.id !== target.id) closeTab(t.id); break;
-    case 'close-tabs-right': if (target) for (const t of tabs.slice(tabIndex(target.id) + 1)) closeTab(t.id); break;
+    case 'close-other-tabs': if (target) closeTabsInOrder([...tabs].filter((t) => t.id !== target.id)); break;
+    case 'close-tabs-right': if (target) closeTabsInOrder(tabs.slice(tabIndex(target.id) + 1)); break;
+    // editing
+    case 'new-doc': editMode.newDocument('blank'); break;
+    case 'new-template': editMode.newDocument(arg); break;
+    case 'toggle-edit': if (activeTab()) editMode.toggle(); else editMode.newDocument('blank'); break;
+    case 'save': editMode.save(); break;
+    case 'save-as': editMode.saveAs(); break;
+    case 'grants': editMode.showGrants(); break;
     default: break;
   }
 });
+
+/** Close tabs one at a time, so unsaved-changes questions come one after another; stop on Cancel. */
+async function closeTabsInOrder(list) {
+  for (const t of list) if (!(await closeTab(t.id))) return;
+}
 
 // ================================================================ drag & drop files
 let dragDepth = 0;
@@ -733,11 +776,31 @@ function toast(msg) {
 }
 
 api.onOpenTab((doc) => openInTab(doc));
-api.onFocusPath((p) => { const t = tabs.find((x) => samePath(x.doc.path, p)); if (t) activate(t.id); });
+api.onFocusPath((p) => {
+  const t = tabs.find((x) => samePath(x.doc.path, p));
+  if (t) activate(t.id);
+  else openPath(p);          // the tab was closed a moment ago and the main process hadn't heard yet
+});
 api.onDocumentChanged(async (doc) => {
   const affected = tabs.filter((t) => samePath(t.doc.path, doc.path));
-  for (const t of affected) await refreshTab(t, doc);
-  if (affected.some((t) => t.id === activeId)) toast('Updated from disk');
+  for (const t of affected) {
+    if (editMode.onDiskChange(t, doc)) continue;        // editing: keep the user's text, offer to load
+    await refreshTab(t, doc);
+  }
+  if (affected.some((t) => t.id === activeId && !t.editing)) toast('Updated from disk');
+});
+
+editMode = createEditMode({
+  api,
+  activeTab,
+  openInTab,
+  renderInto,
+  updateTabButton,
+  showActiveDoc,
+  toast,
+  syncSoon,
+  platform: () => platform,
+  desk: els.desk,
 });
 api.onError(({ message }) => toast(message));
 api.onSettings(applySettings);

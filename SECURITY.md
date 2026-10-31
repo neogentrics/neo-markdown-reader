@@ -28,3 +28,16 @@ Markdown files are treated as **untrusted input**:
   `http(s)`/`mailto` links open in the default browser, Markdown files open in the reader, and other
   local files are only revealed in their folder, never executed.
 - All web permission requests (camera, microphone, notifications, …) are denied.
+
+### Editing (since 1.2)
+
+- The page never writes files. Saving is performed by the main process (`src/main/editing.js`) and only for
+  a file the user allowed through a **native** permission dialog, which document content cannot draw or
+  answer. "Just this time" permission lives in memory for one window and ends when the tab closes;
+  "Always" permissions are listed and revocable in *Edit → Editing Permissions…*.
+- Before the first save of a file in a session, the original is copied to the app's backups folder.
+- A save is refused (after asking) if the file's modification time no longer matches the version that
+  editing started from, so changes made by another program aren't silently overwritten.
+- Files that the operating system reports as not writable (e.g. the Windows read-only attribute) are
+  never written.
+- *Save As* only writes to the location the user picked in the native save dialog.

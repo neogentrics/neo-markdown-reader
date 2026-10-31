@@ -12,7 +12,11 @@ rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 
 const options = {
-  entryPoints: { app: join(root, 'src/renderer/app.js'), mermaid: join(root, 'src/renderer/mermaid-entry.js') },
+  entryPoints: {
+    app: join(root, 'src/renderer/app.js'),
+    mermaid: join(root, 'src/renderer/mermaid-entry.js'),   // loaded only for documents with diagrams
+    editor: join(root, 'src/renderer/editor-entry.js'),     // loaded only when editing
+  },
   outdir: out,
   bundle: true,
   format: 'iife',          // file:// pages can't load ES modules, so ship one classic script

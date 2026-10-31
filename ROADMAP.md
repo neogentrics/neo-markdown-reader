@@ -21,8 +21,8 @@ your files or runs code is always **opt-in** and asks for permission first.
 |---|---|---|
 | [v1.0](#v10--the-reader) | The reader | ✅ Released |
 | [v1.1](#v11--everyday-comfort) | Everyday comfort | ✅ Released (1.1.0) |
-| [v1.2](#v12--create--edit) | Create & edit | 🚧 In progress |
-| [v1.3](#v13--compare--organize) | Compare & organize | Planned |
+| [v1.2](#v12--create--edit) | Create & edit | ✅ Done — ships in 1.2.0 |
+| [v1.3](#v13--compare--organize) | Compare & organize | ⏭️ Next |
 | [v1.4](#v14--publish-beautifully) | Publish beautifully | Planned |
 | [v2.0](#v20--power-features) | Power features | Planned |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Planned |
@@ -53,14 +53,14 @@ updates itself from here on.
 
 ## v1.2 — Create & edit
 
-🚧 **In progress.** Decided: the edit-permission prompt defaults to **Just this time**.
+✅ **Done — ships in 1.2.0.** Decided: the edit-permission prompt defaults to **Just this time**.
 
 | Feature | Size | Details |
 |---|:-:|---|
-| 🙋 File › New | S | Blank document or a template (meeting notes, README, checklist, report). Plain `.txt` files open too and can be saved as `.md`. |
-| 🙋🛡️ Edit mode with a permission step | M | Files always open read-only. Clicking *Edit* asks: *Allow Neo Markdown Reader to edit this file?* — **Just this time** (the default), **Always for this file**, or **Always for this folder**. Permissions can be reviewed and revoked in Settings. Files marked read-only by Windows show a lock and stay locked. |
-| Side-by-side editor + live preview | M | Markdown on the left, the formatted page on the right, scrolling together. Formatting toolbar, spell check, undo/redo. |
-| 🛡️ Safe saving | S | Save / Save As, unsaved-changes prompt, a backup of the original before the first save, and a warning instead of overwriting if another program changed the file. |
+| ✅ 🙋 File › New | S | Blank document or a template (meeting notes, README, checklist, report). Plain `.txt` files open too and can be saved as `.md`. |
+| ✅ 🙋🛡️ Edit mode with a permission step | M | Files always open read-only. Clicking *Edit* asks: *Allow Neo Markdown Reader to edit this file?* — **Just this time** (the default), **Always for this file**, or **Always for this folder**. Permissions can be reviewed and revoked in *Edit → Editing Permissions…*. Files marked read-only by Windows show a lock and stay locked. |
+| ✅ Side-by-side editor + live preview | M | Markdown on the left, the formatted page on the right, scrolling together. Formatting toolbar, spell check, undo/redo. |
+| ✅ 🛡️ Safe saving | S | Save / Save As, unsaved-changes prompt, a backup of the original before the first save, and a warning instead of overwriting if another program changed the file. |
 
 ## v1.3 — Compare & organize
 

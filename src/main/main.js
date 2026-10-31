@@ -6,6 +6,7 @@ const { fileURLToPath, pathToFileURL } = require('node:url');
 const { Settings } = require('./settings');
 const { isMarkdownPath, fileFromArgv, readMarkdown } = require('./files');
 const { Updater, RELEASES_URL } = require('./updater');
+const { Editing } = require('./editing');
 
 const isMac = process.platform === 'darwin';
 const ROOT = path.join(__dirname, '..', '..');
@@ -18,6 +19,7 @@ if (process.env.NMR_USER_DATA) app.setPath('userData', process.env.NMR_USER_DATA
 
 let settings;
 let updater;
+let editing;
 let quitting = false;
 /** webContents.id -> { win, startup, tabs: [{ path, scroll }], active, watchers: Map(path -> unwatch) } */
 const windows = new Map();
@@ -124,7 +126,7 @@ function createWindow(opts = {}) {
       sandbox: true,
       nodeIntegration: false,
       webviewTag: false,
-      spellcheck: false,
+      spellcheck: true,              // only the editor is editable, so only it gets underlined
       navigateOnDragDrop: false,
     },
   });
@@ -150,6 +152,18 @@ function createWindow(opts = {}) {
   win.webContents.on('will-navigate', (e, url) => { e.preventDefault(); handleUnmanagedLink(url); });
   win.webContents.setWindowOpenHandler(({ url }) => { handleUnmanagedLink(url); return { action: 'deny' }; });
   win.webContents.on('found-in-page', (_e, r) => win.webContents.send('find:result', { active: r.activeMatchOrdinal, total: r.matches }));
+  win.webContents.on('context-menu', (_e, params) => showEditContextMenu(win, params));
+  // The page refuses to unload while it has unsaved edits; confirm before discarding them.
+  win.webContents.on('will-prevent-unload', (e) => {
+    const choice = dialog.showMessageBoxSync(win, {
+      type: 'warning', title: 'Unsaved changes', noLink: true,
+      message: 'This window has unsaved changes.',
+      detail: 'Close it anyway and lose them? Choose Cancel to go back and save.',
+      buttons: ['Cancel', 'Close Without Saving'], defaultId: 0, cancelId: 0,
+    });
+    if (choice === 1) e.preventDefault();      // preventDefault here means "ignore the page and close"
+    else quitting = false;                      // closing (or quitting) was cancelled
+  });
 
   const saveBounds = () => {
     if (win.isDestroyed() || win.isMinimized() || win.isFullScreen()) return;
@@ -414,11 +428,20 @@ function rebuildMenu() {
     {
       label: '&File',
       submenu: [
+        cmd('new-doc', 'New Document', 'CmdOrCtrl+N'),
+        {
+          label: 'New from Template',
+          submenu: [['meeting', 'Meeting Notes'], ['readme', 'Project README'], ['checklist', 'Checklist'], ['report', 'Report with Title Page']]
+            .map(([key, label]) => ({ id: `template-${key}`, label, click: () => command('new-template', key) })),
+        },
+        { id: 'new-window', label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: () => createWindow() },
+        { type: 'separator' },
         { id: 'open', label: 'Open…', accelerator: 'CmdOrCtrl+O', click: () => openViaDialog(targetState()) },
         { label: 'Open Recent', submenu: recentItems },
-        { type: 'separator' },
-        { id: 'new-window', label: 'New Window', accelerator: 'CmdOrCtrl+N', click: () => createWindow() },
         cmd('reopen-closed-tab', 'Reopen Closed Tab', 'CmdOrCtrl+Shift+T'),
+        { type: 'separator' },
+        cmd('save', 'Save', 'CmdOrCtrl+S'),
+        cmd('save-as', 'Save As…', 'CmdOrCtrl+Shift+S'),
         { type: 'separator' },
         cmd('reload', 'Reload File', 'F5'),
         cmd('reveal', 'Show in Folder'),
@@ -435,13 +458,23 @@ function rebuildMenu() {
     {
       label: '&Edit',
       submenu: [
+        cmd('toggle-edit', 'Edit Document', 'CmdOrCtrl+E'),
+        { type: 'separator' },
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
         { role: 'copy' },
+        { role: 'paste' },
         cmd('copy-rich', 'Copy as Formatted Text', 'CmdOrCtrl+Shift+C'),
         { role: 'selectAll' },
         { type: 'separator' },
         cmd('find', 'Find…', 'CmdOrCtrl+F'),
         cmd('find-next', 'Find Next', 'F3'),
         cmd('find-prev', 'Find Previous', 'Shift+F3'),
+        { type: 'separator' },
+        cmd('grants', 'Editing Permissions…'),
+        { id: 'open-backups', label: 'Open Backups Folder', click: () => openBackups() },
       ],
     },
     {
@@ -500,6 +533,25 @@ function rebuildMenu() {
     },
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+/** Right-click inside the page: spelling suggestions and clipboard actions in the editor, Copy elsewhere. */
+function showEditContextMenu(win, params) {
+  const items = [];
+  if (params.isEditable && params.misspelledWord) {
+    for (const s of params.dictionarySuggestions.slice(0, 6)) items.push({ label: s, click: () => win.webContents.replaceMisspelling(s) });
+    if (!params.dictionarySuggestions.length) items.push({ label: 'No spelling suggestions', enabled: false });
+    items.push({ label: 'Add to Dictionary', click: () => win.webContents.session.addWordToSpellCheckerDictionary(params.misspelledWord) });
+    items.push({ type: 'separator' });
+  }
+  if (params.isEditable) {
+    items.push({ role: 'undo', enabled: params.editFlags.canUndo }, { role: 'redo', enabled: params.editFlags.canRedo }, { type: 'separator' },
+      { role: 'cut', enabled: params.editFlags.canCut }, { role: 'copy', enabled: params.editFlags.canCopy },
+      { role: 'paste', enabled: params.editFlags.canPaste }, { type: 'separator' }, { role: 'selectAll' });
+  } else if (params.selectionText) {
+    items.push({ role: 'copy' }, { label: 'Copy as Formatted Text', click: () => win.webContents.send('menu:command', { cmd: 'copy-rich' }) });
+  }
+  if (items.length) Menu.buildFromTemplate(items).popup({ window: win });
 }
 
 function showTabContextMenu(state, { index, count, path: tabPath }) {
@@ -571,6 +623,7 @@ function registerIpc() {
     if (st.win.getTitle() !== title) st.win.setTitle(title);
     if (isMac) st.win.setRepresentedFilename(st.tabs[st.active]?.path || '');
     syncWatchers(st);
+    editing.pruneSession(st, st.tabs.map((t) => t.path));     // closing a tab ends "Just this time"
     if (st.tabs.length) settings.setPositions(Object.fromEntries(st.tabs.map((t) => [t.path, t.scroll])));
     snapshot(st);
     persistSession();
@@ -615,12 +668,62 @@ function registerIpc() {
   ipcMain.handle('find:stop', (e) => e.sender.stopFindInPage('keepSelection'));
   ipcMain.handle('update:install', () => updater.installNow());
   ipcMain.handle('update:open-page', () => shell.openExternal(updater.status.url || RELEASES_URL));
+
+  // ---- editing: the page asks, the main process decides and does the writing
+  ipcMain.handle('edit:request', async (e, p) => {
+    const st = stateFor(e);
+    if (!st || !isStr(p, 4096) || !isMarkdownPath(p)) return { ok: false, reason: 'invalid' };
+    return editing.requestEdit(st, p);
+  });
+  ipcMain.handle('doc:save', async (e, payload = {}) => {
+    const st = stateFor(e);
+    if (!st || !isStr(payload.path, 4096) || typeof payload.content !== 'string' || payload.content.length > 5e7) return { ok: false, reason: 'invalid' };
+    const res = await editing.save(st, {
+      path: payload.path, content: payload.content, baseMtime: Number(payload.baseMtime),
+      eol: payload.eol === '\r\n' ? '\r\n' : '\n', bom: payload.bom === true,
+    });
+    if (res.ok) st.known.set(payload.path, res.mtime);       // our own save is not an "outside change"
+    return res;
+  });
+  ipcMain.handle('doc:save-as', async (e, payload = {}) => {
+    const st = stateFor(e);
+    if (!st || typeof payload.content !== 'string' || payload.content.length > 5e7) return { ok: false, reason: 'invalid' };
+    const res = await editing.saveAs(st, {
+      content: payload.content,
+      suggestedName: isStr(payload.suggestedName, 260) ? payload.suggestedName : 'Untitled.md',
+      defaultDir: isStr(payload.defaultDir, 4096) && fs.existsSync(payload.defaultDir) ? payload.defaultDir : undefined,
+      eol: payload.eol === '\n' || payload.eol === '\r\n' ? payload.eol : undefined,
+      bom: payload.bom === true,
+    });
+    if (res.ok) {
+      settings.addRecent(res.doc.path);
+      rebuildMenu();
+      ensureWatch(st, res.doc.path, res.doc.mtime);
+    }
+    return res;
+  });
+  ipcMain.handle('dialog:unsaved', (e, info = {}) => {
+    const st = stateFor(e);
+    if (!st) return 'cancel';
+    return editing.confirmUnsaved(st, { name: isStr(info.name, 300) ? info.name : 'Untitled', count: Number.isInteger(info.count) ? info.count : 1 });
+  });
+  ipcMain.handle('grants:list', () => editing.listGrants());
+  ipcMain.handle('grants:revoke', (_e, kind, value) => (isStr(value, 4096) ? editing.revokeGrant(kind, value) : editing.listGrants()));
+  ipcMain.handle('backups:open', () => openBackups());
+}
+
+function backupDir() { return path.join(app.getPath('userData'), 'backups'); }
+
+async function openBackups() {
+  await fs.promises.mkdir(backupDir(), { recursive: true });
+  shell.openPath(backupDir());
 }
 
 // ---------------------------------------------------------------- startup
 app.whenReady().then(() => {
   settings = new Settings(app.getPath('userData'));
   updater = new Updater(onUpdateStatus);
+  editing = new Editing({ settings, dialog, backupDir: backupDir(), defaultDir: app.getPath('documents') });
   // Documents never need camera, mic, notifications, etc.; only clipboard writes for "Copy".
   session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));
   nativeTheme.on('updated', () => { if (settings.get().theme === 'system') broadcastSettings(); });

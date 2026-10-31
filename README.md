@@ -43,6 +43,7 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
+| **Write & edit** *(new in 1.2)* | New documents and templates; an editor beside the live preview with a formatting toolbar and spell check. Files only change after you allow it, and the original is backed up first ([details](#creating-and-editing)) |
 
 <table>
 <tr>
@@ -77,6 +78,25 @@ macOS (`.dmg`) and Linux (`.AppImage`) builds are published on the same Releases
 background and offers *Restart to update*. The portable `.exe` and the Mac build tell you when a new
 version is out and link to the download. *(Coming from 1.0? Install 1.1 once by hand; after that it's automatic.)*
 
+## Creating and editing
+
+<img src="docs/screenshots/editor.png" width="860" alt="The editor beside the live preview, in the Night theme">
+
+- **New document:** `Ctrl+N`, or *File → New from Template* (meeting notes, README, checklist, report with
+  a title page). New documents open straight in the editor; `Ctrl+S` asks where to save them.
+- **Edit a file:** click **Edit** (or `Ctrl+E`). Files always open read-only, so the first time you edit one
+  the app asks: **Just this time** (the default; ends when you close the tab), **Always for this file**, or
+  **Always for this folder**. Review or remove "always" choices under *Edit → Editing Permissions…*.
+- **While editing:** Markdown on the left, the formatted page on the right, scrolling together. The toolbar
+  adds headings, bold, lists, checklists, links, images, tables and code. Spelling mistakes are
+  underlined; right-click one for suggestions. Click **Done** (or `Ctrl+E`) when you're finished.
+- **Safe saving:**
+  - Before the first save, the original file is copied to a backups folder (*Edit → Open Backups Folder*).
+  - If another program changed the file while you were editing, the app asks before replacing those changes.
+  - Windows-style line endings are kept exactly as they were.
+  - Files marked read-only stay locked; use *Save As* to edit a copy.
+  - Closing a tab or window with unsaved changes asks first.
+
 ## Keyboard shortcuts
 
 | Keys | Action |
@@ -88,22 +108,28 @@ version is out and link to the download. *(Coming from 1.0? Install 1.1 once by 
 | `Ctrl` + click a link | Open the linked document in a new tab |
 | `Ctrl` `Shift` `C` | Copy as formatted text |
 | `Ctrl` `F` | Find in document |
-| `Ctrl` `B` | Show / hide outline |
+| `Ctrl` `B` | Show / hide outline (when not editing) |
 | `Ctrl` `=` / `Ctrl` `-` / `Ctrl` `0` | Bigger / smaller / reset text |
 | `Ctrl` `Shift` `E` | Export as PDF |
 | `Ctrl` `P` | Print |
 | `F5` | Reload file |
 | `Alt` `←` | Back to the previous document |
-| `Ctrl` `N` / `Ctrl` `Shift` `W` | New window / close window |
+| `Ctrl` `N` | New document |
+| `Ctrl` `E` | Edit / finish editing |
+| `Ctrl` `S` / `Ctrl` `Shift` `S` | Save / Save As |
+| `Ctrl` `B` · `Ctrl` `I` · `Ctrl` `K` | Bold · italic · link (while editing) |
+| `Ctrl` `Z` / `Ctrl` `Y` | Undo / redo (while editing) |
+| `Ctrl` `Shift` `N` / `Ctrl` `Shift` `W` | New window / close window |
 | `F1` | Keyboard shortcuts |
 
 On macOS use `Cmd` instead of `Ctrl`.
 
 ## Roadmap
 
-**v1.1, Everyday comfort** added tabs, a proper menu bar, session restore, automatic updates, an image
-viewer and rich copy. Next up is **v1.2, Create & edit**: new files and editing with a permission step.
-Later releases add side-by-side compare, a PDF designer, and sandboxed code running.
+**v1.1** added tabs, a proper menu bar, session restore, automatic updates, an image viewer and rich
+copy. **v1.2, Create & edit** adds new documents, templates and editing with a permission step. Next up
+is **v1.3, Compare & organize**: side-by-side compare, folders and search across files. Later releases add
+a PDF designer and sandboxed code running.
 
 **[See the full roadmap →](ROADMAP.md)**
 
@@ -117,8 +143,8 @@ Requirements: **Node.js 22** (see `.nvmrc`) and Git.
 ```bash
 npm ci                 # install dependencies
 npm run dev            # build the UI and launch the app with the feature showcase
-npm test               # unit tests (Markdown pipeline, file handling, settings)
-npm run test:e2e       # launches the real app and drives it (open, images, links, reload, PDF)
+npm test               # unit tests (Markdown pipeline, files, settings, editing permissions & saving)
+npm run test:e2e       # launches the real app and drives it (reading, tabs, sessions, editing, saving)
 npm run dist:win       # Windows installer + portable .exe  → release/
 npm run dist:mac       # macOS .dmg (run on a Mac)          → release/
 npm run dist:linux     # Linux AppImage                     → release/
@@ -133,6 +159,7 @@ The Windows `.exe` can be built on Windows, Linux or macOS.
 src/
 ├── main/                 Electron "main" process (Node.js, talks to the OS)
 │   ├── main.js           windows, tabs bookkeeping, menus, file opening, live reload, sessions, PDF export, links
+│   ├── editing.js        edit permission, saving, backups, conflict checks (the only code that writes files)
 │   ├── updater.js        update checks against GitHub Releases (electron-updater for the installer)
 │   ├── version.js        version comparison
 │   ├── files.js          which files can be opened + reading them safely
@@ -141,6 +168,9 @@ src/
 └── renderer/             The page you see (runs in a locked-down Chromium sandbox)
     ├── markdown.js       Markdown → sanitized HTML (markdown-it + plugins, DOMPurify)
     ├── app.js            tabs, toolbar, outline, find, drag & drop, image viewer, Mermaid rendering
+    ├── editmode.js       edit mode: editor beside the live preview, save / save as, new documents
+    ├── editor-entry.js   the CodeMirror 6 editor (loaded only when you edit)
+    ├── templates.js      File → New from Template
     ├── index.html        layout + Content-Security-Policy
     └── styles/           themes, document typography, code colors, print/PDF styles
 scripts/build-renderer.mjs  bundles the renderer into dist/ with esbuild
@@ -159,7 +189,9 @@ look good (colors, alignment, images, tables, `<details>`) and removes anything 
 `<script>`, event handlers like `onclick`, `<iframe>`, forms and `javascript:` links. The page runs
 with `sandbox`, `contextIsolation` and no Node.js access, under a strict Content-Security-Policy.
 Clicking a link never executes a file: Markdown links open in the reader, web links open in your
-browser, and any other local file is only *shown in its folder*. See [SECURITY.md](SECURITY.md).
+browser, and any other local file is only *shown in its folder*. The page itself can never write a
+file: saving is done by the main process, only for files you allowed, after a native permission prompt
+the page can't fake. See [SECURITY.md](SECURITY.md).
 
 ## Releasing
 
