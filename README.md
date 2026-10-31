@@ -142,6 +142,8 @@ browser, and any other local file is only *shown in its folder*. See [SECURITY.m
    ```bash
    git tag v1.0.0 && git push origin v1.0.0
    ```
+   Or, without a tag: **Actions → Release → Run workflow**. It tags the current commit as
+   `v<version>` from `package.json`.
 3. The **Release** workflow builds Windows, macOS and Linux apps and publishes them to GitHub Releases.
 
 Every push and pull request runs the **CI** workflow: tests on Windows, macOS and Linux, plus a

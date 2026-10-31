@@ -1,6 +1,9 @@
 name: Release
 
-# Push a tag like v1.2.0 to build Windows, macOS and Linux apps and publish them as a GitHub Release.
+# Builds Windows, macOS and Linux apps and publishes them as a GitHub Release. Either:
+#   - push a tag like v1.2.0, or
+#   - run this workflow manually (Actions → Release → Run workflow); it tags the current commit
+#     as v<version from package.json> and publishes that release.
 on:
   push:
     tags: ['v*.*.*']
@@ -17,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: windows, os: windows-latest, script: dist:win,   files: 'release/*.exe' }
+          - { name: windows, os: windows-latest, script: dist:win,   files: "release/NeoMarkdownReader-*-Setup.exe\nrelease/NeoMarkdownReader-*-Portable.exe" }
           - { name: macos,   os: macos-latest,   script: dist:mac,   files: 'release/*.dmg' }
           - { name: linux,   os: ubuntu-latest,  script: dist:linux, files: 'release/*.AppImage' }
     steps:
@@ -39,15 +42,27 @@ jobs:
   publish:
     name: Publish GitHub Release
     needs: build
-    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - name: Work out the release tag
+        id: tag
+        shell: bash
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
           merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.tag.outputs.name }}
+          target_commitish: ${{ github.sha }}
+          name: Neo Markdown Reader ${{ steps.tag.outputs.name }}
           files: artifacts/*
           generate_release_notes: true
           fail_on_unmatched_files: true
