@@ -16,7 +16,7 @@ symbols, and no browser tab or code editor is needed.
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
 ![License](https://img.shields.io/badge/license-proprietary-lightgrey)
 
-<img src="docs/screenshots/paper-overview.png" width="860" alt="A document open in Neo Markdown Reader">
+<img src="docs/screenshots/tabs.png" width="860" alt="Several documents open in tabs in Neo Markdown Reader">
 
 </div>
 
@@ -37,6 +37,11 @@ symbols, and no browser tab or code editor is needed.
 | **Live reload** | Edit the file in VS Code / Notepad++ and the page updates when you save |
 | **Export & print** | Save as a PDF that looks like the screen, or print it |
 | **Links** | Links to other `.md` files open in the reader (with **Back**); web links open in your browser |
+| **Tabs & windows** | Every file opens in a tab. Reorder by dragging; right-click for *Move to New Window*, Duplicate, Close Others; drag a tab out to split it into its own window |
+| **Picks up where you left off** | Reopens your last windows and tabs, each scrolled to where you stopped reading |
+| **Proper menu bar** | File, Edit, View, Tabs and Help are always visible (or auto-hide them: *View → Always Show Menu Bar*) |
+| **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
+| **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
 
 <table>
@@ -68,11 +73,20 @@ Reader** → tick **Always use this app**.
 
 macOS (`.dmg`) and Linux (`.AppImage`) builds are published on the same Releases page.
 
+**Updates:** from version 1.1 on, the installed app checks for new versions by itself, downloads them in the
+background and offers *Restart to update*. The portable `.exe` and the Mac build tell you when a new
+version is out and link to the download. *(Coming from 1.0? Install 1.1 once by hand; after that it's automatic.)*
+
 ## Keyboard shortcuts
 
 | Keys | Action |
 |---|---|
-| `Ctrl` `O` | Open file |
+| `Ctrl` `O` | Open file (in a new tab) |
+| `Ctrl` `Tab` / `Ctrl` `Shift` `Tab` | Next / previous tab |
+| `Ctrl` `1` … `Ctrl` `9` | Jump to a tab |
+| `Ctrl` `W` / `Ctrl` `Shift` `T` | Close tab / reopen closed tab |
+| `Ctrl` + click a link | Open the linked document in a new tab |
+| `Ctrl` `Shift` `C` | Copy as formatted text |
 | `Ctrl` `F` | Find in document |
 | `Ctrl` `B` | Show / hide outline |
 | `Ctrl` `=` / `Ctrl` `-` / `Ctrl` `0` | Bigger / smaller / reset text |
@@ -80,16 +94,16 @@ macOS (`.dmg`) and Linux (`.AppImage`) builds are published on the same Releases
 | `Ctrl` `P` | Print |
 | `F5` | Reload file |
 | `Alt` `←` | Back to the previous document |
-| `Ctrl` `N` | New window |
-| `Alt` | Show the menu bar |
+| `Ctrl` `N` / `Ctrl` `Shift` `W` | New window / close window |
+| `F1` | Keyboard shortcuts |
 
 On macOS use `Cmd` instead of `Ctrl`.
 
 ## Roadmap
 
-Next up is **v1.1, Everyday comfort**: an always-visible menu bar, tabs (with *Move to New Window*),
-restoring your last session, automatic updates, an image viewer and rich copy. Later releases add
-editing with permission, side-by-side compare, a PDF designer, and sandboxed code running.
+**v1.1, Everyday comfort** added tabs, a proper menu bar, session restore, automatic updates, an image
+viewer and rich copy. Next up is **v1.2, Create & edit**: new files and editing with a permission step.
+Later releases add side-by-side compare, a PDF designer, and sandboxed code running.
 
 **[See the full roadmap →](ROADMAP.md)**
 
@@ -118,13 +132,15 @@ The Windows `.exe` can be built on Windows, Linux or macOS.
 ```
 src/
 ├── main/                 Electron "main" process (Node.js, talks to the OS)
-│   ├── main.js           windows, menus, file opening, live reload, PDF export, link handling
+│   ├── main.js           windows, tabs bookkeeping, menus, file opening, live reload, sessions, PDF export, links
+│   ├── updater.js        update checks against GitHub Releases (electron-updater for the installer)
+│   ├── version.js        version comparison
 │   ├── files.js          which files can be opened + reading them safely
-│   ├── settings.js       validated user settings (theme, font, recent files…)
+│   ├── settings.js       validated user settings (theme, font, recent files, session, reading positions…)
 │   └── preload.js        the small, explicit API the page may call (contextBridge)
 └── renderer/             The page you see (runs in a locked-down Chromium sandbox)
     ├── markdown.js       Markdown → sanitized HTML (markdown-it + plugins, DOMPurify)
-    ├── app.js            toolbar, outline, find, drag & drop, Mermaid rendering
+    ├── app.js            tabs, toolbar, outline, find, drag & drop, image viewer, Mermaid rendering
     ├── index.html        layout + Content-Security-Policy
     └── styles/           themes, document typography, code colors, print/PDF styles
 scripts/build-renderer.mjs  bundles the renderer into dist/ with esbuild

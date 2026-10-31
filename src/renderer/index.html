@@ -35,6 +35,17 @@
     </div>
   </header>
 
+  <nav class="tabstrip" id="tabstrip" aria-label="Open documents">
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <button class="tab-add" id="tab-add" title="Open a file in a new tab (Ctrl+O)" aria-label="Open file in new tab"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  </nav>
+
+  <div class="update-bar" id="update-bar" role="status" hidden>
+    <span id="update-text"></span>
+    <button class="update-btn" id="update-action"></button>
+    <button class="tb-btn sm" id="update-dismiss" title="Dismiss" aria-label="Dismiss"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+
   <div class="find-bar" id="find-bar" hidden>
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
     <input id="find-input" type="text" placeholder="Find in document" spellcheck="false">
@@ -72,8 +83,13 @@
           <button class="link-btn" id="welcome-showcase">See what it can display →</button>
         </div>
       </section>
-      <article class="page markdown-body" id="page" hidden></article>
+      <div class="pages" id="pages"></div>
     </main>
+  </div>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <div class="lightbox-bar"><span id="lightbox-caption"></span><span class="lightbox-hint">Click image to zoom · Esc to close</span></div>
+    <div class="lightbox-stage" id="lightbox-stage"><img id="lightbox-img" alt=""></div>
   </div>
 
   <div class="drop-overlay" id="drop-overlay" hidden><div>Drop to open</div></div>
@@ -81,7 +97,13 @@
   <dialog class="shortcuts" id="shortcuts">
     <h3>Keyboard shortcuts</h3>
     <table>
-      <tr><td><kbd>Ctrl</kbd> <kbd>O</kbd></td><td>Open file</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>O</kbd></td><td>Open file (in a new tab)</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>Tab</kbd> / <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Tab</kbd></td><td>Next / previous tab</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>W</kbd></td><td>Close tab</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>T</kbd></td><td>Reopen closed tab</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>1</kbd>…<kbd>9</kbd></td><td>Jump to tab</td></tr>
+      <tr><td><kbd>Ctrl</kbd> + click a link</td><td>Open linked document in a new tab</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>C</kbd></td><td>Copy as formatted text</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>F</kbd></td><td>Find in document</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>B</kbd></td><td>Toggle outline</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>=</kbd> / <kbd>−</kbd> / <kbd>0</kbd></td><td>Text size</td></tr>
@@ -90,7 +112,9 @@
       <tr><td><kbd>F5</kbd></td><td>Reload file</td></tr>
       <tr><td><kbd>Alt</kbd> <kbd>←</kbd></td><td>Back to previous document</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>N</kbd></td><td>New window</td></tr>
-      <tr><td><kbd>Alt</kbd></td><td>Show the menu bar</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>W</kbd></td><td>Close window</td></tr>
+      <tr><td><kbd>F1</kbd></td><td>This list</td></tr>
+      <tr><td>Right-click a tab</td><td>Move to new window, duplicate, close others…</td></tr>
     </table>
     <button class="big-btn sm" id="shortcuts-close">Close</button>
   </dialog>

@@ -1,6 +1,7 @@
 name: Release
 
-# Builds Windows, macOS and Linux apps and publishes them as a GitHub Release. Either:
+# Builds Windows, macOS and Linux apps and publishes them as a GitHub Release, together with the
+# latest*.yml / .blockmap files the in-app updater reads. Either:
 #   - push a tag like v1.2.0, or
 #   - run this workflow manually (Actions → Release → Run workflow); it tags the current commit
 #     as v<version from package.json> and publishes that release.
@@ -20,9 +21,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: windows, os: windows-latest, script: dist:win,   files: "release/NeoMarkdownReader-*-Setup.exe\nrelease/NeoMarkdownReader-*-Portable.exe" }
+          - { name: windows, os: windows-latest, script: dist:win,   files: "release/NeoMarkdownReader-*-Setup.exe\nrelease/NeoMarkdownReader-*-Setup.exe.blockmap\nrelease/NeoMarkdownReader-*-Portable.exe\nrelease/latest.yml" }
           - { name: macos,   os: macos-latest,   script: dist:mac,   files: 'release/*.dmg' }
-          - { name: linux,   os: ubuntu-latest,  script: dist:linux, files: 'release/*.AppImage' }
+          - { name: linux,   os: ubuntu-latest,  script: dist:linux, files: "release/*.AppImage\nrelease/latest-linux.yml" }
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
