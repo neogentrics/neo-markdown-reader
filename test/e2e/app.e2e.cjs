@@ -78,8 +78,8 @@ const windowCount = (app) => app.evaluate(({ BrowserWindow }) => BrowserWindow.g
     await win.waitForSelector('.page:not([hidden]) #meeting-notes');
     assert.deepEqual(await tabLabels(win), ['notes']);
   });
-  await step('Ctrl+click opens a linked document in a new tab', async () => {
-    await win.click('text=other doc', { modifiers: ['Control'] });
+  await step('Ctrl+click (Cmd+click on Mac) opens a linked document in a new tab', async () => {
+    await win.click('text=other doc', { modifiers: ['ControlOrMeta'] });   // Cmd+click on macOS, Ctrl+click elsewhere
     await win.waitForFunction(() => document.querySelectorAll('.tab').length === 2);
     assert.equal(await activeLabel(win), 'second');
   });
