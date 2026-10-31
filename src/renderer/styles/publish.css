@@ -1,0 +1,48 @@
+/* Exported documents: PDF body, cover and contents pages, and the self-contained web page. */
+html.publish-root, html.publish-root body { margin: 0; background: var(--page); color: var(--text); }
+.publish { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.publish .markdown-body { font-size: calc(11.5pt * var(--font-scale)); }
+.publish .markdown-body pre, .publish .markdown-body pre code { white-space: pre-wrap; word-break: break-word; }
+.publish .markdown-body pre, .publish .markdown-body blockquote, .publish .markdown-body .table-wrap, .publish .markdown-body .markdown-alert,
+.publish .markdown-body .mermaid-diagram, .publish .markdown-body img, .publish .markdown-body figure, .publish .markdown-body tr { break-inside: avoid; }
+.publish .markdown-body h1, .publish .markdown-body h2, .publish .markdown-body h3, .publish .markdown-body h4 { break-after: avoid; }
+.publish .markdown-body .table-wrap { overflow: visible; }
+.publish .markdown-body a { border-bottom: 0; }
+.publish.has-cover .markdown-body > .doc-meta:first-child { display: none; }
+.publish.h1-breaks .markdown-body h1:not(:first-child) { break-before: page; }
+
+/* Contents page */
+.pub-toc { break-after: page; font-family: var(--font-sans); color: var(--text); }
+.pub-toc-title { font-family: var(--font-display); font-size: 22pt; font-weight: 700; color: var(--heading); margin: 0 0 18pt; letter-spacing: -.01em; }
+.pub-toc ol { list-style: none; margin: 0; padding: 0; }
+.pub-toc li { margin: 0; break-inside: avoid; }
+.pub-toc a { display: flex; align-items: baseline; gap: 6pt; color: inherit; text-decoration: none; padding: 3.2pt 0; font-size: 10.5pt; }
+.pub-toc .lvl-0 a { font-weight: 650; font-size: 11.5pt; padding-top: 7pt; color: var(--heading); }
+.pub-toc .lvl-1 a { padding-left: 16pt; }
+.pub-toc .lvl-2 a { padding-left: 32pt; font-size: 10pt; color: var(--text-soft); }
+.pub-toc .t { flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pub-toc .dots { flex: 1 1 auto; border-bottom: 1px dotted var(--rule-strong); transform: translateY(-3pt); min-width: 12pt; }
+.pub-toc .n { flex: 0 0 auto; min-width: 3ch; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-soft); }
+
+/* Cover page */
+.pub-cover { position: relative; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column;
+  padding: 1.1in 1in .9in; font-family: var(--font-display); color: var(--heading); background: var(--page); }
+.pub-cover-band { position: absolute; left: 0; top: 0; bottom: 0; width: .32in; background: var(--accent); }
+.pub-cover-band::after { content: ""; position: absolute; left: .32in; top: 0; bottom: 0; width: .08in; background: var(--accent-soft); }
+.pub-cover-logo { max-width: 2.2in; max-height: 1.1in; object-fit: contain; align-self: flex-start; margin-bottom: .4in; }
+.pub-cover-main { margin-top: auto; margin-bottom: auto; }
+.pub-cover-kicker { font-family: var(--font-sans); text-transform: uppercase; letter-spacing: .16em; font-size: 9.5pt; font-weight: 650; color: var(--accent); margin-bottom: 14pt; }
+.pub-cover-title { font-size: 38pt; line-height: 1.08; font-weight: 750; letter-spacing: -.02em; margin: 0; }
+.pub-cover-rule { width: 1.2in; height: 4pt; border-radius: 2pt; background: var(--accent); margin: 22pt 0 18pt; }
+.pub-cover-sub { font-family: var(--font-sans); font-size: 15pt; line-height: 1.4; color: var(--text-soft); max-width: 5.4in; }
+.pub-cover-foot { display: flex; justify-content: space-between; gap: 24pt; font-family: var(--font-sans); font-size: 10.5pt; color: var(--muted);
+  border-top: 1px solid var(--rule); padding-top: 12pt; }
+.pub-cover-foot strong { color: var(--text); font-weight: 600; }
+
+/* Self-contained web page */
+.pub-web { box-sizing: border-box; max-width: 860px; margin: 0 auto; padding: 56px 48px 80px; }
+.publish.web .markdown-body { font-size: 16.5px; }
+:root[data-font="serif"] .publish.web .markdown-body { font-size: 17.5px; }
+@media (max-width: 640px) { .pub-web { padding: 28px 18px 48px; } }
+.pub-web-foot { max-width: 860px; margin: 0 auto 40px; padding: 0 48px; font: 12px var(--font-sans); color: var(--muted); }
+@media print { .pub-web { padding: 0; max-width: none; } .pub-web-foot { display: none; } }

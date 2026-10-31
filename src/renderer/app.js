@@ -7,6 +7,9 @@ import { createPalette } from './palette.js';
 import { createSplit } from './split.js';
 import { createHighlights } from './highlights.js';
 import { compareDocs } from './compare.js';
+import { createPublish } from './publish-ui.js';
+import { createPresenter } from './present.js';
+import { createThemeUi } from './theme-ui.js';
 import './styles/app.css';
 
 const api = window.reader;
@@ -37,6 +40,9 @@ let sidebar = null;
 let palette = null;
 let split = null;
 let highlights = null;
+let publish = null;
+let presenter = null;
+let themeUi = null;
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -731,11 +737,13 @@ $('btn-toc').onclick = () => api.setSettings({ showToc: !settings.showToc });
 $('btn-find').onclick = openFind;
 $('btn-larger').onclick = () => api.setSettings({ fontScale: settings.fontScale + 0.1 });
 $('btn-smaller').onclick = () => api.setSettings({ fontScale: settings.fontScale - 0.1 });
-$('btn-pdf').onclick = () => (activeTab() ? api.exportPdf() : toast('Open a document first'));
+$('btn-pdf').onclick = () => publish.openDesigner();
+$('btn-present').onclick = () => presenter.start();
+$('btn-customize').onclick = () => { els.themeMenu.hidden = true; themeUi.open(); };
 $('btn-print').onclick = () => (activeTab() ? api.print() : toast('Open a document first'));
 $('btn-theme').onclick = (e) => { e.stopPropagation(); els.themeMenu.hidden = !els.themeMenu.hidden; };
 document.addEventListener('click', (e) => { if (!els.themeMenu.hidden && !e.target.closest('.tb-menu-wrap')) els.themeMenu.hidden = true; });
-for (const seg of document.querySelectorAll('.seg')) {
+for (const seg of document.querySelectorAll('.seg[data-key]')) {
   seg.addEventListener('click', (e) => {
     const b = e.target.closest('button');
     if (b) api.setSettings({ [seg.dataset.key]: b.dataset.value });
@@ -804,6 +812,12 @@ api.onCommand(({ cmd, arg }) => {
     case 'compare-saved': compareWithSaved(); break;
     case 'highlight': highlights.create(); break;
     case 'bookmark': toggleBookmark(); break;
+    case 'export-pdf': publish.openDesigner(); break;
+    case 'export-docx': publish.exportAs('docx'); break;
+    case 'export-html': publish.exportAs('html'); break;
+    case 'export-txt': publish.exportAs('txt'); break;
+    case 'present': if (presenter.active()) presenter.stop(); else presenter.start(); break;
+    case 'customize-theme': themeUi.open(); break;
     default: break;
   }
 });
@@ -875,13 +889,14 @@ function applySettings(s) {
   root.dataset.width = s.pageWidth;
   root.style.setProperty('--font-scale', s.fontScale);
   document.body.classList.toggle('toc-hidden', !s.showToc);
-  for (const seg of document.querySelectorAll('.seg')) {
+  for (const seg of document.querySelectorAll('.seg[data-key]')) {
     for (const b of seg.querySelectorAll('button')) b.classList.toggle('active', s[seg.dataset.key] === b.dataset.value);
   }
   renderRecent(s.recent || []);
   sidebar?.setBookmarks(s.bookmarks || []);
   if (activeTab()) updateBookmarkButton();
   if (prevTheme && prevTheme !== root.dataset.theme) for (const t of tabs) renderMermaid(t.el, true);
+  themeUi?.apply(s.brand || {});
 }
 
 function showUpdate(status) {
@@ -969,6 +984,9 @@ highlights = createHighlights({
   desk: els.desk,
   scrollToElement: (el) => scrollToElement(el, { desk: deskFor(tabForElement(el)) }),
 });
+themeUi = createThemeUi({ api, settings: () => settings, toast });
+publish = createPublish({ api, activeTab, settings: () => settings, toast, themeCss: () => themeUi.exportCss() });
+presenter = createPresenter({ api, activeTab, toast });
 $('btn-bookmark').onclick = () => toggleBookmark();
 $('btn-quick').onclick = () => palette.open();
 $('btn-split').onclick = () => split.toggle();

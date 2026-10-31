@@ -10,7 +10,7 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
-**[Features](#features)** · **[Install](#install-windows)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+**[Features](#features)** · **[Install](#install-windows)** · **[Publishing](#publishing-and-presenting)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
 
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
@@ -35,7 +35,7 @@ symbols, and no browser tab or code editor is needed.
 | **Three themes** | Paper (light), Sepia, Night (dark), or follow Windows' setting |
 | **Reading comfort** | Modern or book typeface; adjustable text size and page width; reading-progress bar |
 | **Live reload** | Edit the file in VS Code / Notepad++ and the page updates when you save |
-| **Export & print** | Save as a PDF that looks like the screen, or print it |
+| **Export & print** | Designed PDFs, Word documents, self-contained web pages and plain text, or print it |
 | **Links** | Links to other `.md` files open in the reader (with **Back**); web links open in your browser |
 | **Tabs & windows** | Every file opens in a tab. Reorder by dragging; right-click for *Move to New Window*, Duplicate, Close Others; drag a tab out to split it into its own window |
 | **Picks up where you left off** | Reopens your last windows and tabs, each scrolled to where you stopped reading |
@@ -43,7 +43,8 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
-| **Organize** *(new in 1.3)* | Open a whole folder, search every file in it, jump anywhere with `Ctrl+K`, read two documents side by side, compare versions, and keep private highlights, notes and bookmarks ([details](#organizing-your-documents)) |
+| **Publish** *(new in 1.4)* | A PDF designer with a cover page, contents page with page numbers, headers and footers; export to Word, a single web page or plain text; present any document as full-screen slides; your own accent colour, fonts or brand stylesheet ([details](#publishing-and-presenting)) |
+| **Organize** *(1.3)* | Open a whole folder, search every file in it, jump anywhere with `Ctrl+K`, read two documents side by side, compare versions, and keep private highlights, notes and bookmarks ([details](#organizing-your-documents)) |
 | **Write & edit** *(1.2)* | New documents and templates; an editor beside the live preview with a formatting toolbar and spell check. Files only change after you allow it, and the original is backed up first ([details](#creating-and-editing)) |
 
 <table>
@@ -123,6 +124,43 @@ version is out and link to the download. *(Coming from 1.0? Install 1.1 once by 
 
 <img src="docs/screenshots/folder-search.png" width="860" alt="The Files and Search panels with an open folder">
 
+## Publishing and presenting
+
+<img src="docs/screenshots/pdf-designer.png" width="860" alt="The PDF designer: paper, margins, cover and contents pages, header and footer, with a preview of the first pages">
+
+- **PDF designer** (*File → Export → PDF…*, `Ctrl+Shift+E`, or the export button):
+  - Paper: Letter, A4, Legal or A5. *Auto* picks Letter in the US and Canada and A4 elsewhere.
+  - Narrow, normal or wide margins.
+  - A **cover page** built from the front matter (`title`, `subtitle`, `author`, `date`, `tags`,
+    `organization`, `version`, and a `logo` image).
+  - A **contents page** with real page numbers and clickable entries.
+  - The title and author at the top of each page and page numbers at the bottom.
+  - Optionally start every `#` chapter on a new page.
+  - Colours: always on white paper, or the theme you read in.
+  - The PDF gets bookmarks for every heading and its title, author and keywords filled in. Your choices
+    are remembered.
+
+<img src="docs/screenshots/pdf-pages.png" width="860" alt="An exported PDF: cover page, contents page with page numbers, and the first pages of the document">
+
+- **Other formats** (*File → Export*):
+  - **Word (`.docx`):** real headings (so Word's navigation pane and table of contents work), lists, tables,
+    links, images, and page numbers. Diagrams and equations become pictures.
+  - **Web page (`.html`):** one file that looks like the reader's page, with images and maths fonts built in.
+    It contains no scripts, so it can be emailed or put on any web server.
+  - **Plain text (`.txt`):** clean, readable text with underlined headings and aligned tables.
+- **Present** (*View → Present as Slides*, `Ctrl+Shift+P`, or the screen button): the document becomes full-screen
+  slides.
+  - Put `---` on its own line to start a new slide. Without any, slides start at each main heading.
+  - The front matter becomes the title slide.
+  - Use `←` `→` (or click) to move and `Esc` to leave. Text shrinks to fit a slide that holds a lot.
+
+<img src="docs/screenshots/presentation.png" width="860" alt="Presentation mode showing a slide with a diagram and a tip box">
+
+- **Customize theme** (*View → Customize Theme…*, or *Customize colours & fonts…* in the theme menu):
+  - Pick an accent colour and fonts for text, headings and code. They apply to every theme.
+  - Optionally choose a **brand stylesheet** (a `.css` file, such as a company house style).
+  - Exports use the same look, so a PDF or web page matches what you see.
+
 ## Keyboard shortcuts
 
 | Keys | Action |
@@ -136,7 +174,8 @@ version is out and link to the download. *(Coming from 1.0? Install 1.1 once by 
 | `Ctrl` `F` | Find in document |
 | `Ctrl` `B` | Show / hide the sidebar (when not editing) |
 | `Ctrl` `=` / `Ctrl` `-` / `Ctrl` `0` | Bigger / smaller / reset text |
-| `Ctrl` `Shift` `E` | Export as PDF |
+| `Ctrl` `Shift` `E` | Export as PDF (the PDF designer) |
+| `Ctrl` `Shift` `P` | Present as slides (`←` `→` to move, `Esc` to leave) |
 | `Ctrl` `P` | Print |
 | `F5` | Reload file |
 | `Alt` `←` | Back to the previous document |
@@ -160,9 +199,10 @@ On macOS use `Cmd` instead of `Ctrl`.
 - **v1.2** added new documents, templates and editing with a permission step.
 - **v1.3** added folders, search across files, Quick Open, split view, Compare,
   highlights, notes and bookmarks.
+- **v1.4, Publish beautifully** adds a PDF designer with cover and contents pages, Word, web page and text
+  export, presentation mode, and custom colours, fonts and brand stylesheets.
 
-Now in progress is **v1.4, Publish beautifully**: a PDF designer with cover and contents pages, Word and HTML
-export, and presentation mode. Later releases add sandboxed code running and password-locked files.
+Next up is **v2.0, Power features**: running code blocks in a sandbox and password-locked files.
 
 **[See the full roadmap →](ROADMAP.md)**
 
@@ -191,7 +231,9 @@ The Windows `.exe` can be built on Windows, Linux or macOS.
 ```
 src/
 ├── main/                 Electron "main" process (Node.js, talks to the OS)
-│   ├── main.js           windows, tabs bookkeeping, menus, file opening, live reload, sessions, PDF export, links
+│   ├── main.js           windows, tabs bookkeeping, menus, file opening, live reload, sessions, links
+│   ├── publish.js        exports: the PDF designer's pages, web pages, Word documents (runs hidden, script-free windows)
+│   ├── export-tools.js   PDF finishing (pdf-lib) and .docx writing (docx), bundled into dist/export-tools.cjs
 │   ├── editing.js        edit permission, saving, backups, conflict checks (the only code that writes files)
 │   ├── folders.js        scanning and searching an opened folder
 │   ├── annotations.js    private highlights & notes (stored in app data, never in the file)
@@ -211,8 +253,13 @@ src/
     ├── split.js          split view and linked scrolling
     ├── compare.js        line and word diffs for Compare
     ├── highlights.js     finding and drawing highlights on the page
+    ├── publish-ui.js     the PDF designer dialog and File → Export
+    ├── export-model.js   the page as a simple document model (for Word and plain text)
+    ├── present.js        presentation mode (slides split on ---)
+    ├── brand.js          custom accent colour and fonts as CSS
+    ├── theme-ui.js       View → Customize Theme
     ├── index.html        layout + Content-Security-Policy
-    └── styles/           themes, document typography, code colors, print/PDF styles
+    └── styles/           themes, document typography, code colors, print/PDF, export & presentation styles
 scripts/build-renderer.mjs  bundles the renderer into dist/ with esbuild
 samples/showcase.md         feature tour (Help → Open Feature Showcase)
 test/                       node:test suites (run under jsdom)

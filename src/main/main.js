@@ -9,6 +9,7 @@ const { Updater, RELEASES_URL } = require('./updater');
 const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
 const { AnnotationStore } = require('./annotations');
+const publish = require('./publish');
 
 const isMac = process.platform === 'darwin';
 const ROOT = path.join(__dirname, '..', '..');
@@ -55,7 +56,7 @@ function resolvedTheme() {
 }
 
 function rendererSettings() {
-  return { ...settings.get(), resolvedTheme: resolvedTheme(), positions: undefined, session: undefined };
+  return { ...settings.get(), resolvedTheme: resolvedTheme(), paperAuto: publish.resolvePaper('auto', app.getLocaleCountryCode()), positions: undefined, session: undefined };
 }
 
 function visibleOnSomeDisplay(b) {
@@ -352,26 +353,72 @@ async function openViaDialog(state) {
   return files.length > 0;
 }
 
-async function exportPdf(state) {
+const EXPORT_FORMATS = {
+  pdf: { title: 'Export as PDF', name: 'PDF', ext: 'pdf' },
+  docx: { title: 'Export as Word Document', name: 'Word Document', ext: 'docx' },
+  html: { title: 'Export as Web Page', name: 'Web Page', ext: 'html' },
+  txt: { title: 'Export as Plain Text', name: 'Plain Text', ext: 'txt' },
+};
+
+/** Ask where to save an export of the active tab's document. */
+async function exportTarget(state, format) {
+  const f = EXPORT_FORMATS[format];
   const current = state.tabs[state.active]?.path;
   const base = current ? path.basename(current).replace(/\.[^.]+$/, '') : 'document';
   const res = await dialog.showSaveDialog(state.win, {
-    title: 'Export as PDF',
-    defaultPath: path.join(current ? path.dirname(current) : app.getPath('documents'), base + '.pdf'),
-    filters: [{ name: 'PDF', extensions: ['pdf'] }],
+    title: f.title,
+    defaultPath: path.join(current ? path.dirname(current) : app.getPath('documents'), `${base}.${f.ext}`),
+    filters: [{ name: f.name, extensions: [f.ext] }],
   });
-  if (res.canceled || !res.filePath) return false;
-  const pdf = await state.win.webContents.printToPDF({
-    printBackground: true,
-    pageSize: 'A4',
-    margins: { marginType: 'custom', top: 0.6, bottom: 0.6, left: 0.6, right: 0.6 },
-    displayHeaderFooter: true,
-    headerTemplate: '<div></div>',
-    footerTemplate: '<div style="width:100%;font-size:8px;color:#888;text-align:center;font-family:Segoe UI,Arial,sans-serif"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
-  });
-  await fs.promises.writeFile(res.filePath, pdf);
-  shell.showItemInFolder(res.filePath);
-  return true;
+  return res.canceled || !res.filePath ? null : res.filePath;
+}
+
+/** Exports are built in the main process; the page only hands over its rendered content. */
+async function runExport(state, payload) {
+  const format = payload?.format;
+  if (!EXPORT_FORMATS[format] || !payload.meta || typeof payload.meta !== 'object') return { ok: false, error: 'Nothing to export' };
+  const css = typeof payload.css === 'string' && payload.css.length < 2e6 ? payload.css : '';
+  const theme = ['light', 'dark', 'sepia'].includes(payload.theme) ? payload.theme : 'light';
+  const font = payload.font === 'serif' ? 'serif' : 'sans';
+  const meta = {
+    name: typeof payload.meta.name === 'string' ? payload.meta.name.slice(0, 500) : '',
+    title: typeof payload.meta.title === 'string' ? payload.meta.title.slice(0, 1000) : '',
+    frontMatter: payload.meta.frontMatter && typeof payload.meta.frontMatter === 'object' ? payload.meta.frontMatter : null,
+    toc: Array.isArray(payload.meta.toc) ? payload.meta.toc.slice(0, 2000).filter((h) => h && isStr(h.id, 500) && isStr(h.text, 1000) && Number.isInteger(h.level)) : [],
+    baseUrl: typeof payload.meta.baseUrl === 'string' ? payload.meta.baseUrl : '',
+  };
+  if (format === 'pdf' && payload.options) setSetting({ exportOptions: payload.options });
+  const saved = settings.get().exportOptions;
+  const options = { ...saved, paper: publish.resolvePaper(saved.paper, app.getLocaleCountryCode()) };
+  const filePath = await exportTarget(state, format);
+  if (!filePath) return { ok: false, canceled: true };
+  try {
+    let data;
+    let extra = {};
+    if (format === 'pdf' || format === 'html') {
+      if (!isStr(payload.content, 2e8)) return { ok: false, error: 'Nothing to export' };
+    }
+    if (format === 'pdf') {
+      const out = await publish.renderPdf({ root: ROOT, payload: { content: payload.content, meta, css, theme: options.colors === 'theme' ? theme : 'light', font }, options });
+      data = out.pdf;
+      extra = { numbers: out.numbers };
+    } else if (format === 'html') {
+      const exportCss = await fs.promises.readFile(path.join(ROOT, 'dist', 'export.css'), 'utf8');
+      data = await publish.buildStandaloneHtml({ content: payload.content, meta, css, theme: options.colors === 'theme' ? theme : 'light', font, exportCss, distDir: path.join(ROOT, 'dist') });
+    } else if (format === 'docx') {
+      if (!Array.isArray(payload.model)) return { ok: false, error: 'Nothing to export' };
+      const brand = settings.get().brand;
+      data = await publish.renderDocx({ root: ROOT, payload: { model: payload.model, meta, css }, options: { ...options, accent: brand.accent, bodyFont: brand.bodyFont, headingFont: brand.headingFont, codeFont: brand.codeFont } });
+    } else {
+      if (typeof payload.text !== 'string') return { ok: false, error: 'Nothing to export' };
+      data = payload.text.replace(/\r?\n/g, process.platform === 'win32' ? '\r\n' : '\n');
+    }
+    await fs.promises.writeFile(filePath, data);
+    if (!process.env.NMR_NO_REVEAL) shell.showItemInFolder(filePath);
+    return { ok: true, path: filePath, ...extra };
+  } catch (err) {
+    return { ok: false, error: errorMessage(err, filePath) };
+  }
 }
 
 // ---------------------------------------------------------------- settings broadcast
@@ -462,7 +509,15 @@ function rebuildMenu() {
         cmd('reveal', 'Show in Folder'),
         cmd('copy-path', 'Copy File Path'),
         { type: 'separator' },
-        { id: 'export-pdf', label: 'Export as PDF…', accelerator: 'CmdOrCtrl+Shift+E', click: () => { const st = targetState(); if (st) exportPdf(st); } },
+        {
+          label: 'Export',
+          submenu: [
+            cmd('export-pdf', 'PDF…', 'CmdOrCtrl+Shift+E'),
+            cmd('export-docx', 'Word Document (.docx)…'),
+            cmd('export-html', 'Web Page (.html)…'),
+            cmd('export-txt', 'Plain Text (.txt)…'),
+          ],
+        },
         { id: 'print', label: 'Print…', accelerator: 'CmdOrCtrl+P', click: () => targetState()?.win.webContents.print({ printBackground: true }) },
         { type: 'separator' },
         cmd('close-tab', 'Close Tab', 'CmdOrCtrl+W'),
@@ -505,6 +560,9 @@ function rebuildMenu() {
         { label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), radio('Light (Paper)', 'theme', 'light'), radio('Dark (Night)', 'theme', 'dark'), radio('Sepia', 'theme', 'sepia')] },
         { label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif')] },
         { label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] },
+        cmd('customize-theme', 'Customize Theme…'),
+        { type: 'separator' },
+        cmd('present', 'Present as Slides', 'CmdOrCtrl+Shift+P'),
         { type: 'separator' },
         cmd('quick-open', 'Go to File or Heading…', 'CmdOrCtrl+K'),
         { type: 'separator' },
@@ -772,11 +830,33 @@ function registerIpc() {
     return true;
   });
 
-  ipcMain.handle('doc:export-pdf', (e) => { const st = stateFor(e); return st ? exportPdf(st) : false; });
+  ipcMain.handle('export:run', (e, payload) => { const st = stateFor(e); return st ? runExport(st, payload) : { ok: false }; });
+  ipcMain.handle('window:fullscreen', (e, on) => {
+    const st = stateFor(e);
+    if (!st) return false;
+    if (on) { st.wasFullScreen = st.win.isFullScreen(); st.win.setFullScreen(true); } else if (!st.wasFullScreen) st.win.setFullScreen(false);
+    return st.win.isFullScreen();
+  });
+  ipcMain.handle('brand:pick-stylesheet', async (e) => {
+    const st = stateFor(e);
+    const res = await dialog.showOpenDialog(st?.win, { title: 'Choose a brand stylesheet', properties: ['openFile'], filters: [{ name: 'Stylesheet', extensions: ['css'] }] });
+    if (res.canceled || !res.filePaths[0]) return null;
+    setSetting({ brand: { ...settings.get().brand, stylesheet: res.filePaths[0] } });
+    return res.filePaths[0];
+  });
+  ipcMain.handle('brand:stylesheet', async () => {
+    const file = settings.get().brand.stylesheet;
+    if (!file) return { path: '', css: '' };
+    try {
+      const st = await fs.promises.stat(file);
+      if (st.size > 1024 * 1024) return { path: file, css: '', error: 'That stylesheet is larger than 1 MB.' };
+      return { path: file, css: await fs.promises.readFile(file, 'utf8') };
+    } catch (err) { return { path: file, css: '', error: errorMessage(err, file) }; }
+  });
   ipcMain.handle('doc:print', (e) => { stateFor(e)?.win.webContents.print({ printBackground: true }); });
   ipcMain.handle('settings:set', (_e, patch) => {
     if (!patch || typeof patch !== 'object') return rendererSettings();
-    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar'];
+    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'exportOptions', 'brand'];
     setSetting(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
     return rendererSettings();
   });

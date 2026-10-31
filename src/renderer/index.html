@@ -34,9 +34,11 @@
           <div class="seg" data-key="font"><button data-value="sans">Modern</button><button data-value="serif">Book</button></div>
           <div class="pop-label">Page width</div>
           <div class="seg" data-key="pageWidth"><button data-value="narrow">Narrow</button><button data-value="normal">Normal</button><button data-value="wide">Wide</button><button data-value="full">Full</button></div>
+          <button class="link-btn pop-more" id="btn-customize">Customize colours &amp; fonts…</button>
         </div>
       </div>
-      <button class="tb-btn" id="btn-pdf" title="Export as PDF (Ctrl+Shift+E)" aria-label="Export PDF"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/></svg></button>
+      <button class="tb-btn" id="btn-present" title="Present as slides (Ctrl+Shift+P)" aria-label="Present as slides"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8M10.5 7.8v4.4L14 10z"/></svg></button>
+      <button class="tb-btn" id="btn-pdf" title="Export as PDF, Word or web page (Ctrl+Shift+E)" aria-label="Export"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/></svg></button>
       <button class="tb-btn" id="btn-print" title="Print (Ctrl+P)" aria-label="Print"><svg viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M7 14h10v7H7z"/></svg></button>
     </div>
   </header>
@@ -194,6 +196,66 @@
 
   <div class="drop-overlay" id="drop-overlay" hidden><div>Drop to open</div></div>
   <div class="toast" id="toast" hidden></div>
+  <dialog class="shortcuts publish-dlg" id="publish" aria-labelledby="publish-h">
+    <div class="publish-head">
+      <h3 id="publish-h">Export as PDF</h3>
+      <span class="publish-doc" id="publish-doc"></span>
+    </div>
+    <div class="publish-body">
+      <form id="publish-form" class="publish-form">
+        <div class="pop-label">Paper</div>
+        <div class="seg" data-opt="paper"><button data-value="auto">Auto (<span id="publish-paper-auto">Letter</span>)</button><button data-value="letter">Letter</button><button data-value="a4">A4</button><button data-value="legal">Legal</button><button data-value="a5">A5</button></div>
+        <div class="pop-label">Margins</div>
+        <div class="seg" data-opt="margins"><button data-value="narrow">Narrow</button><button data-value="normal">Normal</button><button data-value="wide">Wide</button></div>
+        <div class="pop-label">Pages</div>
+        <label class="check"><input type="checkbox" data-opt="cover"> Cover page <small>title, subtitle, author and date from the front matter</small></label>
+        <label class="check"><input type="checkbox" data-opt="contents"> Contents page <small>with page numbers</small> <small class="warn" id="publish-contents-note" hidden>— this document has no headings</small></label>
+        <label class="check"><input type="checkbox" data-opt="chapterBreaks"> Start each chapter (<code>#</code> heading) on a new page</label>
+        <div class="pop-label">Header &amp; footer</div>
+        <label class="check"><input type="checkbox" data-opt="header"> Title and author at the top of each page</label>
+        <label class="check"><input type="checkbox" data-opt="pageNumbers"> Page numbers</label>
+        <div class="pop-label">Colours</div>
+        <div class="seg" data-opt="colors"><button data-value="paper">Paper (light)</button><button data-value="theme">As shown on screen</button></div>
+      </form>
+      <div class="publish-preview" id="publish-preview" aria-hidden="true">
+        <div class="pv-page pv-cover" id="pv-cover"><div class="pv-band"></div><div class="pv-cover-main"><div class="pv-cover-title" id="pv-cover-title"></div><div class="pv-rule"></div><div class="pv-cover-sub" id="pv-cover-sub"></div></div><div class="pv-cover-by" id="pv-cover-by"></div></div>
+        <div class="pv-page pv-contents" id="pv-contents"><div class="pv-head"></div><div class="pv-in"><div class="pv-h">Contents</div><i></i><i></i><i class="s"></i><i class="s"></i><i></i><i class="s"></i><i></i></div><div class="pv-foot">1</div></div>
+        <div class="pv-page pv-text"><div class="pv-head"></div><div class="pv-in"><div class="pv-h1"></div><b></b><b></b><b class="short"></b><div class="pv-h2"></div><b></b><b></b><b></b><b class="short"></b></div><div class="pv-foot">2</div></div>
+      </div>
+    </div>
+    <div class="publish-actions">
+      <span class="publish-other">Or export as <a href="#" data-format="docx">Word</a> · <a href="#" data-format="html">web page</a> · <a href="#" data-format="txt">plain text</a></span>
+      <button class="link-btn" id="publish-cancel">Cancel</button>
+      <button class="big-btn sm" id="publish-go">Export PDF…</button>
+    </div>
+  </dialog>
+
+  <dialog class="shortcuts theme-dlg" id="theme-dlg" aria-labelledby="theme-dlg-h">
+    <h3 id="theme-dlg-h">Customize theme</h3>
+    <p class="grants-intro">Your colour and fonts apply to every theme, and to PDFs, Word documents and web pages you export.</p>
+    <div class="pop-label">Accent colour</div>
+    <div class="accent-row"><div class="accent-swatches" id="accent-swatches"></div><label class="accent-pick" title="Pick any colour"><input type="color" id="accent-custom" aria-label="Custom accent colour"> Custom</label></div>
+    <div class="font-grid">
+      <label>Text font<input type="text" data-key="bodyFont" list="fonts-body" placeholder="Theme default" spellcheck="false"></label>
+      <label>Heading font<input type="text" data-key="headingFont" list="fonts-heading" placeholder="Theme default" spellcheck="false"></label>
+      <label>Code font<input type="text" data-key="codeFont" list="fonts-code" placeholder="Theme default" spellcheck="false"></label>
+    </div>
+    <datalist id="fonts-body"></datalist><datalist id="fonts-heading"></datalist><datalist id="fonts-code"></datalist>
+    <div class="pop-label">Brand stylesheet</div>
+    <div class="sheet-row"><span class="sheet-name" id="brand-sheet-name">None</span><button class="link-btn" id="brand-sheet-pick">Choose .css file…</button><button class="link-btn danger" id="brand-sheet-remove" hidden>Remove</button></div>
+    <p class="hint-text">A stylesheet for <code>.markdown-body</code> — for example your company’s house style. It is read from disk, never run as code.</p>
+    <div class="grants-actions">
+      <button class="link-btn" id="brand-reset">Reset to default</button>
+      <button class="big-btn sm" id="theme-dlg-close">Done</button>
+    </div>
+  </dialog>
+
+  <div class="present" id="present" hidden tabindex="-1" role="dialog" aria-label="Presentation">
+    <div class="present-stage" id="present-stage"><article class="markdown-body present-slide" id="present-slide"></article></div>
+    <div class="present-progress"><div id="present-progress"></div></div>
+    <div class="present-ui"><span id="present-count"></span><span class="present-hint">← → to move · Esc to leave</span><button class="tb-btn sm" id="present-close" title="Leave presentation (Esc)" aria-label="Leave presentation"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  </div>
+
   <dialog class="shortcuts grants" id="grants">
     <h3>Editing permissions</h3>
     <p class="grants-intro">Files and folders you chose <em>Always allow</em> for. Everything else asks first; <em>Just this time</em> ends when you close the tab.</p>
@@ -227,7 +289,8 @@
       <tr><td><kbd>Ctrl</kbd> <kbd>F</kbd></td><td>Find in document</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>B</kbd></td><td>Show / hide the sidebar</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>=</kbd> / <kbd>−</kbd> / <kbd>0</kbd></td><td>Text size</td></tr>
-      <tr><td><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>E</kbd></td><td>Export as PDF</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>E</kbd></td><td>Export as PDF (Word, web page and text from File › Export)</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>P</kbd></td><td>Present as slides (<kbd>←</kbd> <kbd>→</kbd> to move, <kbd>Esc</kbd> to leave)</td></tr>
       <tr><td><kbd>Ctrl</kbd> <kbd>P</kbd></td><td>Print</td></tr>
       <tr><td><kbd>F5</kbd></td><td>Reload file</td></tr>
       <tr><td><kbd>Alt</kbd> <kbd>←</kbd></td><td>Back to previous document</td></tr>

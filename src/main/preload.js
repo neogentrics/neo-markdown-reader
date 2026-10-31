@@ -27,8 +27,11 @@ contextBridge.exposeInMainWorld('reader', {
   copyText: invoke('clipboard:text'),
   copyRich: invoke('clipboard:rich'),
   // output
-  exportPdf: invoke('doc:export-pdf'),
+  exportDoc: invoke('export:run'),
   print: invoke('doc:print'),
+  setFullScreen: invoke('window:fullscreen'),
+  pickStylesheet: invoke('brand:pick-stylesheet'),
+  readStylesheet: invoke('brand:stylesheet'),
   // settings
   setSettings: invoke('settings:set'),
   clearRecent: invoke('recent:clear'),
