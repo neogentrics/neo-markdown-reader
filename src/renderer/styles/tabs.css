@@ -1,0 +1,80 @@
+/* ---------- tab strip */
+.tabstrip {
+  position: fixed; top: 52px; left: 0; right: 0; height: 38px; z-index: 19;
+  display: none; align-items: flex-end; gap: 4px; padding: 0 8px;
+  background: var(--chrome); border-bottom: 1px solid var(--chrome-border);
+}
+body.has-doc .tabstrip { display: flex; }
+body.has-doc .layout { top: 90px; }
+body.has-doc .find-bar { top: 98px; }
+.tabs { display: flex; align-items: flex-end; gap: 2px; min-width: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; flex: 0 1 auto; height: 100%; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  position: relative; display: flex; align-items: center; gap: 7px; height: 32px; padding: 0 6px 0 11px;
+  min-width: 110px; max-width: 240px; flex: 0 0 auto; border-radius: 9px 9px 0 0; cursor: default; user-select: none;
+  color: var(--text-soft); font-size: 12.5px; border: 1px solid transparent; border-bottom: 0;
+  transition: background .12s, color .12s;
+}
+.tab:hover { background: var(--btn-hover); color: var(--heading); }
+.tab.active {
+  background: var(--page); color: var(--heading); font-weight: 600; border-color: var(--chrome-border);
+  margin-bottom: -1px; height: 33px;
+}
+.tab.active::after { content: ""; position: absolute; left: 10px; right: 10px; top: 0; height: 2px; border-radius: 0 0 2px 2px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+.tab.dragging { opacity: .45; }
+.tab.drop-before::before, .tab.drop-after::before {
+  content: ""; position: absolute; top: 6px; bottom: 6px; width: 2px; border-radius: 2px; background: var(--accent);
+}
+.tab.drop-before::before { left: -3px; }
+.tab.drop-after::before { right: -3px; }
+.tab-icon { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; opacity: .7; }
+.tab.active .tab-icon { stroke: var(--accent); opacity: 1; }
+.tab-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tab-close {
+  flex: none; width: 20px; height: 20px; border: 0; border-radius: 5px; background: transparent; color: inherit;
+  display: grid; place-items: center; cursor: pointer; opacity: 0; padding: 0;
+}
+.tab:hover .tab-close, .tab.active .tab-close { opacity: .7; }
+.tab-close:hover { opacity: 1 !important; background: var(--btn-hover); }
+.tab-close svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.tab-add {
+  flex: none; align-self: center; width: 28px; height: 28px; border: 0; border-radius: 7px; background: transparent;
+  color: var(--text-soft); display: grid; place-items: center; cursor: pointer;
+}
+.tab-add:hover { background: var(--btn-hover); color: var(--heading); }
+.tab-add svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+/* ---------- pages (one per tab) */
+.pages { min-height: 100%; }
+.pages > .page[hidden] { display: none !important; }
+
+/* ---------- update bar */
+.update-bar {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: 22px; z-index: 55;
+  display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 16px; border-radius: 12px;
+  background: var(--page); color: var(--text); border: 1px solid var(--chrome-border); font-size: 13px;
+  box-shadow: 0 14px 40px -12px rgba(0, 0, 0, .4);
+}
+.update-btn {
+  border: 0; border-radius: 8px; padding: 6px 12px; font-weight: 600; cursor: pointer; color: #fff;
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, var(--accent-2)));
+}
+
+/* ---------- image viewer */
+.lightbox {
+  position: fixed; inset: 0; z-index: 70; display: flex; flex-direction: column;
+  background: rgba(8, 10, 14, .9); backdrop-filter: blur(3px); animation: toast-in .15s ease;
+}
+.lightbox-bar { display: flex; justify-content: space-between; gap: 16px; padding: 12px 18px; color: #c9cfdb; font-size: 13px; }
+.lightbox-hint { opacity: .7; }
+.lightbox-stage { flex: 1; overflow: hidden; display: grid; place-items: center; padding: 0 24px 24px; }
+.lightbox-stage img { max-width: 100%; max-height: 100%; object-fit: contain; cursor: zoom-in; border-radius: 4px; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); background: #fff; }
+.lightbox.zoomed .lightbox-stage { overflow: auto; display: block; }
+.lightbox.zoomed .lightbox-stage img { max-width: none; max-height: none; cursor: zoom-out; margin: auto; display: block; }
+.markdown-body img { cursor: zoom-in; }
+.markdown-body a img { cursor: pointer; }
+
+@media print {
+  .tabstrip, .update-bar, .lightbox { display: none !important; }
+  body.has-doc .layout { top: 0; }
+}

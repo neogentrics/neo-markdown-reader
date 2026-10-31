@@ -3,7 +3,7 @@
   @page { margin: 0; }
   html, body { height: auto; overflow: visible; background: var(--page) !important; }
   .toolbar, .sidebar, .find-bar, .toast, .drop-overlay, .welcome, .copy-btn, .shortcuts { display: none !important; }
-  .layout { position: static; display: block; }
+  .layout, body.has-doc .layout { position: static; display: block; }
   .desk { overflow: visible; padding: 0; background: none; }
   .page { max-width: none; box-shadow: none; border-radius: 0; padding: 0; min-height: 0; animation: none; }
   .markdown-body { font-size: calc(11.5pt * var(--font-scale)); }

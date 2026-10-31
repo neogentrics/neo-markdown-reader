@@ -20,8 +20,8 @@ your files or runs code is always **opt-in** and asks for permission first.
 | Release | Theme | Status |
 |---|---|---|
 | [v1.0](#v10--the-reader) | The reader | ✅ Released |
-| [v1.1](#v11--everyday-comfort) | Everyday comfort | 🚧 In progress |
-| [v1.2](#v12--create--edit) | Create & edit | Planned |
+| [v1.1](#v11--everyday-comfort) | Everyday comfort | ✅ Done in 1.1.0 |
+| [v1.2](#v12--create--edit) | Create & edit | ⏭️ Next |
 | [v1.3](#v13--compare--organize) | Compare & organize | Planned |
 | [v1.4](#v14--publish-beautifully) | Publish beautifully | Planned |
 | [v2.0](#v20--power-features) | Power features | Planned |
@@ -38,7 +38,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 
 ## v1.1 — Everyday comfort
 
-Make it feel like a normal Windows program.
+Make it feel like a normal Windows program. **All done in 1.1.0.**
 
 | Feature | Size | Details |
 |---|:-:|---|
