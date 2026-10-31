@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: End-to-end test (real app)
+        if: runner.os != 'Linux'
+        run: npm run test:e2e
+      - name: End-to-end test (real app, virtual display)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npm run test:e2e
+
+  package-windows:
+    name: Package Windows .exe
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run dist:win
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Upload installer + portable exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: NeoMarkdownReader-windows-${{ github.sha }}
+          path: |
+            release/*.exe
+          retention-days: 14

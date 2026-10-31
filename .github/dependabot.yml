@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      markdown:
+        patterns: ['markdown-it*', 'katex', 'highlight.js', 'mermaid', 'dompurify', 'js-yaml']
+      build-tools:
+        patterns: ['electron', 'electron-builder', 'esbuild', 'jsdom']
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
