@@ -24,7 +24,7 @@ jobs:
           - { name: macos,   os: macos-latest,   script: dist:mac,   files: 'release/*.dmg' }
           - { name: linux,   os: ubuntu-latest,  script: dist:linux, files: 'release/*.AppImage' }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
@@ -44,7 +44,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Work out the release tag
         id: tag
         shell: bash
