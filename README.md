@@ -202,7 +202,7 @@ On macOS use `Cmd` instead of `Ctrl`.
 - **v1.4** added a PDF designer with cover and contents pages, Word, web page and text
   export, presentation mode, and custom colours, fonts and brand stylesheets.
 
-Next up is **v2.0, Power features**: running code blocks in a sandbox and password-locked files.
+Now in progress is **v2.0, Power features**: running code blocks in a sandbox, password-locked files and four more colour themes.
 
 **[See the full roadmap →](ROADMAP.md)**
 

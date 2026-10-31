@@ -24,7 +24,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v1.2](#v12--create--edit) | Create & edit | ✅ Released (1.2.0) |
 | [v1.3](#v13--compare--organize) | Compare & organize | ✅ Released ([1.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.3.0)) |
 | [v1.4](#v14--publish-beautifully) | Publish beautifully | ✅ Released ([1.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.4.0)) |
-| [v2.0](#v20--power-features) | Power features | ⏭️ Next |
+| [v2.0](#v20--power-features) | Power features | 🚧 In progress |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Planned |
 
 ## v1.0 — The reader
@@ -86,10 +86,13 @@ updates itself from here on.
 
 ## v2.0 — Power features
 
+🚧 **In progress.**
+
 | Feature | Size | Details |
 |---|:-:|---|
 | 🙋🛡️ Run code blocks | L | A ▶ Run button on code blocks. JavaScript and Python (via Pyodide) run in a sealed sandbox with **no access** to your files, network or settings. Nothing runs automatically: each run shows the code and asks first. Can be switched off entirely. |
-| 🙋 Password-locked documents | L | *Protect with password* saves an AES-256 encrypted copy that only this app can open with the password. |
+| 🙋 Password-locked documents | L | *Protect with password* saves an AES-256 encrypted copy (`.mdlock`) that only this app can open with the password. |
+| 🙋 Four more colour themes | S | **Mist** (soft blue-grey), **Forest** (deep green, dark), **Dusk** (plum, dark) and **High Contrast** (for readability and accessibility), alongside Paper, Sepia and Night. They work with your own accent colour and in exports. |
 | Preview in File Explorer | L | See a formatted preview of a `.md` file in Explorer's Preview pane. |
 | AI assist (optional) | M | Summarize, explain, or turn notes into a clean report with Claude. Off by default; uses your own API key and only sends what you choose. |
 
