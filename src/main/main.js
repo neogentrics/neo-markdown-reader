@@ -135,6 +135,7 @@ function createWindow(opts = {}) {
     tabs: [],
     active: 0,
     watchers: new Map(),
+    known: new Map(),         // path -> mtimeMs of the version this window last received
   };
   windows.set(id, state);
   lastFocusedId = id;
@@ -173,7 +174,9 @@ function createWindow(opts = {}) {
 
 // ---------------------------------------------------------------- opening files
 function sendDoc(state, channel, doc) {
-  if (!state.win.isDestroyed()) state.win.webContents.send(channel, doc);
+  if (state.win.isDestroyed()) return;
+  state.win.webContents.send(channel, doc);
+  ensureWatch(state, doc.path, doc.mtime);
 }
 
 async function loadDoc(filePath, { remember = true } = {}) {
@@ -215,23 +218,41 @@ function errorMessage(err, p) {
 }
 
 // ---------------------------------------------------------------- watching (live reload)
+/**
+ * Watch a file for this window, starting the moment the window is handed the document. The mtime
+ * of the version it received is the baseline, so a save that lands between reading the file and
+ * starting the watcher is still noticed.
+ */
+function ensureWatch(state, p, knownMtime) {
+  if (state.win.isDestroyed()) return;
+  if (Number.isFinite(knownMtime)) state.known.set(p, knownMtime);
+  if (state.watchers.has(p)) return;
+  const check = async (mtimeMs) => {
+    if (state.win.isDestroyed() || !state.watchers.has(p)) return;
+    if (mtimeMs === state.known.get(p)) return;
+    try {
+      const doc = await readMarkdown(p);
+      if (doc.mtime === state.known.get(p)) return;
+      state.known.set(p, doc.mtime);
+      state.win.webContents.send('doc:changed', doc);
+    } catch { /* momentarily missing during an editor's save; the next poll catches up */ }
+  };
+  const listener = (curr) => {
+    if (!curr || (curr.nlink === 0 && curr.size === 0)) return;
+    check(curr.mtimeMs);
+  };
+  fs.watchFile(p, { interval: 500 }, listener);
+  state.watchers.set(p, () => fs.unwatchFile(p, listener));
+  fs.promises.stat(p).then((st) => check(st.mtimeMs), () => {});
+}
+
+/** Drop watchers for files no window tab shows any more; add any that are missing. */
 function syncWatchers(state) {
   const wanted = new Set(state.tabs.map((t) => t.path));
   for (const [p, unwatch] of state.watchers) {
-    if (!wanted.has(p)) { unwatch(); state.watchers.delete(p); }
+    if (!wanted.has(p)) { unwatch(); state.watchers.delete(p); state.known.delete(p); }
   }
-  for (const p of wanted) {
-    if (state.watchers.has(p)) continue;
-    let last = 0;
-    const listener = async (curr) => {
-      if (!curr || curr.mtimeMs === last || state.win.isDestroyed()) return;
-      last = curr.mtimeMs;
-      if (curr.nlink === 0 && curr.size === 0) return;          // momentarily gone during an editor's save
-      try { sendDoc(state, 'doc:changed', await readMarkdown(p)); } catch { /* next tick catches up */ }
-    };
-    fs.watchFile(p, { interval: 600 }, listener);
-    state.watchers.set(p, () => fs.unwatchFile(p, listener));
-  }
+  for (const p of wanted) ensureWatch(state, p, state.known.get(p));
 }
 
 // ---------------------------------------------------------------- session
@@ -504,15 +525,28 @@ function registerIpc() {
     };
   });
 
-  ipcMain.handle('doc:read', async (_e, p, opts = {}) => {
+  ipcMain.handle('doc:read', async (e, p, opts = {}) => {
     if (!isStr(p, 4096) || !isMarkdownPath(p)) return { error: 'Not a Markdown file.' };
-    try { return { doc: await loadDoc(p, { remember: opts.remember !== false }) }; } catch (err) { return { error: errorMessage(err, p) }; }
+    try {
+      const doc = await loadDoc(p, { remember: opts.remember !== false });
+      const st = stateFor(e);
+      if (st) ensureWatch(st, doc.path, doc.mtime);
+      return { doc };
+    } catch (err) { return { error: errorMessage(err, p) }; }
   });
   ipcMain.handle('doc:open-dialog', (e) => openViaDialog(stateFor(e)));
-  ipcMain.handle('doc:showcase', async () => ({ doc: await loadDoc(SHOWCASE, { remember: false }) }));
-  ipcMain.handle('doc:resolve-link', (_e, href, fromPath) => {
+  ipcMain.handle('doc:showcase', async (e) => {
+    const doc = await loadDoc(SHOWCASE, { remember: false });
+    const st = stateFor(e);
+    if (st) ensureWatch(st, doc.path, doc.mtime);
+    return { doc };
+  });
+  ipcMain.handle('doc:resolve-link', async (e, href, fromPath) => {
     if (!isStr(href)) return { kind: 'none' };
-    return resolveLink(href, isStr(fromPath, 4096) ? fromPath : undefined);
+    const res = await resolveLink(href, isStr(fromPath, 4096) ? fromPath : undefined);
+    const st = stateFor(e);
+    if (st && res.kind === 'doc') ensureWatch(st, res.doc.path, res.doc.mtime);
+    return res;
   });
 
   ipcMain.handle('tabs:sync', (e, payload) => {

@@ -190,9 +190,15 @@ function updateChrome() {
 }
 
 let syncTimer = 0;
+let syncDue = 0;
+/** Report open tabs to the main process. A later, longer delay (scrolling) never postpones a sooner one. */
 function syncSoon(delay = 120) {
+  const due = Date.now() + delay;
+  if (syncTimer && syncDue <= due) return;
   clearTimeout(syncTimer);
+  syncDue = due;
   syncTimer = setTimeout(() => {
+    syncTimer = 0;
     const active = activeTab();
     if (active) active.scroll = scrollRatio();
     api.syncTabs({

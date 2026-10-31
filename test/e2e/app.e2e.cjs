@@ -44,6 +44,10 @@ const windowCount = (app) => app.evaluate(({ BrowserWindow }) => BrowserWindow.g
     assert.deepEqual(await tabLabels(win), ['notes']);
     assert.match(await win.title(), /^notes\.md/);
   });
+  await step('picks up an edit saved right after the file opened', async () => {
+    fs.appendFileSync(notes, '\n## Edited right away\n');
+    await win.waitForSelector('#edited-right-away', { timeout: 10000 });
+  });
   await step('shows the menu bar by default', async () => {
     if (process.platform === 'darwin') return;              // macOS menus live in the system menu bar
     assert.equal(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMenuBarVisible()), true);
