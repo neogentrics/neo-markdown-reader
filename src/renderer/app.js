@@ -134,7 +134,10 @@ function activate(id) {
   next.btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   if (!els.findBar.hidden) closeFind();
   showActiveDoc();
-  requestAnimationFrame(() => { restoreScroll(next); updateActiveHeading(); });
+  // Restore synchronously (reading scrollHeight forces layout): animation frames are paused for
+  // windows hidden behind others on macOS, and the position must not wait for the window to show.
+  restoreScroll(next);
+  updateActiveHeading();
   syncSoon();
 }
 
@@ -261,7 +264,8 @@ async function goBack() {
   await renderInto(tab, res.doc);
   tab.scroll = prev.scroll;
   showActiveDoc();
-  requestAnimationFrame(() => { restoreScroll(tab); updateActiveHeading(); });
+  restoreScroll(tab);
+  updateActiveHeading();
   syncSoon();
 }
 

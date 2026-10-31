@@ -182,10 +182,15 @@ const windowCount = (app) => app.evaluate(({ BrowserWindow }) => BrowserWindow.g
   await step('restored tab resumes at the saved reading position', async () => {
     let nw = null;
     for (const x of app.windows()) if ((await tabLabels(x)).includes('notes')) nw = x;
+    await nw.bringToFront();
     await nw.click('.tab:nth-child(1)');
     await nw.waitForTimeout(500);
-    const top = await nw.evaluate(() => document.getElementById('desk').scrollTop);
-    assert.ok(top > 50, `expected to resume scrolled down, got scrollTop=${top}`);
+    const d = await nw.evaluate(() => {
+      const desk = document.getElementById('desk');
+      return { top: desk.scrollTop, height: desk.scrollHeight, view: desk.clientHeight, vis: document.visibilityState, active: document.querySelector('.tab.active .tab-label')?.textContent };
+    });
+    const saved = JSON.parse(fs.readFileSync(path.join(profile, 'settings.json'), 'utf8'));
+    assert.ok(d.top > 50, `expected to resume scrolled down, got ${JSON.stringify(d)}; saved session=${JSON.stringify(saved.session)}; positions=${JSON.stringify(saved.positions)}`);
   });
   await app.close();
   console.log('e2e: all passed');
