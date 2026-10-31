@@ -1,0 +1,30 @@
+name: Bug report
+description: Something displays wrong or the app misbehaves
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect to see, and what did you see instead? Screenshots help a lot.
+    validations:
+      required: true
+  - type: textarea
+    id: markdown
+    attributes:
+      label: Markdown that reproduces it
+      description: The smallest snippet of the .md file that shows the problem.
+      render: markdown
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Help → About Neo Markdown Reader
+      placeholder: "1.0.0"
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [Windows 11, Windows 10, macOS, Linux]
+    validations:
+      required: true

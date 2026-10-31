@@ -1,0 +1,17 @@
+/* Print & "Export as PDF": the page becomes the paper. */
+@media print {
+  @page { margin: 0; }
+  html, body { height: auto; overflow: visible; background: var(--page) !important; }
+  .toolbar, .sidebar, .find-bar, .toast, .drop-overlay, .welcome, .copy-btn, .shortcuts { display: none !important; }
+  .layout { position: static; display: block; }
+  .desk { overflow: visible; padding: 0; background: none; }
+  .page { max-width: none; box-shadow: none; border-radius: 0; padding: 0; min-height: 0; animation: none; }
+  .markdown-body { font-size: calc(11.5pt * var(--font-scale)); }
+  .markdown-body pre, .markdown-body pre code { white-space: pre-wrap; word-break: break-word; }
+  .markdown-body pre, .markdown-body blockquote, .markdown-body .table-wrap, .markdown-body .markdown-alert,
+  .markdown-body .mermaid-diagram, .markdown-body img, .markdown-body figure, .markdown-body tr, .markdown-body .doc-meta { break-inside: avoid; }
+  .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 { break-after: avoid; }
+  .markdown-body .table-wrap { overflow: visible; }
+  .markdown-body a { border-bottom: 0; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
