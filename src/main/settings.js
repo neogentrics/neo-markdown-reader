@@ -16,6 +16,8 @@ const DEFAULTS = Object.freeze({
   positions: {},          // path -> scroll ratio (0..1), remembered reading positions
   session: [],            // [{ bounds, tabs: [{ path, scroll }], active }]
   editGrants: { files: [], folders: [] },   // "Always allow editing" choices; "Just this time" is never saved
+  bookmarks: [],          // starred files (shown in the Files panel and Quick Open)
+  recentFolders: [],      // most-recent-first folders opened with File > Open Folder
   windowBounds: null,
 });
 
@@ -41,8 +43,8 @@ function cleanSession(list) {
     const tabs = (Array.isArray(w?.tabs) ? w.tabs : []).filter((t) => isPath(t?.path)).slice(0, MAX_TABS)
       .map((t) => ({ path: t.path, scroll: ratio(t.scroll) }));
     const active = Number.isInteger(w?.active) && w.active >= 0 && w.active < tabs.length ? w.active : 0;
-    return { bounds: cleanBounds(w?.bounds), tabs, active };
-  }).filter((w) => w.tabs.length);
+    return { bounds: cleanBounds(w?.bounds), tabs, active, folder: isPath(w?.folder) ? w.folder : null };
+  }).filter((w) => w.tabs.length || w.folder);
 }
 
 function cleanPositions(obj) {
@@ -57,7 +59,7 @@ function cleanGrants(g) {
 }
 
 function sanitize(input) {
-  const s = { ...DEFAULTS, recent: [], positions: {}, session: [], editGrants: { files: [], folders: [] } };
+  const s = { ...DEFAULTS, recent: [], positions: {}, session: [], editGrants: { files: [], folders: [] }, bookmarks: [], recentFolders: [] };
   if (!input || typeof input !== 'object') return s;
   if (THEMES.includes(input.theme)) s.theme = input.theme;
   if (FONTS.includes(input.font)) s.font = input.font;
@@ -69,6 +71,8 @@ function sanitize(input) {
   s.positions = cleanPositions(input.positions);
   s.session = cleanSession(input.session);
   s.editGrants = cleanGrants(input.editGrants);
+  if (Array.isArray(input.bookmarks)) s.bookmarks = [...new Set(input.bookmarks.filter(isPath))].slice(0, 300);
+  if (Array.isArray(input.recentFolders)) s.recentFolders = [...new Set(input.recentFolders.filter(isPath))].slice(0, 10);
   s.windowBounds = cleanBounds(input.windowBounds);
   return s;
 }

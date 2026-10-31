@@ -2,6 +2,11 @@
 // All OS access goes through window.reader (see src/main/preload.js).
 import { createRenderer } from './markdown.js';
 import { createEditMode } from './editmode.js';
+import { createSidebar } from './sidebar.js';
+import { createPalette } from './palette.js';
+import { createSplit } from './split.js';
+import { createHighlights } from './highlights.js';
+import { compareDocs } from './compare.js';
 import './styles/app.css';
 
 const api = window.reader;
@@ -27,7 +32,11 @@ const tabs = [];
 let activeId = null;
 const closedTabs = [];       // [{ path, scroll, index }] most recent last
 let nextId = 1;
-let editMode = null;         // created once the tab functions below exist (see bottom of file)
+let editMode = null;         // these feature modules are created once the tab functions below exist
+let sidebar = null;
+let palette = null;
+let split = null;
+let highlights = null;
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -70,13 +79,32 @@ document.addEventListener('keydown', (e) => {
 
 /** Render `doc` into the tab's page. With preview=true (live preview while editing) the tab keeps its saved doc. */
 function renderInto(tab, doc, { preview = false } = {}) {
+  if (doc.compare) {
+    // A Compare tab shows a diff of two documents instead of rendered Markdown.
+    const { left, right } = doc.compare;
+    const cmp = compareDocs(left.content, right.content, { leftName: left.name, rightName: right.name });
+    tab.doc = doc;
+    tab.result = { html: cmp.html, toc: [], title: doc.name, stats: { words: 0, minutes: 0 } };
+    tab.el.classList.add('compare-page');
+    tab.el.innerHTML = cmp.html;
+    updateTabButton(tab);
+    return Promise.resolve();
+  }
   const result = render(doc.content, { baseUrl: doc.baseUrl });
   if (!preview) tab.doc = doc;
   tab.result = result;
   tab.el.innerHTML = result.html;
   enhance(tab.el);
   updateTabButton(tab);
-  return renderMermaid(tab.el, false);
+  return renderMermaid(tab.el, false).then(() => highlights?.apply(tab));
+}
+
+/** Re-render a tab in place (e.g. after its highlights changed), keeping its scroll position. */
+async function rerender(tab) {
+  const isActive = tab.id === activeId;
+  const top = isActive ? els.desk.scrollTop : null;
+  await renderInto(tab, tab.editing ? { ...tab.doc, content: tab.editor.getText() } : tab.doc, { preview: !!tab.editing });
+  if (isActive) { els.desk.scrollTop = top; showActiveDoc(); }
 }
 
 function makeTabButton(tab) {
@@ -140,8 +168,11 @@ function activate(id) {
   next.btn.setAttribute('aria-selected', 'true');
   next.btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   if (!els.findBar.hidden) closeFind();
+  split?.afterActivate(prev, next);
   showActiveDoc();
   editMode?.show(next);
+  sidebar?.markActive();
+  highlights?.renderPanel(next);
   // Restore synchronously (reading scrollHeight forces layout): animation frames are paused for
   // windows hidden behind others on macOS, and the position must not wait for the window to show.
   restoreScroll(next);
@@ -167,6 +198,7 @@ async function closeTab(id) {
   if (tab.doc.path) closedTabs.push({ path: tab.doc.path, scroll: tab.scroll, index: i });
   if (closedTabs.length > 25) closedTabs.shift();
   tabs.splice(i, 1);
+  split?.onClose(tab);
   tab.el.remove();
   tab.btn.remove();
   if (tab.id === activeId) {
@@ -217,9 +249,27 @@ function showActiveDoc() {
   els.meta.textContent = result.title && result.title !== doc.name ? doc.name : '';
   els.back.disabled = tab.history.length === 0 || !!tab.editing;
   buildToc(result.toc);
-  els.sideFoot.innerHTML = `<span>${result.stats.words.toLocaleString()} words</span><span>${result.stats.minutes} min read</span>${doc.path ? '<button class="link-btn" id="reveal">Show in folder</button>' : ''}`;
+  els.sideFoot.innerHTML = doc.compare ? '' : `<span>${result.stats.words.toLocaleString()} words</span><span>${result.stats.minutes} min read</span>${doc.path ? '<button class="link-btn" id="reveal">Show in folder</button>' : ''}`;
   if (doc.path) $('reveal').onclick = () => api.reveal(doc.path);
+  updateBookmarkButton();
   updateChrome();
+}
+
+function isBookmarked(p) { return !!p && (settings.bookmarks || []).some((b) => b.toLowerCase() === p.toLowerCase()); }
+function updateBookmarkButton() {
+  const tab = activeTab();
+  const btn = $('btn-bookmark');
+  btn.hidden = !tab?.doc.path;
+  const on = isBookmarked(tab?.doc.path);
+  btn.classList.toggle('on', on);
+  btn.title = on ? 'Remove bookmark (Ctrl+D)' : 'Bookmark this file (Ctrl+D)';
+}
+async function toggleBookmark() {
+  const tab = activeTab();
+  if (!tab?.doc.path) { toast('Save the document first to bookmark it'); return; }
+  const was = isBookmarked(tab.doc.path);
+  await api.toggleBookmark(tab.doc.path);
+  toast(was ? 'Bookmark removed' : 'Bookmarked — find it under Files or with Ctrl+K');
 }
 
 function updateChrome() {
@@ -414,16 +464,38 @@ els.tocFilter.addEventListener('input', () => {
   for (const a of els.toc.querySelectorAll('.toc-item')) a.hidden = q && !a.textContent.toLowerCase().includes(q);
 });
 
-function scrollToId(id) {
-  const tab = activeTab();
+/** The scrolling pane a tab is shown in (left desk, or the right pane in split view). */
+const deskFor = (tab) => (split?.rightTab() === tab ? split.pane : els.desk);
+
+function scrollToElement(target, { desk = els.desk, smooth = true } = {}) {
+  desk.scrollTo({ top: target.getBoundingClientRect().top - desk.getBoundingClientRect().top + desk.scrollTop - 16, behavior: smooth ? 'smooth' : 'auto' });
+}
+
+function scrollToId(id, tab = activeTab()) {
   if (!tab) return;
   let key = id.replace(/^#/, '');
   try { key = decodeURIComponent(key); } catch { /* keep raw */ }
   const target = tab.el.querySelector(`[id="${CSS.escape(key)}"]`);
   if (!target) return;
-  els.desk.scrollTo({ top: target.getBoundingClientRect().top - els.desk.getBoundingClientRect().top + els.desk.scrollTop - 16, behavior: 'smooth' });
+  scrollToElement(target, { desk: deskFor(tab) });
   target.classList.add('flash');
   setTimeout(() => target.classList.remove('flash'), 1200);
+}
+
+/** Open a file and scroll to a source line (used by Find in Folder), highlighting the search text. */
+async function openAtLine(path, line, query) {
+  const tab = await openPath(path);
+  if (!tab) return;
+  if (tab.id !== activeId) activate(tab.id);
+  let best = null;
+  for (const el of tab.el.querySelectorAll('[data-line]')) { if (Number(el.dataset.line) <= line) best = el; else break; }
+  pendingRestore = null;
+  if (best) {
+    scrollToElement(best, { smooth: false });
+    best.classList.add('flash');
+    setTimeout(() => best.classList.remove('flash'), 1400);
+  } else els.desk.scrollTop = 0;
+  if (query) api.find(query, { findNext: false });
 }
 
 let scrollRaf = 0;
@@ -449,31 +521,39 @@ els.desk.addEventListener('scroll', () => {
 }, { passive: true });
 
 // ================================================================ links & images in documents
-async function followLink(a, { newTab = false } = {}) {
-  const tab = activeTab();
+async function followLink(a, { newTab = false, tab = activeTab() } = {}) {
   const href = a.getAttribute('href');
   if (!tab || !href) return;
-  if (href.startsWith('#')) { scrollToId(href.slice(1)); return; }
+  if (href.startsWith('#')) { scrollToId(href.slice(1), tab); return; }
   const res = await api.resolveLink(href, tab.doc.path);
   if (res.kind === 'doc') {
-    // While editing, a link never navigates the tab away from the editor: it opens in a new tab.
-    if (newTab || tab.editing) await openInTab(res.doc, { activate: true, duplicate: false, scroll: 0 });
+    // While editing (or in the right-hand pane of a split), links open in a new tab.
+    if (newTab || tab.editing || tab !== activeTab()) await openInTab(res.doc, { activate: true, duplicate: false, scroll: 0 });
     else await navigateTab(tab, res.doc);
   } else if (res.kind === 'error') {
     toast(res.message);
   }
 }
 
-els.pages.addEventListener('click', (e) => {
+const tabForElement = (el) => tabs.find((t) => t.el.contains(el)) || null;
+
+function onPageClick(e) {
+  const tab = tabForElement(e.target);
+  if (!tab) return;
+  if (highlights?.onPageClick(e, tab)) return;
   const a = e.target.closest('a[href]');
-  if (a) { e.preventDefault(); followLink(a, { newTab: e.ctrlKey || e.metaKey }); return; }
+  if (a) { e.preventDefault(); followLink(a, { newTab: e.ctrlKey || e.metaKey, tab }); return; }
   const img = e.target.closest('img');
   if (img && !e.target.closest('.mermaid-diagram')) openLightbox(img);
-});
-els.pages.addEventListener('auxclick', (e) => {
+}
+function onPageAuxClick(e) {
   const a = e.target.closest('a[href]');
-  if (a && e.button === 1) { e.preventDefault(); followLink(a, { newTab: true }); }
-});
+  if (a && e.button === 1) { e.preventDefault(); followLink(a, { newTab: true, tab: tabForElement(a) }); }
+}
+for (const container of [els.pages, $('pages2')]) {
+  container.addEventListener('click', onPageClick);
+  container.addEventListener('auxclick', onPageAuxClick);
+}
 
 function openLightbox(img) {
   els.lightboxImg.src = img.currentSrc || img.src;
@@ -710,9 +790,59 @@ api.onCommand(({ cmd, arg }) => {
     case 'save': editMode.save(); break;
     case 'save-as': editMode.saveAs(); break;
     case 'grants': editMode.showGrants(); break;
+    // organizing (v1.3)
+    case 'quick-open': palette.open(); break;
+    case 'find-in-folder': sidebar.findInFolder(); break;
+    case 'close-folder': api.closeFolder(); sidebar.setFolder(null); break;
+    case 'panel-outline': case 'panel-files': case 'panel-highlights':
+      showSidebar(); sidebar.show(cmd.slice(6)); break;
+    case 'split-toggle': split.toggle(); break;
+    case 'split-link': if (!split.isOpen()) split.toggle(); split.toggleLink(); break;
+    case 'open-side': if (target && target.id !== activeId) split.open(target); else if (tabs.length > 1) split.toggle(); break;
+    case 'compare-tabs': compareTabWith(target); break;
+    case 'compare-file': compareWithFile(); break;
+    case 'compare-saved': compareWithSaved(); break;
+    case 'highlight': highlights.create(); break;
+    case 'bookmark': toggleBookmark(); break;
     default: break;
   }
 });
+
+function showSidebar() { if (!settings.showToc) api.setSettings({ showToc: true }); }
+
+// ================================================================ compare
+async function openCompare(left, right) {
+  const doc = {
+    path: null, name: `${left.name} ↔ ${right.name}`, dir: '', baseUrl: '', content: '', mtime: NaN,
+    compare: { left: { name: left.name, content: left.content }, right: { name: right.name, content: right.content } },
+  };
+  await openInTab(doc, { duplicate: true, scroll: 0 });
+}
+const docText = (t) => (t.editing ? t.editor.getText() : t.doc.content);
+
+async function compareTabWith(base = activeTab()) {
+  if (!base || base.doc.compare) return;
+  const others = tabs.filter((t) => t !== base && !t.doc.compare);
+  if (!others.length) { toast('Open another document to compare with'); return; }
+  const other = others.length === 1 ? others[0]
+    : (await palette.pick(others.map((t) => ({ label: t.doc.name, detail: t.doc.path || 'Not saved', tab: t })), { placeholder: `Compare “${base.doc.name}” with…` }))?.tab;
+  if (other) await openCompare({ name: base.doc.name, content: docText(base) }, { name: other.doc.name, content: docText(other) });
+}
+
+async function compareWithFile() {
+  const base = activeTab();
+  if (!base || base.doc.compare) { toast('Open a document first'); return; }
+  const res = await api.pickDoc();
+  if (!res) return;
+  if (res.error) { toast(res.error); return; }
+  await openCompare({ name: res.doc.name, content: res.doc.content }, { name: base.doc.name, content: docText(base) });
+}
+
+async function compareWithSaved() {
+  const tab = activeTab();
+  if (!tab?.editing) { toast('Compare with Saved Version shows your unsaved edits — click Edit and make a change first'); return; }
+  await openCompare({ name: `${tab.doc.name} (saved)`, content: tab.savedText ?? tab.doc.content }, { name: `${tab.doc.name} (your edits)`, content: tab.editor.getText() });
+}
 
 /** Close tabs one at a time, so unsaved-changes questions come one after another; stop on Cancel. */
 async function closeTabsInOrder(list) {
@@ -749,6 +879,8 @@ function applySettings(s) {
     for (const b of seg.querySelectorAll('button')) b.classList.toggle('active', s[seg.dataset.key] === b.dataset.value);
   }
   renderRecent(s.recent || []);
+  sidebar?.setBookmarks(s.bookmarks || []);
+  if (activeTab()) updateBookmarkButton();
   if (prevTheme && prevTheme !== root.dataset.theme) for (const t of tabs) renderMermaid(t.el, true);
 }
 
@@ -801,7 +933,45 @@ editMode = createEditMode({
   syncSoon,
   platform: () => platform,
   desk: els.desk,
+  beforeEdit: () => split?.close(),
 });
+sidebar = createSidebar({
+  api,
+  activeTab,
+  openPath,
+  openAtLine,
+  showSidebar,
+  renderHighlights: () => highlights.renderPanel(activeTab()),
+});
+palette = createPalette({
+  tabs: () => tabs,
+  activeTab,
+  bookmarks: () => settings.bookmarks || [],
+  recent: () => settings.recent || [],
+  folderFiles: () => sidebar.allFiles(),
+  openPath,
+  goToHeading: (id) => scrollToId(id),
+});
+split = createSplit({
+  tabs: () => tabs,
+  activeTab,
+  activeId: () => activeId,
+  activate,
+  pages: els.pages,
+  desk: els.desk,
+  toast,
+});
+highlights = createHighlights({
+  api,
+  activeTab,
+  toast,
+  rerender,
+  desk: els.desk,
+  scrollToElement: (el) => scrollToElement(el, { desk: deskFor(tabForElement(el)) }),
+});
+$('btn-bookmark').onclick = () => toggleBookmark();
+$('btn-quick').onclick = () => palette.open();
+$('btn-split').onclick = () => split.toggle();
 api.onError(({ message }) => toast(message));
 api.onSettings(applySettings);
 api.onUpdate(showUpdate);
@@ -811,6 +981,7 @@ api.init().then(async ({ settings: s, platform: p, startup, update }) => {
   document.documentElement.dataset.platform = platform;
   applySettings(s);
   showUpdate(update);
+  if (startup.folder) sidebar.setFolder(startup.folder);
   const failed = [];
   for (const t of startup.tabs) {
     const res = await api.readDoc(t.path, { remember: false });

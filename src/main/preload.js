@@ -43,6 +43,17 @@ contextBridge.exposeInMainWorld('reader', {
   listGrants: invoke('grants:list'),
   revokeGrant: invoke('grants:revoke'),
   openBackups: invoke('backups:open'),
+  // folders, compare, highlights & bookmarks
+  openFolder: invoke('folder:open'),
+  closeFolder: invoke('folder:close'),
+  refreshFolder: invoke('folder:refresh'),
+  searchFolder: invoke('folder:search'),
+  pickDoc: invoke('doc:pick'),
+  getAnnotations: invoke('annotations:get'),
+  setAnnotations: invoke('annotations:set'),
+  toggleBookmark: invoke('bookmarks:toggle'),
+  onFolderOpened: on('folder:opened'),
+  onFolderChanged: on('folder:changed'),
   // updates
   installUpdate: invoke('update:install'),
   openUpdatePage: invoke('update:open-page'),

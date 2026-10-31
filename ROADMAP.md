@@ -22,8 +22,8 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v1.0](#v10--the-reader) | The reader | ✅ Released |
 | [v1.1](#v11--everyday-comfort) | Everyday comfort | ✅ Released (1.1.0) |
 | [v1.2](#v12--create--edit) | Create & edit | ✅ Released (1.2.0) |
-| [v1.3](#v13--compare--organize) | Compare & organize | ⏭️ Next |
-| [v1.4](#v14--publish-beautifully) | Publish beautifully | Planned |
+| [v1.3](#v13--compare--organize) | Compare & organize | ✅ Done — ships in 1.3.0 |
+| [v1.4](#v14--publish-beautifully) | Publish beautifully | ⏭️ Next |
 | [v2.0](#v20--power-features) | Power features | Planned |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Planned |
 
@@ -64,12 +64,14 @@ updates itself from here on.
 
 ## v1.3 — Compare & organize
 
+✅ **Done — ships in 1.3.0.**
+
 | Feature | Size | Details |
 |---|:-:|---|
-| 🙋 Split view & compare | M | Two tabs side by side in one window with optional linked scrolling. *Compare* highlights what changed between two versions. |
-| Open Folder | M | Browse every `.md` file in a folder from a sidebar tree. |
-| Quick Open & search across files | M | `Ctrl+K` jumps to any file or heading; *Find in Folder* searches every document. |
-| Bookmarks & highlights | M | Private highlights and notes, stored by the app — never written into the file. |
+| ✅ 🙋 Split view & compare | M | Two tabs side by side in one window with optional linked scrolling. *Compare* highlights what changed between two versions — two tabs, a file, or your unsaved edits. |
+| ✅ Open Folder | M | Browse every `.md` file in a folder from a sidebar tree. |
+| ✅ Quick Open & search across files | M | `Ctrl+K` jumps to any file or heading; *Find in Folder* searches every document. |
+| ✅ Bookmarks & highlights | M | Private highlights and notes, stored by the app — never written into the file. |
 
 ## v1.4 — Publish beautifully
 

@@ -64,6 +64,8 @@ export function createEditMode(ctx) {
   // ---------------------------------------------------------------- entering / leaving edit mode
   async function enter(tab) {
     if (!tab || tab.editing) { tab?.editor?.focus(); return; }
+    if (tab.doc.compare) { ctx.toast('A comparison can’t be edited — open the document itself to edit it'); return; }
+    ctx.beforeEdit?.();                      // e.g. close split view to make room for the editor
     if (!tab.untitled) {
       const res = await api.requestEdit(tab.doc.path);
       if (!res.ok) {
@@ -245,7 +247,7 @@ export function createEditMode(ctx) {
 
   function refresh() {
     const tab = ctx.activeTab();
-    els.edit.hidden = !tab;
+    els.edit.hidden = !tab || !!tab.doc.compare;           // comparisons are read-only views
     els.save.hidden = !tab?.editing;
     if (!tab) return;
     const locked = !tab.untitled && tab.doc.writable === false && !tab.editing;

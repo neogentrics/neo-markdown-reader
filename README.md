@@ -43,7 +43,8 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
-| **Write & edit** *(new in 1.2)* | New documents and templates; an editor beside the live preview with a formatting toolbar and spell check. Files only change after you allow it, and the original is backed up first ([details](#creating-and-editing)) |
+| **Organize** *(new in 1.3)* | Open a whole folder, search every file in it, jump anywhere with `Ctrl+K`, read two documents side by side, compare versions, and keep private highlights, notes and bookmarks ([details](#organizing-your-documents)) |
+| **Write & edit** *(1.2)* | New documents and templates; an editor beside the live preview with a formatting toolbar and spell check. Files only change after you allow it, and the original is backed up first ([details](#creating-and-editing)) |
 
 <table>
 <tr>
@@ -97,6 +98,31 @@ version is out and link to the download. *(Coming from 1.0? Install 1.1 once by 
   - Files marked read-only stay locked; use *Save As* to edit a copy.
   - Closing a tab or window with unsaved changes asks first.
 
+## Organizing your documents
+
+<img src="docs/screenshots/compare-split.png" width="860" alt="Find in Folder results, a comparison of two versions, and a second document side by side">
+
+- **Open a folder** (*File → Open Folder…*, `Ctrl+Shift+O`): the sidebar's **Files** panel shows every Markdown
+  file in it as a tree, with a filter box. The folder comes back the next time you open the app.
+- **Find in Folder** (`Ctrl+Shift+F`): searches the text of every file in the folder. Click a result to open
+  that file at the matching line.
+- **Quick Open** (`Ctrl+K`): type a few letters to jump to an open tab, a bookmark, a recent file or any file in
+  the folder. Start with `#` to jump to a heading in the current document.
+- **Split view** (`Ctrl+\`, or right-click a tab → *Open to the Side*): two documents side by side. Choose what's
+  on the right, swap sides, and turn on **linked scrolling** to move through both together.
+- **Compare**: see exactly what changed between two documents: added lines in green, removed lines in red,
+  changed words highlighted.
+  - *Right-click a tab → Compare with…* compares two open documents.
+  - *Edit → Compare with File…* compares the current document with any other file.
+  - *Edit → Compare with Saved Version* shows your unsaved edits.
+- **Highlights & notes:** select text and choose **Highlight** or **Add note** (`Ctrl+Shift+H`). Click a highlight
+  to change its colour or note. The **Notes** panel lists them all.
+  - Highlights are private: they're stored by the app, never written into the file.
+  - They're found again even if the document changes around them.
+- **Bookmarks:** star a file (`Ctrl+D`). Bookmarks appear at the top of the Files panel and in Quick Open.
+
+<img src="docs/screenshots/folder-search.png" width="860" alt="The Files and Search panels with an open folder">
+
 ## Keyboard shortcuts
 
 | Keys | Action |
@@ -108,12 +134,16 @@ version is out and link to the download. *(Coming from 1.0? Install 1.1 once by 
 | `Ctrl` + click a link | Open the linked document in a new tab |
 | `Ctrl` `Shift` `C` | Copy as formatted text |
 | `Ctrl` `F` | Find in document |
-| `Ctrl` `B` | Show / hide outline (when not editing) |
+| `Ctrl` `B` | Show / hide the sidebar (when not editing) |
 | `Ctrl` `=` / `Ctrl` `-` / `Ctrl` `0` | Bigger / smaller / reset text |
 | `Ctrl` `Shift` `E` | Export as PDF |
 | `Ctrl` `P` | Print |
 | `F5` | Reload file |
 | `Alt` `←` | Back to the previous document |
+| `Ctrl` `K` | Go to a file, or `#` + text to jump to a heading |
+| `Ctrl` `Shift` `O` / `Ctrl` `Shift` `F` | Open folder / find in folder |
+| `Ctrl` `\` | Split view |
+| `Ctrl` `Shift` `H` / `Ctrl` `D` | Highlight selection / bookmark this file |
 | `Ctrl` `N` | New document |
 | `Ctrl` `E` | Edit / finish editing |
 | `Ctrl` `S` / `Ctrl` `Shift` `S` | Save / Save As |
@@ -126,10 +156,13 @@ On macOS use `Cmd` instead of `Ctrl`.
 
 ## Roadmap
 
-**v1.1** added tabs, a proper menu bar, session restore, automatic updates, an image viewer and rich
-copy. **v1.2, Create & edit** adds new documents, templates and editing with a permission step. Next up
-is **v1.3, Compare & organize**: side-by-side compare, folders and search across files. Later releases add
-a PDF designer and sandboxed code running.
+- **v1.1** added tabs, a proper menu bar, session restore, automatic updates, an image viewer and rich copy.
+- **v1.2** added new documents, templates and editing with a permission step.
+- **v1.3, Compare & organize** adds folders, search across files, Quick Open, split view, Compare,
+  highlights, notes and bookmarks.
+
+Next up is **v1.4, Publish beautifully**: a PDF designer with cover and contents pages, Word and HTML
+export, and presentation mode. Later releases add sandboxed code running and password-locked files.
 
 **[See the full roadmap →](ROADMAP.md)**
 
@@ -144,7 +177,7 @@ Requirements: **Node.js 22** (see `.nvmrc`) and Git.
 npm ci                 # install dependencies
 npm run dev            # build the UI and launch the app with the feature showcase
 npm test               # unit tests (Markdown pipeline, files, settings, editing permissions & saving)
-npm run test:e2e       # launches the real app and drives it (reading, tabs, sessions, editing, saving)
+npm run test:e2e       # launches the real app and drives it (reading, tabs, editing, folders, compare, highlights)
 npm run dist:win       # Windows installer + portable .exe  → release/
 npm run dist:mac       # macOS .dmg (run on a Mac)          → release/
 npm run dist:linux     # Linux AppImage                     → release/
@@ -160,6 +193,8 @@ src/
 ├── main/                 Electron "main" process (Node.js, talks to the OS)
 │   ├── main.js           windows, tabs bookkeeping, menus, file opening, live reload, sessions, PDF export, links
 │   ├── editing.js        edit permission, saving, backups, conflict checks (the only code that writes files)
+│   ├── folders.js        scanning and searching an opened folder
+│   ├── annotations.js    private highlights & notes (stored in app data, never in the file)
 │   ├── updater.js        update checks against GitHub Releases (electron-updater for the installer)
 │   ├── version.js        version comparison
 │   ├── files.js          which files can be opened + reading them safely
@@ -171,6 +206,11 @@ src/
     ├── editmode.js       edit mode: editor beside the live preview, save / save as, new documents
     ├── editor-entry.js   the CodeMirror 6 editor (loaded only when you edit)
     ├── templates.js      File → New from Template
+    ├── sidebar.js        Outline · Files · Search · Notes panels
+    ├── palette.js        Quick Open (Ctrl+K)
+    ├── split.js          split view and linked scrolling
+    ├── compare.js        line and word diffs for Compare
+    ├── highlights.js     finding and drawing highlights on the page
     ├── index.html        layout + Content-Security-Policy
     └── styles/           themes, document typography, code colors, print/PDF styles
 scripts/build-renderer.mjs  bundles the renderer into dist/ with esbuild
@@ -195,7 +235,10 @@ the page can't fake. See [SECURITY.md](SECURITY.md).
 
 ## Releasing
 
-1. Bump `version` in `package.json` and add an entry to [CHANGELOG.md](CHANGELOG.md).
+1. Bump `version` in `package.json`, and update the docs for every release:
+   - [CHANGELOG.md](CHANGELOG.md): a new entry.
+   - This README: features table, feature sections, shortcuts, screenshots, the Roadmap summary and "How it works".
+   - [ROADMAP.md](ROADMAP.md): mark what shipped and what's next.
 2. Commit, then tag and push:
    ```bash
    git tag v1.0.0 && git push origin v1.0.0
