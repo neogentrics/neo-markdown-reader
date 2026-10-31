@@ -199,7 +199,7 @@ On macOS use `Cmd` instead of `Ctrl`.
 - **v1.2** added new documents, templates and editing with a permission step.
 - **v1.3** added folders, search across files, Quick Open, split view, Compare,
   highlights, notes and bookmarks.
-- **v1.4, Publish beautifully** adds a PDF designer with cover and contents pages, Word, web page and text
+- **v1.4** added a PDF designer with cover and contents pages, Word, web page and text
   export, presentation mode, and custom colours, fonts and brand stylesheets.
 
 Next up is **v2.0, Power features**: running code blocks in a sandbox and password-locked files.
