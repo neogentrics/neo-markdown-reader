@@ -149,12 +149,17 @@ const windowCount = (app) => app.evaluate(({ BrowserWindow }) => BrowserWindow.g
     if (process.platform === 'darwin') return;
     await menu(app, 'toggle-menubar');
     await win.waitForTimeout(300);
-    assert.equal(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMenuBarVisible()), false);
+    // The setting applies to every open window.
+    assert.deepEqual(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().map((w) => w.isMenuBarVisible())), [false, false]);
     await menu(app, 'toggle-menubar');
   });
   await step('exports a PDF', async () => {
-    const bytes = await app.evaluate(async ({ BrowserWindow }) => (await BrowserWindow.getAllWindows()[0].webContents.printToPDF({})).length);
-    assert.ok(bytes > 10000);
+    // Two windows are open now; export the one showing notes.md (with its image and diagram).
+    const bytes = await app.evaluate(async ({ BrowserWindow }) => {
+      const w = BrowserWindow.getAllWindows().find((x) => x.getTitle().startsWith('notes'));
+      return (await w.webContents.printToPDF({ printBackground: true })).length;
+    });
+    assert.ok(bytes > 10000, `PDF unexpectedly small: ${bytes} bytes`);
   });
 
   assert.deepEqual(errors, []);
