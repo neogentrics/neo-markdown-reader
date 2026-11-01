@@ -24,7 +24,8 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v1.2](#v12--create--edit) | Create & edit | ✅ Released (1.2.0) |
 | [v1.3](#v13--compare--organize) | Compare & organize | ✅ Released ([1.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.3.0)) |
 | [v1.4](#v14--publish-beautifully) | Publish beautifully | ✅ Released ([1.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.4.0)) |
-| [v2.0](#v20--power-features) | Power features | 🚧 In progress |
+| [v2.0](#v20--power-features) | Power features | ✅ Done — ships in 2.0.0 |
+| [Later](#later) | Explorer preview | Planned |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Planned |
 
 ## v1.0 — The reader
@@ -86,24 +87,28 @@ updates itself from here on.
 
 ## v2.0 — Power features
 
-🚧 **In progress.**
+✅ **Done — ships in 2.0.0.**
 
 | Feature | Size | Details |
 |---|:-:|---|
-| 🙋🛡️ Run code blocks | L | A ▶ Run button on code blocks. JavaScript and Python (via Pyodide) run in a sealed sandbox with **no access** to your files, network or settings. Nothing runs automatically: each run shows the code and asks first. Can be switched off entirely. |
-| 🙋 Password-locked documents | L | *Protect with password* saves an AES-256 encrypted copy (`.mdlock`) that only this app can open with the password. |
-| 🙋 Four more colour themes | S | **Mist** (soft blue-grey), **Forest** (deep green, dark), **Dusk** (plum, dark) and **High Contrast** (for readability and accessibility), alongside Paper, Sepia and Night. They work with your own accent colour and in exports. |
-| Preview in File Explorer | L | See a formatted preview of a `.md` file in Explorer's Preview pane. |
-| AI assist (optional) | M | Summarize, explain, or turn notes into a clean report with Claude. Off by default; uses your own API key and only sends what you choose. |
+| ✅ 🙋🛡️ Run code blocks | L | A ▶ Run button on JavaScript and Python code blocks. Code runs in a sealed sandbox (its own hidden window and session; every request outside the sandbox is refused) with **no access** to your files, network or settings, and is stopped after 10 s (Python 30 s). Nothing runs automatically: each run shows the code and asks first. Can be switched off entirely. |
+| ✅ 🙋 Password-locked documents | L | *Protect with Password* saves an AES-256-GCM encrypted copy (`.mdlock`, scrypt key) that only this app can open with the password. Lock Now, editing with encrypted saves, and Save an Unlocked Copy. Never searched, highlighted or sent to AI assist. |
+| ✅ 🙋 Four more colour themes | S | **Mist** (soft blue-grey), **Forest** (deep green, dark), **Dusk** (plum, dark) and **High Contrast** (for readability and accessibility), alongside Paper, Sepia and Night. They work with your own accent colour and in exports. |
+| ✅ AI assist (optional) | M | Summarize, explain a selection, or turn notes into a report with Claude (Opus 5.5 by default). Off by default; uses your own API key, stored encrypted by the operating system, and only sends what you choose. |
 
 > [!WARNING]
 > **Running code is the riskiest feature on this list.** A downloaded `.md` file could contain
-> harmful code. Shell, PowerShell and batch commands cannot be sandboxed — they will stay off unless
-> you explicitly enable them behind a separate warning.
+> harmful code. Shell, PowerShell and batch commands cannot be sandboxed, so they are never run.
 
 > [!NOTE]
 > Markdown has no built-in password feature, so locking is done with an app-specific encrypted file.
 > **A forgotten password cannot be recovered** — that is what makes the lock real.
+
+## Later
+
+| Feature | Size | Details |
+|---|:-:|---|
+| Preview in File Explorer | L | See a formatted preview of a `.md` file in Explorer's Preview pane. Moved out of 2.0: it needs a Windows-only preview-handler add-on that the automated builds can't test yet. |
 
 ## Ongoing — Polish & distribution
 
@@ -117,5 +122,5 @@ updates itself from here on.
 
 1. **How long should edit permission last?** ✅ *Decided:* ask the first time, offer *Just this time* / *Always for this file* / *Always for this folder*, defaulting to *Just this time*.
 2. **Menu bar visible by default?** ✅ *Decided:* yes, with an option to auto-hide (shipped in 1.1.0).
-3. **Which languages may *Run* execute?** Proposed: JavaScript and Python only at first; shell later behind a separate warning.
-4. **Password lock: locked copy or replace the original?** Proposed: make a locked copy by default, with *replace original* as a checkbox.
+3. **Which languages may *Run* execute?** ✅ *Decided:* JavaScript and Python only (shipped in 2.0.0). Shell stays off.
+4. **Password lock: locked copy or replace the original?** ✅ *Decided:* a locked copy by default, with a checkbox to move the original to the Recycle Bin (shipped in 2.0.0).

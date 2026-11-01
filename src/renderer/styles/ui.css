@@ -51,6 +51,7 @@ body.has-doc .toolbar::after { opacity: 1; }
 .pop-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 10px 0 6px; }
 .pop-label:first-child { margin-top: 0; }
 .seg { display: flex; background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 9px; padding: 3px; gap: 2px; }
+.seg[data-key="theme"] { display: grid; grid-template-columns: repeat(4, 1fr); }
 .seg button { flex: 1; border: 0; background: transparent; padding: 6px 4px; border-radius: 6px; cursor: pointer; color: var(--text-soft); font-size: 12.5px; }
 .seg button:hover { color: var(--heading); }
 .seg button.active { background: var(--page); color: var(--accent); font-weight: 600; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }

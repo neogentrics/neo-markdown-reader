@@ -3,7 +3,7 @@
 // Only folders the user picked in the native folder dialog are ever scanned (see main.js).
 const fs = require('node:fs');
 const path = require('node:path');
-const { isMarkdownPath } = require('./files');
+const { isOpenablePath, isLockedPath } = require('./files');
 
 const SKIP_DIRS = new Set(['node_modules', '.git', '.svn', '.hg', '__pycache__', '.venv', 'venv', 'dist', 'build', '.next', '.cache', '$RECYCLE.BIN', 'System Volume Information']);
 const LIMITS = Object.freeze({ maxDepth: 10, maxFiles: 5000, maxSearchBytes: 2 * 1024 * 1024, maxMatches: 1000, maxPerFile: 50 });
@@ -30,8 +30,8 @@ async function scanFolder(root, limits = LIMITS) {
         if (e.name.startsWith('.') || SKIP_DIRS.has(e.name)) continue;
         const child = await walk(full, depth + 1);
         if (child.dirs.length || child.files.length) node.dirs.push(child);
-      } else if (e.isFile() && isMarkdownPath(full)) {
-        node.files.push({ name: e.name, path: full });
+      } else if (e.isFile() && isOpenablePath(full)) {
+        node.files.push(isLockedPath(full) ? { name: e.name, path: full, locked: true } : { name: e.name, path: full });
         files.push(full);
       }
     }
@@ -55,6 +55,7 @@ async function searchFolder(scan, query, limits = LIMITS) {
   let total = 0;
   let truncated = false;
   for (const file of scan.files) {
+    if (isLockedPath(file)) continue;          // locked documents are never searched
     let text;
     try {
       const st = await fs.promises.stat(file);

@@ -24,7 +24,7 @@ export function brandCss(brand = {}) {
     vars.push(`--accent: ${a}`, `--link: ${a}`, `--accent-soft: color-mix(in srgb, ${a} 12%, var(--page))`,
       `--quote-bar: color-mix(in srgb, ${a} 45%, var(--page))`, `--sel: color-mix(in srgb, ${a} 22%, var(--page))`);
     // On the dark theme, lift the colour so links stay readable.
-    rules.push(`:root[data-theme="dark"] { --link: color-mix(in srgb, ${a} 60%, white); --accent: color-mix(in srgb, ${a} 70%, white); }`);
+    rules.push(`:root[data-tone="dark"] { --link: color-mix(in srgb, ${a} 60%, white); --accent: color-mix(in srgb, ${a} 70%, white); }`);
   }
   const heading = family(brand.headingFont, 'var(--font-sans)');
   const code = family(brand.codeFont, 'monospace');

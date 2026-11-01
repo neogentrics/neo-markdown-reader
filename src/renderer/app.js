@@ -10,9 +10,13 @@ import { compareDocs } from './compare.js';
 import { createPublish } from './publish-ui.js';
 import { createPresenter } from './present.js';
 import { createThemeUi } from './theme-ui.js';
+import { createLockUi } from './lock-ui.js';
+import { addRunButtons } from './run-ui.js';
+import { createAiUi } from './ai-ui.js';
 import './styles/app.css';
 
 const api = window.reader;
+const DARK_THEMES = new Set(['dark', 'forest', 'dusk', 'contrast']);
 const render = createRenderer(window);
 const $ = (id) => document.getElementById(id);
 
@@ -43,6 +47,8 @@ let highlights = null;
 let publish = null;
 let presenter = null;
 let themeUi = null;
+let lockUi = null;
+let aiUi = null;
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -96,6 +102,16 @@ function renderInto(tab, doc, { preview = false } = {}) {
     updateTabButton(tab);
     return Promise.resolve();
   }
+  if (doc.needsPassword) {
+    // A locked document we don't have the key for: show the unlock screen instead of the text.
+    tab.doc = doc;
+    tab.result = { html: '', toc: [], title: doc.name, stats: { words: 0, minutes: 0 } };
+    tab.el.classList.add('locked-page');
+    lockUi.renderLockScreen(tab);
+    updateTabButton(tab);
+    return Promise.resolve();
+  }
+  tab.el.classList.remove('locked-page');
   const result = render(doc.content, { baseUrl: doc.baseUrl });
   if (!preview) tab.doc = doc;
   tab.result = result;
@@ -137,6 +153,7 @@ function updateTabButton(tab) {
   tab.btn.title = `${tab.result?.title && tab.result.title !== label ? tab.result.title + '\n' : ''}${tab.doc.path || 'Not saved yet'}${tab.dirty ? '\nUnsaved changes' : ''}`;
   tab.btn.classList.toggle('dirty', !!tab.dirty);
   tab.btn.classList.toggle('untitled', !!tab.untitled);
+  tab.btn.classList.toggle('locked', !!tab.doc.locked);
   if (tab.id === activeId) editMode?.refresh();
 }
 
@@ -375,6 +392,7 @@ async function refreshTab(tab, doc) {
 
 // ================================================================ rendering helpers
 function enhance(root) {
+  addRunButtons(root, { api, toast, docFor: (pre) => tabs.find((t) => t.el.contains(pre))?.doc });
   for (const pre of root.querySelectorAll('pre.code-block')) {
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
@@ -415,7 +433,7 @@ async function renderMermaid(root, themeChanged) {
   if (!blocks.length) return;
   let mermaid;
   try { mermaid = await loadMermaid(); } catch (err) { toast(err.message); return; }
-  const dark = document.documentElement.dataset.theme === 'dark';
+  const dark = document.documentElement.dataset.tone === 'dark';
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'strict',
@@ -818,6 +836,13 @@ api.onCommand(({ cmd, arg }) => {
     case 'export-txt': publish.exportAs('txt'); break;
     case 'present': if (presenter.active()) presenter.stop(); else presenter.start(); break;
     case 'customize-theme': themeUi.open(); break;
+    case 'lock-protect': lockUi.protect(); break;
+    case 'lock-now': lockUi.lockNow(); break;
+    case 'lock-remove': lockUi.saveUnlockedCopy(); break;
+    case 'ai-summarize': aiUi.run('summarize'); break;
+    case 'ai-explain': aiUi.run('explain'); break;
+    case 'ai-report': aiUi.run('report'); break;
+    case 'ai-settings': aiUi.openSettings(); break;
     default: break;
   }
 });
@@ -884,18 +909,21 @@ function applySettings(s) {
   settings = s;
   const root = document.documentElement;
   const prevTheme = root.dataset.theme;
+  const prevTone = root.dataset.tone;
   root.dataset.theme = s.resolvedTheme || 'light';
+  root.dataset.tone = DARK_THEMES.has(root.dataset.theme) ? 'dark' : 'light';
   root.dataset.font = s.font;
   root.dataset.width = s.pageWidth;
   root.style.setProperty('--font-scale', s.fontScale);
   document.body.classList.toggle('toc-hidden', !s.showToc);
+  document.body.classList.toggle('run-off', s.runCode === 'off');
   for (const seg of document.querySelectorAll('.seg[data-key]')) {
     for (const b of seg.querySelectorAll('button')) b.classList.toggle('active', s[seg.dataset.key] === b.dataset.value);
   }
   renderRecent(s.recent || []);
   sidebar?.setBookmarks(s.bookmarks || []);
   if (activeTab()) updateBookmarkButton();
-  if (prevTheme && prevTheme !== root.dataset.theme) for (const t of tabs) renderMermaid(t.el, true);
+  if (prevTheme && prevTheme !== root.dataset.theme && (prevTone !== root.dataset.tone)) for (const t of tabs) renderMermaid(t.el, true);
   themeUi?.apply(s.brand || {});
 }
 
@@ -934,7 +962,7 @@ api.onDocumentChanged(async (doc) => {
     if (editMode.onDiskChange(t, doc)) continue;        // editing: keep the user's text, offer to load
     await refreshTab(t, doc);
   }
-  if (affected.some((t) => t.id === activeId && !t.editing)) toast('Updated from disk');
+  if (!doc.needsPassword && affected.some((t) => t.id === activeId && !t.editing)) toast('Updated from disk');
 });
 
 editMode = createEditMode({
@@ -985,6 +1013,26 @@ highlights = createHighlights({
   scrollToElement: (el) => scrollToElement(el, { desk: deskFor(tabForElement(el)) }),
 });
 themeUi = createThemeUi({ api, settings: () => settings, toast });
+aiUi = createAiUi({
+  api, render, toast, activeTab,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
+  selectionIn(t) {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !t.el.contains(sel.anchorNode)) return '';
+    return sel.toString().trim();
+  },
+  newDocument: (given) => editMode.newDocument('blank', given),
+});
+lockUi = createLockUi({
+  api, activeTab, openInTab, closeTab, toast,
+  activeId: () => activeId,
+  hasUnsaved: (t) => editMode.hasUnsaved(t),
+  async showUnlocked(tab, doc) {
+    await renderInto(tab, doc);
+    if (tab.id === activeId) { showActiveDoc(); restoreScroll(tab); }
+    syncSoon();
+  },
+});
 publish = createPublish({ api, activeTab, settings: () => settings, toast, themeCss: () => themeUi.exportCss() });
 presenter = createPresenter({ api, activeTab, toast });
 $('btn-bookmark').onclick = () => toggleBookmark();

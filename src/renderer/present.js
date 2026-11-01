@@ -3,7 +3,7 @@
 
 /** Split a rendered page into slides: arrays of (cloned) top-level nodes. */
 export function splitSlides(root) {
-  const nodes = [...root.children].filter((n) => !n.matches('.copy-btn'));
+  const nodes = [...root.children].filter((n) => !n.matches('.copy-btn, .run-output'));
   const rules = nodes.filter((n) => n.tagName === 'HR' && !n.classList.contains('footnotes-sep'));
   const slides = [];
   let cur = [];

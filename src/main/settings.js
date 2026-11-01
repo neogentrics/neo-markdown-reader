@@ -2,10 +2,11 @@
 // JSON settings store kept in the per-user app-data folder
 // (Windows: %APPDATA%\Neo Markdown Reader\settings.json).
 const fs = require('node:fs');
+const { cleanAiSettings } = require('./ai');
 const path = require('node:path');
 
 const DEFAULTS = Object.freeze({
-  theme: 'system',        // system | light | dark | sepia
+  theme: 'system',        // system | light | dark | sepia | mist | forest | dusk | contrast
   font: 'sans',           // sans | serif
   fontScale: 1,           // 0.7 – 1.8
   pageWidth: 'normal',    // narrow | normal | wide | full
@@ -19,6 +20,8 @@ const DEFAULTS = Object.freeze({
   bookmarks: [],          // starred files (shown in the Files panel and Quick Open)
   recentFolders: [],      // most-recent-first folders opened with File > Open Folder
   exportOptions: null,    // last choices in the PDF designer (see EXPORT_DEFAULTS)
+  ai: null,               // AI assist: { enabled, model } — off by default; the API key is stored separately, encrypted
+  runCode: 'ask',         // ask | off — running code blocks (always asks before each run)
   brand: null,            // custom theme: accent colour, fonts, brand stylesheet (see BRAND_DEFAULTS)
   windowBounds: null,
 });
@@ -37,7 +40,7 @@ const EXPORT_CHOICES = { paper: ['auto', 'letter', 'a4', 'legal', 'a5'], margins
 
 const BRAND_DEFAULTS = Object.freeze({ accent: '', bodyFont: '', headingFont: '', codeFont: '', stylesheet: '' });
 
-const THEMES = ['system', 'light', 'dark', 'sepia'];
+const THEMES = ['system', 'light', 'dark', 'sepia', 'mist', 'forest', 'dusk', 'contrast'];
 const FONTS = ['sans', 'serif'];
 const WIDTHS = ['narrow', 'normal', 'wide', 'full'];
 const MAX_RECENT = 15;
@@ -101,6 +104,7 @@ function sanitize(input) {
   const s = { ...DEFAULTS, recent: [], positions: {}, session: [], editGrants: { files: [], folders: [] }, bookmarks: [], recentFolders: [] };
   s.exportOptions = cleanExportOptions(null);
   s.brand = cleanBrand(null);
+  s.ai = cleanAiSettings(null);
   if (!input || typeof input !== 'object') return s;
   if (THEMES.includes(input.theme)) s.theme = input.theme;
   if (FONTS.includes(input.font)) s.font = input.font;
@@ -114,6 +118,8 @@ function sanitize(input) {
   s.editGrants = cleanGrants(input.editGrants);
   if (Array.isArray(input.bookmarks)) s.bookmarks = [...new Set(input.bookmarks.filter(isPath))].slice(0, 300);
   if (Array.isArray(input.recentFolders)) s.recentFolders = [...new Set(input.recentFolders.filter(isPath))].slice(0, 10);
+  if (['ask', 'off'].includes(input.runCode)) s.runCode = input.runCode;
+  s.ai = cleanAiSettings(input.ai);
   s.exportOptions = cleanExportOptions(input.exportOptions);
   s.brand = cleanBrand(input.brand);
   s.windowBounds = cleanBounds(input.windowBounds);

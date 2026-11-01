@@ -1,10 +1,13 @@
 'use strict';
-const { app, BrowserWindow, ClipboardItem, Menu, clipboard, dialog, ipcMain, nativeTheme, screen, session, shell } = require('electron');
+const { app, BrowserWindow, ClipboardItem, Menu, clipboard, dialog, ipcMain, nativeTheme, protocol, safeStorage, screen, session, shell } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
 const { Settings } = require('./settings');
-const { isMarkdownPath, fileFromArgv, readMarkdown } = require('./files');
+const { isMarkdownPath, isLockedPath, isOpenablePath, fileFromArgv, readMarkdown, readDocument } = require('./files');
+const locked = require('./locked');
+const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = require('./sandbox');
+const ai = require('./ai');
 const { Updater, RELEASES_URL } = require('./updater');
 const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
@@ -15,7 +18,10 @@ const isMac = process.platform === 'darwin';
 const ROOT = path.join(__dirname, '..', '..');
 const RENDERER_HTML = path.join(ROOT, 'dist', 'index.html');
 const SHOWCASE = path.join(ROOT, 'samples', 'showcase.md');
-const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb' };
+const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb', mist: '#dfe5ec', forest: '#0b120e', dusk: '#110e18', contrast: '#000000' };
+
+registerScheme(protocol);                     // the code sandbox's private scheme (must precede app ready)
+let sandbox = null;
 
 // Tests point the app at a throwaway profile folder.
 if (process.env.NMR_USER_DATA) app.setPath('userData', process.env.NMR_USER_DATA);
@@ -195,6 +201,61 @@ function createWindow(opts = {}) {
   return state;
 }
 
+// ---------------------------------------------------------------- locked documents
+/**
+ * Keys of locked documents unlocked in this app session, by path. They live only in memory: quitting
+ * the app (or File → Lock Now) forgets them, and the next open asks for the password again.
+ */
+const lockKeys = new Map();
+const lockFails = new Map();
+const lockId = (p) => (process.platform === 'win32' || isMac ? path.resolve(p).toLowerCase() : path.resolve(p));
+const keyFor = (p) => lockKeys.get(lockId(p))?.key || null;
+const readAny = (p) => readDocument(p, keyFor);
+function sealLocked(p, content) {
+  const entry = lockKeys.get(lockId(p));
+  if (!entry) return null;
+  return locked.sealWithKey({ content, name: path.basename(p).replace(/\.mdlock$/i, '') }, entry.key, { salt: entry.salt, kdf: entry.kdf });
+}
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** Tell every window showing `p` that it changed (e.g. it was just locked again). */
+async function refreshEverywhere(p) {
+  let doc;
+  try { doc = await readAny(p); } catch { return; }
+  for (const st of liveStates()) {
+    if (st.tabs.some((t) => lockId(t.path) === lockId(p))) {
+      st.known.set(doc.path, doc.mtime);
+      st.win.webContents.send('doc:changed', { ...doc, force: true });
+    }
+  }
+}
+
+// ---------------------------------------------------------------- AI assist key
+// The Anthropic API key is encrypted by the operating system (Windows DPAPI, macOS Keychain, Linux
+// secret service). Where no real secret store exists it is kept for this session only.
+let aiKeyMemory = null;
+const aiKeyFile = () => path.join(app.getPath('userData'), 'ai-key.bin');
+function secureStorage() {
+  if (!safeStorage.isEncryptionAvailable()) return false;
+  if (process.platform === 'linux' && typeof safeStorage.getSelectedStorageBackend === 'function') {
+    const backend = safeStorage.getSelectedStorageBackend();
+    if (backend === 'basic_text' || backend === 'unknown') return false;
+  }
+  return true;
+}
+function loadAiKey() {
+  if (aiKeyMemory) return aiKeyMemory;
+  try { if (secureStorage()) return safeStorage.decryptString(fs.readFileSync(aiKeyFile())); } catch { /* none saved */ }
+  return null;
+}
+function saveAiKey(key) {
+  if (secureStorage()) { fs.writeFileSync(aiKeyFile(), safeStorage.encryptString(key)); aiKeyMemory = null; return 'encrypted'; }
+  aiKeyMemory = key;
+  return 'session';
+}
+function clearAiKey() { aiKeyMemory = null; fs.rmSync(aiKeyFile(), { force: true }); }
+const aiRuns = new Map();          // request id -> AbortController
+
 // ---------------------------------------------------------------- opening files
 function sendDoc(state, channel, doc) {
   if (state.win.isDestroyed()) return;
@@ -203,7 +264,7 @@ function sendDoc(state, channel, doc) {
 }
 
 async function loadDoc(filePath, { remember = true } = {}) {
-  const doc = await readMarkdown(filePath);
+  const doc = await readAny(filePath);
   if (remember) {
     settings.addRecent(doc.path);
     if (process.platform === 'win32' || isMac) app.addRecentDocument(doc.path);
@@ -254,7 +315,7 @@ function ensureWatch(state, p, knownMtime) {
     if (state.win.isDestroyed() || !state.watchers.has(p)) return;
     if (mtimeMs === state.known.get(p)) return;
     try {
-      const doc = await readMarkdown(p);
+      const doc = await readAny(p);
       if (doc.mtime === state.known.get(p)) return;
       state.known.set(p, doc.mtime);
       state.win.webContents.send('doc:changed', doc);
@@ -319,7 +380,7 @@ async function resolveLink(href, fromPath) {
   if (url.protocol !== 'file:') return { kind: 'none' };
   let target;
   try { target = fileURLToPath(url); } catch { return { kind: 'none' }; }
-  if (isMarkdownPath(target)) {
+  if (isOpenablePath(target)) {
     try {
       const doc = await loadDoc(target, { remember: false });
       return { kind: 'doc', doc: { ...doc, position: 0, hash: url.hash ? url.hash.slice(1) : '' } };
@@ -337,7 +398,7 @@ async function showOpenDialog(win) {
     properties: ['openFile', 'multiSelections'],
     defaultPath: recent ? path.dirname(recent) : app.getPath('documents'),
     filters: [
-      { name: 'Markdown', extensions: ['md', 'markdown', 'mdown', 'mkd', 'mkdn', 'mdwn', 'mdx'] },
+      { name: 'Markdown', extensions: ['md', 'markdown', 'mdown', 'mkd', 'mkdn', 'mdwn', 'mdx', 'mdlock'] },
       { name: 'Text', extensions: ['txt'] },
     ],
   });
@@ -378,7 +439,7 @@ async function runExport(state, payload) {
   const format = payload?.format;
   if (!EXPORT_FORMATS[format] || !payload.meta || typeof payload.meta !== 'object') return { ok: false, error: 'Nothing to export' };
   const css = typeof payload.css === 'string' && payload.css.length < 2e6 ? payload.css : '';
-  const theme = ['light', 'dark', 'sepia'].includes(payload.theme) ? payload.theme : 'light';
+  const theme = Object.hasOwn(THEME_BG, payload.theme) ? payload.theme : 'light';
   const font = payload.font === 'serif' ? 'serif' : 'sans';
   const meta = {
     name: typeof payload.meta.name === 'string' ? payload.meta.name.slice(0, 500) : '',
@@ -505,6 +566,10 @@ function rebuildMenu() {
         cmd('save', 'Save', 'CmdOrCtrl+S'),
         cmd('save-as', 'Save As…', 'CmdOrCtrl+Shift+S'),
         { type: 'separator' },
+        cmd('lock-protect', 'Protect with Password…'),
+        cmd('lock-now', 'Lock Now'),
+        cmd('lock-remove', 'Save an Unlocked Copy…'),
+        { type: 'separator' },
         cmd('reload', 'Reload File', 'F5'),
         cmd('reveal', 'Show in Folder'),
         cmd('copy-path', 'Copy File Path'),
@@ -551,13 +616,24 @@ function rebuildMenu() {
         cmd('bookmark', 'Bookmark This File', 'CmdOrCtrl+D'),
         { type: 'separator' },
         cmd('grants', 'Editing Permissions…'),
+        {
+          label: 'AI Assist',
+          submenu: [
+            cmd('ai-summarize', 'Summarize Document'),
+            cmd('ai-explain', 'Explain Selection'),
+            cmd('ai-report', 'Turn Notes into a Report'),
+            { type: 'separator' },
+            cmd('ai-settings', 'AI Assist Settings…'),
+          ],
+        },
+        { id: 'allow-run', label: 'Allow Running Code Blocks', type: 'checkbox', checked: s.runCode !== 'off', click: () => setSetting({ runCode: settings.get().runCode === 'off' ? 'ask' : 'off' }) },
         { id: 'open-backups', label: 'Open Backups Folder', click: () => openBackups() },
       ],
     },
     {
       label: '&View',
       submenu: [
-        { label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), radio('Light (Paper)', 'theme', 'light'), radio('Dark (Night)', 'theme', 'dark'), radio('Sepia', 'theme', 'sepia')] },
+        { label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast')] },
         { label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif')] },
         { label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] },
         cmd('customize-theme', 'Customize Theme…'),
@@ -757,7 +833,7 @@ function registerIpc() {
   ipcMain.handle('annotations:get', (_e, p) => (isStr(p, 4096) && isMarkdownPath(p) ? annotations.get(p) : []));
   ipcMain.handle('annotations:set', (_e, p, list) => (isStr(p, 4096) && isMarkdownPath(p) && Array.isArray(list) ? annotations.set(p, list) : []));
   ipcMain.handle('bookmarks:toggle', (_e, p) => {
-    if (!isStr(p, 4096) || !isMarkdownPath(p)) return settings.get().bookmarks;
+    if (!isStr(p, 4096) || !isOpenablePath(p)) return settings.get().bookmarks;
     const list = settings.get().bookmarks;
     const has = list.some((b) => b.toLowerCase() === p.toLowerCase());
     settings.update({ bookmarks: has ? list.filter((b) => b.toLowerCase() !== p.toLowerCase()) : [p, ...list] });
@@ -766,7 +842,7 @@ function registerIpc() {
   });
 
   ipcMain.handle('doc:read', async (e, p, opts = {}) => {
-    if (!isStr(p, 4096) || !isMarkdownPath(p)) return { error: 'Not a Markdown file.' };
+    if (!isStr(p, 4096) || !isOpenablePath(p)) return { error: 'Not a Markdown file.' };
     try {
       const doc = await loadDoc(p, { remember: opts.remember !== false });
       const st = stateFor(e);
@@ -793,7 +869,7 @@ function registerIpc() {
     const st = stateFor(e);
     if (!st || !payload || !Array.isArray(payload.tabs)) return;
     st.tabs = payload.tabs
-      .filter((t) => isStr(t?.path, 4096) && isMarkdownPath(t.path))
+      .filter((t) => isStr(t?.path, 4096) && isOpenablePath(t.path))
       .slice(0, 100)
       .map((t) => ({ path: t.path, scroll: Number.isFinite(t.scroll) ? Math.min(1, Math.max(0, t.scroll)) : 0 }));
     st.active = Number.isInteger(payload.active) ? Math.max(0, Math.min(payload.active, st.tabs.length - 1)) : 0;
@@ -802,13 +878,14 @@ function registerIpc() {
     if (isMac) st.win.setRepresentedFilename(st.tabs[st.active]?.path || '');
     syncWatchers(st);
     editing.pruneSession(st, st.tabs.map((t) => t.path));     // closing a tab ends "Just this time"
+    if (st.runGrants) { const open = new Set(st.tabs.map((t) => lockId(t.path))); for (const k of st.runGrants) if (k !== 'untitled' && !open.has(k)) st.runGrants.delete(k); }
     if (st.tabs.length) settings.setPositions(Object.fromEntries(st.tabs.map((t) => [t.path, t.scroll])));
     snapshot(st);
     persistSession();
   });
   ipcMain.handle('tab:detach', (e, payload) => {
     const st = stateFor(e);
-    if (!st || !isStr(payload?.path, 4096) || !isMarkdownPath(payload.path)) return false;
+    if (!st || !isStr(payload?.path, 4096) || !isOpenablePath(payload.path)) return false;
     const at = Number.isFinite(payload.screenX) && Number.isFinite(payload.screenY) ? { x: payload.screenX, y: payload.screenY } : null;
     createWindow({ tabs: [{ path: payload.path, scroll: Number(payload.scroll) || 0 }], at });
     return true;
@@ -819,7 +896,7 @@ function registerIpc() {
   });
   ipcMain.handle('window:close', (e) => stateFor(e)?.win.close());
 
-  ipcMain.handle('shell:reveal', (_e, p) => { if (isStr(p, 4096) && isMarkdownPath(p)) shell.showItemInFolder(p); });
+  ipcMain.handle('shell:reveal', (_e, p) => { if (isStr(p, 4096) && isOpenablePath(p)) shell.showItemInFolder(p); });
   ipcMain.handle('shell:open-external', (_e, url) => { if (isStr(url) && isSafeExternal(url)) shell.openExternal(url); });
   ipcMain.handle('clipboard:text', async (_e, text) => {
     if (typeof text === 'string' && text.length < 1e6) await clipboard.writeText(text);
@@ -872,7 +949,8 @@ function registerIpc() {
   // ---- editing: the page asks, the main process decides and does the writing
   ipcMain.handle('edit:request', async (e, p) => {
     const st = stateFor(e);
-    if (!st || !isStr(p, 4096) || !isMarkdownPath(p)) return { ok: false, reason: 'invalid' };
+    if (!st || !isStr(p, 4096) || !isOpenablePath(p)) return { ok: false, reason: 'invalid' };
+    if (isLockedPath(p) && !keyFor(p)) return { ok: false, reason: 'locked' };
     return editing.requestEdit(st, p);
   });
   ipcMain.handle('doc:save', async (e, payload = {}) => {
@@ -908,6 +986,154 @@ function registerIpc() {
     return editing.confirmUnsaved(st, { name: isStr(info.name, 300) ? info.name : 'Untitled', count: Number.isInteger(info.count) ? info.count : 1 });
   });
   ipcMain.handle('grants:list', () => editing.listGrants());
+
+  // ---- AI assist: off by default, the reader's own key, only what they choose is sent
+  ipcMain.handle('ai:status', () => ({ ...settings.get().ai, hasKey: !!loadAiKey(), secure: secureStorage(), models: ai.MODELS.map(({ id, label }) => ({ id, label })) }));
+  ipcMain.handle('ai:configure', (_e, cfg = {}) => {
+    let stored = null;
+    if (cfg.clearKey === true) clearAiKey();
+    if (typeof cfg.apiKey === 'string' && cfg.apiKey.trim()) {
+      const key = cfg.apiKey.trim();
+      if (!ai.KEY_RE.test(key)) return { error: 'That doesn’t look like an Anthropic API key (they start with sk-ant-).' };
+      stored = saveAiKey(key);
+    }
+    setSetting({ ai: { ...settings.get().ai, ...(typeof cfg.enabled === 'boolean' ? { enabled: cfg.enabled } : {}), ...(isStr(cfg.model, 100) ? { model: cfg.model } : {}) } });
+    return { ok: true, stored, ...settings.get().ai, hasKey: !!loadAiKey(), secure: secureStorage() };
+  });
+  ipcMain.handle('ai:run', async (e, req = {}) => {
+    const conf = settings.get().ai;
+    const apiKey = loadAiKey();
+    if (!conf.enabled || !apiKey) return { error: 'AI assist is off.', setup: true };
+    if (isStr(req.path, 4096) && isLockedPath(req.path)) return { error: 'AI assist is off for locked documents, so their text never leaves this computer.' };
+    if (!isStr(req.id, 100)) return { error: 'invalid' };
+    let content;
+    try {
+      content = ai.buildPrompt(req.action, {
+        text: typeof req.text === 'string' ? req.text : '',
+        selection: typeof req.selection === 'string' ? req.selection : '',
+        title: isStr(req.title, 500) ? req.title : '',
+      });
+    } catch (err) { return { error: err.message }; }
+    const { Anthropic } = publish.exportTools(ROOT);
+    const ctl = new AbortController();
+    aiRuns.set(req.id, ctl);
+    try {
+      return await ai.runAi({
+        Anthropic, apiKey, model: conf.model, content, signal: ctl.signal,
+        baseURL: process.env.NMR_AI_BASE_URL || undefined,              // tests point this at a local fake
+        onText: (text) => { if (!e.sender.isDestroyed()) e.sender.send('ai:delta', { id: req.id, text }); },
+      });
+    } catch (err) {
+      return { error: ctl.signal.aborted ? 'Stopped.' : ai.friendlyError(err, Anthropic) };
+    } finally { aiRuns.delete(req.id); }
+  });
+  ipcMain.handle('ai:cancel', (_e, id) => { aiRuns.get(id)?.abort(); });
+
+  // ---- running code blocks: always asked, always sandboxed
+  ipcMain.handle('code:run', async (e, req = {}) => {
+    const st = stateFor(e);
+    if (!st) return { error: 'No window' };
+    if (settings.get().runCode === 'off') return { error: 'Running code is switched off. Turn it on under Edit → Allow Running Code Blocks.', off: true };
+    const lang = runnableLang(req.lang);
+    if (!lang) return { error: 'Only JavaScript and Python code can be run.' };
+    if (typeof req.code !== 'string' || !req.code.trim() || req.code.length > 200_000) return { error: 'There’s no code to run.' };
+    const docKey = isStr(req.path, 4096) ? lockId(req.path) : 'untitled';
+    st.runGrants ??= new Set();
+    if (!st.runGrants.has(docKey)) {
+      const label = lang === 'python' ? 'Python' : 'JavaScript';
+      const lines = req.code.split('\n');
+      const preview = lines.slice(0, 18).join('\n').slice(0, 1400) + (lines.length > 18 || req.code.length > 1400 ? '\n…' : '');
+      const { response, checkboxChecked } = await dialog.showMessageBox(st.win, {
+        type: 'question', title: 'Run code?', noLink: true,
+        message: `Run this ${label} code${isStr(req.name, 300) ? ` from “${req.name}”` : ''}?`,
+        detail: `${preview}\n\nIt runs in a sealed sandbox: it can’t read or change your files, use the network or see your settings, and it’s stopped after ${RUN_TIMEOUT[lang] / 1000} seconds.`,
+        buttons: ['Run', 'Cancel'], defaultId: 0, cancelId: 1,
+        checkboxLabel: 'Don’t ask again for this document until I close it',
+      });
+      if (response !== 0) return { canceled: true };
+      if (checkboxChecked) st.runGrants.add(docKey);
+    }
+    try {
+      sandbox ??= new CodeSandbox({ dir: path.join(ROOT, 'dist', 'sandbox'), devTools: !app.isPackaged });
+      return await sandbox.run({ lang, code: req.code });
+    } catch (err) { return { error: String(err?.message || err) }; }
+  });
+
+  // ---- password-locked documents
+  ipcMain.handle('lock:unlock', async (e, p, password) => {
+    if (!isStr(p, 4096) || !isLockedPath(p) || typeof password !== 'string' || password.length > 1024) return { error: 'Enter the password.' };
+    const id = lockId(p);
+    const fails = lockFails.get(id) || 0;
+    if (fails >= 3) await sleep(Math.min(8000, 1000 * 2 ** (fails - 3)));     // slow down guessing
+    try {
+      const res = await locked.unlock(await fs.promises.readFile(p, 'utf8'), password);
+      lockKeys.set(id, { key: res.key, salt: res.salt, kdf: res.kdf });
+      lockFails.delete(id);
+      const doc = await loadDoc(p, { remember: false });
+      const st = stateFor(e);
+      if (st) ensureWatch(st, doc.path, doc.mtime);
+      return { doc };
+    } catch (err) {
+      if (err.code === 'WRONG_PASSWORD') { lockFails.set(id, fails + 1); return { error: err.message, wrong: true }; }
+      return { error: errorMessage(err, p) };
+    }
+  });
+  ipcMain.handle('lock:protect', async (e, payload = {}) => {
+    const st = stateFor(e);
+    const p = payload.path;
+    if (!st || !isStr(p, 4096) || !isMarkdownPath(p) || !st.tabs.some((t) => lockId(t.path) === lockId(p))) return { error: 'Save the document first.' };
+    const password = payload.password;
+    if (typeof password !== 'string' || [...password].length < locked.MIN_PASSWORD || password.length > 1024) return { error: `Use a password of at least ${locked.MIN_PASSWORD} characters.` };
+    const target = p.replace(/\.[^.\\/]+$/, '') + '.mdlock';
+    if (fs.existsSync(target)) {
+      const { response } = await dialog.showMessageBox(st.win, {
+        type: 'warning', title: 'Replace locked file?', noLink: true, buttons: ['Cancel', 'Replace'], defaultId: 0, cancelId: 0,
+        message: `“${path.basename(target)}” already exists.`, detail: 'Replacing it overwrites that locked document with this one.',
+      });
+      if (response !== 1) return { canceled: true };
+    }
+    try {
+      const source = await readMarkdown(p);
+      const res = await locked.lock({ content: source.content, name: source.name }, password);
+      await fs.promises.writeFile(target, res.text);
+      // Read it back before touching the original, so a failed write can never cost the document.
+      const check = locked.unlockWithKey(await fs.promises.readFile(target, 'utf8'), res.key);
+      if (check.content !== source.content) throw new Error('The locked copy could not be verified, so nothing else was changed.');
+      lockKeys.set(lockId(target), { key: res.key, salt: res.salt, kdf: res.kdf });
+      let trashed = false;
+      if (payload.replace === true) { await shell.trashItem(p); trashed = true; }
+      const doc = await loadDoc(target);
+      ensureWatch(st, doc.path, doc.mtime);
+      return { doc, trashed };
+    } catch (err) { return { error: errorMessage(err, target) }; }
+  });
+  ipcMain.handle('lock:forget', async (_e, p) => {
+    if (!isStr(p, 4096) || !isLockedPath(p)) return false;
+    lockKeys.delete(lockId(p));
+    await refreshEverywhere(p);               // other windows showing it
+    try { return { doc: await readAny(p) }; } catch { return { doc: null }; }
+  });
+  ipcMain.handle('lock:remove', async (e, p) => {
+    const st = stateFor(e);
+    if (!st || !isStr(p, 4096) || !isLockedPath(p) || !keyFor(p)) return { error: 'Unlock the document first.' };
+    try {
+      const doc = await readAny(p);
+      let suggested = path.basename(p).replace(/\.mdlock$/i, '');
+      if (!isMarkdownPath(suggested)) suggested += '.md';
+      const res = await dialog.showSaveDialog(st.win, {
+        title: 'Save an Unlocked Copy', defaultPath: path.join(path.dirname(p), suggested),
+        filters: [{ name: 'Markdown', extensions: ['md'] }], properties: ['showOverwriteConfirmation'],
+      });
+      if (res.canceled || !res.filePath) return { canceled: true };
+      let target = res.filePath;
+      if (!isMarkdownPath(target)) target += '.md';
+      if (fs.existsSync(target)) await editing.backup(target);
+      await fs.promises.writeFile(target, doc.content);
+      const out = await loadDoc(target);
+      ensureWatch(st, out.path, out.mtime);
+      return { doc: out };
+    } catch (err) { return { error: errorMessage(err, p) }; }
+  });
   ipcMain.handle('grants:revoke', (_e, kind, value) => (isStr(value, 4096) ? editing.revokeGrant(kind, value) : editing.listGrants()));
   ipcMain.handle('backups:open', () => openBackups());
 }
@@ -923,7 +1149,7 @@ async function openBackups() {
 app.whenReady().then(() => {
   settings = new Settings(app.getPath('userData'));
   updater = new Updater(onUpdateStatus);
-  editing = new Editing({ settings, dialog, backupDir: backupDir(), defaultDir: app.getPath('documents') });
+  editing = new Editing({ settings, dialog, backupDir: backupDir(), defaultDir: app.getPath('documents'), sealLocked });
   annotations = new AnnotationStore(app.getPath('userData'));
   // Documents never need camera, mic, notifications, etc.; only clipboard writes for "Copy".
   session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));

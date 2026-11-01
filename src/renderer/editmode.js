@@ -65,6 +65,7 @@ export function createEditMode(ctx) {
   async function enter(tab) {
     if (!tab || tab.editing) { tab?.editor?.focus(); return; }
     if (tab.doc.compare) { ctx.toast('A comparison can’t be edited — open the document itself to edit it'); return; }
+    if (tab.doc.needsPassword) { ctx.toast('Unlock the document first'); return; }
     ctx.beforeEdit?.();                      // e.g. close split view to make room for the editor
     if (!tab.untitled) {
       const res = await api.requestEdit(tab.doc.path);
@@ -178,12 +179,14 @@ export function createEditMode(ctx) {
   }
 
   // ---------------------------------------------------------------- new documents
-  async function newDocument(templateKey = 'blank') {
+  /** A new unsaved document from a template, or (with `given`) from text such as an AI-written report. */
+  async function newDocument(templateKey = 'blank', given = null) {
     const t = TEMPLATES[templateKey] || TEMPLATES.blank;
     untitledCount += 1;
-    const name = templateKey === 'blank' ? `Untitled-${untitledCount}.md` : `${t.name}.md`;
+    if (given) templateKey = 'given';
+    const name = given ? (given.name || `Untitled-${untitledCount}.md`) : templateKey === 'blank' ? `Untitled-${untitledCount}.md` : `${t.name}.md`;
     const doc = {
-      path: null, name, dir: '', baseUrl: '', content: t.content(), mtime: NaN,
+      path: null, name, dir: '', baseUrl: '', content: given ? String(given.content || '') : t.content(), mtime: NaN,
       eol: ctx.platform() === 'win32' ? '\r\n' : '\n', bom: false, writable: true, position: 0,
     };
     const tab = await ctx.openInTab(doc, { duplicate: true, scroll: 0 });

@@ -34,6 +34,11 @@ const options = {
 
 cpSync(join(root, 'src/renderer/index.html'), join(out, 'index.html'));
 cpSync(join(root, 'build/icon.png'), join(out, 'icon.png'));
+// The code sandbox's pages, plus Python (Pyodide) for running Python code blocks.
+cpSync(join(root, 'src/sandbox'), join(out, 'sandbox'), { recursive: true });
+for (const f of ['pyodide.mjs', 'pyodide.asm.mjs', 'pyodide.asm.wasm', 'python_stdlib.zip', 'pyodide-lock.json']) {
+  cpSync(join(root, 'node_modules/pyodide', f), join(out, 'sandbox/pyodide', f));
+}
 
 // PDF finishing and Word export run in the main process; bundle them so the packaged app
 // ships one small file instead of the libraries' full source trees.

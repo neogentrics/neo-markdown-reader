@@ -1,7 +1,7 @@
 {
   "name": "neo-markdown-reader",
   "productName": "Neo Markdown Reader",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "description": "A beautiful, distraction-free Markdown reader for Windows, macOS and Linux.",
   "author": "Neo Gentrics <author@neogentrics.com>",
   "license": "SEE LICENSE IN LICENSE",
@@ -16,7 +16,7 @@
     "dist:linux": "npm run build:renderer && electron-builder --linux AppImage --publish never",
     "dev": "node scripts/build-renderer.mjs && electron . samples/showcase.md",
     "icons": "node scripts/make-icons.mjs",
-    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs"
+    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs && node test/e2e/power.e2e.cjs"
   },
   "build": {
     "appId": "com.neogentrics.markdownreader",
@@ -44,6 +44,14 @@
         ],
         "name": "Markdown Document",
         "description": "Markdown Document",
+        "role": "Viewer"
+      },
+      {
+        "ext": [
+          "mdlock"
+        ],
+        "name": "Locked Markdown Document",
+        "description": "Password-locked Markdown document",
         "role": "Viewer"
       }
     ],
@@ -98,6 +106,7 @@
     ]
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
     "@codemirror/commands": "^6.11.1",
     "@codemirror/lang-markdown": "^6.5.2",
     "@codemirror/lang-yaml": "^6.1.3",
@@ -131,7 +140,8 @@
     "markdown-it-texmath": "^1.0.0",
     "mermaid": "^12.2.0",
     "pdf-lib": "^1.17.1",
-    "playwright-core": "^1.64.1"
+    "playwright-core": "^1.64.1",
+    "pyodide": "^314.0.7"
   },
   "homepage": "https://github.com/neogentrics/neo-markdown-reader",
   "repository": {

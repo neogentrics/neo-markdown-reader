@@ -16,7 +16,7 @@ export function createPublish({ api, activeTab, settings, toast, themeCss }) {
   /** The active tab's page, cleaned of reader-only bits (copy buttons, private highlights). */
   function payloadFor(tab) {
     const clone = tab.el.cloneNode(true);
-    clone.querySelectorAll('.copy-btn').forEach((n) => n.remove());
+    clone.querySelectorAll('.copy-btn, .run-output').forEach((n) => n.remove());
     clone.querySelectorAll('mark[data-hl]').forEach((m) => m.replaceWith(...m.childNodes));
     clone.querySelectorAll('[data-line]').forEach((n) => n.removeAttribute('data-line'));
     const root = document.documentElement;
@@ -85,7 +85,7 @@ export function createPublish({ api, activeTab, settings, toast, themeCss }) {
     box.style.setProperty('--ratio', PAPER_RATIO[paper] || PAPER_RATIO.letter);
     box.style.setProperty('--m', `${MARGIN_PX[o.margins] || 8}px`);
     box.dataset.colors = o.colors;
-    box.classList.toggle('dark', o.colors === 'theme' && document.documentElement.dataset.theme === 'dark');
+    box.classList.toggle('dark', o.colors === 'theme' && document.documentElement.dataset.tone === 'dark');
     const fm = tab?.result?.frontMatter || {};
     const title = String(fm.title || tab?.result?.title || tab?.doc.name || 'Untitled');
     const headings = (tab?.result?.toc || []).length;
