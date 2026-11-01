@@ -363,12 +363,11 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help â†
 - **v2.1** added a formatted preview in File Explorer, an accessibility pass, more ways to install
   (Linux `.deb`, Intel Mac, `winget`), and builds that are signed as soon as a code-signing
   certificate is added.
+- **v2.2** added pasted and dropped pictures, a table editor (with paste from Excel), paste from Word
+  and web pages as clean Markdown, Word import, version history, replace across a folder, and running
+  any command from Quick Open with your own shortcuts.
 
 Coming next, before the next major version:
-
-- **v2.2, Write faster** *(in progress)*: paste and drop images, a table editor (with paste from Excel), paste from Word and
-  web pages as clean Markdown, version history with one-click restore, find & replace across a folder, and
-  running any command from Quick Open.
 - **v2.3, Connected notes:** `[[wiki links]]`, backlinks and a link map, tags, a Tasks panel with daily
   notes, a link checker, and (optionally) asking AI questions about a folder.
 - **v2.4, Read, listen & share:** read aloud, focus mode, folding sections, CSV / JSON / Jupyter notebook
