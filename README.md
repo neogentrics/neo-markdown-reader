@@ -295,9 +295,8 @@ On macOS use `Cmd` instead of `Ctrl`.
   export, presentation mode, and custom colours, fonts and brand stylesheets.
 - **v2.0** added running code blocks in a sandbox, password-locked documents, optional AI
   assist with Claude, and four more colour themes.
-
-- **v2.1, At home on Windows** adds a formatted preview in File Explorer, an accessibility pass, more ways to
-  install (Linux `.deb`, Intel Mac, `winget`), and builds that are signed as soon as a code-signing
+- **v2.1** added a formatted preview in File Explorer, an accessibility pass, more ways to install
+  (Linux `.deb`, Intel Mac, `winget`), and builds that are signed as soon as a code-signing
   certificate is added.
 
 Next: signed installers (once a code-signing certificate is bought).
