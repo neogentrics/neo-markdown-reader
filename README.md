@@ -231,6 +231,10 @@ with your own accent colour and in exports.
 
 ## At home on Windows
 
+<img src="docs/screenshots/explorer-preview.png" width="860" alt="Windows File Explorer with a Markdown file selected and shown formatted in the Preview pane: title, a tip box and a table">
+
+*File Explorer's Preview pane showing a `.md` file, captured on Windows 11.*
+
 - **File Explorer preview.** Select a `.md` file in Explorer with the Preview pane on (`Alt+P`) to see it
   formatted, without opening the app. It follows Windows' light or dark mode.
   - The preview is a quick look: it doesn't load images from the internet and doesn't run anything.
