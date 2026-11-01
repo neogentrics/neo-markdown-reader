@@ -12,6 +12,7 @@ import { createPresenter } from './present.js';
 import { createThemeUi } from './theme-ui.js';
 import { createLockUi } from './lock-ui.js';
 import { addRunButtons } from './run-ui.js';
+import { createAiUi } from './ai-ui.js';
 import './styles/app.css';
 
 const api = window.reader;
@@ -47,6 +48,7 @@ let publish = null;
 let presenter = null;
 let themeUi = null;
 let lockUi = null;
+let aiUi = null;
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -837,6 +839,10 @@ api.onCommand(({ cmd, arg }) => {
     case 'lock-protect': lockUi.protect(); break;
     case 'lock-now': lockUi.lockNow(); break;
     case 'lock-remove': lockUi.saveUnlockedCopy(); break;
+    case 'ai-summarize': aiUi.run('summarize'); break;
+    case 'ai-explain': aiUi.run('explain'); break;
+    case 'ai-report': aiUi.run('report'); break;
+    case 'ai-settings': aiUi.openSettings(); break;
     default: break;
   }
 });
@@ -1007,6 +1013,16 @@ highlights = createHighlights({
   scrollToElement: (el) => scrollToElement(el, { desk: deskFor(tabForElement(el)) }),
 });
 themeUi = createThemeUi({ api, settings: () => settings, toast });
+aiUi = createAiUi({
+  api, render, toast, activeTab,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
+  selectionIn(t) {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !t.el.contains(sel.anchorNode)) return '';
+    return sel.toString().trim();
+  },
+  newDocument: (given) => editMode.newDocument('blank', given),
+});
 lockUi = createLockUi({
   api, activeTab, openInTab, closeTab, toast,
   activeId: () => activeId,

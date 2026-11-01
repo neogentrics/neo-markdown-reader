@@ -230,6 +230,34 @@
     </div>
   </dialog>
 
+  <dialog class="shortcuts ai-settings" id="ai-dlg" aria-labelledby="ai-dlg-h">
+    <form id="ai-form">
+      <h3 id="ai-dlg-h">AI assist</h3>
+      <p class="grants-intro">Summarize a document, explain a passage, or turn notes into a report with Claude, using your own Anthropic API key. Nothing is sent until you choose an <em>AI Assist</em> command, only that document is sent, and locked documents are never sent. Requests are billed to your Anthropic account.</p>
+      <label class="check"><input type="checkbox" id="ai-enabled"> Turn on AI assist</label>
+      <label class="field">Anthropic API key<input type="password" id="ai-key" autocomplete="off" spellcheck="false"></label>
+      <p class="hint-text"><a href="#" id="ai-get-key">Get an API key</a> · stored encrypted by your operating system, never in the settings file · <button type="button" class="link-btn danger" id="ai-key-remove" hidden>Remove saved key</button></p>
+      <p class="hint-text warn" id="ai-insecure" hidden>This computer has no secure key store, so the key is kept only until you quit.</p>
+      <label class="field">Model<select id="ai-model"></select></label>
+      <p class="lock-msg" id="ai-msg" role="alert"></p>
+      <div class="grants-actions">
+        <button type="button" class="link-btn" id="ai-cancel">Cancel</button>
+        <button type="submit" class="big-btn sm">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="shortcuts ai-panel" id="ai-panel" aria-labelledby="ai-title">
+    <div class="ai-head"><h3 id="ai-title"></h3><button type="button" class="tb-btn sm" id="ai-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <article class="markdown-body ai-body" id="ai-body" aria-live="polite"></article>
+    <div class="ai-foot">
+      <span class="ai-status" id="ai-status"></span>
+      <button type="button" class="link-btn" id="ai-stop">Stop</button>
+      <button type="button" class="link-btn" id="ai-copy">Copy</button>
+      <button type="button" class="big-btn sm" id="ai-open" hidden>Open as New Document</button>
+    </div>
+  </dialog>
+
   <dialog class="shortcuts lock-dlg" id="lock-dlg" aria-labelledby="lock-dlg-h">
     <form id="lock-form">
       <h3 id="lock-dlg-h">Protect “<span id="lock-doc"></span>” with a password</h3>

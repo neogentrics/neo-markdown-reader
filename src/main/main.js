@@ -1,5 +1,5 @@
 'use strict';
-const { app, BrowserWindow, ClipboardItem, Menu, clipboard, dialog, ipcMain, nativeTheme, protocol, screen, session, shell } = require('electron');
+const { app, BrowserWindow, ClipboardItem, Menu, clipboard, dialog, ipcMain, nativeTheme, protocol, safeStorage, screen, session, shell } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
@@ -7,6 +7,7 @@ const { Settings } = require('./settings');
 const { isMarkdownPath, isLockedPath, isOpenablePath, fileFromArgv, readMarkdown, readDocument } = require('./files');
 const locked = require('./locked');
 const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = require('./sandbox');
+const ai = require('./ai');
 const { Updater, RELEASES_URL } = require('./updater');
 const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
@@ -228,6 +229,32 @@ async function refreshEverywhere(p) {
     }
   }
 }
+
+// ---------------------------------------------------------------- AI assist key
+// The Anthropic API key is encrypted by the operating system (Windows DPAPI, macOS Keychain, Linux
+// secret service). Where no real secret store exists it is kept for this session only.
+let aiKeyMemory = null;
+const aiKeyFile = () => path.join(app.getPath('userData'), 'ai-key.bin');
+function secureStorage() {
+  if (!safeStorage.isEncryptionAvailable()) return false;
+  if (process.platform === 'linux' && typeof safeStorage.getSelectedStorageBackend === 'function') {
+    const backend = safeStorage.getSelectedStorageBackend();
+    if (backend === 'basic_text' || backend === 'unknown') return false;
+  }
+  return true;
+}
+function loadAiKey() {
+  if (aiKeyMemory) return aiKeyMemory;
+  try { if (secureStorage()) return safeStorage.decryptString(fs.readFileSync(aiKeyFile())); } catch { /* none saved */ }
+  return null;
+}
+function saveAiKey(key) {
+  if (secureStorage()) { fs.writeFileSync(aiKeyFile(), safeStorage.encryptString(key)); aiKeyMemory = null; return 'encrypted'; }
+  aiKeyMemory = key;
+  return 'session';
+}
+function clearAiKey() { aiKeyMemory = null; fs.rmSync(aiKeyFile(), { force: true }); }
+const aiRuns = new Map();          // request id -> AbortController
 
 // ---------------------------------------------------------------- opening files
 function sendDoc(state, channel, doc) {
@@ -589,6 +616,16 @@ function rebuildMenu() {
         cmd('bookmark', 'Bookmark This File', 'CmdOrCtrl+D'),
         { type: 'separator' },
         cmd('grants', 'Editing Permissions…'),
+        {
+          label: 'AI Assist',
+          submenu: [
+            cmd('ai-summarize', 'Summarize Document'),
+            cmd('ai-explain', 'Explain Selection'),
+            cmd('ai-report', 'Turn Notes into a Report'),
+            { type: 'separator' },
+            cmd('ai-settings', 'AI Assist Settings…'),
+          ],
+        },
         { id: 'allow-run', label: 'Allow Running Code Blocks', type: 'checkbox', checked: s.runCode !== 'off', click: () => setSetting({ runCode: settings.get().runCode === 'off' ? 'ask' : 'off' }) },
         { id: 'open-backups', label: 'Open Backups Folder', click: () => openBackups() },
       ],
@@ -949,6 +986,48 @@ function registerIpc() {
     return editing.confirmUnsaved(st, { name: isStr(info.name, 300) ? info.name : 'Untitled', count: Number.isInteger(info.count) ? info.count : 1 });
   });
   ipcMain.handle('grants:list', () => editing.listGrants());
+
+  // ---- AI assist: off by default, the reader's own key, only what they choose is sent
+  ipcMain.handle('ai:status', () => ({ ...settings.get().ai, hasKey: !!loadAiKey(), secure: secureStorage(), models: ai.MODELS.map(({ id, label }) => ({ id, label })) }));
+  ipcMain.handle('ai:configure', (_e, cfg = {}) => {
+    let stored = null;
+    if (cfg.clearKey === true) clearAiKey();
+    if (typeof cfg.apiKey === 'string' && cfg.apiKey.trim()) {
+      const key = cfg.apiKey.trim();
+      if (!ai.KEY_RE.test(key)) return { error: 'That doesn’t look like an Anthropic API key (they start with sk-ant-).' };
+      stored = saveAiKey(key);
+    }
+    setSetting({ ai: { ...settings.get().ai, ...(typeof cfg.enabled === 'boolean' ? { enabled: cfg.enabled } : {}), ...(isStr(cfg.model, 100) ? { model: cfg.model } : {}) } });
+    return { ok: true, stored, ...settings.get().ai, hasKey: !!loadAiKey(), secure: secureStorage() };
+  });
+  ipcMain.handle('ai:run', async (e, req = {}) => {
+    const conf = settings.get().ai;
+    const apiKey = loadAiKey();
+    if (!conf.enabled || !apiKey) return { error: 'AI assist is off.', setup: true };
+    if (isStr(req.path, 4096) && isLockedPath(req.path)) return { error: 'AI assist is off for locked documents, so their text never leaves this computer.' };
+    if (!isStr(req.id, 100)) return { error: 'invalid' };
+    let content;
+    try {
+      content = ai.buildPrompt(req.action, {
+        text: typeof req.text === 'string' ? req.text : '',
+        selection: typeof req.selection === 'string' ? req.selection : '',
+        title: isStr(req.title, 500) ? req.title : '',
+      });
+    } catch (err) { return { error: err.message }; }
+    const { Anthropic } = publish.exportTools(ROOT);
+    const ctl = new AbortController();
+    aiRuns.set(req.id, ctl);
+    try {
+      return await ai.runAi({
+        Anthropic, apiKey, model: conf.model, content, signal: ctl.signal,
+        baseURL: process.env.NMR_AI_BASE_URL || undefined,              // tests point this at a local fake
+        onText: (text) => { if (!e.sender.isDestroyed()) e.sender.send('ai:delta', { id: req.id, text }); },
+      });
+    } catch (err) {
+      return { error: ctl.signal.aborted ? 'Stopped.' : ai.friendlyError(err, Anthropic) };
+    } finally { aiRuns.delete(req.id); }
+  });
+  ipcMain.handle('ai:cancel', (_e, id) => { aiRuns.get(id)?.abort(); });
 
   // ---- running code blocks: always asked, always sandboxed
   ipcMain.handle('code:run', async (e, req = {}) => {

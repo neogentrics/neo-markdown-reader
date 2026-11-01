@@ -5,7 +5,35 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const http = require('node:http');
 const locked = require('../../src/main/locked.js');
+
+// A stand-in for the Anthropic Messages API: records each request and streams a canned answer
+// in the API's server-sent-events format.
+const aiRequests = [];
+let aiMode = 'ok';
+let aiReply = '## Summary\n\nThe page shows **five** code blocks.';
+const aiServer = http.createServer((req, res) => {
+  let raw = '';
+  req.on('data', (c) => { raw += c; });
+  req.on('end', () => {
+    aiRequests.push({ url: req.url, headers: req.headers, body: JSON.parse(raw || '{}') });
+    if (aiMode === 'bad-key') {
+      res.writeHead(401, { 'content-type': 'application/json', 'request-id': 'req_test' });
+      res.end(JSON.stringify({ type: 'error', error: { type: 'authentication_error', message: 'invalid x-api-key' } }));
+      return;
+    }
+    res.writeHead(200, { 'content-type': 'text/event-stream', 'request-id': 'req_test' });
+    const send = (type, data) => res.write(`event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`);
+    send('message_start', { message: { id: 'msg_test', type: 'message', role: 'assistant', model: 'claude-opus-5-5', content: [], stop_reason: null, stop_sequence: null, stop_details: null, usage: { input_tokens: 20, output_tokens: 1 } } });
+    send('content_block_start', { index: 0, content_block: { type: 'text', text: '' } });
+    for (const piece of aiReply.match(/[\s\S]{1,12}/g)) send('content_block_delta', { index: 0, delta: { type: 'text_delta', text: piece } });
+    send('content_block_stop', { index: 0 });
+    send('message_delta', { delta: { stop_reason: 'end_turn', stop_sequence: null, stop_details: null }, usage: { output_tokens: 30 } });
+    send('message_stop', {});
+    res.end();
+  });
+});
 
 const root = path.join(__dirname, '..', '..');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'nmr-power-'));
@@ -29,10 +57,11 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
 const launch = (files = []) => electron.launch({
   executablePath: require(path.join(root, 'node_modules/electron')),
   args: [root, ...(process.platform === 'linux' ? ['--no-sandbox'] : []), ...files],
-  env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: profile, NMR_DISABLE_UPDATES: '1', NMR_NO_REVEAL: '1' },
+  env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: profile, NMR_DISABLE_UPDATES: '1', NMR_NO_REVEAL: '1', NMR_AI_BASE_URL: `http://127.0.0.1:${aiServer.address().port}` },
 });
 
 (async () => {
+  await new Promise((r) => aiServer.listen(0, '127.0.0.1', r));
   let app = await launch([doc]);
   let win = await app.firstWindow();
   const errors = [];
@@ -42,7 +71,11 @@ const launch = (files = []) => electron.launch({
     global.__asked = [];
     global.__answer = 0;
     global.__open = null;
-    dialog.showMessageBox = async (_w, o) => { global.__asked.push(o.message); return { response: o.title === 'Run code?' ? global.__answer : 0 }; };
+    dialog.showMessageBox = async (_w, o) => {
+      global.__asked.push(o.message);
+      if (o.title === 'Unsaved changes') return { response: 1 };          // Don't Save
+      return { response: o.title === 'Run code?' ? global.__answer : 0 };
+    };
     dialog.showOpenDialog = async () => (global.__open ? { canceled: false, filePaths: [global.__open] } : { canceled: true, filePaths: [] });
     dialog.showSaveDialog = async () => (global.__save ? { canceled: false, filePath: global.__save } : { canceled: true });
   });
@@ -211,7 +244,71 @@ const launch = (files = []) => electron.launch({
     await win.waitForFunction(() => !document.body.classList.contains('run-off'));
   });
 
+  const KEY = 'sk-ant-test-0123456789abcdefghijklmn';
+
+  await step('AI assist is off until you turn it on with your own key', async () => {
+    await menu('ai-summarize');
+    await win.waitForSelector('#ai-dlg[open]');
+    assert.match(await win.textContent('#ai-msg'), /Turn on AI assist/);
+    assert.equal(aiRequests.length, 0, 'nothing was sent');
+    await win.fill('#ai-key', 'not-a-key');
+    await win.check('#ai-enabled');
+    await win.click('#ai-form button[type=submit]');
+    assert.match(await win.textContent('#ai-msg'), /doesn’t look like an Anthropic API key/);
+    await win.fill('#ai-key', KEY);
+    await win.click('#ai-form button[type=submit]');
+    await win.waitForSelector('#ai-dlg', { state: 'hidden' });
+    const settingsText = fs.readFileSync(path.join(profile, 'settings.json'), 'utf8');
+    assert.doesNotMatch(settingsText, /sk-ant-/, 'the key is never written to settings');
+  });
+
+  await step('Summarize streams Claude’s answer into the panel (opus-5-5, fallbacks, your key)', async () => {
+    await menu('ai-summarize');
+    await win.waitForSelector('#ai-panel[open] #ai-body h2');
+    await win.waitForFunction(() => /five/.test(document.getElementById('ai-body').textContent) && document.getElementById('ai-stop').hidden);
+    assert.equal(await win.textContent('#ai-body h2'), 'Summary');
+    assert.equal(await win.isVisible('#ai-open'), false);
+    const r = aiRequests.at(-1);
+    assert.match(r.url, /^\/v1\/messages(\?|$)/);
+    assert.ok(r.headers['x-api-key'] === KEY || r.headers.authorization === `Bearer ${KEY}`, 'your key authenticates the request');
+    assert.match(r.headers['anthropic-beta'], /server-side-fallback-2026-07-01/);
+    assert.equal(r.body.model, 'claude-opus-5-5');
+    assert.equal(r.body.fallbacks, 'default');
+    assert.equal(r.body.stream, true);
+    assert.deepEqual(r.body.output_config, { effort: 'medium' });
+    assert.equal(r.body.thinking, undefined);
+    assert.match(r.body.messages[0].content, /<document title="Code">[\s\S]*console\.log\('hello'/);
+    assert.match(r.body.messages[0].content, /Summarize this document/);
+    await win.click('#ai-close');
+  });
+
+  await step('Turn Notes into a Report opens the draft as a new document', async () => {
+    aiReply = '---\ntitle: Code Report\n---\n\n## Executive summary\n\nAll good.\n';
+    await menu('ai-report');
+    await win.waitForFunction(() => !document.getElementById('ai-open').disabled && !document.getElementById('ai-open').hidden);
+    await win.click('#ai-open');
+    await win.waitForFunction(() => /code — report/.test(document.querySelector('.tab.active .tab-label')?.textContent || ''));
+    await win.waitForSelector('.cm-content');
+    assert.match(await win.$eval('.cm-content', (n) => n.textContent), /title: Code Report/);
+    await menu('close-tab');                                   // Don't Save
+    await win.waitForFunction(() => document.querySelector('.tab.active .tab-label')?.textContent === 'code');
+  });
+
+  await step('a rejected key gets a plain explanation; locked documents are never sent', async () => {
+    aiMode = 'bad-key';
+    await menu('ai-summarize');
+    await win.waitForFunction(() => /didn’t accept the API key/.test(document.getElementById('ai-status').textContent), null, { timeout: 30000 });
+    await win.click('#ai-close');
+    aiMode = 'ok';
+    const before = aiRequests.length;
+    await win.click('.tab.locked');
+    await menu('ai-summarize');
+    await win.waitForFunction(() => /locked documents/.test(document.getElementById('toast').textContent));
+    assert.equal(aiRequests.length, before);
+  });
+
   assert.deepEqual(errors, [], 'no page errors');
   await app.close();
+  aiServer.close();
   console.log('power e2e: all passed');
 })().catch((err) => { console.error(err); process.exit(1); });

@@ -108,3 +108,28 @@ test('code sandbox: only its own folder is served, only JS and Python run', () =
   assert.deepEqual(['js', 'JavaScript', 'py', 'python3', 'bash', 'powershell', 'sh', ''].map(runnableLang),
     ['javascript', 'javascript', 'python', 'python', null, null, null, null]);
 });
+
+test('AI assist: prompts, request parameters and settings', () => {
+  const ai = require('../src/main/ai.js');
+  const p = ai.buildPrompt('summarize', { text: '# Plan\nShip it.', title: 'Plan "Q3" <draft>' });
+  assert.match(p, /^<document title="Plan &quot;Q3&quot; &lt;draft&gt;">\n# Plan\nShip it\.\n<\/document>/);
+  assert.match(p, /Summarize this document/);
+  assert.match(ai.buildPrompt('explain', { text: 'doc', selection: '  the bit  ' }), /<selection>\nthe bit\n<\/selection>/);
+  assert.throws(() => ai.buildPrompt('explain', { text: 'doc' }), /Select some text/);
+  assert.throws(() => ai.buildPrompt('summarize', { text: '   ' }), /empty/);
+  assert.throws(() => ai.buildPrompt('summarize', { text: 'x'.repeat(ai.MAX_CHARS + 1) }), /too long/, 'never silently truncated');
+  assert.throws(() => ai.buildPrompt('delete-everything', { text: 'x' }), /Unknown/);
+  const opus = ai.requestParams('claude-opus-5-5', 'hi');
+  assert.equal(opus.model, 'claude-opus-5-5');
+  assert.equal(opus.fallbacks, 'default');
+  assert.deepEqual(opus.betas, ['server-side-fallback-2026-07-01']);
+  assert.deepEqual(opus.output_config, { effort: 'medium' });
+  assert.equal(opus.thinking, undefined);
+  const haiku = ai.requestParams('claude-haiku-5-5', 'hi');
+  assert.equal(haiku.fallbacks, undefined, 'Haiku has no server-side fallback');
+  assert.equal(ai.requestParams('gpt-whatever', 'hi').model, 'claude-opus-5-5');
+  assert.deepEqual(ai.cleanAiSettings({ enabled: 'yes', model: 'nope' }), { enabled: false, model: 'claude-opus-5-5' });
+  assert.equal(ai.KEY_RE.test('sk-ant-api03-abcdefghijklmnopqrstuvwxyz'), true);
+  assert.equal(ai.KEY_RE.test('sk-ant-short'), false);
+  assert.equal(ai.KEY_RE.test('sk-ant-abcdefghijklmnopqrstuvwxyz\nX-Header: 1'), false);
+});

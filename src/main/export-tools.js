@@ -307,4 +307,7 @@ async function buildDocx(model, assets = {}, options = {}) {
   return Packer.toBuffer(doc);
 }
 
-module.exports = { readOutline, pagesForEntries, finishPdf, collectAssets, buildDocx, bookmarkName, PAPER_IN, MARGIN_IN };
+// The Anthropic SDK rides in the same bundle (used by AI assist).
+const Anthropic = require('@anthropic-ai/sdk');
+
+module.exports = { Anthropic: Anthropic.default || Anthropic, readOutline, pagesForEntries, finishPdf, collectAssets, buildDocx, bookmarkName, PAPER_IN, MARGIN_IN };
