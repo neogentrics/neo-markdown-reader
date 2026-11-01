@@ -74,7 +74,7 @@ namespace Neo.MarkdownPreview
                 if (link.IsImage)
                 {
                     string alt = InlineText(link).Trim();
-                    link.ReplaceBy(new LiteralInline("[Image" + (alt.Length > 0 ? ": " + alt : "") + "]"));
+                    link.ReplaceBy(new LiteralInline("[Image" + (alt.Length > 0 ? ": " + alt : "") + "]"), copyChildren: false);
                 }
                 else if (link.Url != null && !SafeUrl.IsMatch(link.Url.Trim()))
                 {

@@ -133,3 +133,19 @@ test('AI assist: prompts, request parameters and settings', () => {
   assert.equal(ai.KEY_RE.test('sk-ant-short'), false);
   assert.equal(ai.KEY_RE.test('sk-ant-abcdefghijklmnopqrstuvwxyz\nX-Header: 1'), false);
 });
+
+test('winget manifests: id, version, installer URL and checksum line up', async () => {
+  const { manifests } = await import('../scripts/winget-manifest.mjs');
+  const m = manifests({ version: '2.1.0', sha256: 'ab'.repeat(32), url: 'https://example.com/Setup.exe' });
+  assert.deepEqual(Object.keys(m).sort(), ['NeoGentrics.NeoMarkdownReader.installer.yaml', 'NeoGentrics.NeoMarkdownReader.locale.en-US.yaml', 'NeoGentrics.NeoMarkdownReader.yaml']);
+  for (const text of Object.values(m)) {
+    assert.match(text, /^PackageIdentifier: NeoGentrics\.NeoMarkdownReader$/m);
+    assert.match(text, /^PackageVersion: 2\.1\.0$/m);
+    assert.match(text, /^ManifestVersion: 1\.6\.0$/m);
+  }
+  const inst = m['NeoGentrics.NeoMarkdownReader.installer.yaml'];
+  assert.match(inst, /InstallerSha256: (AB){32}\n/);
+  assert.match(inst, /InstallerType: nullsoft/);
+  assert.match(inst, /Scope: user/);
+  assert.match(m['NeoGentrics.NeoMarkdownReader.locale.en-US.yaml'], /ReleaseNotesUrl: .*\/releases\/tag\/v2\.1\.0/);
+});

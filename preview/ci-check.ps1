@@ -53,5 +53,6 @@ Write-Host "Preview shows:`n$shown"
 if ($shown -notmatch 'Quarterly Report') { throw 'The front-matter title is missing.' }
 if ($shown -notmatch 'Revenue grew this quarter') { throw 'The document text is missing.' }
 if ($shown -notmatch '\[Image: Company logo\]') { throw 'Images should be shown as their description, not loaded.' }
+if ($shown -match '\]Company logo') { throw 'The image description is shown twice.' }
 if ($shown -notmatch "<script>document\.title") { throw 'Raw HTML should be shown as text.' }
 Write-Host 'ok - the preview renders the document safely'

@@ -30,6 +30,7 @@ public class PreviewRendererTests
         string html = PreviewRenderer.RenderBody("![Company logo](https://tracker.example/pixel.png)\n\n[click](javascript:alert(1)) [file](file:///C:/Windows/System32/calc.exe) [web](https://example.com) [anchor](#title) [mail](mailto:a@b.c)\n");
         Assert.DoesNotContain("<img", html);
         Assert.Contains("[Image: Company logo]", html);
+        Assert.DoesNotContain("]Company logo", html);   // the description appears once
         Assert.DoesNotContain("javascript:", html);
         Assert.DoesNotContain("file:", html);
         Assert.Contains("href=\"https://example.com\"", html);
