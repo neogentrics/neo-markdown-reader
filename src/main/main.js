@@ -1,11 +1,12 @@
 'use strict';
-const { app, BrowserWindow, ClipboardItem, Menu, clipboard, dialog, ipcMain, nativeTheme, screen, session, shell } = require('electron');
+const { app, BrowserWindow, ClipboardItem, Menu, clipboard, dialog, ipcMain, nativeTheme, protocol, screen, session, shell } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
 const { Settings } = require('./settings');
 const { isMarkdownPath, isLockedPath, isOpenablePath, fileFromArgv, readMarkdown, readDocument } = require('./files');
 const locked = require('./locked');
+const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = require('./sandbox');
 const { Updater, RELEASES_URL } = require('./updater');
 const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
@@ -17,6 +18,9 @@ const ROOT = path.join(__dirname, '..', '..');
 const RENDERER_HTML = path.join(ROOT, 'dist', 'index.html');
 const SHOWCASE = path.join(ROOT, 'samples', 'showcase.md');
 const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb', mist: '#dfe5ec', forest: '#0b120e', dusk: '#110e18', contrast: '#000000' };
+
+registerScheme(protocol);                     // the code sandbox's private scheme (must precede app ready)
+let sandbox = null;
 
 // Tests point the app at a throwaway profile folder.
 if (process.env.NMR_USER_DATA) app.setPath('userData', process.env.NMR_USER_DATA);
@@ -585,6 +589,7 @@ function rebuildMenu() {
         cmd('bookmark', 'Bookmark This File', 'CmdOrCtrl+D'),
         { type: 'separator' },
         cmd('grants', 'Editing Permissions…'),
+        { id: 'allow-run', label: 'Allow Running Code Blocks', type: 'checkbox', checked: s.runCode !== 'off', click: () => setSetting({ runCode: settings.get().runCode === 'off' ? 'ask' : 'off' }) },
         { id: 'open-backups', label: 'Open Backups Folder', click: () => openBackups() },
       ],
     },
@@ -836,6 +841,7 @@ function registerIpc() {
     if (isMac) st.win.setRepresentedFilename(st.tabs[st.active]?.path || '');
     syncWatchers(st);
     editing.pruneSession(st, st.tabs.map((t) => t.path));     // closing a tab ends "Just this time"
+    if (st.runGrants) { const open = new Set(st.tabs.map((t) => lockId(t.path))); for (const k of st.runGrants) if (k !== 'untitled' && !open.has(k)) st.runGrants.delete(k); }
     if (st.tabs.length) settings.setPositions(Object.fromEntries(st.tabs.map((t) => [t.path, t.scroll])));
     snapshot(st);
     persistSession();
@@ -943,6 +949,36 @@ function registerIpc() {
     return editing.confirmUnsaved(st, { name: isStr(info.name, 300) ? info.name : 'Untitled', count: Number.isInteger(info.count) ? info.count : 1 });
   });
   ipcMain.handle('grants:list', () => editing.listGrants());
+
+  // ---- running code blocks: always asked, always sandboxed
+  ipcMain.handle('code:run', async (e, req = {}) => {
+    const st = stateFor(e);
+    if (!st) return { error: 'No window' };
+    if (settings.get().runCode === 'off') return { error: 'Running code is switched off. Turn it on under Edit → Allow Running Code Blocks.', off: true };
+    const lang = runnableLang(req.lang);
+    if (!lang) return { error: 'Only JavaScript and Python code can be run.' };
+    if (typeof req.code !== 'string' || !req.code.trim() || req.code.length > 200_000) return { error: 'There’s no code to run.' };
+    const docKey = isStr(req.path, 4096) ? lockId(req.path) : 'untitled';
+    st.runGrants ??= new Set();
+    if (!st.runGrants.has(docKey)) {
+      const label = lang === 'python' ? 'Python' : 'JavaScript';
+      const lines = req.code.split('\n');
+      const preview = lines.slice(0, 18).join('\n').slice(0, 1400) + (lines.length > 18 || req.code.length > 1400 ? '\n…' : '');
+      const { response, checkboxChecked } = await dialog.showMessageBox(st.win, {
+        type: 'question', title: 'Run code?', noLink: true,
+        message: `Run this ${label} code${isStr(req.name, 300) ? ` from “${req.name}”` : ''}?`,
+        detail: `${preview}\n\nIt runs in a sealed sandbox: it can’t read or change your files, use the network or see your settings, and it’s stopped after ${RUN_TIMEOUT[lang] / 1000} seconds.`,
+        buttons: ['Run', 'Cancel'], defaultId: 0, cancelId: 1,
+        checkboxLabel: 'Don’t ask again for this document until I close it',
+      });
+      if (response !== 0) return { canceled: true };
+      if (checkboxChecked) st.runGrants.add(docKey);
+    }
+    try {
+      sandbox ??= new CodeSandbox({ dir: path.join(ROOT, 'dist', 'sandbox'), devTools: !app.isPackaged });
+      return await sandbox.run({ lang, code: req.code });
+    } catch (err) { return { error: String(err?.message || err) }; }
+  });
 
   // ---- password-locked documents
   ipcMain.handle('lock:unlock', async (e, p, password) => {

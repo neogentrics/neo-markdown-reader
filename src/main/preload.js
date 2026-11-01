@@ -31,6 +31,7 @@ contextBridge.exposeInMainWorld('reader', {
   print: invoke('doc:print'),
   setFullScreen: invoke('window:fullscreen'),
   pickStylesheet: invoke('brand:pick-stylesheet'),
+  runCode: invoke('code:run'),
   // password-locked documents (encryption happens in the main process)
   unlock: invoke('lock:unlock'),
   protect: invoke('lock:protect'),

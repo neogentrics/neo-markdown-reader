@@ -11,6 +11,7 @@ import { createPublish } from './publish-ui.js';
 import { createPresenter } from './present.js';
 import { createThemeUi } from './theme-ui.js';
 import { createLockUi } from './lock-ui.js';
+import { addRunButtons } from './run-ui.js';
 import './styles/app.css';
 
 const api = window.reader;
@@ -389,6 +390,7 @@ async function refreshTab(tab, doc) {
 
 // ================================================================ rendering helpers
 function enhance(root) {
+  addRunButtons(root, { api, toast, docFor: (pre) => tabs.find((t) => t.el.contains(pre))?.doc });
   for (const pre of root.querySelectorAll('pre.code-block')) {
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
@@ -908,6 +910,7 @@ function applySettings(s) {
   root.dataset.width = s.pageWidth;
   root.style.setProperty('--font-scale', s.fontScale);
   document.body.classList.toggle('toc-hidden', !s.showToc);
+  document.body.classList.toggle('run-off', s.runCode === 'off');
   for (const seg of document.querySelectorAll('.seg[data-key]')) {
     for (const b of seg.querySelectorAll('button')) b.classList.toggle('active', s[seg.dataset.key] === b.dataset.value);
   }

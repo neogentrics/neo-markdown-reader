@@ -14,6 +14,16 @@ const doc = path.join(tmp, 'secret.md');
 const lockedPath = path.join(tmp, 'secret.mdlock');
 const PASSWORD = 'correct horse battery';
 fs.writeFileSync(doc, '# Secret plan\n\nThe launch date is the 14th.\n');
+const codeDoc = path.join(tmp, 'code.md');
+const fence = '```';
+fs.writeFileSync(codeDoc, [
+  '# Code', '',
+  `${fence}js`, "console.log('hello', 6 * 7);", "console.log('fetch is', typeof fetch, typeof XMLHttpRequest, typeof WebSocket);", "'done'", fence, '',
+  `${fence}python`, 'print("py", sum(range(10)))', 'import js', 'print("js.fetch is", getattr(js, "fetch", None))', fence, '',
+  `${fence}js`, 'while (true) {}', fence, '',
+  `${fence}js`, "throw new TypeError('bad thing')", fence, '',
+  `${fence}bash`, 'rm -rf /', fence, '',
+].join('\n'));
 
 const step = async (name, fn) => { await fn(); console.log('ok -', name); };
 const launch = (files = []) => electron.launch({
@@ -29,7 +39,11 @@ const launch = (files = []) => electron.launch({
   win.on('pageerror', (e) => errors.push(e.message));
   const stub = (a) => a.evaluate(({ dialog }) => {
     global.__save = null;
-    dialog.showMessageBox = async () => ({ response: 0 });
+    global.__asked = [];
+    global.__answer = 0;
+    global.__open = null;
+    dialog.showMessageBox = async (_w, o) => { global.__asked.push(o.message); return { response: o.title === 'Run code?' ? global.__answer : 0 }; };
+    dialog.showOpenDialog = async () => (global.__open ? { canceled: false, filePaths: [global.__open] } : { canceled: true, filePaths: [] });
     dialog.showSaveDialog = async () => (global.__save ? { canceled: false, filePath: global.__save } : { canceled: true });
   });
   await stub(app);
@@ -130,6 +144,71 @@ const launch = (files = []) => electron.launch({
     assert.equal(await win.$(`${page} #secret-plan`), null);
     const settingsText = fs.readFileSync(path.join(profile, 'settings.json'), 'utf8');
     assert.doesNotMatch(settingsText, /launch date|21st/, 'no document text in settings');
+  });
+
+  const block = (n) => `${page} pre.code-block:nth-of-type(${n})`;
+  const outputOf = (n) => win.$eval(`${block(n)} + .run-output`, (o) => ({ status: o.querySelector('.run-status').textContent, text: o.querySelector('.run-body').textContent }));
+
+  await step('JavaScript and Python code blocks get a Run button (other languages don’t)', async () => {
+    await app.evaluate((_e, f) => { global.__open = f; }, codeDoc);
+    await menu('open');
+    await win.waitForSelector(`${page} #code`);
+    assert.equal(await win.$$eval(`${page} .run-btn`, (b) => b.length), 4);
+    assert.equal(await win.$(`${block(5)} .run-btn`), null, 'bash is never runnable');
+  });
+
+  await step('Run asks first; Cancel runs nothing', async () => {
+    await app.evaluate(() => { global.__answer = 1; global.__asked = []; });
+    await win.click(`${block(1)} .run-btn`);
+    await win.waitForFunction(() => !document.querySelector('.page:not([hidden]) pre.code-block .run-btn').disabled);
+    const asked = await app.evaluate(() => global.__asked);
+    assert.match(asked[0], /Run this JavaScript code from “code\.md”\?/);
+    assert.equal(await win.$(`${block(1)} + .run-output`), null);
+    await app.evaluate(() => { global.__answer = 0; });
+  });
+
+  await step('JavaScript runs in the sandbox, with no network functions', async () => {
+    await win.click(`${block(1)} .run-btn`);
+    await win.waitForSelector(`${block(1)} + .run-output`, { timeout: 30000 });
+    const out = await outputOf(1);
+    assert.match(out.text, /hello 42/);
+    assert.match(out.text, /fetch is undefined undefined undefined/);
+    assert.match(out.text, /→ done/);
+    assert.match(out.status, /JavaScript · finished in/);
+  });
+
+  await step('Python runs too (Pyodide), also without network access', async () => {
+    await win.click(`${block(2)} .run-btn`);
+    await win.waitForSelector(`${block(2)} + .run-output`, { timeout: 90000 });
+    const out = await outputOf(2);
+    assert.match(out.text, /py 45/);
+    assert.match(out.text, /js\.fetch is None/);
+  });
+
+  await step('a program that never ends is stopped; errors are shown', async () => {
+    await win.click(`${block(3)} .run-btn`);
+    await win.waitForSelector(`${block(3)} + .run-output`, { timeout: 30000 });
+    assert.match((await outputOf(3)).status, /Stopped/);
+    await win.click(`${block(4)} .run-btn`);
+    await win.waitForSelector(`${block(4)} + .run-output`, { timeout: 30000 });
+    assert.match((await outputOf(4)).text, /TypeError: bad thing/);
+  });
+
+  await step('the sandbox itself can’t reach the web or local files', async () => {
+    const results = await app.evaluate(async ({ BrowserWindow }) => {
+      const sb = BrowserWindow.getAllWindows().find((w) => w.webContents.getURL().startsWith('nmr-sandbox://'));
+      const tryFetch = (u) => sb.webContents.executeJavaScript(`fetch(${JSON.stringify(u)}).then((r) => (r.ok ? 'reached' : 'blocked'), () => 'blocked')`);
+      return { web: await tryFetch('https://example.com/'), file: await tryFetch('file:///etc/hosts'), own: await tryFetch('nmr-sandbox://app/sandbox.html'), outside: await tryFetch('nmr-sandbox://app/../../package.json'), encoded: await tryFetch('nmr-sandbox://app/..%2f..%2fpackage.json') };
+    });
+    assert.deepEqual(results, { web: 'blocked', file: 'blocked', own: 'reached', outside: 'blocked', encoded: 'blocked' });
+  });
+
+  await step('Edit → Allow Running Code Blocks off hides the Run buttons', async () => {
+    await menu('allow-run');
+    await win.waitForFunction(() => document.body.classList.contains('run-off'));
+    assert.equal(await win.isVisible(`${block(1)} .run-btn`), false);
+    await menu('allow-run');
+    await win.waitForFunction(() => !document.body.classList.contains('run-off'));
   });
 
   assert.deepEqual(errors, [], 'no page errors');

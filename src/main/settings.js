@@ -19,6 +19,7 @@ const DEFAULTS = Object.freeze({
   bookmarks: [],          // starred files (shown in the Files panel and Quick Open)
   recentFolders: [],      // most-recent-first folders opened with File > Open Folder
   exportOptions: null,    // last choices in the PDF designer (see EXPORT_DEFAULTS)
+  runCode: 'ask',         // ask | off — running code blocks (always asks before each run)
   brand: null,            // custom theme: accent colour, fonts, brand stylesheet (see BRAND_DEFAULTS)
   windowBounds: null,
 });
@@ -114,6 +115,7 @@ function sanitize(input) {
   s.editGrants = cleanGrants(input.editGrants);
   if (Array.isArray(input.bookmarks)) s.bookmarks = [...new Set(input.bookmarks.filter(isPath))].slice(0, 300);
   if (Array.isArray(input.recentFolders)) s.recentFolders = [...new Set(input.recentFolders.filter(isPath))].slice(0, 10);
+  if (['ask', 'off'].includes(input.runCode)) s.runCode = input.runCode;
   s.exportOptions = cleanExportOptions(input.exportOptions);
   s.brand = cleanBrand(input.brand);
   s.windowBounds = cleanBounds(input.windowBounds);

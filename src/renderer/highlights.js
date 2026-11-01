@@ -2,7 +2,7 @@
 // A highlight is remembered as the quoted text plus a little context before/after it, so it can be found
 // again after the document is re-rendered or edited around it.
 
-const SKIP = 'button, .copy-btn, script, style, .mermaid-diagram, .katex-mathml';
+const SKIP = 'button, .copy-btn, .run-output, script, style, .mermaid-diagram, .katex-mathml';
 
 /** Concatenate the page's visible text and remember which text node covers which characters. */
 export function textIndex(root) {

@@ -16,7 +16,7 @@ export function createPublish({ api, activeTab, settings, toast, themeCss }) {
   /** The active tab's page, cleaned of reader-only bits (copy buttons, private highlights). */
   function payloadFor(tab) {
     const clone = tab.el.cloneNode(true);
-    clone.querySelectorAll('.copy-btn').forEach((n) => n.remove());
+    clone.querySelectorAll('.copy-btn, .run-output').forEach((n) => n.remove());
     clone.querySelectorAll('mark[data-hl]').forEach((m) => m.replaceWith(...m.childNodes));
     clone.querySelectorAll('[data-line]').forEach((n) => n.removeAttribute('data-line'));
     const root = document.documentElement;

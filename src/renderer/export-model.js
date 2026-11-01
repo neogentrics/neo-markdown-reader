@@ -7,7 +7,7 @@
 const BLOCK_TAGS = new Set(['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'PRE', 'BLOCKQUOTE', 'TABLE', 'HR', 'DL',
   'DIV', 'SECTION', 'HEADER', 'DETAILS', 'FIGURE', 'ARTICLE', 'ASIDE', 'NAV', 'FOOTER', 'MAIN']);
 const RASTER = /\.(png|jpe?g|gif|bmp)(?:[?#].*)?$/i;
-const SKIP = '.copy-btn, .footnote-backref, .octicon, script, style, button';
+const SKIP = '.copy-btn, .run-output, .footnote-backref, .octicon, script, style, button';
 
 const clean = (s) => s.replace(/[ \t\r\n\f]+/g, ' ');
 

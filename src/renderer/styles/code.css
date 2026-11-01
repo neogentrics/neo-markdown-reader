@@ -35,3 +35,19 @@
 .hljs-strong { font-weight: 700; }
 .hljs-addition { color: var(--hl-add); background: var(--hl-add-bg); }
 .hljs-deletion { color: var(--hl-del); background: var(--hl-del-bg); }
+
+/* ▶ Run (JavaScript and Python code blocks) and the output under the block */
+.markdown-body .run-btn { right: 4.9em; opacity: 1; color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--code-border)); }
+.markdown-body .run-btn:disabled { opacity: .7; cursor: progress; }
+.markdown-body pre:has(.run-btn)::before { right: 10.4em; }
+body.run-off .markdown-body .run-btn { display: none; }
+body.run-off .markdown-body pre:has(.run-btn)::before { right: 4.6em; }
+.markdown-body .run-output { margin: -.6em 0 1.1em; border: 1px solid var(--code-border); border-top: 0; border-radius: 0 0 10px 10px; background: var(--code-bg); overflow: hidden; }
+.run-head { display: flex; align-items: center; justify-content: space-between; padding: .35em .8em; font: 600 .72em var(--font-sans); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; border-top: 1px dashed var(--code-border); }
+.run-close { border: 0; background: none; color: var(--muted); font-size: 1.4em; line-height: 1; cursor: pointer; padding: 0 .2em; }
+.run-close:hover { color: var(--heading); }
+.markdown-body .run-body { margin: 0; padding: .2em .9em .8em; background: none; border: 0; font: .86em/1.5 var(--font-mono); white-space: pre-wrap; word-break: break-word; max-height: 24em; overflow: auto; }
+.run-err { color: #e03131; }
+:root[data-tone="dark"] .run-err { color: #ff8787; }
+.run-result { color: var(--accent-2); }
+.run-empty { color: var(--muted); font-style: italic; }

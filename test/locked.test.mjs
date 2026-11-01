@@ -95,3 +95,16 @@ test('saving a locked document writes ciphertext, never plain text', async () =>
   const noKey = new Editing({ settings: store, dialog: {}, backupDir: join(dir, 'backups') });
   assert.equal((await noKey.save({ win: null }, { path: p, content: 'x', baseMtime: NaN })).reason, 'locked');
 });
+
+test('code sandbox: only its own folder is served, only JS and Python run', () => {
+  const { sandboxFile, runnableLang } = require('../src/main/sandbox.js');
+  const dir = join(tmpdir(), 'sbx');
+  assert.equal(sandboxFile(dir, 'nmr-sandbox://app/sandbox.html'), join(dir, 'sandbox.html'));
+  assert.equal(sandboxFile(dir, 'nmr-sandbox://app/pyodide/pyodide.mjs'), join(dir, 'pyodide', 'pyodide.mjs'));
+  assert.equal(sandboxFile(dir, 'nmr-sandbox://app/..%2f..%2fetc%2fpasswd'), null);
+  assert.equal(sandboxFile(dir, 'nmr-sandbox://other/sandbox.html'), null);
+  assert.equal(sandboxFile(dir, 'file:///etc/passwd'), null);
+  assert.equal(sandboxFile(dir, 'nmr-sandbox://app/'), null);
+  assert.deepEqual(['js', 'JavaScript', 'py', 'python3', 'bash', 'powershell', 'sh', ''].map(runnableLang),
+    ['javascript', 'javascript', 'python', 'python', null, null, null, null]);
+});
