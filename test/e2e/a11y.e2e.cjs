@@ -27,6 +27,9 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   win.on('pageerror', (e) => errors.push(e.message));
   const menu = (id) => app.evaluate(({ Menu }, i) => Menu.getApplicationMenu().getMenuItemById(i).click(), id);
   await win.waitForSelector('#welcome-open');
+  // Measure settled colours: with reduced motion the app skips its fades and theme transitions
+  // (mid-fade colours are neither the old nor the new one, and would trip the contrast check).
+  await win.emulateMedia({ reducedMotion: 'reduce' });
   await win.evaluate(axeSource);
   const problems = async (where) => {
     const found = await win.evaluate(async () => {
