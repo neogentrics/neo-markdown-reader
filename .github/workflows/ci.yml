@@ -40,6 +40,11 @@ jobs:
         run: |
           npm run build:preview
           powershell -NoProfile -STA -File preview/ci-check.ps1 -Dll preview-dist/NeoMarkdownPreview.dll
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: File Explorer preview — how Windows activates it (diagnostic)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: powershell -NoProfile -STA -ExecutionPolicy Bypass -File preview/ci-com-diag.ps1 -Dll preview-dist/NeoMarkdownPreview.dll
       - name: End-to-end test (real app)
         if: runner.os != 'Linux'
         run: npm run test:e2e
@@ -70,11 +75,13 @@ jobs:
           $setup = Get-ChildItem release/NeoMarkdownReader-*-Setup.exe | Select-Object -First 1
           Start-Process -Wait -FilePath $setup.FullName -ArgumentList '/S'
           powershell -NoProfile -STA -File preview/ci-check.ps1 -Installed
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
           $dir = Join-Path $env:LOCALAPPDATA 'Programs\neo-markdown-reader'
           if (-not (Test-Path $dir)) { $dir = Join-Path $env:LOCALAPPDATA 'Programs\Neo Markdown Reader' }
           $un = Get-ChildItem $dir -Filter 'Uninstall*.exe' | Select-Object -First 1
           Start-Process -Wait -FilePath $un.FullName -ArgumentList '/S', "_?=$dir"
           powershell -NoProfile -File preview/ci-check.ps1 -Uninstalled
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Upload installer + portable exe
         uses: actions/upload-artifact@v7
         with:
