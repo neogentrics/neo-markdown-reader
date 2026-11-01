@@ -143,6 +143,7 @@ export function createHighlights(ctx) {
     if (!tab) return;
     if (!tab.doc.path) { ctx.toast('Save the document first to highlight it'); return; }
     if (tab.doc.compare) return;
+    if (tab.doc.locked) { ctx.toast('Highlights aren’t available in locked documents — they would be stored without the lock'); return; }
     const s = currentSelection(tab);
     if (!s) { ctx.toast('Select some text on the page first'); return; }
     const items = [...(await list(tab.doc.path))];
@@ -158,7 +159,7 @@ export function createHighlights(ctx) {
   // ---------------------------------------------------------------- selection toolbar
   function showSelBar() {
     const tab = ctx.activeTab();
-    const s = tab && !tab.editing && currentSelection(tab);
+    const s = tab && !tab.editing && !tab.doc.locked && currentSelection(tab);
     if (!s) { hideSelBar(); return; }
     selBar.hidden = false;
     const w = selBar.offsetWidth || 180;

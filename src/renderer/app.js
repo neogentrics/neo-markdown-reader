@@ -10,6 +10,7 @@ import { compareDocs } from './compare.js';
 import { createPublish } from './publish-ui.js';
 import { createPresenter } from './present.js';
 import { createThemeUi } from './theme-ui.js';
+import { createLockUi } from './lock-ui.js';
 import './styles/app.css';
 
 const api = window.reader;
@@ -44,6 +45,7 @@ let highlights = null;
 let publish = null;
 let presenter = null;
 let themeUi = null;
+let lockUi = null;
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -97,6 +99,16 @@ function renderInto(tab, doc, { preview = false } = {}) {
     updateTabButton(tab);
     return Promise.resolve();
   }
+  if (doc.needsPassword) {
+    // A locked document we don't have the key for: show the unlock screen instead of the text.
+    tab.doc = doc;
+    tab.result = { html: '', toc: [], title: doc.name, stats: { words: 0, minutes: 0 } };
+    tab.el.classList.add('locked-page');
+    lockUi.renderLockScreen(tab);
+    updateTabButton(tab);
+    return Promise.resolve();
+  }
+  tab.el.classList.remove('locked-page');
   const result = render(doc.content, { baseUrl: doc.baseUrl });
   if (!preview) tab.doc = doc;
   tab.result = result;
@@ -138,6 +150,7 @@ function updateTabButton(tab) {
   tab.btn.title = `${tab.result?.title && tab.result.title !== label ? tab.result.title + '\n' : ''}${tab.doc.path || 'Not saved yet'}${tab.dirty ? '\nUnsaved changes' : ''}`;
   tab.btn.classList.toggle('dirty', !!tab.dirty);
   tab.btn.classList.toggle('untitled', !!tab.untitled);
+  tab.btn.classList.toggle('locked', !!tab.doc.locked);
   if (tab.id === activeId) editMode?.refresh();
 }
 
@@ -819,6 +832,9 @@ api.onCommand(({ cmd, arg }) => {
     case 'export-txt': publish.exportAs('txt'); break;
     case 'present': if (presenter.active()) presenter.stop(); else presenter.start(); break;
     case 'customize-theme': themeUi.open(); break;
+    case 'lock-protect': lockUi.protect(); break;
+    case 'lock-now': lockUi.lockNow(); break;
+    case 'lock-remove': lockUi.saveUnlockedCopy(); break;
     default: break;
   }
 });
@@ -937,7 +953,7 @@ api.onDocumentChanged(async (doc) => {
     if (editMode.onDiskChange(t, doc)) continue;        // editing: keep the user's text, offer to load
     await refreshTab(t, doc);
   }
-  if (affected.some((t) => t.id === activeId && !t.editing)) toast('Updated from disk');
+  if (!doc.needsPassword && affected.some((t) => t.id === activeId && !t.editing)) toast('Updated from disk');
 });
 
 editMode = createEditMode({
@@ -988,6 +1004,16 @@ highlights = createHighlights({
   scrollToElement: (el) => scrollToElement(el, { desk: deskFor(tabForElement(el)) }),
 });
 themeUi = createThemeUi({ api, settings: () => settings, toast });
+lockUi = createLockUi({
+  api, activeTab, openInTab, closeTab, toast,
+  activeId: () => activeId,
+  hasUnsaved: (t) => editMode.hasUnsaved(t),
+  async showUnlocked(tab, doc) {
+    await renderInto(tab, doc);
+    if (tab.id === activeId) { showActiveDoc(); restoreScroll(tab); }
+    syncSoon();
+  },
+});
 publish = createPublish({ api, activeTab, settings: () => settings, toast, themeCss: () => themeUi.exportCss() });
 presenter = createPresenter({ api, activeTab, toast });
 $('btn-bookmark').onclick = () => toggleBookmark();

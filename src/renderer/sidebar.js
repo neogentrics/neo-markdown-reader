@@ -41,7 +41,7 @@ export function createSidebar(ctx) {
     det.open = depth < 2;                    // the folder and its first level of subfolders start expanded
     det.innerHTML = `<summary><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>${esc(node.name)}</summary>`;
     for (const d of node.dirs) det.appendChild(dirNode(d, depth + 1));
-    for (const f of node.files) det.appendChild(fileButton(f.path, f.name));
+    for (const f of node.files) { const b = fileButton(f.path, f.name); if (f.locked) b.classList.add('locked'); det.appendChild(b); }
     return det;
   }
 

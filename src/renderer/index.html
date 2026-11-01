@@ -230,6 +230,24 @@
     </div>
   </dialog>
 
+  <dialog class="shortcuts lock-dlg" id="lock-dlg" aria-labelledby="lock-dlg-h">
+    <form id="lock-form">
+      <h3 id="lock-dlg-h">Protect “<span id="lock-doc"></span>” with a password</h3>
+      <p class="grants-intro">Saves an encrypted copy, <b id="lock-target"></b>, next to the original. Only Neo Markdown Reader can open it, and only with the password.</p>
+      <label class="field">Password<input type="password" id="lock-pw" autocomplete="new-password" spellcheck="false"></label>
+      <div class="lock-meter" id="lock-meter" data-score="0"><i></i><i></i><i></i><i></i><span></span></div>
+      <label class="field">Type it again<input type="password" id="lock-pw2" autocomplete="new-password" spellcheck="false"></label>
+      <label class="check"><input type="checkbox" id="lock-show"> Show passwords</label>
+      <label class="check"><input type="checkbox" id="lock-replace"> Move the unlocked original to the Recycle Bin</label>
+      <p class="lock-warn">⚠ <b>A forgotten password can’t be recovered.</b> Keep it somewhere safe — without it, the locked document can never be opened again.</p>
+      <p class="lock-msg" id="lock-msg" role="alert"></p>
+      <div class="grants-actions">
+        <button class="link-btn" id="lock-cancel" type="button">Cancel</button>
+        <button class="big-btn sm" id="lock-go" type="submit" disabled>Lock</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog class="shortcuts theme-dlg" id="theme-dlg" aria-labelledby="theme-dlg-h">
     <h3 id="theme-dlg-h">Customize theme</h3>
     <p class="grants-intro">Your colour and fonts apply to every theme, and to PDFs, Word documents and web pages you export.</p>

@@ -12,7 +12,7 @@
 //  - The file's original line endings and byte-order mark are preserved.
 const fs = require('node:fs');
 const path = require('node:path');
-const { isMarkdownPath, isWritable, isInside, encodeForSave, readMarkdown } = require('./files');
+const { isMarkdownPath, isLockedPath, isOpenablePath, isWritable, isInside, encodeForSave, readMarkdown } = require('./files');
 
 const MAX_BACKUPS = 200;
 
@@ -23,9 +23,13 @@ function stamp(d = new Date()) {
 
 class Editing {
   /**
-   * @param {{ settings: any, dialog: any, backupDir: string, defaultDir?: string, platform?: string }} deps
+   * @param {{ settings: any, dialog: any, backupDir: string, defaultDir?: string, platform?: string,
+   *           sealLocked?: (path: string, content: string) => string | null }} deps
+   *   sealLocked encrypts a locked document's text with the key it was unlocked with (null if it
+   *   isn't unlocked), so a locked document is never written to disk in the clear.
    */
-  constructor({ settings, dialog, backupDir, defaultDir = '', platform = process.platform }) {
+  constructor({ settings, dialog, backupDir, defaultDir = '', platform = process.platform, sealLocked = () => null }) {
+    this.sealLocked = sealLocked;
     this.settings = settings;
     this.dialog = dialog;
     this.backupDir = backupDir;
@@ -61,7 +65,7 @@ class Editing {
 
   /** Ask to edit a file. Resolves to { ok, scope?, reason? }. */
   async requestEdit(state, p) {
-    if (!isMarkdownPath(p) || !fs.existsSync(p)) return { ok: false, reason: 'missing' };
+    if (!isOpenablePath(p) || !fs.existsSync(p)) return { ok: false, reason: 'missing' };
     const name = path.basename(p);
     if (!(await isWritable(p))) {
       await this.dialog.showMessageBox(state.win, {
@@ -125,8 +129,13 @@ class Editing {
    * @returns {Promise<{ok:boolean, mtime?:number, reason?:string, backup?:string|null}>}
    */
   async save(state, { path: p, content, baseMtime, eol, bom }) {
-    if (!isMarkdownPath(p)) return { ok: false, reason: 'not-markdown' };
+    if (!isOpenablePath(p)) return { ok: false, reason: 'not-markdown' };
     if (!this.isGranted(state, p)) return { ok: false, reason: 'not-allowed' };
+    let data = null;
+    if (isLockedPath(p)) {
+      data = this.sealLocked(p, String(content).replace(/\r\n/g, '\n'));
+      if (data == null) return { ok: false, reason: 'locked' };
+    }
     if (!(await isWritable(p))) return { ok: false, reason: 'readonly' };
     let current = null;
     try { current = await fs.promises.stat(p); } catch { /* deleted meanwhile: saving recreates it */ }
@@ -141,7 +150,7 @@ class Editing {
       if (response !== 1) return { ok: false, reason: 'conflict' };
     }
     const backup = await this.backup(p);
-    await fs.promises.writeFile(p, encodeForSave(content, { eol, bom }));
+    await fs.promises.writeFile(p, data ?? encodeForSave(content, { eol, bom }));
     const after = await fs.promises.stat(p);
     return { ok: true, mtime: after.mtimeMs, backup };
   }

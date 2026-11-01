@@ -4,7 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
 const { Settings } = require('./settings');
-const { isMarkdownPath, fileFromArgv, readMarkdown } = require('./files');
+const { isMarkdownPath, isLockedPath, isOpenablePath, fileFromArgv, readMarkdown, readDocument } = require('./files');
+const locked = require('./locked');
 const { Updater, RELEASES_URL } = require('./updater');
 const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
@@ -195,6 +196,35 @@ function createWindow(opts = {}) {
   return state;
 }
 
+// ---------------------------------------------------------------- locked documents
+/**
+ * Keys of locked documents unlocked in this app session, by path. They live only in memory: quitting
+ * the app (or File → Lock Now) forgets them, and the next open asks for the password again.
+ */
+const lockKeys = new Map();
+const lockFails = new Map();
+const lockId = (p) => (process.platform === 'win32' || isMac ? path.resolve(p).toLowerCase() : path.resolve(p));
+const keyFor = (p) => lockKeys.get(lockId(p))?.key || null;
+const readAny = (p) => readDocument(p, keyFor);
+function sealLocked(p, content) {
+  const entry = lockKeys.get(lockId(p));
+  if (!entry) return null;
+  return locked.sealWithKey({ content, name: path.basename(p).replace(/\.mdlock$/i, '') }, entry.key, { salt: entry.salt, kdf: entry.kdf });
+}
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** Tell every window showing `p` that it changed (e.g. it was just locked again). */
+async function refreshEverywhere(p) {
+  let doc;
+  try { doc = await readAny(p); } catch { return; }
+  for (const st of liveStates()) {
+    if (st.tabs.some((t) => lockId(t.path) === lockId(p))) {
+      st.known.set(doc.path, doc.mtime);
+      st.win.webContents.send('doc:changed', { ...doc, force: true });
+    }
+  }
+}
+
 // ---------------------------------------------------------------- opening files
 function sendDoc(state, channel, doc) {
   if (state.win.isDestroyed()) return;
@@ -203,7 +233,7 @@ function sendDoc(state, channel, doc) {
 }
 
 async function loadDoc(filePath, { remember = true } = {}) {
-  const doc = await readMarkdown(filePath);
+  const doc = await readAny(filePath);
   if (remember) {
     settings.addRecent(doc.path);
     if (process.platform === 'win32' || isMac) app.addRecentDocument(doc.path);
@@ -254,7 +284,7 @@ function ensureWatch(state, p, knownMtime) {
     if (state.win.isDestroyed() || !state.watchers.has(p)) return;
     if (mtimeMs === state.known.get(p)) return;
     try {
-      const doc = await readMarkdown(p);
+      const doc = await readAny(p);
       if (doc.mtime === state.known.get(p)) return;
       state.known.set(p, doc.mtime);
       state.win.webContents.send('doc:changed', doc);
@@ -319,7 +349,7 @@ async function resolveLink(href, fromPath) {
   if (url.protocol !== 'file:') return { kind: 'none' };
   let target;
   try { target = fileURLToPath(url); } catch { return { kind: 'none' }; }
-  if (isMarkdownPath(target)) {
+  if (isOpenablePath(target)) {
     try {
       const doc = await loadDoc(target, { remember: false });
       return { kind: 'doc', doc: { ...doc, position: 0, hash: url.hash ? url.hash.slice(1) : '' } };
@@ -337,7 +367,7 @@ async function showOpenDialog(win) {
     properties: ['openFile', 'multiSelections'],
     defaultPath: recent ? path.dirname(recent) : app.getPath('documents'),
     filters: [
-      { name: 'Markdown', extensions: ['md', 'markdown', 'mdown', 'mkd', 'mkdn', 'mdwn', 'mdx'] },
+      { name: 'Markdown', extensions: ['md', 'markdown', 'mdown', 'mkd', 'mkdn', 'mdwn', 'mdx', 'mdlock'] },
       { name: 'Text', extensions: ['txt'] },
     ],
   });
@@ -504,6 +534,10 @@ function rebuildMenu() {
         { type: 'separator' },
         cmd('save', 'Save', 'CmdOrCtrl+S'),
         cmd('save-as', 'Save As…', 'CmdOrCtrl+Shift+S'),
+        { type: 'separator' },
+        cmd('lock-protect', 'Protect with Password…'),
+        cmd('lock-now', 'Lock Now'),
+        cmd('lock-remove', 'Save an Unlocked Copy…'),
         { type: 'separator' },
         cmd('reload', 'Reload File', 'F5'),
         cmd('reveal', 'Show in Folder'),
@@ -757,7 +791,7 @@ function registerIpc() {
   ipcMain.handle('annotations:get', (_e, p) => (isStr(p, 4096) && isMarkdownPath(p) ? annotations.get(p) : []));
   ipcMain.handle('annotations:set', (_e, p, list) => (isStr(p, 4096) && isMarkdownPath(p) && Array.isArray(list) ? annotations.set(p, list) : []));
   ipcMain.handle('bookmarks:toggle', (_e, p) => {
-    if (!isStr(p, 4096) || !isMarkdownPath(p)) return settings.get().bookmarks;
+    if (!isStr(p, 4096) || !isOpenablePath(p)) return settings.get().bookmarks;
     const list = settings.get().bookmarks;
     const has = list.some((b) => b.toLowerCase() === p.toLowerCase());
     settings.update({ bookmarks: has ? list.filter((b) => b.toLowerCase() !== p.toLowerCase()) : [p, ...list] });
@@ -766,7 +800,7 @@ function registerIpc() {
   });
 
   ipcMain.handle('doc:read', async (e, p, opts = {}) => {
-    if (!isStr(p, 4096) || !isMarkdownPath(p)) return { error: 'Not a Markdown file.' };
+    if (!isStr(p, 4096) || !isOpenablePath(p)) return { error: 'Not a Markdown file.' };
     try {
       const doc = await loadDoc(p, { remember: opts.remember !== false });
       const st = stateFor(e);
@@ -793,7 +827,7 @@ function registerIpc() {
     const st = stateFor(e);
     if (!st || !payload || !Array.isArray(payload.tabs)) return;
     st.tabs = payload.tabs
-      .filter((t) => isStr(t?.path, 4096) && isMarkdownPath(t.path))
+      .filter((t) => isStr(t?.path, 4096) && isOpenablePath(t.path))
       .slice(0, 100)
       .map((t) => ({ path: t.path, scroll: Number.isFinite(t.scroll) ? Math.min(1, Math.max(0, t.scroll)) : 0 }));
     st.active = Number.isInteger(payload.active) ? Math.max(0, Math.min(payload.active, st.tabs.length - 1)) : 0;
@@ -808,7 +842,7 @@ function registerIpc() {
   });
   ipcMain.handle('tab:detach', (e, payload) => {
     const st = stateFor(e);
-    if (!st || !isStr(payload?.path, 4096) || !isMarkdownPath(payload.path)) return false;
+    if (!st || !isStr(payload?.path, 4096) || !isOpenablePath(payload.path)) return false;
     const at = Number.isFinite(payload.screenX) && Number.isFinite(payload.screenY) ? { x: payload.screenX, y: payload.screenY } : null;
     createWindow({ tabs: [{ path: payload.path, scroll: Number(payload.scroll) || 0 }], at });
     return true;
@@ -819,7 +853,7 @@ function registerIpc() {
   });
   ipcMain.handle('window:close', (e) => stateFor(e)?.win.close());
 
-  ipcMain.handle('shell:reveal', (_e, p) => { if (isStr(p, 4096) && isMarkdownPath(p)) shell.showItemInFolder(p); });
+  ipcMain.handle('shell:reveal', (_e, p) => { if (isStr(p, 4096) && isOpenablePath(p)) shell.showItemInFolder(p); });
   ipcMain.handle('shell:open-external', (_e, url) => { if (isStr(url) && isSafeExternal(url)) shell.openExternal(url); });
   ipcMain.handle('clipboard:text', async (_e, text) => {
     if (typeof text === 'string' && text.length < 1e6) await clipboard.writeText(text);
@@ -872,7 +906,8 @@ function registerIpc() {
   // ---- editing: the page asks, the main process decides and does the writing
   ipcMain.handle('edit:request', async (e, p) => {
     const st = stateFor(e);
-    if (!st || !isStr(p, 4096) || !isMarkdownPath(p)) return { ok: false, reason: 'invalid' };
+    if (!st || !isStr(p, 4096) || !isOpenablePath(p)) return { ok: false, reason: 'invalid' };
+    if (isLockedPath(p) && !keyFor(p)) return { ok: false, reason: 'locked' };
     return editing.requestEdit(st, p);
   });
   ipcMain.handle('doc:save', async (e, payload = {}) => {
@@ -908,6 +943,82 @@ function registerIpc() {
     return editing.confirmUnsaved(st, { name: isStr(info.name, 300) ? info.name : 'Untitled', count: Number.isInteger(info.count) ? info.count : 1 });
   });
   ipcMain.handle('grants:list', () => editing.listGrants());
+
+  // ---- password-locked documents
+  ipcMain.handle('lock:unlock', async (e, p, password) => {
+    if (!isStr(p, 4096) || !isLockedPath(p) || typeof password !== 'string' || password.length > 1024) return { error: 'Enter the password.' };
+    const id = lockId(p);
+    const fails = lockFails.get(id) || 0;
+    if (fails >= 3) await sleep(Math.min(8000, 1000 * 2 ** (fails - 3)));     // slow down guessing
+    try {
+      const res = await locked.unlock(await fs.promises.readFile(p, 'utf8'), password);
+      lockKeys.set(id, { key: res.key, salt: res.salt, kdf: res.kdf });
+      lockFails.delete(id);
+      const doc = await loadDoc(p, { remember: false });
+      const st = stateFor(e);
+      if (st) ensureWatch(st, doc.path, doc.mtime);
+      return { doc };
+    } catch (err) {
+      if (err.code === 'WRONG_PASSWORD') { lockFails.set(id, fails + 1); return { error: err.message, wrong: true }; }
+      return { error: errorMessage(err, p) };
+    }
+  });
+  ipcMain.handle('lock:protect', async (e, payload = {}) => {
+    const st = stateFor(e);
+    const p = payload.path;
+    if (!st || !isStr(p, 4096) || !isMarkdownPath(p) || !st.tabs.some((t) => lockId(t.path) === lockId(p))) return { error: 'Save the document first.' };
+    const password = payload.password;
+    if (typeof password !== 'string' || [...password].length < locked.MIN_PASSWORD || password.length > 1024) return { error: `Use a password of at least ${locked.MIN_PASSWORD} characters.` };
+    const target = p.replace(/\.[^.\\/]+$/, '') + '.mdlock';
+    if (fs.existsSync(target)) {
+      const { response } = await dialog.showMessageBox(st.win, {
+        type: 'warning', title: 'Replace locked file?', noLink: true, buttons: ['Cancel', 'Replace'], defaultId: 0, cancelId: 0,
+        message: `“${path.basename(target)}” already exists.`, detail: 'Replacing it overwrites that locked document with this one.',
+      });
+      if (response !== 1) return { canceled: true };
+    }
+    try {
+      const source = await readMarkdown(p);
+      const res = await locked.lock({ content: source.content, name: source.name }, password);
+      await fs.promises.writeFile(target, res.text);
+      // Read it back before touching the original, so a failed write can never cost the document.
+      const check = locked.unlockWithKey(await fs.promises.readFile(target, 'utf8'), res.key);
+      if (check.content !== source.content) throw new Error('The locked copy could not be verified, so nothing else was changed.');
+      lockKeys.set(lockId(target), { key: res.key, salt: res.salt, kdf: res.kdf });
+      let trashed = false;
+      if (payload.replace === true) { await shell.trashItem(p); trashed = true; }
+      const doc = await loadDoc(target);
+      ensureWatch(st, doc.path, doc.mtime);
+      return { doc, trashed };
+    } catch (err) { return { error: errorMessage(err, target) }; }
+  });
+  ipcMain.handle('lock:forget', async (_e, p) => {
+    if (!isStr(p, 4096) || !isLockedPath(p)) return false;
+    lockKeys.delete(lockId(p));
+    await refreshEverywhere(p);
+    return true;
+  });
+  ipcMain.handle('lock:remove', async (e, p) => {
+    const st = stateFor(e);
+    if (!st || !isStr(p, 4096) || !isLockedPath(p) || !keyFor(p)) return { error: 'Unlock the document first.' };
+    try {
+      const doc = await readAny(p);
+      let suggested = path.basename(p).replace(/\.mdlock$/i, '');
+      if (!isMarkdownPath(suggested)) suggested += '.md';
+      const res = await dialog.showSaveDialog(st.win, {
+        title: 'Save an Unlocked Copy', defaultPath: path.join(path.dirname(p), suggested),
+        filters: [{ name: 'Markdown', extensions: ['md'] }], properties: ['showOverwriteConfirmation'],
+      });
+      if (res.canceled || !res.filePath) return { canceled: true };
+      let target = res.filePath;
+      if (!isMarkdownPath(target)) target += '.md';
+      if (fs.existsSync(target)) await editing.backup(target);
+      await fs.promises.writeFile(target, doc.content);
+      const out = await loadDoc(target);
+      ensureWatch(st, out.path, out.mtime);
+      return { doc: out };
+    } catch (err) { return { error: errorMessage(err, p) }; }
+  });
   ipcMain.handle('grants:revoke', (_e, kind, value) => (isStr(value, 4096) ? editing.revokeGrant(kind, value) : editing.listGrants()));
   ipcMain.handle('backups:open', () => openBackups());
 }
@@ -923,7 +1034,7 @@ async function openBackups() {
 app.whenReady().then(() => {
   settings = new Settings(app.getPath('userData'));
   updater = new Updater(onUpdateStatus);
-  editing = new Editing({ settings, dialog, backupDir: backupDir(), defaultDir: app.getPath('documents') });
+  editing = new Editing({ settings, dialog, backupDir: backupDir(), defaultDir: app.getPath('documents'), sealLocked });
   annotations = new AnnotationStore(app.getPath('userData'));
   // Documents never need camera, mic, notifications, etc.; only clipboard writes for "Copy".
   session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));

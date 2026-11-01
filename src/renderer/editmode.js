@@ -65,6 +65,7 @@ export function createEditMode(ctx) {
   async function enter(tab) {
     if (!tab || tab.editing) { tab?.editor?.focus(); return; }
     if (tab.doc.compare) { ctx.toast('A comparison can’t be edited — open the document itself to edit it'); return; }
+    if (tab.doc.needsPassword) { ctx.toast('Unlock the document first'); return; }
     ctx.beforeEdit?.();                      // e.g. close split view to make room for the editor
     if (!tab.untitled) {
       const res = await api.requestEdit(tab.doc.path);
