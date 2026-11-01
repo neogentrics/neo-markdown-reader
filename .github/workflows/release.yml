@@ -37,13 +37,19 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - run: npm run ${{ matrix.script }}
+        if: matrix.name != 'windows'
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-          # Code signing (Windows): add the certificate as repository secrets and every release is
-          # signed automatically. WINDOWS_CSC_LINK = the .pfx file, base64-encoded;
-          # WINDOWS_CSC_KEY_PASSWORD = its password. Without them the build is simply unsigned.
-          CSC_LINK: ${{ matrix.name == 'windows' && secrets.WINDOWS_CSC_LINK || '' }}
-          CSC_KEY_PASSWORD: ${{ matrix.name == 'windows' && secrets.WINDOWS_CSC_KEY_PASSWORD || '' }}
+      # Code signing (Windows): add the certificate as repository secrets and every release is
+      # signed automatically. WINDOWS_CSC_LINK = the .pfx file, base64-encoded;
+      # WINDOWS_CSC_KEY_PASSWORD = its password. Without them the build is simply unsigned.
+      # (Only this step gets them: on macOS even an empty CSC_LINK is read as a certificate path.)
+      - run: npm run ${{ matrix.script }}
+        if: matrix.name == 'windows'
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          CSC_LINK: ${{ secrets.WINDOWS_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CSC_KEY_PASSWORD }}
       - name: Report whether the Windows build is signed
         if: matrix.name == 'windows'
         shell: powershell
