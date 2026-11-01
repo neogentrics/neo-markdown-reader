@@ -87,7 +87,7 @@ export function createLockUi(ctx) {
   pw2.addEventListener('input', update);
   $('lock-show').addEventListener('change', (e) => { pw.type = pw2.type = e.target.checked ? 'text' : 'password'; });
   $('lock-cancel').addEventListener('click', (e) => { e.preventDefault(); dlg.close(); });
-  dlg.addEventListener('close', () => { pw.value = pw2.value = ''; target = null; });
+  dlg.addEventListener('close', () => { if (dlg.open) return; pw.value = pw2.value = ''; target = null; });   // close arrives late; ignore it if reopened
   $('lock-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (go.disabled || !target) return;

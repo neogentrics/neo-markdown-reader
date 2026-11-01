@@ -90,7 +90,14 @@ export function createAiUi(ctx) {
 
   $('ai-stop').addEventListener('click', () => { if (current) api.aiCancel(current.id); });
   $('ai-close').addEventListener('click', () => panel.close());
-  panel.addEventListener('close', () => { if (current) api.aiCancel(current.id); current = null; body.innerHTML = ''; });
+  // The dialog's close event arrives a moment after it closes; if a new request already reopened
+  // the panel by then, that request must be left alone.
+  panel.addEventListener('close', () => {
+    if (panel.open) return;
+    if (current) api.aiCancel(current.id);
+    current = null;
+    body.innerHTML = '';
+  });
   $('ai-copy').addEventListener('click', async () => { if (current?.text) { await api.copyText(current.text); toast('Copied as Markdown'); } });
   $('ai-open').addEventListener('click', async () => {
     if (!current?.text) return;
