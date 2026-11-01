@@ -32,6 +32,11 @@ application (`resources/app.asar/dist/app.js.LEGAL.txt` and the Electron `LICENS
 | fflate | 0.8.3 | MIT | https://github.com/101arrowz/fflate |
 | tslib | 2.9.1 | 0BSD | https://www.typescriptlang.org/ |
 | nanoid | 6.0.2 | MIT | https://github.com/ai/nanoid |
+| Pyodide (CPython for WebAssembly, with the Python standard library) | 314.0.7 | MPL-2.0 (Python: PSF License) | https://pyodide.org |
+| @anthropic-ai/sdk | 1.3.0 | Apache-2.0 | https://github.com/anthropics/anthropic-sdk-typescript |
 
-The PDF and Word export libraries are bundled into `resources/app.asar/dist/export-tools.cjs`; their
+Pyodide is shipped unmodified in `resources/app.asar/dist/sandbox/pyodide/`; its source is available
+from the Pyodide project under the Mozilla Public License 2.0.
+
+The PDF and Word export libraries and the Anthropic SDK are bundled into `resources/app.asar/dist/export-tools.cjs`; their
 license texts are in `export-tools.cjs.LEGAL.txt` next to it.

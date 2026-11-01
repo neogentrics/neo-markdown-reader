@@ -129,3 +129,4 @@ body.presenting { overflow: hidden; }
 @keyframes ai-pulse { 50% { opacity: .45; } }
 .ai-foot { display: flex; align-items: center; gap: 16px; border-top: 1px solid var(--rule); padding-top: 10px; }
 .ai-status { margin-right: auto; font-size: 12.5px; color: var(--muted); }
+.lock-screen h2::before { display: none !important; }

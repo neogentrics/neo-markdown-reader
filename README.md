@@ -10,7 +10,7 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
-**[Features](#features)** · **[Install](#install-windows)** · **[Publishing](#publishing-and-presenting)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+**[Features](#features)** · **[Install](#install-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
 
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
@@ -27,12 +27,12 @@ symbols, and no browser tab or code editor is needed.
 | **Formatted output** | Headings, tables, task lists, footnotes, definition lists, `==highlights==`, sub/superscript, emoji `:rocket:` |
 | **Colors and inline HTML** | `<span style="color:…">`, `<font>`, `<div align="center">`, `<details>` collapsible sections, images side by side |
 | **GitHub callouts** | `> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]` boxes |
-| **Code** | Syntax coloring for 190+ languages, one-click **Copy** button |
+| **Code** | Syntax coloring for 190+ languages, one-click **Copy** button, and **▶ Run** for JavaScript and Python (sandboxed, asks first) |
 | **Math** | `$inline$` and `$$display$$` LaTeX via KaTeX |
 | **Diagrams** | Mermaid flowcharts, sequence diagrams, Gantt charts, pie charts and more |
 | **Document header** | YAML front matter (`title`, `author`, `date`, `tags`) becomes a header card at the top |
 | **Outline sidebar** | Clickable table of contents that follows your scroll position, with a filter box |
-| **Three themes** | Paper (light), Sepia, Night (dark), or follow Windows' setting |
+| **Seven themes** | Paper, Sepia and Mist (light); Night, Forest and Dusk (dark); High Contrast; or follow Windows' setting |
 | **Reading comfort** | Modern or book typeface; adjustable text size and page width; reading-progress bar |
 | **Live reload** | Edit the file in VS Code / Notepad++ and the page updates when you save |
 | **Export & print** | Designed PDFs, Word documents, self-contained web pages and plain text, or print it |
@@ -43,7 +43,8 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
-| **Publish** *(new in 1.4)* | A PDF designer with a cover page, contents page with page numbers, headers and footers; export to Word, a single web page or plain text; present any document as full-screen slides; your own accent colour, fonts or brand stylesheet ([details](#publishing-and-presenting)) |
+| **Power features** *(new in 2.0)* | Run JavaScript and Python code blocks in a sealed sandbox; lock documents with a password (AES-256); summarize, explain or turn notes into a report with Claude, using your own API key (optional, off by default); four more colour themes ([details](#power-features)) |
+| **Publish** *(1.4)* | A PDF designer with a cover page, contents page with page numbers, headers and footers; export to Word, a single web page or plain text; present any document as full-screen slides; your own accent colour, fonts or brand stylesheet ([details](#publishing-and-presenting)) |
 | **Organize** *(1.3)* | Open a whole folder, search every file in it, jump anywhere with `Ctrl+K`, read two documents side by side, compare versions, and keep private highlights, notes and bookmarks ([details](#organizing-your-documents)) |
 | **Write & edit** *(1.2)* | New documents and templates; an editor beside the live preview with a formatting toolbar and spell check. Files only change after you allow it, and the original is backed up first ([details](#creating-and-editing)) |
 
@@ -161,6 +162,62 @@ version is out and link to the download. *(Coming from 1.0? Install 1.1 once by 
   - Optionally choose a **brand stylesheet** (a `.css` file, such as a company house style).
   - Exports use the same look, so a PDF or web page matches what you see.
 
+## Power features
+
+### Run code blocks
+
+<img src="docs/screenshots/run-code.png" width="860" alt="JavaScript and Python code blocks with their output shown below each block">
+
+- JavaScript and Python code blocks get a **▶ Run** button, and the output appears under the block.
+- **Nothing runs by itself.** Each run shows you the code and asks first. You can tick *Don't ask again
+  for this document* until you close it.
+- Code runs in a **sealed sandbox**: a separate hidden window with its own session. It can't read or
+  change your files, use the network or see your settings, and it's stopped after 10 seconds
+  (30 for Python).
+- Python is the real thing ([Pyodide](https://pyodide.org)) with its standard library, built into the app.
+- Shell, PowerShell and batch commands are never run.
+- Turn the feature off entirely with *Edit → Allow Running Code Blocks*.
+
+### Password-locked documents
+
+<img src="docs/screenshots/password-lock.png" width="860" alt="The Protect with Password dialog, and a locked document asking for its password">
+
+- **File → Protect with Password…** saves an encrypted copy (`notes.mdlock`) next to the original, using
+  AES-256 with a key made from your password (scrypt). Only Neo Markdown Reader can open it, and only
+  with the password.
+- The original stays unless you tick *Move the unlocked original to the Recycle Bin*.
+- Opening a locked document asks for the password. After that it stays open until you quit or choose
+  **File → Lock Now**.
+- You can edit a locked document. Saving keeps it encrypted.
+- **File → Save an Unlocked Copy…** writes a normal `.md` where you choose.
+- Locked documents are never searched, highlighted or sent to AI assist, so their text is never stored
+  anywhere unencrypted.
+- **A forgotten password can't be recovered.** That is what makes the lock real.
+
+### AI assist (optional)
+
+<img src="docs/screenshots/ai-assist.png" width="860" alt="A summary of meeting notes written by Claude, shown in the AI assist panel">
+
+- *Edit → AI Assist* offers:
+  - **Summarize Document**
+  - **Explain Selection** (in plain language)
+  - **Turn Notes into a Report**, which opens the draft as a new document.
+- It uses Claude, with **your own Anthropic API key**, and is off until you turn it on in
+  *AI Assist Settings…*. Requests are billed to your Anthropic account.
+- Choose Claude Opus 5.5 (the default), Sonnet 5.5 or Haiku 5.5. Answers stream in as they're written.
+- **Privacy:**
+  - Nothing is sent until you pick a command.
+  - Only that document, or that selection, is sent.
+  - Locked documents are never sent.
+- Your key is encrypted by your operating system and never stored in the settings file.
+
+### More colour themes
+
+<img src="docs/screenshots/themes.png" width="860" alt="The Mist, Forest, Dusk and High Contrast themes">
+
+**Mist**, **Forest**, **Dusk** and **High Contrast** join Paper, Sepia and Night in the theme menu. They work
+with your own accent colour and in exports.
+
 ## Keyboard shortcuts
 
 | Keys | Action |
@@ -201,8 +258,10 @@ On macOS use `Cmd` instead of `Ctrl`.
   highlights, notes and bookmarks.
 - **v1.4** added a PDF designer with cover and contents pages, Word, web page and text
   export, presentation mode, and custom colours, fonts and brand stylesheets.
+- **v2.0, Power features** adds running code blocks in a sandbox, password-locked documents, optional AI
+  assist with Claude, and four more colour themes.
 
-Now in progress is **v2.0, Power features**: running code blocks in a sandbox, password-locked files and four more colour themes.
+Next: a formatted preview in Windows File Explorer, signed installers and more ways to install.
 
 **[See the full roadmap →](ROADMAP.md)**
 
@@ -235,6 +294,9 @@ src/
 │   ├── publish.js        exports: the PDF designer's pages, web pages, Word documents (runs hidden, script-free windows)
 │   ├── export-tools.js   PDF finishing (pdf-lib) and .docx writing (docx), bundled into dist/export-tools.cjs
 │   ├── editing.js        edit permission, saving, backups, conflict checks (the only code that writes files)
+│   ├── locked.js         password-locked documents: AES-256-GCM with a scrypt key
+│   ├── sandbox.js        the sealed code sandbox (own session, private scheme, every other request refused)
+│   ├── ai.js             AI assist prompts and the Claude request (official Anthropic SDK)
 │   ├── folders.js        scanning and searching an opened folder
 │   ├── annotations.js    private highlights & notes (stored in app data, never in the file)
 │   ├── updater.js        update checks against GitHub Releases (electron-updater for the installer)
@@ -258,8 +320,12 @@ src/
     ├── present.js        presentation mode (slides split on ---)
     ├── brand.js          custom accent colour and fonts as CSS
     ├── theme-ui.js       View → Customize Theme
+    ├── lock-ui.js        the unlock screen and File → Protect with Password
+    ├── run-ui.js         ▶ Run buttons and output panels
+    ├── ai-ui.js          AI assist settings and the answer panel
     ├── index.html        layout + Content-Security-Policy
     └── styles/           themes, document typography, code colors, print/PDF, export & presentation styles
+└── sandbox/              The code sandbox's page and worker (plus Pyodide, copied in at build time)
 scripts/build-renderer.mjs  bundles the renderer into dist/ with esbuild
 samples/showcase.md         feature tour (Help → Open Feature Showcase)
 test/                       node:test suites (run under jsdom)
@@ -278,7 +344,8 @@ with `sandbox`, `contextIsolation` and no Node.js access, under a strict Content
 Clicking a link never executes a file: Markdown links open in the reader, web links open in your
 browser, and any other local file is only *shown in its folder*. The page itself can never write a
 file: saving is done by the main process, only for files you allowed, after a native permission prompt
-the page can't fake. See [SECURITY.md](SECURITY.md).
+the page can't fake. Code blocks only ever run after you confirm, in a separate sandbox with no file,
+network or settings access. See [SECURITY.md](SECURITY.md).
 
 ## Releasing
 

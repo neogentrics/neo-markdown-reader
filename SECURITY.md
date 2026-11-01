@@ -65,3 +65,44 @@ Markdown files are treated as **untrusted input**:
   CSS and never run as code. Font names are reduced to letters, digits and a few punctuation marks
   before they're used in CSS.
 - Private highlights and notes are removed from every export.
+
+### Running code (since 2.0)
+
+- Code blocks never run on their own. A run starts only from the ▶ Run button, and the main process
+  then shows a **native** confirmation with the code, which document content can't draw or answer.
+  "Don't ask again" lasts only while that document stays open in that window.
+- Only JavaScript and Python are run. Shell, PowerShell and batch code is never run.
+- Code runs in a hidden window on its own in-memory session (`nmr-sandbox`):
+  - It is served only the files in `dist/sandbox` through a private scheme, and paths that try to leave
+    that folder are refused.
+  - Every other request from that session (http/https, `file://`, WebSockets) is cancelled.
+  - All permission requests are denied, and navigation and new windows are blocked.
+  - The window has no preload and no Node.js.
+- Each program runs in a Web Worker. Network APIs are removed before user code runs, the worker is
+  terminated when its time is up (10 s; Python 30 s), and output is capped and shown as text, never as HTML.
+- *Edit → Allow Running Code Blocks* switches the feature off.
+
+### Password-locked documents (since 2.0)
+
+- `.mdlock` files use AES-256-GCM with a 256-bit key from scrypt (N = 2^17, r = 8, p = 1, 16-byte random
+  salt) and a fresh 12-byte IV for every save. The text and the original file name are inside the
+  ciphertext, and the key-derivation parameters are authenticated.
+- When reading files, scrypt parameters above N = 2^20, r = 16 or p = 4 are refused.
+- Keys of unlocked documents are kept in main-process memory only, until the app quits or *Lock Now*.
+  After three wrong passwords, further attempts are increasingly delayed.
+- A locked document is never written unencrypted. Saving without its key is refused.
+- A new locked copy is decrypted and checked before the original is touched. The optional removal of the
+  original moves it to the Recycle Bin, so plaintext may remain there until it is emptied.
+- Locked documents are never searched, never highlighted (highlights are stored unencrypted) and never
+  sent to AI assist.
+- There is no password recovery.
+
+### AI assist (since 2.0)
+
+- Off by default. Requests are made only from an explicit menu command, contain only the current
+  document (and selection), and go only to `https://api.anthropic.com`. The address is fixed, so an
+  `ANTHROPIC_BASE_URL` set on the computer can't redirect them.
+- The API key is encrypted with the operating system's key store (Electron `safeStorage`) in its own
+  file and never written to the settings file. Where no secure store exists (some Linux setups) it is
+  kept in memory for the session only.
+- Answers are shown as sanitized Markdown, and links in them open in the browser.

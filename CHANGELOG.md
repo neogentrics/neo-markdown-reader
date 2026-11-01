@@ -4,6 +4,37 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [2.0.0] - 2026-11-01
+
+### Added
+- **Run code blocks.** JavaScript and Python code blocks get a ▶ Run button, and the output appears under
+  the block.
+  - Every run asks first, with an option not to ask again for that document until you close it.
+  - Code runs in a sealed sandbox: a separate hidden window with its own session. Every request outside
+    the sandbox is refused, and the code has no access to Node.js or permissions.
+  - Runs are stopped after 10 seconds (Python: 30).
+  - Python is Pyodide with its standard library, built into the app.
+  - *Edit → Allow Running Code Blocks* turns the feature off.
+- **Password-locked documents** (`.mdlock`).
+  - *File → Protect with Password…* saves an AES-256-GCM encrypted copy with a key made from your
+    password (scrypt). It's verified before anything else changes, and you can optionally move the
+    original to the Recycle Bin.
+  - Locked tabs show an unlock screen; *Lock Now* locks them again.
+  - Editing a locked document saves it encrypted. *Save an Unlocked Copy…* writes plain Markdown.
+  - Locked documents appear in folders but are never searched, highlighted or sent to AI assist.
+- **AI assist (optional)** with Claude and your own Anthropic API key: *Summarize Document*, *Explain
+  Selection* and *Turn Notes into a Report* (which opens the draft as a new document).
+  - Off by default.
+  - Answers stream into a panel.
+  - Choose Claude Opus 5.5 (default), Sonnet 5.5 or Haiku 5.5.
+  - The key is encrypted by the operating system and never stored in the settings file.
+- **Four more colour themes:** Mist, Forest, Dusk and High Contrast.
+- `.mdlock` files open with the app (file association).
+
+### Changed
+- Code colours, highlights, diagrams and custom accents now follow every dark theme, not only Night.
+- *Preview in File Explorer* moved from 2.0 to a later release.
+
 ## [1.4.0] - 2026-10-31
 
 ### Added

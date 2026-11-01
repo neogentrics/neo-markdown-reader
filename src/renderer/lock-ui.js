@@ -125,7 +125,8 @@ export function createLockUi(ctx) {
     if (!tab?.doc.locked) { ctx.toast('This document isn’t locked'); return; }
     if (tab.doc.needsPassword) return;
     if (tab.editing) { ctx.toast('Finish editing first (click Done)'); return; }
-    await api.forgetLock(tab.doc.path);
+    const res = await api.forgetLock(tab.doc.path);
+    if (res?.doc) await ctx.showUnlocked(tab, res.doc);     // this tab, even if the window hasn't synced yet
     ctx.toast('Locked — enter the password to read it again');
   }
 

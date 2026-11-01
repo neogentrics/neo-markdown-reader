@@ -1110,8 +1110,8 @@ function registerIpc() {
   ipcMain.handle('lock:forget', async (_e, p) => {
     if (!isStr(p, 4096) || !isLockedPath(p)) return false;
     lockKeys.delete(lockId(p));
-    await refreshEverywhere(p);
-    return true;
+    await refreshEverywhere(p);               // other windows showing it
+    try { return { doc: await readAny(p) }; } catch { return { doc: null }; }
   });
   ipcMain.handle('lock:remove', async (e, p) => {
     const st = stateFor(e);
