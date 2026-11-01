@@ -34,8 +34,20 @@ function Report {
 
 if ($Child) { Report | Set-Content -Path $Out -Encoding UTF8; exit 0 }
 
+# Log every assembly bind the CLR makes, so a failure names the file it could not find.
+$fusion = Join-Path $env:TEMP 'nmr-fusion'
+Remove-Item $fusion -Recurse -Force -ErrorAction SilentlyContinue
+New-Item -ItemType Directory $fusion | Out-Null
+$fk = 'HKLM:\SOFTWARE\Microsoft\Fusion'
+New-ItemProperty $fk -Name EnableLog -Value 1 -PropertyType DWord -Force | Out-Null
+New-ItemProperty $fk -Name ForceLog -Value 1 -PropertyType DWord -Force | Out-Null
+New-ItemProperty $fk -Name LogFailures -Value 1 -PropertyType DWord -Force | Out-Null
+New-ItemProperty $fk -Name LogPath -Value ($fusion + '\') -PropertyType String -Force | Out-Null
+
 # Register for the current user, mirroring build/installer.nsh.
 $dllPath = (Resolve-Path $Dll).Path
+Write-Host "Assembly: $([Reflection.AssemblyName]::GetAssemblyName($dllPath).FullName)"
+Write-Host "Files beside it: $((Get-ChildItem (Split-Path $dllPath) -Filter *.dll | ForEach-Object Name) -join ', ')"
 $codebase = 'file:///' + ($dllPath -replace '\\', '/')
 $asm = 'NeoMarkdownPreview, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null'
 $key = "HKCU:\Software\Classes\CLSID\$clsid"
@@ -64,3 +76,34 @@ $self = $PSCommandPath
 & runas.exe /trustlevel:0x20000 "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$self`" -Child -Out `"$outFile`""
 for ($i = 0; $i -lt 60 -and -not (Test-Path $outFile); $i++) { Start-Sleep -Milliseconds 500 }
 if (Test-Path $outFile) { Get-Content $outFile | ForEach-Object { Write-Host $_ } } else { Write-Host 'de-elevated run produced no output' }
+
+Write-Host '--- the registration as COM sees it (HKEY_CLASSES_ROOT)'
+$ErrorActionPreference = 'Continue'
+@(Get-Item "Registry::HKEY_CLASSES_ROOT\CLSID\$clsid") + @(Get-ChildItem "Registry::HKEY_CLASSES_ROOT\CLSID\$clsid" -Recurse) | ForEach-Object {
+  $k = $_; $k.Property | ForEach-Object { Write-Host "    [$($k.PSChildName)] $_ = $($k.GetValue($_))" }
+}
+
+Write-Host '--- assembly binding log (Fusion)'
+Get-ChildItem $fusion -Recurse -Filter *.htm | ForEach-Object {
+  $t = (Get-Content $_.FullName -Raw) -replace '<[^>]+>', ''
+  if ($t -match 'NeoMarkdownPreview|Markdig') { Write-Host "== $($_.FullName)"; Write-Host $t }
+}
+
+Write-Host '--- what regasm /codebase would register'
+$regasm = Join-Path ([Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory()) 'RegAsm.exe'
+$regFile = Join-Path $env:TEMP 'nmr-regasm.reg'
+& $regasm /nologo /codebase $dllPath /regfile:$regFile | Out-Null
+if (Test-Path $regFile) { Get-Content $regFile | Select-String -Pattern ([regex]::Escape($clsid.Trim('{}'))) -Context 0,12 | ForEach-Object { Write-Host $_ } }
+
+Write-Host '--- registered machine-wide by regasm /codebase instead'
+Remove-Item "HKCU:\Software\Classes\CLSID\$clsid" -Recurse -Force
+& $regasm /nologo /codebase $dllPath | ForEach-Object { Write-Host $_ }
+Report | ForEach-Object { Write-Host $_ }
+& $regasm /nologo /unregister $dllPath | Out-Null
+
+Write-Host '--- assembly binding log after the machine-wide attempt'
+Get-ChildItem $fusion -Recurse -Filter *.htm | Sort-Object LastWriteTime | Select-Object -Last 4 | ForEach-Object {
+  $t = (Get-Content $_.FullName -Raw) -replace '<[^>]+>', ''
+  Write-Host "== $($_.FullName)"; Write-Host $t
+}
+Remove-ItemProperty $fk -Name EnableLog, ForceLog, LogFailures, LogPath -ErrorAction SilentlyContinue
