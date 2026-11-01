@@ -13,6 +13,7 @@ import { createThemeUi } from './theme-ui.js';
 import './styles/app.css';
 
 const api = window.reader;
+const DARK_THEMES = new Set(['dark', 'forest', 'dusk', 'contrast']);
 const render = createRenderer(window);
 const $ = (id) => document.getElementById(id);
 
@@ -415,7 +416,7 @@ async function renderMermaid(root, themeChanged) {
   if (!blocks.length) return;
   let mermaid;
   try { mermaid = await loadMermaid(); } catch (err) { toast(err.message); return; }
-  const dark = document.documentElement.dataset.theme === 'dark';
+  const dark = document.documentElement.dataset.tone === 'dark';
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'strict',
@@ -884,7 +885,9 @@ function applySettings(s) {
   settings = s;
   const root = document.documentElement;
   const prevTheme = root.dataset.theme;
+  const prevTone = root.dataset.tone;
   root.dataset.theme = s.resolvedTheme || 'light';
+  root.dataset.tone = DARK_THEMES.has(root.dataset.theme) ? 'dark' : 'light';
   root.dataset.font = s.font;
   root.dataset.width = s.pageWidth;
   root.style.setProperty('--font-scale', s.fontScale);
@@ -895,7 +898,7 @@ function applySettings(s) {
   renderRecent(s.recent || []);
   sidebar?.setBookmarks(s.bookmarks || []);
   if (activeTab()) updateBookmarkButton();
-  if (prevTheme && prevTheme !== root.dataset.theme) for (const t of tabs) renderMermaid(t.el, true);
+  if (prevTheme && prevTheme !== root.dataset.theme && (prevTone !== root.dataset.tone)) for (const t of tabs) renderMermaid(t.el, true);
   themeUi?.apply(s.brand || {});
 }
 

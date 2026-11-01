@@ -15,6 +15,8 @@ const PAPERS = {
 const MARGINS = { narrow: 0.5, normal: 0.8, wide: 1.1 };
 const LETTER_COUNTRIES = new Set(['US', 'CA', 'MX', 'PH', 'CL', 'CO', 'VE', 'GT', 'CR', 'PR', 'DO', 'PA', 'SV', 'NI', 'HN', 'BO']);
 const MAX_INLINE_IMAGE = 25 * 1024 * 1024;
+const DARK_THEMES = new Set(['dark', 'forest', 'dusk', 'contrast']);
+const tone = (theme) => (DARK_THEMES.has(theme) ? 'dark' : 'light');
 const IMAGE_MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml', bmp: 'image/bmp', avif: 'image/avif', ico: 'image/x-icon' };
 
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -59,7 +61,7 @@ function docInfo(meta = {}) {
 
 function head({ title, cssHref, css, theme, font, pageCss = '' }) {
   return `<!doctype html>
-<html lang="en" class="publish-root" data-theme="${esc(theme || 'light')}" data-font="${esc(font || 'sans')}">
+<html lang="en" class="publish-root" data-theme="${esc(theme || 'light')}" data-tone="${tone(theme)}" data-font="${esc(font || 'sans')}">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' file:; img-src file: data: https: http:; font-src file: data:; media-src file: data: https:">
@@ -173,7 +175,7 @@ async function buildStandaloneHtml({ content, meta, css, theme, font, exportCss,
   const description = info.subtitle ? `<meta name="description" content="${esc(info.subtitle)}">\n` : '';
   const author = info.author ? `<meta name="author" content="${esc(info.author)}">\n` : '';
   return `<!doctype html>
-<html lang="en" class="publish-root" data-theme="${esc(theme || 'light')}" data-font="${esc(font || 'sans')}">
+<html lang="en" class="publish-root" data-theme="${esc(theme || 'light')}" data-tone="${tone(theme)}" data-font="${esc(font || 'sans')}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

@@ -59,10 +59,10 @@ mark.nmr-hl.hl-yellow, .sw.hl-yellow { background: #ffe58f; }
 mark.nmr-hl.hl-green, .sw.hl-green { background: #b7eb8f; }
 mark.nmr-hl.hl-blue, .sw.hl-blue { background: #a5d8ff; }
 mark.nmr-hl.hl-pink, .sw.hl-pink { background: #ffc9de; }
-:root[data-theme="dark"] mark.nmr-hl.hl-yellow { background: #6b5a12; }
-:root[data-theme="dark"] mark.nmr-hl.hl-green { background: #2d5a1b; }
-:root[data-theme="dark"] mark.nmr-hl.hl-blue { background: #1c4a72; }
-:root[data-theme="dark"] mark.nmr-hl.hl-pink { background: #6e2848; }
+:root[data-tone="dark"] mark.nmr-hl.hl-yellow { background: #6b5a12; }
+:root[data-tone="dark"] mark.nmr-hl.hl-green { background: #2d5a1b; }
+:root[data-tone="dark"] mark.nmr-hl.hl-blue { background: #1c4a72; }
+:root[data-tone="dark"] mark.nmr-hl.hl-pink { background: #6e2848; }
 .markdown-body mark.nmr-hl.has-note { border-bottom: 2px dotted var(--accent); }
 .markdown-body mark.nmr-hl.flash { outline: 3px solid var(--accent); }
 .sw { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .15); }
@@ -135,8 +135,8 @@ body.split .page { padding: 48px 48px 60px; }
 .diff-files { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font: 600 15px var(--font-display); color: var(--heading); }
 .diff-left { color: #c92a2a; }
 .diff-right { color: #2b8a3e; }
-:root[data-theme="dark"] .diff-left { color: #ff8787; }
-:root[data-theme="dark"] .diff-right { color: #8ce99a; }
+:root[data-tone="dark"] .diff-left { color: #ff8787; }
+:root[data-tone="dark"] .diff-right { color: #8ce99a; }
 .diff-arrow { color: var(--muted); }
 .diff-summary { color: var(--text-soft); font-size: 13.5px; margin-top: 6px; }
 .diff-n-add { color: #2b8a3e; }

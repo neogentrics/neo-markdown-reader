@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const DEFAULTS = Object.freeze({
-  theme: 'system',        // system | light | dark | sepia
+  theme: 'system',        // system | light | dark | sepia | mist | forest | dusk | contrast
   font: 'sans',           // sans | serif
   fontScale: 1,           // 0.7 – 1.8
   pageWidth: 'normal',    // narrow | normal | wide | full
@@ -37,7 +37,7 @@ const EXPORT_CHOICES = { paper: ['auto', 'letter', 'a4', 'legal', 'a5'], margins
 
 const BRAND_DEFAULTS = Object.freeze({ accent: '', bodyFont: '', headingFont: '', codeFont: '', stylesheet: '' });
 
-const THEMES = ['system', 'light', 'dark', 'sepia'];
+const THEMES = ['system', 'light', 'dark', 'sepia', 'mist', 'forest', 'dusk', 'contrast'];
 const FONTS = ['sans', 'serif'];
 const WIDTHS = ['narrow', 'normal', 'wide', 'full'];
 const MAX_RECENT = 15;

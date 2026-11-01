@@ -85,7 +85,7 @@ export function createPublish({ api, activeTab, settings, toast, themeCss }) {
     box.style.setProperty('--ratio', PAPER_RATIO[paper] || PAPER_RATIO.letter);
     box.style.setProperty('--m', `${MARGIN_PX[o.margins] || 8}px`);
     box.dataset.colors = o.colors;
-    box.classList.toggle('dark', o.colors === 'theme' && document.documentElement.dataset.theme === 'dark');
+    box.classList.toggle('dark', o.colors === 'theme' && document.documentElement.dataset.tone === 'dark');
     const fm = tab?.result?.frontMatter || {};
     const title = String(fm.title || tab?.result?.title || tab?.doc.name || 'Untitled');
     const headings = (tab?.result?.toc || []).length;

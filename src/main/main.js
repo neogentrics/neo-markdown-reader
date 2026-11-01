@@ -15,7 +15,7 @@ const isMac = process.platform === 'darwin';
 const ROOT = path.join(__dirname, '..', '..');
 const RENDERER_HTML = path.join(ROOT, 'dist', 'index.html');
 const SHOWCASE = path.join(ROOT, 'samples', 'showcase.md');
-const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb' };
+const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb', mist: '#dfe5ec', forest: '#0b120e', dusk: '#110e18', contrast: '#000000' };
 
 // Tests point the app at a throwaway profile folder.
 if (process.env.NMR_USER_DATA) app.setPath('userData', process.env.NMR_USER_DATA);
@@ -378,7 +378,7 @@ async function runExport(state, payload) {
   const format = payload?.format;
   if (!EXPORT_FORMATS[format] || !payload.meta || typeof payload.meta !== 'object') return { ok: false, error: 'Nothing to export' };
   const css = typeof payload.css === 'string' && payload.css.length < 2e6 ? payload.css : '';
-  const theme = ['light', 'dark', 'sepia'].includes(payload.theme) ? payload.theme : 'light';
+  const theme = Object.hasOwn(THEME_BG, payload.theme) ? payload.theme : 'light';
   const font = payload.font === 'serif' ? 'serif' : 'sans';
   const meta = {
     name: typeof payload.meta.name === 'string' ? payload.meta.name.slice(0, 500) : '',
@@ -557,7 +557,7 @@ function rebuildMenu() {
     {
       label: '&View',
       submenu: [
-        { label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), radio('Light (Paper)', 'theme', 'light'), radio('Dark (Night)', 'theme', 'dark'), radio('Sepia', 'theme', 'sepia')] },
+        { label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast')] },
         { label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif')] },
         { label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] },
         cmd('customize-theme', 'Customize Theme…'),
