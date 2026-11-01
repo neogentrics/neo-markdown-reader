@@ -19,7 +19,7 @@ namespace Neo.MarkdownPreview
     [Guid(Clsid)]
     [ClassInterface(ClassInterfaceType.None)]
     [ProgId("NeoMarkdownReader.Preview")]
-    public sealed class PreviewHandler : IPreviewHandler, IInitializeWithStream, IInitializeWithFile, IObjectWithSite, IOleWindow
+    public sealed class PreviewHandler : IPreviewHandler, IInitializeWithStream, IInitializeWithFile, IObjectWithSite, IOleWindow, ICustomQueryInterface
     {
         public const string Clsid = "24f83a0a-a913-4d0d-aef4-c0b0fc7b1248";
         const int MaxBytes = 8 * 1024 * 1024;
@@ -45,6 +45,20 @@ namespace Neo.MarkdownPreview
 
         /// <summary>The text of the page currently shown (used by the self-test).</summary>
         public string ShownText { get { return control?.ShownText; } }
+
+        static readonly Guid IidMarshal = new Guid("00000003-0000-0000-C000-000000000046");
+        static readonly Guid IidAgileObject = new Guid("94ea2b94-e9cc-49e0-c0ff-ee64ca8f5b90");
+
+        /// <summary>
+        /// .NET objects tell COM they can be called from any thread. This one can't: its window must be used
+        /// from the single-threaded apartment that created it. Declining IMarshal and IAgileObject makes
+        /// Windows deliver every call on that thread, as it does for any apartment-threaded handler.
+        /// </summary>
+        CustomQueryInterfaceResult ICustomQueryInterface.GetInterface(ref Guid iid, out IntPtr ppv)
+        {
+            ppv = IntPtr.Zero;
+            return iid == IidMarshal || iid == IidAgileObject ? CustomQueryInterfaceResult.Failed : CustomQueryInterfaceResult.NotHandled;
+        }
 
         // ---------------------------------------------------------------- initialisation
         public void Initialize(IStream stream, uint grfMode)
