@@ -79,7 +79,21 @@ function Capture([string]$name) {
   Write-Host "captured $name ($($b.Width)x$($b.Height))"
 }
 
-Start-Process explorer.exe -ArgumentList "/select,`"$dir\Website relaunch plan.md`""
+Add-Type -TypeDefinition @"
+using System; using System.Runtime.InteropServices;
+public static class NmrMouse {
+  [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
+  [DllImport("user32.dll")] public static extern void mouse_event(uint f, uint dx, uint dy, uint d, IntPtr e);
+  public static void Drag(int x1, int y, int x2) {
+    SetCursorPos(x1, y); System.Threading.Thread.Sleep(300);
+    mouse_event(2, 0, 0, 0, IntPtr.Zero); System.Threading.Thread.Sleep(300);
+    for (int i = 1; i <= 20; i++) { SetCursorPos(x1 + (x2 - x1) * i / 20, y); System.Threading.Thread.Sleep(30); }
+    mouse_event(4, 0, 0, 0, IntPtr.Zero);
+  }
+}
+"@
+
+Start-Process explorer.exe -ArgumentList "`"$dir`""
 Start-Sleep -Seconds 6
 $null = $shell.AppActivate('Project notes')
 Start-Sleep -Seconds 1
@@ -87,14 +101,20 @@ $shell.SendKeys('% ')        # window menu
 Start-Sleep -Milliseconds 400
 $shell.SendKeys('x')         # maximize
 Start-Sleep -Seconds 2
-Capture 'explorer-1-opened'
 $shell.SendKeys('%p')        # Alt+P: Preview pane
-Start-Sleep -Seconds 8
-Capture 'explorer-2-preview'
-$shell.SendKeys('%p')
-Start-Sleep -Seconds 4
-Capture 'explorer-3-toggled'
-$shell.SendKeys('%p')
-Start-Sleep -Seconds 8
-Capture 'explorer-4-preview-again'
+Start-Sleep -Seconds 3
+Capture 'explorer-1-pane'
+# Widen the Preview pane: drag its divider to the left.
+[NmrMouse]::Drag(749, 420, 430)
+Start-Sleep -Seconds 2
+# Select the document through Explorer's own scripting interface.
+$win = (New-Object -ComObject Shell.Application).Windows() | Where-Object { $_.Document -and $_.Document.Folder.Self.Path -eq $dir } | Select-Object -First 1
+if (-not $win) { throw 'Explorer window not found' }
+$item = $win.Document.Folder.ParseName('Website relaunch plan.md')
+$win.Document.SelectItem($item, 1 + 4 + 8 + 16)
+Start-Sleep -Seconds 10
+Capture 'explorer-2-selected'
+[NmrMouse]::SetCursorPos(1000, 760) | Out-Null
+Start-Sleep -Seconds 2
+Capture 'explorer-3-final'
 Get-Process prevhost -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "prevhost running: pid $($_.Id)" }
