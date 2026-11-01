@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="light" data-tone="light">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' file: data: blob: https: http:; media-src 'self' file: data: blob: https:; font-src 'self' data: file:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
@@ -66,16 +66,16 @@
   <div class="layout">
     <aside class="sidebar" id="sidebar">
       <div class="side-tabs" role="tablist" aria-label="Sidebar">
-        <button data-panel="outline" class="active" title="Outline of this document">Outline</button>
-        <button data-panel="files" title="Files in the open folder, and bookmarks">Files</button>
-        <button data-panel="search" title="Find in folder (Ctrl+Shift+F)">Search</button>
-        <button data-panel="highlights" title="Your highlights and notes">Notes</button>
+        <button role="tab" id="side-tab-outline" aria-controls="side-panel-outline" aria-selected="true" tabindex="0" data-panel="outline" class="active" title="Outline of this document">Outline</button>
+        <button role="tab" id="side-tab-files" aria-controls="side-panel-files" aria-selected="false" tabindex="-1" data-panel="files" title="Files in the open folder, and bookmarks">Files</button>
+        <button role="tab" id="side-tab-search" aria-controls="side-panel-search" aria-selected="false" tabindex="-1" data-panel="search" title="Find in folder (Ctrl+Shift+F)">Search</button>
+        <button role="tab" id="side-tab-highlights" aria-controls="side-panel-highlights" aria-selected="false" tabindex="-1" data-panel="highlights" title="Your highlights and notes">Notes</button>
       </div>
-      <section class="side-panel" data-panel="outline">
+      <section class="side-panel" data-panel="outline" role="tabpanel" id="side-panel-outline" aria-labelledby="side-tab-outline">
         <input class="side-filter" id="toc-filter" type="search" placeholder="Filter headings…" spellcheck="false">
         <nav class="toc" id="toc" aria-label="Document outline"></nav>
       </section>
-      <section class="side-panel" data-panel="files" hidden>
+      <section class="side-panel" data-panel="files" role="tabpanel" id="side-panel-files" aria-labelledby="side-tab-files" hidden>
         <div class="files-head">
           <span id="folder-name">No folder open</span>
           <button class="tb-btn sm" id="folder-refresh" title="Refresh" aria-label="Refresh" hidden><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
@@ -84,12 +84,12 @@
         <input class="side-filter" id="files-filter" type="search" placeholder="Filter files…" spellcheck="false">
         <div class="files-body" id="files-body"></div>
       </section>
-      <section class="side-panel" data-panel="search" hidden>
+      <section class="side-panel" data-panel="search" role="tabpanel" id="side-panel-search" aria-labelledby="side-tab-search" hidden>
         <input class="side-filter" id="folder-search" type="search" placeholder="Find in folder…" spellcheck="false">
         <div class="search-summary" id="search-summary"></div>
         <div class="search-results" id="search-results"></div>
       </section>
-      <section class="side-panel" data-panel="highlights" hidden>
+      <section class="side-panel" data-panel="highlights" role="tabpanel" id="side-panel-highlights" aria-labelledby="side-tab-highlights" hidden>
         <div class="hl-list" id="hl-list"></div>
       </section>
       <div class="side-foot" id="side-foot"></div>
@@ -164,8 +164,8 @@
 
   <div class="palette-wrap" id="palette" hidden>
     <div class="palette" role="dialog" aria-label="Quick open">
-      <input id="palette-input" type="text" spellcheck="false" autocomplete="off">
-      <ul id="palette-list" role="listbox"></ul>
+      <input id="palette-input" type="text" spellcheck="false" autocomplete="off" role="combobox" aria-label="Go to file or heading" aria-controls="palette-list" aria-expanded="true" aria-autocomplete="list">
+      <ul id="palette-list" role="listbox" aria-label="Matches"></ul>
       <div class="palette-hint" id="palette-hint"></div>
     </div>
   </div>

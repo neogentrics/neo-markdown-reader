@@ -23,8 +23,9 @@
   --page-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 12px 40px -8px rgba(16, 24, 40, .16);
   --text: #1d2330;
   --text-soft: #4b5466;
-  --muted: #7a8396;
+  --muted: #5f687b;
   --heading: #111827;
+  --on-accent: #ffffff;
   --accent: #3b5bdb;
   --accent-2: #0ca678;
   --accent-soft: #edf2ff;
@@ -55,7 +56,8 @@
   --page-shadow: 0 1px 2px rgba(70, 45, 10, .08), 0 12px 40px -8px rgba(70, 45, 10, .22);
   --text: #3b2f22;
   --text-soft: #5c4a36;
-  --muted: #8a7559;
+  --muted: #6c5a41;
+  --on-accent: #ffffff;
   --heading: #2a2016;
   --accent: #a0521a;
   --accent-2: #5f7d2a;
@@ -87,8 +89,9 @@
   --page-shadow: 0 0 0 1px #232834, 0 16px 48px -10px rgba(0, 0, 0, .7);
   --text: #dfe3ea;
   --text-soft: #b4bccb;
-  --muted: #8892a6;
+  --muted: #8f99ad;
   --heading: #f3f5f9;
+  --on-accent: #0e1014;
   --accent: #7c9cff;
   --accent-2: #38d9a9;
   --accent-soft: #1d2440;
@@ -119,12 +122,13 @@
   --page-shadow: 0 1px 2px rgba(20, 40, 70, .07), 0 12px 40px -8px rgba(20, 40, 70, .18);
   --text: #26313f;
   --text-soft: #4c5a6c;
-  --muted: #7a8799;
+  --muted: #5b6779;
+  --on-accent: #ffffff;
   --heading: #152234;
-  --accent: #3f6fa8;
+  --accent: #355f94;
   --accent-2: #2f9e8f;
   --accent-soft: #e4ecf6;
-  --link: #33639b;
+  --link: #2f5a8e;
   --rule: #dbe2eb;
   --rule-strong: #c6d1de;
   --code-bg: #edf1f6;
@@ -151,7 +155,8 @@
   --page-shadow: 0 0 0 1px #1f2e25, 0 16px 48px -10px rgba(0, 0, 0, .7);
   --text: #d6e4da;
   --text-soft: #a9bdb0;
-  --muted: #7f9787;
+  --muted: #8aa292;
+  --on-accent: #08110c;
   --heading: #eef6f0;
   --accent: #5fcf8e;
   --accent-2: #e0b45c;
@@ -183,7 +188,8 @@
   --page-shadow: 0 0 0 1px #2a2340, 0 16px 48px -10px rgba(0, 0, 0, .7);
   --text: #e2dcee;
   --text-soft: #bbb2cf;
-  --muted: #9087a8;
+  --muted: #9a91b2;
+  --on-accent: #120e1a;
   --heading: #f6f2fc;
   --accent: #b197fc;
   --accent-2: #f783ac;
@@ -216,6 +222,7 @@
   --text: #ffffff;
   --text-soft: #f2f2f2;
   --muted: #d0d0d0;
+  --on-accent: #000000;
   --heading: #ffffff;
   --accent: #ffd60a;
   --accent-2: #4dffb8;

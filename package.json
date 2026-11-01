@@ -16,7 +16,7 @@
     "dist:linux": "npm run build:renderer && electron-builder --linux AppImage deb --publish never",
     "dev": "node scripts/build-renderer.mjs && electron . samples/showcase.md",
     "icons": "node scripts/make-icons.mjs",
-    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs && node test/e2e/power.e2e.cjs",
+    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs && node test/e2e/power.e2e.cjs && node test/e2e/a11y.e2e.cjs",
     "build:preview": "dotnet build preview/NeoMarkdownPreview -c Release -o preview-dist",
     "test:preview": "dotnet test preview/NeoMarkdownPreview.Tests"
   },
@@ -105,7 +105,8 @@
       ],
       "artifactName": "NeoMarkdownReader-${version}-linux-${arch}.${ext}",
       "maintainer": "Neo Gentrics <author@neogentrics.com>",
-      "synopsis": "A beautiful, distraction-free Markdown reader"
+      "synopsis": "A beautiful, distraction-free Markdown reader",
+      "syncDesktopName": true
     },
     "copyright": "Copyright © 2026 Neo Gentrics. All rights reserved.",
     "dmg": {
@@ -133,6 +134,7 @@
     "@codemirror/search": "^6.7.2",
     "@codemirror/state": "^6.7.6",
     "@codemirror/view": "^6.43.15",
+    "axe-core": "^4.14.0",
     "codemirror": "^6.0.2",
     "diff": "^9.0.0",
     "docx": "^9.15.1",
@@ -172,5 +174,6 @@
   },
   "dependencies": {
     "electron-updater": "^6.8.11"
-  }
+  },
+  "desktopName": "neo-markdown-reader.desktop"
 }
