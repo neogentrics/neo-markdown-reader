@@ -34,6 +34,7 @@ application (`resources/app.asar/dist/app.js.LEGAL.txt` and the Electron `LICENS
 | nanoid | 6.0.2 | MIT | https://github.com/ai/nanoid |
 | Pyodide (CPython for WebAssembly, with the Python standard library) | 314.0.7 | MPL-2.0 (Python: PSF License) | https://pyodide.org |
 | @anthropic-ai/sdk | 1.3.0 | Apache-2.0 | https://github.com/anthropics/anthropic-sdk-typescript |
+| Markdig (File Explorer preview, with System.Memory, System.Buffers and related .NET packages) | 1.5.1 | BSD-2-Clause (.NET packages: MIT) | https://github.com/xoofx/markdig |
 
 Pyodide is shipped unmodified in `resources/app.asar/dist/sandbox/pyodide/`; its source is available
 from the Pyodide project under the Mozilla Public License 2.0.

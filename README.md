@@ -10,7 +10,7 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
-**[Features](#features)** · **[Install](#install-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+**[Features](#features)** · **[Install](#install-windows)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
 
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
@@ -43,7 +43,8 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
-| **Power features** *(new in 2.0)* | Run JavaScript and Python code blocks in a sealed sandbox; lock documents with a password (AES-256); summarize, explain or turn notes into a report with Claude, using your own API key (optional, off by default); four more colour themes ([details](#power-features)) |
+| **At home on Windows** *(new in 2.1)* | A formatted preview of `.md` files in File Explorer's Preview pane; a full accessibility pass (screen readers, keyboard, high contrast); a Linux `.deb`, an Intel Mac build and `winget` ([details](#at-home-on-windows)) |
+| **Power features** *(2.0)* | Run JavaScript and Python code blocks in a sealed sandbox; lock documents with a password (AES-256); summarize, explain or turn notes into a report with Claude, using your own API key (optional, off by default); four more colour themes ([details](#power-features)) |
 | **Publish** *(1.4)* | A PDF designer with a cover page, contents page with page numbers, headers and footers; export to Word, a single web page or plain text; present any document as full-screen slides; your own accent colour, fonts or brand stylesheet ([details](#publishing-and-presenting)) |
 | **Organize** *(1.3)* | Open a whole folder, search every file in it, jump anywhere with `Ctrl+K`, read two documents side by side, compare versions, and keep private highlights, notes and bookmarks ([details](#organizing-your-documents)) |
 | **Write & edit** *(1.2)* | New documents and templates; an editor beside the live preview with a formatting toolbar and spell check. Files only change after you allow it, and the original is backed up first ([details](#creating-and-editing)) |
@@ -68,14 +69,24 @@ symbols, and no browser tab or code editor is needed.
      file opens it here.
    - **`NeoMarkdownReader-<version>-Portable.exe`**: a single file that needs no install. Run it from
      anywhere, including a USB stick.
-3. Because the app is not code-signed yet, Windows SmartScreen may say *"Windows protected your PC"*.
+3. Until the app is code-signed, Windows SmartScreen may say *"Windows protected your PC"*.
    Click **More info → Run anyway**.
+4. The installer also adds the **File Explorer preview**: select a `.md` file in Explorer and turn on the
+   Preview pane (**View → Preview pane**, or `Alt+P`) to see it formatted. The portable version doesn't
+   add it.
 
 **Make it the default for `.md` files** (if you used the portable version, or another app has taken
 over): right-click any `.md` file → **Open with** → **Choose another app** → pick **Neo Markdown
 Reader** → tick **Always use this app**.
 
-macOS (`.dmg`) and Linux (`.AppImage`) builds are published on the same Releases page.
+**Mac and Linux** builds are on the same Releases page:
+- Mac: `…-mac-arm64.dmg` for Apple silicon (M1 and later), `…-mac-x64.dmg` for Intel Macs.
+- Linux: `…-linux-x86_64.AppImage` (runs anywhere) or `…-linux-amd64.deb` (Debian, Ubuntu and related).
+  Install the `.deb` with:
+
+  ```bash
+  sudo apt install ./NeoMarkdownReader-<version>-linux-amd64.deb
+  ```
 
 **Updates:** from version 1.1 on, the installed app checks for new versions by itself, downloads them in the
 background and offers *Restart to update*. The portable `.exe` and the Mac build tell you when a new
@@ -218,12 +229,36 @@ version is out and link to the download. *(Coming from 1.0? Install 1.1 once by 
 **Mist**, **Forest**, **Dusk** and **High Contrast** join Paper, Sepia and Night in the theme menu. They work
 with your own accent colour and in exports.
 
+## At home on Windows
+
+- **File Explorer preview.** Select a `.md` file in Explorer with the Preview pane on (`Alt+P`) to see it
+  formatted, without opening the app. It follows Windows' light or dark mode.
+  - The preview is a quick look: it doesn't load images from the internet and doesn't run anything.
+  - If another app already shows previews for `.md` files (PowerToys, for example), the installer leaves it
+    in place.
+  - Uninstalling the app removes the preview.
+- **Accessibility:**
+  - Every screen and dialog is checked automatically with [axe](https://github.com/dequelabs/axe-core) in
+    all seven themes and in Windows high-contrast mode.
+  - Text meets WCAG AA contrast.
+  - Tabs, the sidebar and Quick Open work from the keyboard and are announced properly by screen readers.
+  - Focus is always visible, and animations stop when Windows' *Animation effects* setting is off.
+- **More ways to install:**
+  - A Linux `.deb` package.
+  - A Mac build for Intel Macs as well as Apple silicon.
+  - Manifests for the Windows Package Manager (`winget`), ready to submit. Once they're accepted:
+
+    ```bash
+    winget install NeoGentrics.NeoMarkdownReader
+    ```
+
 ## Keyboard shortcuts
 
 | Keys | Action |
 |---|---|
 | `Ctrl` `O` | Open file (in a new tab) |
 | `Ctrl` `Tab` / `Ctrl` `Shift` `Tab` | Next / previous tab |
+| `←` `→` `Home` `End` / `Delete` (on a tab) | Move between tabs / close the tab |
 | `Ctrl` `1` … `Ctrl` `9` | Jump to a tab |
 | `Ctrl` `W` / `Ctrl` `Shift` `T` | Close tab / reopen closed tab |
 | `Ctrl` + click a link | Open the linked document in a new tab |
@@ -261,8 +296,11 @@ On macOS use `Cmd` instead of `Ctrl`.
 - **v2.0** added running code blocks in a sandbox, password-locked documents, optional AI
   assist with Claude, and four more colour themes.
 
-Now in progress is **v2.1, At home on Windows**: a formatted preview in File Explorer, an accessibility pass, more ways
-to install (Linux `.deb`, Intel Mac, `winget`), and builds ready for code signing.
+- **v2.1, At home on Windows** adds a formatted preview in File Explorer, an accessibility pass, more ways to
+  install (Linux `.deb`, Intel Mac, `winget`), and builds that are signed as soon as a code-signing
+  certificate is added.
+
+Next: signed installers (once a code-signing certificate is bought).
 
 **[See the full roadmap →](ROADMAP.md)**
 
@@ -271,20 +309,22 @@ to install (Linux `.deb`, Intel Mac, `winget`), and builds ready for code signin
 The source is public for reference. Building it for your own use or redistribution requires
 permission (see [License](#license)).
 
-Requirements: **Node.js 22** (see `.nvmrc`) and Git.
+Requirements: **Node.js 22** (see `.nvmrc`) and Git. Building the Windows installer also needs the
+**.NET 8 SDK**, for the File Explorer preview add-on.
 
 ```bash
 npm ci                 # install dependencies
 npm run dev            # build the UI and launch the app with the feature showcase
 npm test               # unit tests (Markdown pipeline, files, settings, editing permissions & saving)
 npm run test:e2e       # launches the real app and drives it (reading, tabs, editing, folders, compare, highlights)
-npm run dist:win       # Windows installer + portable .exe  → release/
-npm run dist:mac       # macOS .dmg (run on a Mac)          → release/
-npm run dist:linux     # Linux AppImage                     → release/
+npm run test:preview   # File Explorer preview renderer tests (.NET 8 SDK)
+npm run dist:win       # Windows installer (with the Explorer preview) + portable .exe → release/
+npm run dist:mac       # macOS .dmg for Apple silicon and Intel (run on a Mac)        → release/
+npm run dist:linux     # Linux AppImage + .deb                                         → release/
 npm run icons          # regenerate build/icon.png + icon.ico from build/icon.svg (needs Playwright)
 ```
 
-The Windows `.exe` can be built on Windows, Linux or macOS.
+The Windows installer is built on Windows (the Explorer preview add-on is a .NET Framework library).
 
 ## How it works
 
@@ -327,6 +367,9 @@ src/
     ├── index.html        layout + Content-Security-Policy
     └── styles/           themes, document typography, code colors, print/PDF, export & presentation styles
 └── sandbox/              The code sandbox's page and worker (plus Pyodide, copied in at build time)
+preview/                    File Explorer preview: a COM preview handler (C#, .NET Framework 4.8, Markdig) + tests
+build/installer.nsh         installer steps: registers the Explorer preview for the current user
+scripts/winget-manifest.mjs writes the winget manifests for a release
 scripts/build-renderer.mjs  bundles the renderer into dist/ with esbuild
 samples/showcase.md         feature tour (Help → Open Feature Showcase)
 test/                       node:test suites (run under jsdom)
@@ -361,6 +404,13 @@ network or settings access. See [SECURITY.md](SECURITY.md).
    Or, without a tag: **Actions → Release → Run workflow**. It tags the current commit as
    `v<version>` from `package.json`.
 3. The **Release** workflow builds Windows, macOS and Linux apps and publishes them to GitHub Releases.
+4. Optional, after it's published:
+   - **winget:** run `node scripts/winget-manifest.mjs`, then submit the folder it writes to
+     [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs), for example with
+     `wingetcreate submit`.
+   - **Code signing:** add `WINDOWS_CSC_LINK` (the `.pfx` certificate, base64-encoded) and
+     `WINDOWS_CSC_KEY_PASSWORD` as repository secrets. Every later release is then signed automatically,
+     and the Release log reports the signature status.
 
 Every push and pull request runs the **CI** workflow: tests on Windows, macOS and Linux, plus a
 downloadable Windows build under the run's *Artifacts*.

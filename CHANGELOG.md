@@ -4,6 +4,35 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] - 2026-11-01
+
+### Added
+- **File Explorer preview:** select a `.md` file in Explorer with the Preview pane on to see it formatted.
+  - It's a small add-on installed with the app for the current user (no admin rights), and it follows
+    Windows' light or dark mode.
+  - The preview doesn't load images and can't navigate or run anything.
+  - An existing Markdown previewer (such as PowerToys') is left in place, and uninstalling removes the add-on.
+- **Accessibility:**
+  - Every screen, dialog and theme passes automated axe checks, including Windows high-contrast mode.
+  - Page tabs work with `←` `→` `Home` `End`, and `Delete` closes one.
+  - Sidebar panels are proper tabs, and Quick Open announces the selected match.
+  - Focus is always visible, and animations respect Windows' *Animation effects* setting.
+- **More install options:**
+  - A Linux `.deb` package.
+  - A Mac build for Intel Macs (`…-mac-x64.dmg`) next to the Apple-silicon one.
+  - `scripts/winget-manifest.mjs` writes the Windows Package Manager manifests for a release.
+- **Ready for code signing:** the Release workflow signs the Windows installer as soon as
+  `WINDOWS_CSC_LINK` and `WINDOWS_CSC_KEY_PASSWORD` secrets are added, and it reports the signature status.
+
+### Changed
+- Better contrast:
+  - Secondary text is darker in the light themes.
+  - Buttons in the dark themes use dark text on their accent colour.
+  - Callout titles are readable in every theme.
+  - Mist's accent is slightly deeper.
+- The close (×) on a tab is part of the tab rather than a separate button inside it, so screen readers
+  announce tabs properly. Close a tab with `Ctrl+W` or `Delete`.
+
 ## [2.0.0] - 2026-11-01
 
 ### Added
