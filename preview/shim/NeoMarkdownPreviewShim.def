@@ -1,0 +1,4 @@
+LIBRARY NeoMarkdownPreviewShim
+EXPORTS
+    DllGetClassObject PRIVATE
+    DllCanUnloadNow PRIVATE

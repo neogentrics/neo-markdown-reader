@@ -310,7 +310,8 @@ The source is public for reference. Building it for your own use or redistributi
 permission (see [License](#license)).
 
 Requirements: **Node.js 22** (see `.nvmrc`) and Git. Building the Windows installer also needs the
-**.NET 8 SDK**, for the File Explorer preview add-on.
+**.NET 8 SDK** and **Visual Studio or its Build Tools with "Desktop development with C++"**, for the
+File Explorer preview add-on.
 
 ```bash
 npm ci                 # install dependencies
@@ -324,7 +325,8 @@ npm run dist:linux     # Linux AppImage + .deb                                  
 npm run icons          # regenerate build/icon.png + icon.ico from build/icon.svg (needs Playwright)
 ```
 
-The Windows installer is built on Windows (the Explorer preview add-on is a .NET Framework library).
+The Windows installer is built on Windows: the Explorer preview add-on is a .NET Framework library plus
+a small native COM server that Windows loads it through.
 
 ## How it works
 
@@ -367,7 +369,8 @@ src/
     ├── index.html        layout + Content-Security-Policy
     └── styles/           themes, document typography, code colors, print/PDF, export & presentation styles
 └── sandbox/              The code sandbox's page and worker (plus Pyodide, copied in at build time)
-preview/                    File Explorer preview: a COM preview handler (C#, .NET Framework 4.8, Markdig) + tests
+preview/                    File Explorer preview: a COM preview handler (C#, .NET Framework 4.8, Markdig) + tests;
+                            preview/shim is the native COM server (C++) Windows starts it through
 build/installer.nsh         installer steps: registers the Explorer preview for the current user
 scripts/winget-manifest.mjs writes the winget manifests for a release
 scripts/build-renderer.mjs  bundles the renderer into dist/ with esbuild

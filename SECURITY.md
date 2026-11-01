@@ -101,6 +101,8 @@ Markdown files are treated as **untrusted input**:
 
 - The preview handler runs inside Windows' preview host (`prevhost.exe`), not in the app. It's registered
   per user and only for Markdown extensions, and it never replaces another app's preview handler.
+  Windows starts it through a small native COM server (`NeoMarkdownPreviewShim.dll`) that loads only
+  the handler installed next to it, into the .NET Framework that is part of Windows.
 - Documents are rendered with Markdig with raw HTML disabled, so HTML in a document is shown as text and
   never interpreted. Images aren't loaded (no web requests from Explorer), and link targets other than
   `http(s)`, `mailto` and in-page anchors are removed.

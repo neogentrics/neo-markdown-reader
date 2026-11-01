@@ -34,17 +34,14 @@ jobs:
           dotnet-version: '8.0.x'
       - name: File Explorer preview — renderer tests
         run: npm run test:preview
-      - name: File Explorer preview — build and preview a document like Explorer does
+      - name: File Explorer preview — build, register and preview a document like Explorer does
         if: runner.os == 'Windows'
         shell: powershell
         run: |
           npm run build:preview
-          powershell -NoProfile -STA -File preview/ci-check.ps1 -Dll preview-dist/NeoMarkdownPreview.dll
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-      - name: File Explorer preview — how Windows activates it (diagnostic)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: powershell -NoProfile -STA -ExecutionPolicy Bypass -File preview/ci-com-diag.ps1 -Dll preview-dist/NeoMarkdownPreview.dll
+          powershell -NoProfile -STA -ExecutionPolicy Bypass -File preview/ci-check.ps1 -Dll preview-dist/NeoMarkdownPreview.dll -Register
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: End-to-end test (real app)
         if: runner.os != 'Linux'
         run: npm run test:e2e
@@ -74,7 +71,7 @@ jobs:
         run: |
           $setup = Get-ChildItem release/NeoMarkdownReader-*-Setup.exe | Select-Object -First 1
           Start-Process -Wait -FilePath $setup.FullName -ArgumentList '/S'
-          powershell -NoProfile -STA -File preview/ci-check.ps1 -Installed
+          powershell -NoProfile -STA -ExecutionPolicy Bypass -File preview/ci-check.ps1 -Installed
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           $dir = Join-Path $env:LOCALAPPDATA 'Programs\neo-markdown-reader'
           if (-not (Test-Path $dir)) { $dir = Join-Path $env:LOCALAPPDATA 'Programs\Neo Markdown Reader' }

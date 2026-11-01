@@ -1,7 +1,9 @@
-// The File Explorer preview handler: Explorer (through prevhost.exe) creates this COM object, hands
-// it the selected .md file, and gives it a window to draw in. It shows the document rendered by
-// PreviewRenderer in a browser control that can't navigate, run scripts or load anything remote.
+// The File Explorer preview handler: Explorer (through prevhost.exe) creates this COM object, by way
+// of the small native server in preview/shim (see NativeEntry below), hands it the selected .md file,
+// and gives it a window to draw in. It shows the document rendered by PreviewRenderer in a browser
+// control that can't navigate, run scripts or load anything remote.
 using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -190,6 +192,29 @@ namespace Neo.MarkdownPreview
         {
             if (disposing) browser.Dispose();
             base.Dispose(disposing);
+        }
+    }
+
+    /// <summary>
+    /// Called by the native COM server (NeoMarkdownPreviewShim.dll) through the .NET runtime host:
+    /// creates a handler and writes its IUnknown to the address given (as hexadecimal text).
+    /// Returns 0, or the HRESULT of what went wrong.
+    /// </summary>
+    public static class NativeEntry
+    {
+        public static int Create(string slot)
+        {
+            try
+            {
+                var address = new IntPtr(long.Parse(slot, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture));
+                Marshal.WriteIntPtr(address, Marshal.GetIUnknownForObject(new PreviewHandler()));
+                return 0;
+            }
+            catch (Exception e)
+            {
+                int hr = Marshal.GetHRForException(e);
+                return hr != 0 ? hr : unchecked((int)0x80004005);
+            }
         }
     }
 
