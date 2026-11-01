@@ -1,7 +1,7 @@
 {
   "name": "neo-markdown-reader",
   "productName": "Neo Markdown Reader",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A beautiful, distraction-free Markdown reader for Windows, macOS and Linux.",
   "author": "Neo Gentrics <author@neogentrics.com>",
   "license": "SEE LICENSE IN LICENSE",
@@ -11,12 +11,14 @@
     "build:renderer": "node scripts/build-renderer.mjs",
     "start": "npm run build:renderer && electron .",
     "test": "node --test \"test/*.test.mjs\"",
-    "dist:win": "npm run build:renderer && electron-builder --win nsis portable --x64 --publish never",
-    "dist:mac": "npm run build:renderer && electron-builder --mac dmg --publish never",
-    "dist:linux": "npm run build:renderer && electron-builder --linux AppImage --publish never",
+    "dist:win": "npm run build:renderer && npm run build:preview && electron-builder --win nsis portable --x64 --publish never",
+    "dist:mac": "npm run build:renderer && electron-builder --mac dmg --arm64 --x64 --publish never",
+    "dist:linux": "npm run build:renderer && electron-builder --linux AppImage deb --publish never",
     "dev": "node scripts/build-renderer.mjs && electron . samples/showcase.md",
     "icons": "node scripts/make-icons.mjs",
-    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs && node test/e2e/power.e2e.cjs"
+    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs && node test/e2e/power.e2e.cjs && node test/e2e/a11y.e2e.cjs",
+    "build:preview": "dotnet build preview/NeoMarkdownPreview -c Release -o preview-dist && powershell -NoProfile -ExecutionPolicy Bypass -File preview/shim/build.ps1 -Out preview-dist",
+    "test:preview": "dotnet test preview/NeoMarkdownPreview.Tests"
   },
   "build": {
     "appId": "com.neogentrics.markdownreader",
@@ -60,6 +62,15 @@
       "target": [
         "nsis",
         "portable"
+      ],
+      "extraResources": [
+        {
+          "from": "preview-dist",
+          "to": "preview",
+          "filter": [
+            "*.dll"
+          ]
+        }
       ]
     },
     "nsis": {
@@ -72,7 +83,8 @@
       "license": "LICENSE",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
-      "artifactName": "NeoMarkdownReader-${version}-Setup.exe"
+      "artifactName": "NeoMarkdownReader-${version}-Setup.exe",
+      "include": "build/installer.nsh"
     },
     "portable": {
       "artifactName": "NeoMarkdownReader-${version}-Portable.exe"
@@ -88,9 +100,13 @@
       "icon": "build/icon.png",
       "category": "Office",
       "target": [
-        "AppImage"
+        "AppImage",
+        "deb"
       ],
-      "artifactName": "NeoMarkdownReader-${version}-linux-${arch}.${ext}"
+      "artifactName": "NeoMarkdownReader-${version}-linux-${arch}.${ext}",
+      "maintainer": "Neo Gentrics <author@neogentrics.com>",
+      "synopsis": "A beautiful, distraction-free Markdown reader",
+      "syncDesktopName": true
     },
     "copyright": "Copyright © 2026 Neo Gentrics. All rights reserved.",
     "dmg": {
@@ -103,7 +119,11 @@
         "repo": "neo-markdown-reader",
         "releaseType": "release"
       }
-    ]
+    ],
+    "deb": {
+      "artifactName": "NeoMarkdownReader-${version}-linux-${arch}.${ext}",
+      "packageCategory": "text"
+    }
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^1.3.0",
@@ -114,6 +134,7 @@
     "@codemirror/search": "^6.7.2",
     "@codemirror/state": "^6.7.6",
     "@codemirror/view": "^6.43.15",
+    "axe-core": "^4.14.0",
     "codemirror": "^6.0.2",
     "diff": "^9.0.0",
     "docx": "^9.15.1",
@@ -153,5 +174,6 @@
   },
   "dependencies": {
     "electron-updater": "^6.8.11"
-  }
+  },
+  "desktopName": "neo-markdown-reader.desktop"
 }

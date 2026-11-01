@@ -34,8 +34,8 @@ body.has-doc .toolbar::after { opacity: 1; }
 .tb-btn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .tb-btn.sm { height: 28px; min-width: 28px; }
 .tb-btn.sm svg { width: 16px; height: 16px; }
-.tb-primary { background: var(--accent); color: #fff; padding: 0 12px 0 10px; font-weight: 600; margin-left: 4px; }
-.tb-primary:hover:not(:disabled) { background: var(--accent); color: #fff; filter: brightness(1.08); }
+.tb-primary { background: var(--accent); color: var(--on-accent); padding: 0 12px 0 10px; font-weight: 600; margin-left: 4px; }
+.tb-primary:hover:not(:disabled) { background: var(--accent); color: var(--on-accent); filter: brightness(1.08); }
 .tb-title { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; line-height: 1.2; padding: 0 12px; }
 .tb-title-name { font-weight: 600; color: var(--heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .tb-title-meta { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
@@ -119,7 +119,7 @@ body.toc-hidden .sidebar, body:not(.has-doc) .sidebar { margin-left: -281px; }
 .big-btn {
   display: inline-flex; align-items: center; gap: 10px; padding: 12px 22px; border: 0; border-radius: 12px;
   background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, var(--accent-2)));
-  color: #fff; font-weight: 600; font-size: 15px; cursor: pointer; box-shadow: 0 8px 22px -8px var(--accent);
+  color: var(--on-accent); font-weight: 600; font-size: 15px; cursor: pointer; box-shadow: 0 8px 22px -8px var(--accent);
   transition: transform .12s, filter .12s;
 }
 .big-btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
@@ -163,4 +163,27 @@ body.toc-hidden .sidebar, body:not(.has-doc) .sidebar { margin-left: -281px; }
 kbd {
   font-family: var(--font-mono); font-size: .82em; padding: 2px 6px; border-radius: 5px;
   border: 1px solid var(--rule-strong); border-bottom-width: 2px; background: var(--code-bg); color: var(--heading);
+}
+
+/* ===================== Accessibility ===================== */
+/* A clear focus ring for keyboard users (mouse clicks don't show it). */
+:where(button, a, input, select, textarea, summary, [tabindex], .tab):focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px;
+}
+.palette input:focus-visible, .find-bar input:focus-visible { outline: none; }
+.tab:focus-visible { outline-offset: -2px; }
+
+/* Windows high-contrast themes: the system picks the colours; keep states visible with borders. */
+@media (forced-colors: active) {
+  .tab.active { outline: 2px solid Highlight; outline-offset: -2px; }
+  .seg button.active, .side-tabs button.active, .sw-accent.active { outline: 2px solid Highlight; }
+  .tb-btn, .big-btn, .tb-primary, .link-btn, .copy-btn, .run-btn { border: 1px solid ButtonText; }
+  .progress-bar, .present-progress div, .lock-meter i { forced-color-adjust: none; }
+  .markdown-body mark, mark.nmr-hl { forced-color-adjust: none; color: black; }
+  .palette-item.selected { outline: 2px solid Highlight; }
+}
+
+/* Respect "reduce motion": no slide-ins, pulses or smooth scrolling. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
 }

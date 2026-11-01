@@ -146,11 +146,17 @@
   display: flex; align-items: center; gap: .5em; font-weight: 700; color: var(--c); margin: 0 0 .35em !important; font-family: var(--font-display);
 }
 .markdown-body .markdown-alert-title svg { fill: currentColor; width: 1.05em; height: 1.05em; }
-.markdown-body .markdown-alert-note { --c: #3b82f6; }
-.markdown-body .markdown-alert-tip { --c: #16a34a; }
-.markdown-body .markdown-alert-important { --c: #8b5cf6; }
-.markdown-body .markdown-alert-warning { --c: #d97706; }
-.markdown-body .markdown-alert-caution { --c: #dc2626; }
+.markdown-body .markdown-alert-note { --c: #2563eb; }
+.markdown-body .markdown-alert-tip { --c: #147238; }
+.markdown-body .markdown-alert-important { --c: #7c3aed; }
+.markdown-body .markdown-alert-warning { --c: #b45309; }
+.markdown-body .markdown-alert-caution { --c: #c81e1e; }
+/* Lighter callout colours on the dark themes, so titles stay readable. */
+:root[data-tone="dark"] .markdown-body .markdown-alert-note { --c: #7aa7ff; }
+:root[data-tone="dark"] .markdown-body .markdown-alert-tip { --c: #4ade80; }
+:root[data-tone="dark"] .markdown-body .markdown-alert-important { --c: #b9a1ff; }
+:root[data-tone="dark"] .markdown-body .markdown-alert-warning { --c: #fbbf24; }
+:root[data-tone="dark"] .markdown-body .markdown-alert-caution { --c: #ff8a8a; }
 
 /* Front-matter header card */
 .markdown-body .doc-meta {

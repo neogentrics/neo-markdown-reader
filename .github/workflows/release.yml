@@ -23,7 +23,7 @@ jobs:
         include:
           - { name: windows, os: windows-latest, script: dist:win,   files: "release/NeoMarkdownReader-*-Setup.exe\nrelease/NeoMarkdownReader-*-Setup.exe.blockmap\nrelease/NeoMarkdownReader-*-Portable.exe\nrelease/latest.yml" }
           - { name: macos,   os: macos-latest,   script: dist:mac,   files: 'release/*.dmg' }
-          - { name: linux,   os: ubuntu-latest,  script: dist:linux, files: "release/*.AppImage\nrelease/latest-linux.yml" }
+          - { name: linux,   os: ubuntu-latest,  script: dist:linux, files: "release/*.AppImage\nrelease/*.deb\nrelease/latest-linux.yml" }
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -32,9 +32,25 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - uses: actions/setup-dotnet@v5
+        if: matrix.name == 'windows'
+        with:
+          dotnet-version: '8.0.x'
       - run: npm run ${{ matrix.script }}
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          # Code signing (Windows): add the certificate as repository secrets and every release is
+          # signed automatically. WINDOWS_CSC_LINK = the .pfx file, base64-encoded;
+          # WINDOWS_CSC_KEY_PASSWORD = its password. Without them the build is simply unsigned.
+          CSC_LINK: ${{ matrix.name == 'windows' && secrets.WINDOWS_CSC_LINK || '' }}
+          CSC_KEY_PASSWORD: ${{ matrix.name == 'windows' && secrets.WINDOWS_CSC_KEY_PASSWORD || '' }}
+      - name: Report whether the Windows build is signed
+        if: matrix.name == 'windows'
+        shell: powershell
+        run: |
+          $exe = Get-ChildItem release/NeoMarkdownReader-*-Setup.exe | Select-Object -First 1
+          $sig = Get-AuthenticodeSignature $exe.FullName
+          Write-Host "Signature status of $($exe.Name): $($sig.Status)"
       - uses: actions/upload-artifact@v7
         with:
           name: release-${{ matrix.name }}

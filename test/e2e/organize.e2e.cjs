@@ -45,6 +45,9 @@ const launch = () => electron.launch({
   await stubDialogs(app);
   const menu = (id) => app.evaluate(({ Menu }, itemId) => Menu.getApplicationMenu().getMenuItemById(itemId).click(), id);
   const activeLabel = () => win.$eval('.tab.active .tab-label', (n) => n.textContent);
+  // Menu commands reach the page a moment after the click; wait for Quick Open to have focus
+  // before typing, or the first keystroke lands on the page instead.
+  const quickOpenReady = () => win.waitForFunction(() => !document.getElementById('palette').hidden && document.activeElement?.id === 'palette-input');
 
   await win.waitForSelector('#welcome-open');
 
@@ -80,6 +83,7 @@ const launch = () => electron.launch({
 
   await step('Quick Open finds a file from a few letters', async () => {
     await menu('quick-open');
+    await quickOpenReady();
     await win.keyboard.type('inst v2');
     await win.waitForSelector('.palette-item.selected');
     assert.equal(await win.textContent('.palette-item.selected .pi-label'), 'install-v2.md');
@@ -89,6 +93,7 @@ const launch = () => electron.launch({
 
   await step('Quick Open with # jumps to a heading in the current document', async () => {
     await menu('quick-open');
+    await quickOpenReady();
     await win.keyboard.type('#trouble');
     await win.waitForSelector('.palette-item.kind-heading.selected');
     await win.keyboard.press('Enter');

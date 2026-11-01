@@ -17,12 +17,29 @@ export function createSidebar(ctx) {
   // ---------------------------------------------------------------- switching panels
   function show(name) {
     panel = name;
-    for (const b of els.tabs.querySelectorAll('button')) b.classList.toggle('active', b.dataset.panel === name);
+    for (const b of els.tabs.querySelectorAll('button')) {
+      const on = b.dataset.panel === name;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', String(on));
+      b.tabIndex = on ? 0 : -1;
+    }
     for (const p of document.querySelectorAll('.side-panel')) p.hidden = p.dataset.panel !== name;
     if (name === 'search') { els.search.focus(); els.search.select(); }
     if (name === 'highlights') ctx.renderHighlights();
   }
   els.tabs.addEventListener('click', (e) => { const b = e.target.closest('button[data-panel]'); if (b) show(b.dataset.panel); });
+  // Arrow keys move between the panel tabs (the usual keyboard pattern for tabs).
+  els.tabs.addEventListener('keydown', (e) => {
+    const list = [...els.tabs.querySelectorAll('button[data-panel]')];
+    const i = list.indexOf(document.activeElement);
+    if (i < 0) return;
+    const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: list.length - 1 }[e.key];
+    if (next == null) return;
+    e.preventDefault();
+    const b = list[(next + list.length) % list.length];
+    show(b.dataset.panel);
+    b.focus();
+  });
 
   // ---------------------------------------------------------------- files: folder tree + bookmarks
   function fileButton(path, label, sub = '') {

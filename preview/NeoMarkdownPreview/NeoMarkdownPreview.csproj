@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The File Explorer preview handler. .NET Framework 4.8 is part of Windows 10 and 11, so the add-on
+       needs nothing else installed. Built on Windows in CI; the app's installer registers it per user. -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>Library</OutputType>
+    <AssemblyName>NeoMarkdownPreview</AssemblyName>
+    <RootNamespace>Neo.MarkdownPreview</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <!-- The add-on's own version. Windows loads it through the native server in ../shim. -->
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <FileVersion>2.1.0.0</FileVersion>
+    <Version>2.1.0</Version>
+    <Company>Neo Gentrics</Company>
+    <Product>Neo Markdown Reader</Product>
+    <Copyright>Copyright © 2026 Neo Gentrics. All rights reserved.</Copyright>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="1.5.1" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

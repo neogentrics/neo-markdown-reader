@@ -25,7 +25,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v1.3](#v13--compare--organize) | Compare & organize | ✅ Released ([1.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.3.0)) |
 | [v1.4](#v14--publish-beautifully) | Publish beautifully | ✅ Released ([1.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.4.0)) |
 | [v2.0](#v20--power-features) | Power features | ✅ Released ([2.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.0.0)) |
-| [v2.1](#v21--at-home-on-windows) | At home on Windows | 🚧 In progress |
+| [v2.1](#v21--at-home-on-windows) | At home on Windows | ✅ Done — ships in 2.1.0 |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Planned |
 
 ## v1.0 — The reader
@@ -106,14 +106,14 @@ updates itself from here on.
 
 ## v2.1 — At home on Windows
 
-🚧 **In progress.**
+✅ **Done — ships in 2.1.0.**
 
 | Feature | Size | Details |
 |---|:-:|---|
-| Preview in File Explorer | L | Select a `.md` file in Explorer and see it formatted in the Preview pane, without opening the app. A small Windows add-on installed with the app (not the portable version), built and tested on Windows in the automated builds. Moved here from 2.0. |
-| Accessibility pass | S | Screen-reader labels throughout, Windows high-contrast support, and full keyboard navigation of tabs, the sidebar and dialogs — checked automatically in the tests. |
-| More install options | S | A Linux `.deb` package, a Mac build for Intel Macs, and a ready-to-submit `winget` manifest (`winget install NeoGentrics.NeoMarkdownReader`). |
-| Ready for code signing | S | The release builds sign the Windows installer automatically as soon as a code-signing certificate is added to the repository's secrets (buying the certificate is the only step left). |
+| ✅ Preview in File Explorer | L | Select a `.md` file in Explorer and see it formatted in the Preview pane, without opening the app. A small Windows add-on installed with the app (not the portable version), built and tested on Windows in the automated builds. Moved here from 2.0. |
+| ✅ Accessibility pass | S | Screen-reader labels throughout, WCAG AA contrast in all seven themes, Windows high-contrast support, and full keyboard navigation of tabs, the sidebar and Quick Open — checked automatically with axe in the tests. |
+| ✅ More install options | S | A Linux `.deb` package, a Mac build for Intel Macs, and a generator for the `winget` manifests (`winget install NeoGentrics.NeoMarkdownReader` once they're accepted). |
+| ✅ Ready for code signing | S | The release builds sign the Windows installer automatically as soon as a code-signing certificate is added to the repository's secrets (buying the certificate is the only step left). |
 
 ## Ongoing — Polish & distribution
 

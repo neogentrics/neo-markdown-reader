@@ -134,7 +134,8 @@ function makeTabButton(tab) {
   btn.className = 'tab';
   btn.setAttribute('role', 'tab');
   btn.draggable = true;
-  btn.innerHTML = '<svg class="tab-icon" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="tab-label"></span><button class="tab-close" tabindex="-1" aria-label="Close tab"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button>';
+  btn.innerHTML = '<svg class="tab-icon" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="tab-label"></span><span class="tab-close" aria-hidden="true" title="Close tab (Ctrl+W)"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></span>';
+  btn.tabIndex = -1;
   btn.addEventListener('mousedown', (e) => { if (e.button === 0 && !e.target.closest('.tab-close')) activate(tab.id); });
   btn.addEventListener('auxclick', (e) => { if (e.button === 1) { e.preventDefault(); closeTab(tab.id); } });
   btn.querySelector('.tab-close').addEventListener('click', (e) => { e.stopPropagation(); closeTab(tab.id); });
@@ -146,6 +147,23 @@ function makeTabButton(tab) {
   wireTabDrag(btn, tab);
   return btn;
 }
+
+// Keyboard: ← → Home End move between tabs, Delete closes, the context-menu key opens the tab menu.
+els.tabs.addEventListener('keydown', (e) => {
+  const i = tabs.findIndex((t) => t.btn === document.activeElement);
+  if (i < 0) return;
+  const to = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+  if (to != null) {
+    e.preventDefault();
+    const t = tabs[(to + tabs.length) % tabs.length];
+    activate(t.id);
+    t.btn.focus();
+  } else if (e.key === 'Delete') {
+    e.preventDefault();
+    const neighbour = tabs[i + 1] || tabs[i - 1];
+    closeTab(tabs[i].id).then((closed) => { if (closed && neighbour) neighbour.btn.focus(); });
+  }
+});
 
 function updateTabButton(tab) {
   const label = tab.doc.name.replace(/\.(md|markdown|mdown|mkdn?|mdwn|mdx|txt)$/i, '');
@@ -184,11 +202,12 @@ function activate(id) {
   const next = tabs.find((t) => t.id === id);
   if (!next) return;
   const prev = activeTab();
-  if (prev && prev !== next) { prev.scroll = currentScroll(prev); prev.el.hidden = true; prev.btn.classList.remove('active'); prev.btn.setAttribute('aria-selected', 'false'); }
+  if (prev && prev !== next) { prev.scroll = currentScroll(prev); prev.el.hidden = true; prev.btn.classList.remove('active'); prev.btn.setAttribute('aria-selected', 'false'); prev.btn.tabIndex = -1; }
   activeId = id;
   next.el.hidden = false;
   next.btn.classList.add('active');
   next.btn.setAttribute('aria-selected', 'true');
+  next.btn.tabIndex = 0;                       // the active tab is the one Tab key lands on
   next.btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   if (!els.findBar.hidden) closeFind();
   split?.afterActivate(prev, next);

@@ -108,17 +108,21 @@ export function createPalette(ctx) {
   function render() {
     listEl.replaceChildren();
     if (!shown.length) {
-      listEl.innerHTML = `<li class="palette-empty">${input.value.trim().startsWith('#') ? 'No matching headings.' : 'Nothing matches. Try fewer letters, or open a folder to search all of its files.'}</li>`;
+      listEl.innerHTML = `<li class="palette-empty" role="option" aria-disabled="true" aria-selected="false">${input.value.trim().startsWith('#') ? 'No matching headings.' : 'Nothing matches. Try fewer letters, or open a folder to search all of its files.'}</li>`;
       return;
     }
     shown.forEach(({ it, m }, i) => {
       const li = document.createElement('li');
       li.className = `palette-item kind-${it.kind}${i === selected ? ' selected' : ''}`;
+      li.setAttribute('role', 'option');
+      li.id = `palette-opt-${i}`;
+      li.setAttribute('aria-selected', String(i === selected));
       li.innerHTML = `<span class="pi-label">${highlight(it.label, m.hits)}</span><span class="pi-detail">${esc(it.detail || '')}</span>`;
       li.onmousedown = (e) => { e.preventDefault(); choose(i); };
       listEl.appendChild(li);
     });
     listEl.children[selected]?.scrollIntoView({ block: 'nearest' });
+    input.setAttribute('aria-activedescendant', shown.length ? `palette-opt-${selected}` : '');
   }
 
   function choose(i) {
