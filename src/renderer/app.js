@@ -13,6 +13,8 @@ import { createThemeUi } from './theme-ui.js';
 import { createLockUi } from './lock-ui.js';
 import { addRunButtons } from './run-ui.js';
 import { createAiUi } from './ai-ui.js';
+import { createHistoryUi } from './history-ui.js';
+import { createKeysUi } from './keys-ui.js';
 import './styles/app.css';
 
 const api = window.reader;
@@ -49,6 +51,8 @@ let presenter = null;
 let themeUi = null;
 let lockUi = null;
 let aiUi = null;
+let historyUi = null;
+let keysUi = null;
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -295,6 +299,7 @@ function showActiveDoc() {
   if (doc.path) $('reveal').onclick = () => api.reveal(doc.path);
   updateBookmarkButton();
   updateChrome();
+  if (sidebar?.panel() === 'history') historyUi?.render(tab);
 }
 
 function isBookmarked(p) { return !!p && (settings.bookmarks || []).some((b) => b.toLowerCase() === p.toLowerCase()); }
@@ -787,6 +792,7 @@ for (const seg of document.querySelectorAll('.seg[data-key]')) {
   });
 }
 $('shortcuts-close').onclick = () => els.shortcuts.close();
+$('shortcuts-customize').onclick = () => { els.shortcuts.close(); keysUi.open(); };
 $('update-dismiss').onclick = () => { els.updateBar.hidden = true; };
 
 // Keys the menu doesn't own. (Menu shortcuts such as Alt+Left are handled only by the menu,
@@ -838,6 +844,11 @@ api.onCommand(({ cmd, arg }) => {
     // organizing (v1.3)
     case 'quick-open': palette.open(); break;
     case 'find-in-folder': sidebar.findInFolder(); break;
+    case 'replace-in-folder': sidebar.replaceInFolder(); break;
+    case 'panel-history': showSidebar(); sidebar.show('history'); break;
+    case 'edit-table': editMode.editTable(); break;
+    case 'customize-shortcuts': keysUi.open(); break;
+    case 'command-palette': palette.open('>'); break;
     case 'close-folder': api.closeFolder(); sidebar.setFolder(null); break;
     case 'panel-outline': case 'panel-files': case 'panel-highlights':
       showSidebar(); sidebar.show(cmd.slice(6)); break;
@@ -910,18 +921,33 @@ async function closeTabsInOrder(list) {
 // ================================================================ drag & drop files
 let dragDepth = 0;
 const hasFiles = (e) => [...(e.dataTransfer?.types || [])].includes('Files');
-window.addEventListener('dragenter', (e) => { if (!hasFiles(e)) return; e.preventDefault(); dragDepth++; els.drop.hidden = false; });
+// While editing, pictures dragged in go into the document, so the "Drop to open" cover stays away.
+const onlyImages = (e) => { const items = [...(e.dataTransfer?.items || [])]; return items.length > 0 && items.every((i) => i.kind === 'file' && /^image\//.test(i.type)); };
+window.addEventListener('dragenter', (e) => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  if (activeTab()?.editing && onlyImages(e)) return;
+  dragDepth++;
+  els.drop.hidden = false;
+});
 window.addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); });
 window.addEventListener('dragleave', (e) => { if (!hasFiles(e)) return; if (--dragDepth <= 0) { dragDepth = 0; els.drop.hidden = true; } });
 window.addEventListener('drop', async (e) => {
-  if (!hasFiles(e)) return;
+  if (!hasFiles(e) || e.defaultPrevented) return;            // the editor already took dropped pictures
   e.preventDefault();
   dragDepth = 0;
   els.drop.hidden = true;
-  const paths = [...(e.dataTransfer?.files || [])].map((f) => api.pathForFile(f)).filter((p) => /\.(md|markdown|mdown|mkdn?|mdwn|mdx|txt)$/i.test(p));
-  if (!paths.length) { toast('That isn’t a Markdown file (.md)'); return; }
+  const files = [...(e.dataTransfer?.files || [])];
+  const pics = files.filter((f) => /^image\/(png|jpe?g|gif|webp|bmp|avif)$/i.test(f.type));
+  if (pics.length && activeTab()?.editing) { editMode.dropImages(pics); return; }
+  const all = files.map((f) => api.pathForFile(f));
+  const word = all.filter((p) => /\.docx$/i.test(p));
+  const paths = all.filter((p) => /\.(md|markdown|mdown|mkdn?|mdwn|mdx|txt|mdlock)$/i.test(p));
+  for (const p of word) { const res = await api.importDocx(p); if (res?.error) toast(res.error); else if (res?.ok) toast(importedNote(res)); }
+  if (!paths.length && !word.length) { toast(pics.length ? 'Click Edit first to add pictures to the document' : 'That isn’t a Markdown file (.md)'); return; }
   for (const p of paths) await openPath(p);
 });
+const importedNote = (res) => `Imported from Word${res.images ? ` with ${res.images} picture${res.images === 1 ? '' : 's'} (in the images folder)` : ''}${res.warnings ? ' — some formatting couldn’t be kept' : ''}`;
 
 // ================================================================ settings, updates, misc
 function applySettings(s) {
@@ -985,6 +1011,7 @@ api.onDocumentChanged(async (doc) => {
 });
 
 editMode = createEditMode({
+  onSaved: () => { if (sidebar?.panel() === 'history') historyUi.render(); },
   api,
   activeTab,
   openInTab,
@@ -1004,13 +1031,24 @@ sidebar = createSidebar({
   openAtLine,
   showSidebar,
   renderHighlights: () => highlights.renderPanel(activeTab()),
+  renderHistory: () => historyUi.render(activeTab()),
+  unsavedPaths: () => tabs.filter((t) => t.editing && t.dirty && t.doc.path).map((t) => t.doc.path),
+  toast,
 });
+historyUi = createHistoryUi({
+  api, activeTab, toast, openCompare,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
+});
+keysUi = createKeysUi({ api, platform: () => platform });
 palette = createPalette({
   tabs: () => tabs,
   activeTab,
   bookmarks: () => settings.bookmarks || [],
   recent: () => settings.recent || [],
   folderFiles: () => sidebar.allFiles(),
+  listCommands: () => api.listCommands(),
+  runCommand: (key) => api.runCommand(key),
+  platform: () => platform,
   openPath,
   goToHeading: (id) => scrollToId(id),
 });

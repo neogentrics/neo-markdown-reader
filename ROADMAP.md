@@ -26,7 +26,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v1.4](#v14--publish-beautifully) | Publish beautifully | ✅ Released ([1.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.4.0)) |
 | [v2.0](#v20--power-features) | Power features | ✅ Released ([2.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.0.0)) |
 | [v2.1](#v21--at-home-on-windows) | At home on Windows | ✅ Released ([2.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.1.0)) |
-| [v2.2](#v22--write-faster) | Write faster | 🚧 In progress |
+| [v2.2](#v22--write-faster) | Write faster | ✅ Done — ships in 2.2.0 |
 | [v2.3](#v23--connected-notes) | Connected notes | Planned |
 | [v2.4](#v24--read-listen--share) | Read, listen & share | Planned |
 | [v3.0](#v30--the-next-major-release) | The next major release | Ideas — to be decided |
@@ -121,16 +121,16 @@ updates itself from here on.
 
 ## v2.2 — Write faster
 
-🚧 **In progress.** Make writing and editing quicker, and make every change easy to undo. Using the proposed answers to open decisions 5 and 7.
+✅ **Done — ships in 2.2.0.** Make writing and editing quicker, and make every change easy to undo.
 
 | Feature | Size | Details |
 |---|:-:|---|
-| 🛡️ Paste & drop images | M | Paste a screenshot or drag a picture into the editor: it's saved next to the document (in an `images` folder) and linked for you. Nothing outside the document's folder is touched. |
-| Table editor & paste from spreadsheets | M | Edit a table as a grid (add, move or delete rows and columns, set alignment) and paste cells from Excel, Google Sheets or Word to get a Markdown table. |
-| Bring content in | M | Paste from a web page or Word as clean Markdown (headings, lists, links, bold), and open a Word `.docx` as a new Markdown document, with its images. |
-| 🛡️ Version history | M | Every save keeps the earlier version. A *History* panel lists them by time; compare any version with the current one (using Compare) and restore it with one click. Stored by the app, never in your folder. |
-| 🛡️ Find & replace across a folder | M | Replace text, or a pattern, in many files at once: preview every change, untick the ones you don't want, and undo the whole batch. Only files you've allowed editing are changed, and each is backed up first. |
-| Commands from the keyboard & your own shortcuts | S | Type `>` in Quick Open (`Ctrl+K`) to run any menu command by name, and change any keyboard shortcut in Settings. |
+| ✅ 🛡️ Paste & drop images | M | Paste a screenshot or drag a picture into the editor: it's saved next to the document (in an `images` folder) and linked for you. Nothing outside the document's folder is touched. |
+| ✅ Table editor & paste from spreadsheets | M | Edit a table as a grid (add, move or delete rows and columns, set alignment) and paste cells from Excel, Google Sheets or Word to get a Markdown table. |
+| ✅ Bring content in | M | Paste from a web page or Word as clean Markdown (headings, lists, links, bold), and open a Word `.docx` as a new Markdown document, with its images. |
+| ✅ 🛡️ Version history | M | Every save keeps the earlier version. A *History* panel lists them by time; compare any version with the current one (using Compare) and restore it with one click. Stored by the app, never in your folder. |
+| ✅ 🛡️ Find & replace across a folder | M | Replace text, or a pattern, in many files at once: preview every change, untick the ones you don't want, and undo the whole batch. Only files you've allowed editing are changed, and each is backed up first. |
+| ✅ Commands from the keyboard & your own shortcuts | S | Type `>` in Quick Open (`Ctrl+K`) to run any menu command by name, and change any keyboard shortcut in Settings. |
 
 ## v2.3 — Connected notes
 
@@ -185,7 +185,7 @@ More ways to take in a document, and more ways to hand it on.
 2. **Menu bar visible by default?** ✅ *Decided:* yes, with an option to auto-hide (shipped in 1.1.0).
 3. **Which languages may *Run* execute?** ✅ *Decided:* JavaScript and Python only (shipped in 2.0.0). Shell stays off.
 4. **Password lock: locked copy or replace the original?** ✅ *Decided:* a locked copy by default, with a checkbox to move the original to the Recycle Bin (shipped in 2.0.0).
-5. **Where should pasted images go?** *Proposed:* an `images` folder next to the document, changeable per folder.
+5. **Where should pasted images go?** ✅ *Decided:* an `images` folder next to the document (shipped in 2.2.0).
 6. **Wiki links aren't standard Markdown.** Keep them as `[[Name]]` in the file (the same as Obsidian), or write standard links? *Proposed:* `[[Name]]` by default, with a setting to write standard Markdown links instead.
-7. **How much version history to keep?** *Proposed:* every save for 30 days, then one a day, up to 1 GB in total, adjustable.
+7. **How much version history to keep?** ✅ *Decided:* every save for 30 days, then one a day, up to 1 GB in total (shipped in 2.2.0).
 8. **What should 3.0 focus on?** *Proposed:* add-ons and the app in your language first, then sync; shared review only if it's needed.

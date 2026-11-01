@@ -1,5 +1,6 @@
 // Quick Open (Ctrl+K): type a few letters to jump to an open tab, bookmark, recent file, any file in the
-// open folder, or (starting with #) a heading in the current document. Also used as a simple picker.
+// open folder, (starting with #) a heading in the current document, or (starting with >) any menu
+// command. Also used as a simple picker.
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /**
@@ -46,6 +47,18 @@ function fuzzyTerm(query, text) {
   return { score: score - t.length * 0.5, hits };
 }
 
+/** "CmdOrCtrl+Shift+K" → "Ctrl+Shift+K" (or "⌘⇧K" on a Mac). */
+export function prettyShortcut(acc, platform = 'win32') {
+  if (!acc) return '';
+  const mac = platform === 'darwin';
+  const parts = acc.split('+');
+  if (acc.endsWith('++')) parts.splice(-2, 2, '+');
+  const names = mac
+    ? { CmdOrCtrl: '⌘', CommandOrControl: '⌘', Cmd: '⌘', Command: '⌘', Ctrl: '⌃', Control: '⌃', Alt: '⌥', Option: '⌥', Shift: '⇧', Plus: '+', Left: '←', Right: '→', Up: '↑', Down: '↓' }
+    : { CmdOrCtrl: 'Ctrl', CommandOrControl: 'Ctrl', Control: 'Ctrl', Plus: '+', Left: '←', Right: '→', Up: '↑', Down: '↓' };
+  return parts.map((p) => names[p] ?? p).join(mac ? '' : '+');
+}
+
 function highlight(text, hits) {
   const set = new Set(hits);
   return [...text].map((c, i) => (set.has(i) ? `<b>${esc(c)}</b>` : esc(c))).join('');
@@ -88,11 +101,22 @@ export function createPalette(ctx) {
     return (ctx.activeTab()?.result?.toc || []).map((h) => ({ kind: 'heading', label: h.text, detail: `H${h.level}`, id: h.id, indent: h.level }));
   }
 
+  let commands = [];
+  async function loadCommands() {
+    const list = (await ctx.listCommands?.()) || [];
+    commands = list.filter((c) => c.enabled).map((c) => ({
+      kind: 'command', label: c.label, key: c.key,
+      detail: [c.path, prettyShortcut(c.accelerator, ctx.platform?.())].filter(Boolean).join('  ·  '),
+    }));
+    if (!box.hidden && input.value.trim().startsWith('>')) filter();
+  }
+
   function filter() {
     const raw = input.value;
     let pool = items;
     let q = raw.trim();
     if (mode.kind === 'open' && q.startsWith('#')) { pool = headingItems(); q = q.slice(1).trim(); }
+    else if (mode.kind === 'open' && q.startsWith('>')) { pool = commands; q = q.slice(1).trim(); }
     shown = pool
       .map((it) => {
         const m = fuzzy(q, it.label) || (it.detail && fuzzy(q, it.detail) && { score: (fuzzy(q, it.detail).score) - 300, hits: [] });
@@ -108,7 +132,9 @@ export function createPalette(ctx) {
   function render() {
     listEl.replaceChildren();
     if (!shown.length) {
-      listEl.innerHTML = `<li class="palette-empty" role="option" aria-disabled="true" aria-selected="false">${input.value.trim().startsWith('#') ? 'No matching headings.' : 'Nothing matches. Try fewer letters, or open a folder to search all of its files.'}</li>`;
+      const q = input.value.trim();
+      const msg = q.startsWith('#') ? 'No matching headings.' : q.startsWith('>') ? 'No matching commands.' : 'Nothing matches. Try fewer letters, or open a folder to search all of its files.';
+      listEl.innerHTML = `<li class="palette-empty" role="option" aria-disabled="true" aria-selected="false">${msg}</li>`;
       return;
     }
     shown.forEach(({ it, m }, i) => {
@@ -134,6 +160,7 @@ export function createPalette(ctx) {
     if (!pick) { if (m.kind === 'pick') m.resolve(null); return; }
     if (m.kind === 'pick') { m.resolve(pick); return; }
     if (pick.kind === 'heading') ctx.goToHeading(pick.id);
+    else if (pick.kind === 'command') ctx.runCommand(pick.key);
     else ctx.openPath(pick.path);
   }
 
@@ -155,8 +182,9 @@ export function createPalette(ctx) {
   function open(initial = '') {
     mode = { kind: 'open' };
     items = sourceItems();
-    hint.textContent = 'Type to find a file · start with # to jump to a heading · ↑↓ Enter · Esc';
-    input.placeholder = 'Go to file or #heading…';
+    hint.textContent = 'Type to find a file · # for a heading · > for a command · ↑↓ Enter · Esc';
+    input.placeholder = 'Go to file, #heading or >command…';
+    loadCommands();
     box.hidden = false;
     input.value = initial;
     filter();

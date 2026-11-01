@@ -307,7 +307,32 @@ async function buildDocx(model, assets = {}, options = {}) {
   return Packer.toBuffer(doc);
 }
 
+// ---------------------------------------------------------------- importing Word documents
+const IMAGE_EXT = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/gif': 'gif', 'image/bmp': 'bmp', 'image/webp': 'webp', 'image/svg+xml': 'svg', 'image/tiff': 'tif', 'image/x-emf': 'emf', 'image/x-wmf': 'wmf' };
+
+/**
+ * A Word document (.docx) as Markdown. Pictures come back separately, to be saved next to the
+ * Markdown file; the Markdown links to them as `${imageDir}/${name}`.
+ * @returns {Promise<{ markdown: string, images: { name: string, data: Buffer }[], warnings: string[] }>}
+ */
+async function docxToMarkdown(buffer, { imageDir = 'images', imagePrefix = 'image' } = {}) {
+  const mammoth = require('mammoth');
+  const { htmlToMarkdown } = require('./html-to-md.js');
+  const images = [];
+  const result = await mammoth.convertToHtml({ buffer }, {
+    convertImage: mammoth.images.imgElement(async (image) => {
+      const ext = IMAGE_EXT[image.contentType] || 'png';
+      const name = `${imagePrefix}-${images.length + 1}.${ext}`;
+      images.push({ name, data: Buffer.from(await image.read()) });
+      return { src: `${imageDir}/${name}` };
+    }),
+  });
+  const markdown = htmlToMarkdown(result.value, { image: (src) => (src.startsWith(`${imageDir}/`) ? src : null) });
+  const warnings = result.messages.filter((m) => m.type === 'warning').map((m) => m.message);
+  return { markdown, images, warnings };
+}
+
 // The Anthropic SDK rides in the same bundle (used by AI assist).
 const Anthropic = require('@anthropic-ai/sdk');
 
-module.exports = { Anthropic: Anthropic.default || Anthropic, readOutline, pagesForEntries, finishPdf, collectAssets, buildDocx, bookmarkName, PAPER_IN, MARGIN_IN };
+module.exports = { Anthropic: Anthropic.default || Anthropic, docxToMarkdown, readOutline, pagesForEntries, finishPdf, collectAssets, buildDocx, bookmarkName, PAPER_IN, MARGIN_IN };

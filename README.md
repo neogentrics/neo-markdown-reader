@@ -43,7 +43,8 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
-| **At home on Windows** *(new in 2.1)* | A formatted preview of `.md` files in File Explorer's Preview pane; a full accessibility pass (screen readers, keyboard, high contrast); a Linux `.deb`, an Intel Mac build and `winget` ([details](#at-home-on-windows)) |
+| **Write faster** *(new in 2.2)* | Paste or drop pictures (saved next to the document); edit tables in a grid and paste cells from Excel; paste from Word and web pages as clean Markdown, or import a Word document; version history with compare and restore; replace across a folder with a preview and undo; run any command from `Ctrl+K` and choose your own shortcuts ([details](#writing-faster)) |
+| **At home on Windows** *(2.1)* | A formatted preview of `.md` files in File Explorer's Preview pane; a full accessibility pass (screen readers, keyboard, high contrast); a Linux `.deb`, an Intel Mac build and `winget` ([details](#at-home-on-windows)) |
 | **Power features** *(2.0)* | Run JavaScript and Python code blocks in a sealed sandbox; lock documents with a password (AES-256); summarize, explain or turn notes into a report with Claude, using your own API key (optional, off by default); four more colour themes ([details](#power-features)) |
 | **Publish** *(1.4)* | A PDF designer with a cover page, contents page with page numbers, headers and footers; export to Word, a single web page or plain text; present any document as full-screen slides; your own accent colour, fonts or brand stylesheet ([details](#publishing-and-presenting)) |
 | **Organize** *(1.3)* | Open a whole folder, search every file in it, jump anywhere with `Ctrl+K`, read two documents side by side, compare versions, and keep private highlights, notes and bookmarks ([details](#organizing-your-documents)) |
@@ -110,6 +111,58 @@ version is out and link to the download. *(Coming from 1.0? Install 1.1 once by 
   - Windows-style line endings are kept exactly as they were.
   - Files marked read-only stay locked; use *Save As* to edit a copy.
   - Closing a tab or window with unsaved changes asks first.
+
+## Writing faster
+
+<img src="docs/screenshots/table-editor.png" width="860" alt="The Edit Table dialog: a grid of cells with alignment, move and delete controls, over the editor">
+
+- **Pictures:** paste a screenshot (`Ctrl+V`) or drag a picture into the editor. It's saved in an `images`
+  folder next to the document and linked where you dropped it, under its own name (or `pasted-` and the date
+  for screenshots). An existing file is never overwritten, and only PNG, JPEG, GIF, WebP, BMP and AVIF
+  pictures are accepted.
+- **Tables:**
+  - Click the table button (or *Edit → Edit Table…*) with the cursor in a table to edit it as a grid.
+    Add, move and delete rows and columns, and set each column's alignment. The table is written back
+    neatly lined up.
+  - With the cursor elsewhere, the same button inserts a new table.
+  - Copy cells in Excel, Google Sheets or Numbers and paste them into the editor: they become a Markdown
+    table, with number columns right-aligned. Pasting cells into the grid fills it from that cell.
+- **Bring content in:**
+  - Paste from a web page or Word and you get clean Markdown: headings, lists, links, bold, tables.
+    Scripts and hidden page parts are dropped, and pictures from the web stay linked.
+  - `Ctrl+Shift+V` pastes plain text instead, and code copied from a code editor always pastes as it is.
+  - *File → Import Word Document…* (or drop a `.docx` on the window) converts a Word document to a new
+    Markdown file, saving its pictures in an `images` folder.
+- **Version history** (`Ctrl+Shift+Y`, or the **History** panel):
+  - Every save keeps the version it replaces. So do *Replace in Folder* and restoring.
+  - **Compare** shows what changed since any of them. **Restore** puts one back, keeping the current
+    version in History first.
+  - History is kept by the app, never in your folder: every version from the last 30 days, then one a day,
+    up to 1 GB in total. Locked documents' history stays encrypted.
+- **Replace in Folder** (`Ctrl+Shift+R`):
+  - Type what to find and what to put instead, with *Match case*, *Whole words* or a *Pattern* (a regular
+    expression; `$1`, `$2`… insert captured groups).
+  - **Preview changes** lists every match with the old and new text. Untick any you want to keep.
+  - The app asks before changing anything. Each file is backed up and its old version kept in History
+    first, and **Undo last replace** puts the whole batch back.
+  - Files with unsaved edits and locked documents are left alone. A pattern that takes too long is stopped
+    without freezing the app.
+- **Commands and shortcuts:**
+  - In Quick Open (`Ctrl+K`), type `>` to run any menu command by name (or use *Help → Find a Command…*,
+    `Ctrl+Shift+K`).
+  - *Help → Customize Keyboard Shortcuts…* lets you give any command a new shortcut, remove one, or reset
+    them all. If a combination is already taken, it says by what and offers to move it.
+
+<table>
+<tr>
+<td><img src="docs/screenshots/replace.png" alt="Replace in Folder: every match listed with the old text struck through and the new text beside it, with tick-boxes"></td>
+<td><img src="docs/screenshots/history.png" alt="The History panel listing earlier versions of a document, each with Compare and Restore"></td>
+</tr>
+<tr>
+<td align="center"><sub>Replace in Folder: preview every change, untick any to keep</sub></td>
+<td align="center"><sub>Version history: compare with or restore any earlier version</sub></td>
+</tr>
+</table>
 
 ## Organizing your documents
 
@@ -280,8 +333,11 @@ with your own accent colour and in exports.
 | `Ctrl` `P` | Print |
 | `F5` | Reload file |
 | `Alt` `←` | Back to the previous document |
-| `Ctrl` `K` | Go to a file, or `#` + text to jump to a heading |
-| `Ctrl` `Shift` `O` / `Ctrl` `Shift` `F` | Open folder / find in folder |
+| `Ctrl` `K` | Go to a file, `#` + text to jump to a heading, or `>` to run a command |
+| `Ctrl` `Shift` `O` / `Ctrl` `Shift` `F` / `Ctrl` `Shift` `R` | Open folder / find in folder / replace in folder |
+| `Ctrl` `Shift` `Y` | Version history of this document |
+| `Ctrl` `Shift` `K` | Find a command by name |
+| `Ctrl` `Shift` `V` | Paste as plain text (while editing) |
 | `Ctrl` `\` | Split view |
 | `Ctrl` `Shift` `H` / `Ctrl` `D` | Highlight selection / bookmark this file |
 | `Ctrl` `N` | New document |
@@ -292,7 +348,7 @@ with your own accent colour and in exports.
 | `Ctrl` `Shift` `N` / `Ctrl` `Shift` `W` | New window / close window |
 | `F1` | Keyboard shortcuts |
 
-On macOS use `Cmd` instead of `Ctrl`.
+On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help → Customize Keyboard Shortcuts…*.
 
 ## Roadmap
 

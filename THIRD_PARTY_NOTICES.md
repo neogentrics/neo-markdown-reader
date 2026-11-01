@@ -34,10 +34,12 @@ application (`resources/app.asar/dist/app.js.LEGAL.txt` and the Electron `LICENS
 | nanoid | 6.0.2 | MIT | https://github.com/ai/nanoid |
 | Pyodide (CPython for WebAssembly, with the Python standard library) | 314.0.7 | MPL-2.0 (Python: PSF License) | https://pyodide.org |
 | @anthropic-ai/sdk | 1.3.0 | Apache-2.0 | https://github.com/anthropics/anthropic-sdk-typescript |
+| turndown (with `@joplin/turndown-plugin-gfm` and `@mixmark-io/domino`) | 7.2.4 | MIT (domino: BSD-2-Clause) | https://github.com/mixmark-io/turndown |
+| mammoth (with `jszip`, `bluebird`, `lop`, `option`, `dingbat-to-unicode`, `underscore`, `xmlbuilder`, `@xmldom/xmldom`, `base64-js`) | 1.13.0 | BSD-2-Clause (jszip: MIT, chosen from MIT OR GPL-3.0-or-later; the others MIT or BSD-2-Clause) | https://github.com/mwilliamson/mammoth.js |
 | Markdig (File Explorer preview, with System.Memory, System.Buffers and related .NET packages) | 1.5.1 | BSD-2-Clause (.NET packages: MIT) | https://github.com/xoofx/markdig |
 
 Pyodide is shipped unmodified in `resources/app.asar/dist/sandbox/pyodide/`; its source is available
 from the Pyodide project under the Mozilla Public License 2.0.
 
-The PDF and Word export libraries and the Anthropic SDK are bundled into `resources/app.asar/dist/export-tools.cjs`; their
+The PDF and Word export libraries, the Word import libraries and the Anthropic SDK are bundled into `resources/app.asar/dist/export-tools.cjs`; their
 license texts are in `export-tools.cjs.LEGAL.txt` next to it.

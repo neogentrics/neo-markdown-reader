@@ -110,6 +110,30 @@ Markdown files are treated as **untrusted input**:
   context menu or browser shortcuts, and opens no new windows.
 - Files over 8 MB aren't previewed.
 
+### Writing faster (since 2.2)
+
+- **Pictures** pasted or dropped into the editor are written by the main process, only for a document
+  you're currently allowed to edit, and only into the `images` folder next to it. The bytes must really be a
+  PNG, JPEG, GIF, WebP, BMP or AVIF picture (checked by content, not by name), the name is cleaned of any
+  path, an existing file is never overwritten, and the limit is 25 MB. Pictures can't be added to locked
+  documents, because they would be stored unencrypted.
+- **Pasted formatting** is converted to Markdown text; scripts, styles, frames, forms and embedded
+  (`data:`) pictures are dropped, and links other than web, mail, in-page and relative ones keep only their
+  text. The result is then rendered like any other document (sanitized, no scripts).
+- **Word import** reads only the `.docx` you chose and writes only the Markdown file you chose and its
+  pictures (in an `images` folder next to it). Replacing an existing Markdown file backs it up first.
+- **Version history** is stored in the app's data folder (`history/` next to `settings.json`), never in your
+  folders, and only for documents open in the window asking. Each version is the file's exact bytes,
+  compressed, so locked documents' versions stay encrypted. Restoring asks first (or asks for edit
+  permission) and keeps the current version before replacing it.
+- **Replace in Folder** only touches Markdown files in the folder you opened, never locked documents or
+  files with unsaved edits in a tab. Matching runs in a separate worker with a time limit, so a slow pattern
+  is stopped rather than freezing the app. Nothing changes until you confirm; each file must be unchanged
+  since the preview, is backed up and has its old version kept in History first. *Undo last replace* only
+  puts back files that haven't changed again since.
+- **Shortcuts** you choose are checked against a fixed list of keys and modifiers before they're saved or
+  used, and menu shortcuts are paused while you press keys for a new one.
+
 ### AI assist (since 2.0)
 
 - Off by default. Requests are made only from an explicit menu command, contain only the current

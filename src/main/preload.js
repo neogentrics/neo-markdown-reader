@@ -58,6 +58,22 @@ contextBridge.exposeInMainWorld('reader', {
   listGrants: invoke('grants:list'),
   revokeGrant: invoke('grants:revoke'),
   openBackups: invoke('backups:open'),
+  saveImage: invoke('image:save'),
+  importDocx: invoke('docx:import'),
+  // version history (kept by the app, never in your folder)
+  historyList: invoke('history:list'),
+  historyRead: invoke('history:read'),
+  historyRestore: invoke('history:restore'),
+  // find & replace across the open folder (preview, then ask, then change)
+  replacePreview: invoke('replace:preview'),
+  replaceApply: invoke('replace:apply'),
+  replaceUndo: invoke('replace:undo'),
+  // commands by name & your own shortcuts
+  listCommands: invoke('commands:list'),
+  runCommand: invoke('commands:run'),
+  setShortcut: invoke('shortcuts:set'),
+  resetShortcuts: invoke('shortcuts:reset-all'),
+  recordShortcuts: invoke('shortcuts:recording'),
   // folders, compare, highlights & bookmarks
   openFolder: invoke('folder:open'),
   closeFolder: invoke('folder:close'),

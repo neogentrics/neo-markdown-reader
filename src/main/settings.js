@@ -23,6 +23,7 @@ const DEFAULTS = Object.freeze({
   ai: null,               // AI assist: { enabled, model } — off by default; the API key is stored separately, encrypted
   runCode: 'ask',         // ask | off — running code blocks (always asks before each run)
   brand: null,            // custom theme: accent colour, fonts, brand stylesheet (see BRAND_DEFAULTS)
+  shortcuts: {},          // your own keyboard shortcuts: menu command id -> accelerator ('' = none)
   windowBounds: null,
 });
 
@@ -100,10 +101,38 @@ function cleanBrand(b) {
   return out;
 }
 
+const MODIFIERS = new Set(['CmdOrCtrl', 'CommandOrControl', 'Ctrl', 'Control', 'Cmd', 'Command', 'Alt', 'Option', 'AltGr', 'Shift', 'Super', 'Meta']);
+const NAMED_KEYS = new Set(['Plus', 'Space', 'Tab', 'Backspace', 'Delete', 'Insert', 'Return', 'Enter', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown', 'Escape', 'Esc']);
+
+/** A valid Electron accelerator ("CmdOrCtrl+Shift+K"), or null. A shortcut needs a modifier unless it's a function key. */
+function cleanAccelerator(v) {
+  if (typeof v !== 'string' || v.length > 40) return null;
+  const parts = v.split('+');
+  if (v.endsWith('++')) { parts.splice(-2, 2, '+'); }
+  const key = parts.pop();
+  if (!parts.every((p) => MODIFIERS.has(p)) || new Set(parts).size !== parts.length) return null;
+  const fn = /^F([1-9]|1\d|2[0-4])$/.test(key);
+  const ok = fn || NAMED_KEYS.has(key) || /^[A-Z0-9]$/.test(key) || /^[`~!@#$%^&*()_\-=+[\]{}\\|;:'",<.>/?]$/.test(key);
+  if (!ok || (!fn && !parts.length)) return null;
+  return [...parts, key].join('+');
+}
+
+function cleanShortcuts(o) {
+  const out = {};
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return out;
+  for (const [id, acc] of Object.entries(o).slice(0, 300)) {
+    if (!/^[a-z0-9-]{1,48}$/.test(id)) continue;
+    if (acc === '') out[id] = '';
+    else { const a = cleanAccelerator(acc); if (a) out[id] = a; }
+  }
+  return out;
+}
+
 function sanitize(input) {
   const s = { ...DEFAULTS, recent: [], positions: {}, session: [], editGrants: { files: [], folders: [] }, bookmarks: [], recentFolders: [] };
   s.exportOptions = cleanExportOptions(null);
   s.brand = cleanBrand(null);
+  s.shortcuts = {};
   s.ai = cleanAiSettings(null);
   if (!input || typeof input !== 'object') return s;
   if (THEMES.includes(input.theme)) s.theme = input.theme;
@@ -122,6 +151,7 @@ function sanitize(input) {
   s.ai = cleanAiSettings(input.ai);
   s.exportOptions = cleanExportOptions(input.exportOptions);
   s.brand = cleanBrand(input.brand);
+  s.shortcuts = cleanShortcuts(input.shortcuts);
   s.windowBounds = cleanBounds(input.windowBounds);
   return s;
 }
@@ -161,4 +191,4 @@ class Settings {
   }
 }
 
-module.exports = { Settings, sanitize, DEFAULTS, EXPORT_DEFAULTS, BRAND_DEFAULTS, cleanExportOptions, cleanBrand, cleanFont };
+module.exports = { Settings, sanitize, DEFAULTS, EXPORT_DEFAULTS, BRAND_DEFAULTS, cleanExportOptions, cleanBrand, cleanFont, cleanAccelerator, cleanShortcuts };
