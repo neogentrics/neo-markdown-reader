@@ -24,8 +24,8 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v1.2](#v12--create--edit) | Create & edit | ✅ Released (1.2.0) |
 | [v1.3](#v13--compare--organize) | Compare & organize | ✅ Released ([1.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.3.0)) |
 | [v1.4](#v14--publish-beautifully) | Publish beautifully | ✅ Released ([1.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.4.0)) |
-| [v2.0](#v20--power-features) | Power features | ✅ Done — ships in 2.0.0 |
-| [Later](#later) | Explorer preview | Planned |
+| [v2.0](#v20--power-features) | Power features | ✅ Released ([2.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.0.0)) |
+| [Later](#later) | Explorer preview | ⏭️ Next |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Planned |
 
 ## v1.0 — The reader
@@ -87,7 +87,7 @@ updates itself from here on.
 
 ## v2.0 — Power features
 
-✅ **Done — ships in 2.0.0.**
+✅ **Released in [2.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.0.0).**
 
 | Feature | Size | Details |
 |---|:-:|---|

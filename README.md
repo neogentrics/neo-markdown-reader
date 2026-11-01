@@ -258,7 +258,7 @@ On macOS use `Cmd` instead of `Ctrl`.
   highlights, notes and bookmarks.
 - **v1.4** added a PDF designer with cover and contents pages, Word, web page and text
   export, presentation mode, and custom colours, fonts and brand stylesheets.
-- **v2.0, Power features** adds running code blocks in a sandbox, password-locked documents, optional AI
+- **v2.0** added running code blocks in a sandbox, password-locked documents, optional AI
   assist with Claude, and four more colour themes.
 
 Next: a formatted preview in Windows File Explorer, signed installers and more ways to install.
