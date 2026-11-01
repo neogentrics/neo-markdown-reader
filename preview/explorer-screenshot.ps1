@@ -20,6 +20,7 @@ Set-ItemProperty "$key\InprocServer32" '(default)' $shim
 Set-ItemProperty "$key\InprocServer32" 'ThreadingModel' 'Apartment'
 New-Item -Path "HKCU:\Software\Classes\.md\shellex\$iid" -Force | Out-Null
 Set-ItemProperty "HKCU:\Software\Classes\.md\shellex\$iid" '(default)' $clsid
+New-Item -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\PreviewHandlers' -Force | Out-Null
 New-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\PreviewHandlers' -Name $clsid -Value 'Neo Markdown Reader' -PropertyType String -Force | Out-Null
 # Explorer: show file extensions, and the Preview pane.
 $adv = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
