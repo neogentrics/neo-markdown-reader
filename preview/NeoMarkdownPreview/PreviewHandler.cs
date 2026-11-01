@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
@@ -97,6 +98,7 @@ namespace Neo.MarkdownPreview
 
         public void DoPreview()
         {
+            NativeEntry.AdoptApartment();
             Unload();
             control = new PreviewControl();
             control.CreateControl();
@@ -206,6 +208,7 @@ namespace Neo.MarkdownPreview
         {
             try
             {
+                AdoptApartment();
                 var address = new IntPtr(long.Parse(slot, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture));
                 Marshal.WriteIntPtr(address, Marshal.GetIUnknownForObject(new PreviewHandler()));
                 return 0;
@@ -216,6 +219,23 @@ namespace Neo.MarkdownPreview
                 return hr != 0 ? hr : unchecked((int)0x80004005);
             }
         }
+
+        /// <summary>
+        /// Windows calls the handler on a single-threaded apartment (STA) thread, which the browser control
+        /// needs. A thread that enters .NET through the runtime host isn't marked as one, so tell .NET.
+        /// </summary>
+        internal static void AdoptApartment()
+        {
+            Thread thread = Thread.CurrentThread;
+            if (thread.GetApartmentState() == ApartmentState.STA || thread.TrySetApartmentState(ApartmentState.STA)) return;
+            int type, qualifier;
+            int hr = CoGetApartmentType(out type, out qualifier);
+            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                "The preview needs a single-threaded apartment; .NET reports {0}, Windows reports type {1} (0x{2:X8}).",
+                thread.GetApartmentState(), type, hr));
+        }
+
+        [DllImport("ole32.dll")] static extern int CoGetApartmentType(out int type, out int qualifier);
     }
 
     /// <summary>
