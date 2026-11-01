@@ -26,7 +26,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v1.4](#v14--publish-beautifully) | Publish beautifully | ✅ Released ([1.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.4.0)) |
 | [v2.0](#v20--power-features) | Power features | ✅ Released ([2.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.0.0)) |
 | [v2.1](#v21--at-home-on-windows) | At home on Windows | ✅ Released ([2.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.1.0)) |
-| [v2.2](#v22--write-faster) | Write faster | ⏭️ Next |
+| [v2.2](#v22--write-faster) | Write faster | 🚧 In progress |
 | [v2.3](#v23--connected-notes) | Connected notes | Planned |
 | [v2.4](#v24--read-listen--share) | Read, listen & share | Planned |
 | [v3.0](#v30--the-next-major-release) | The next major release | Ideas — to be decided |
@@ -121,7 +121,7 @@ updates itself from here on.
 
 ## v2.2 — Write faster
 
-⏭️ **Next.** Make writing and editing quicker, and make every change easy to undo.
+🚧 **In progress.** Make writing and editing quicker, and make every change easy to undo. Using the proposed answers to open decisions 5 and 7.
 
 | Feature | Size | Details |
 |---|:-:|---|

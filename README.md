@@ -306,7 +306,7 @@ On macOS use `Cmd` instead of `Ctrl`.
 
 Coming next, before the next major version:
 
-- **v2.2, Write faster:** paste and drop images, a table editor (with paste from Excel), paste from Word and
+- **v2.2, Write faster** *(in progress)*: paste and drop images, a table editor (with paste from Excel), paste from Word and
   web pages as clean Markdown, version history with one-click restore, find & replace across a folder, and
   running any command from Quick Open.
 - **v2.3, Connected notes:** `[[wiki links]]`, backlinks and a link map, tags, a Tasks panel with daily
