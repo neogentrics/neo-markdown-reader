@@ -29,6 +29,17 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
+      - name: File Explorer preview — renderer tests
+        run: npm run test:preview
+      - name: File Explorer preview — build and preview a document like Explorer does
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          npm run build:preview
+          powershell -NoProfile -STA -File preview/ci-check.ps1 -Dll preview-dist/NeoMarkdownPreview.dll
       - name: End-to-end test (real app)
         if: runner.os != 'Linux'
         run: npm run test:e2e
@@ -47,9 +58,23 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
       - run: npm run dist:win
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Install silently and check the File Explorer preview registration
+        shell: powershell
+        run: |
+          $setup = Get-ChildItem release/NeoMarkdownReader-*-Setup.exe | Select-Object -First 1
+          Start-Process -Wait -FilePath $setup.FullName -ArgumentList '/S'
+          powershell -NoProfile -STA -File preview/ci-check.ps1 -Installed
+          $dir = Join-Path $env:LOCALAPPDATA 'Programs\neo-markdown-reader'
+          if (-not (Test-Path $dir)) { $dir = Join-Path $env:LOCALAPPDATA 'Programs\Neo Markdown Reader' }
+          $un = Get-ChildItem $dir -Filter 'Uninstall*.exe' | Select-Object -First 1
+          Start-Process -Wait -FilePath $un.FullName -ArgumentList '/S', "_?=$dir"
+          powershell -NoProfile -File preview/ci-check.ps1 -Uninstalled
       - name: Upload installer + portable exe
         uses: actions/upload-artifact@v7
         with:
