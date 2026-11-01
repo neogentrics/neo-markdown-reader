@@ -9,6 +9,7 @@
 //  - Files Windows marks read-only stay locked.
 //  - Before the first save of a file in a session, the original is copied to the backups folder.
 //  - Saving checks the file wasn't changed by another program since editing started.
+//  - Every save keeps the version it replaces in History (history.js), outside your folder.
 //  - The file's original line endings and byte-order mark are preserved.
 const fs = require('node:fs');
 const path = require('node:path');
@@ -24,12 +25,13 @@ function stamp(d = new Date()) {
 class Editing {
   /**
    * @param {{ settings: any, dialog: any, backupDir: string, defaultDir?: string, platform?: string,
-   *           sealLocked?: (path: string, content: string) => string | null }} deps
+   *           sealLocked?: (path: string, content: string) => string | null, history?: { add: Function } }} deps
    *   sealLocked encrypts a locked document's text with the key it was unlocked with (null if it
    *   isn't unlocked), so a locked document is never written to disk in the clear.
    */
-  constructor({ settings, dialog, backupDir, defaultDir = '', platform = process.platform, sealLocked = () => null }) {
+  constructor({ settings, dialog, backupDir, defaultDir = '', platform = process.platform, sealLocked = () => null, history = null }) {
     this.sealLocked = sealLocked;
+    this.history = history;
     this.settings = settings;
     this.dialog = dialog;
     this.backupDir = backupDir;
@@ -109,6 +111,15 @@ class Editing {
     return this.listGrants();
   }
 
+  /** Keep the file's current contents in History before it's replaced. Never stops a save. */
+  async keepVersion(p, reason = 'save') {
+    if (!this.history) return null;
+    try {
+      const bytes = await fs.promises.readFile(p);
+      return await this.history.add(p, bytes, reason);
+    } catch { return null; }
+  }
+
   async backup(p) {
     const k = this.key(p);
     if (this.backedUp.has(k) || !fs.existsSync(p)) return null;
@@ -150,6 +161,7 @@ class Editing {
       if (response !== 1) return { ok: false, reason: 'conflict' };
     }
     const backup = await this.backup(p);
+    if (current) await this.keepVersion(p, 'save');
     await fs.promises.writeFile(p, data ?? encodeForSave(content, { eol, bom }));
     const after = await fs.promises.stat(p);
     return { ok: true, mtime: after.mtimeMs, backup };
@@ -169,7 +181,7 @@ class Editing {
     let target = res.filePath;
     if (!isMarkdownPath(target)) target += '.md';
     if (fs.existsSync(target) && !(await isWritable(target))) return { ok: false, reason: 'readonly' };
-    if (fs.existsSync(target)) await this.backup(target);
+    if (fs.existsSync(target)) { await this.backup(target); await this.keepVersion(target, 'save'); }
     await fs.promises.writeFile(target, encodeForSave(content, { eol, bom }));
     this.sessionGrants(state).add(this.key(target));
     return { ok: true, doc: await readMarkdown(target) };

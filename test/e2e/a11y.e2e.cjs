@@ -54,7 +54,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   });
 
   await step('dialogs and Quick Open have none', async () => {
-    for (const [id, sel] of [['export-pdf', '#publish[open]'], ['customize-theme', '#theme-dlg[open]'], ['ai-settings', '#ai-dlg[open]'], ['shortcuts', '#shortcuts[open]'], ['quick-open', '#palette:not([hidden])']]) {
+    for (const [id, sel] of [['export-pdf', '#publish[open]'], ['customize-theme', '#theme-dlg[open]'], ['ai-settings', '#ai-dlg[open]'], ['shortcuts', '#shortcuts[open]'], ['customize-shortcuts', '#keys-dlg[open] .keys-row'], ['quick-open', '#palette:not([hidden])']]) {
       await menu(id);
       await win.waitForSelector(sel);
       await problems(sel);
@@ -85,15 +85,32 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     assert.equal(await win.evaluate(() => document.activeElement.classList.contains('tab')), true, 'focus stays on the tabs');
   });
 
-  await step('sidebar panels: arrow keys switch between Outline, Files, Search and Notes', async () => {
+  await step('sidebar panels: arrow keys switch between Outline, Files, Search, Notes and History', async () => {
     await win.focus('.side-tabs [aria-selected="true"]');
     await win.keyboard.press('ArrowRight');
     assert.equal(await win.$eval('.side-tabs [aria-selected="true"]', (n) => n.dataset.panel), 'files');
     assert.equal(await win.isVisible('#side-panel-files'), true);
     await win.keyboard.press('End');
+    assert.equal(await win.$eval('.side-tabs [aria-selected="true"]', (n) => n.dataset.panel), 'history');
+    await win.waitForSelector('#hist-list .side-empty');
+    await problems('the History panel');
+    await win.keyboard.press('ArrowLeft');
     assert.equal(await win.$eval('.side-tabs [aria-selected="true"]', (n) => n.dataset.panel), 'highlights');
     await win.keyboard.press('Home');
     assert.equal(await win.$eval('.side-tabs [aria-selected="true"]', (n) => n.dataset.panel), 'outline');
+  });
+
+  await step('the table editor and the Replace controls have none', async () => {
+    await menu('new-doc');
+    await win.waitForSelector('.cm-editor');
+    await win.click('#fmt-bar button[data-cmd="table"]');
+    await win.waitForSelector('#table-dlg[open] input[data-r="0"]');
+    await problems('the table editor');
+    await win.keyboard.press('Escape');
+    await win.waitForFunction(() => !document.querySelector('#table-dlg[open]'));
+    await menu('replace-in-folder');
+    await win.waitForSelector('#replace-box:not([hidden])');
+    await problems('the Replace controls');
   });
 
   await step('Windows high-contrast mode: still no problems', async () => {

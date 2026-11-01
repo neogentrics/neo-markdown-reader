@@ -4,6 +4,31 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] - 2026-11-01
+
+### Added
+- **Pictures in the editor:** paste a screenshot or drag a picture into the editor; it's saved in an
+  `images` folder next to the document and linked where you dropped it. Existing files are never
+  overwritten, and only real PNG, JPEG, GIF, WebP, BMP and AVIF pictures are accepted.
+- **Table editor:** *Edit → Edit Table…* (or the table button) edits the table under the cursor as a grid
+  (add, move and delete rows and columns, set alignment) or inserts a new one. Tables are written back
+  neatly lined up.
+- **Paste from spreadsheets, web pages and Word:** cells from Excel or Google Sheets become a Markdown table,
+  and formatted text becomes clean Markdown. `Ctrl+Shift+V` pastes plain text.
+- **Import Word documents:** *File → Import Word Document…* (or drop a `.docx` on the window) converts it to
+  Markdown, with its pictures.
+- **Version history:** every save keeps the version it replaces, outside your folder. The **History** panel
+  (`Ctrl+Shift+Y`) compares any of them with the current text and restores them. Kept: every version for 30
+  days, then one a day, up to 1 GB.
+- **Replace in Folder** (`Ctrl+Shift+R`): plain text, whole words or a pattern (regular expression), with a
+  preview of every change to untick, a confirmation, backups and History first, and **Undo last replace**.
+- **Commands by name:** type `>` in Quick Open (`Ctrl+K`), or *Help → Find a Command…* (`Ctrl+Shift+K`).
+- **Your own shortcuts:** *Help → Customize Keyboard Shortcuts…* changes, removes or resets any menu shortcut,
+  and explains clashes.
+
+### Changed
+- The sidebar has a fifth panel, **History**.
+
 ## [2.1.0] - 2026-11-01
 
 ### Added

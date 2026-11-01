@@ -3,8 +3,11 @@ const { app, BrowserWindow, ClipboardItem, Menu, clipboard, dialog, ipcMain, nat
 const fs = require('node:fs');
 const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
-const { Settings } = require('./settings');
-const { isMarkdownPath, isLockedPath, isOpenablePath, fileFromArgv, readMarkdown, readDocument } = require('./files');
+const { Settings, cleanAccelerator } = require('./settings');
+const { isMarkdownPath, isLockedPath, isOpenablePath, fileFromArgv, readMarkdown, readDocument, isWritable, encodeForSave } = require('./files');
+const { HistoryStore } = require('./history');
+const { runJob: runReplaceJob } = require('./folder-replace');
+const { saveImage, safeName, freeName } = require('./images');
 const locked = require('./locked');
 const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = require('./sandbox');
 const ai = require('./ai');
@@ -30,6 +33,9 @@ let settings;
 let updater;
 let editing;
 let annotations;
+let history;
+/** Every menu command, for running by name from Quick Open (">") and for changing shortcuts. */
+let commandRegistry = new Map();
 let quitting = false;
 /** webContents.id -> { win, startup, tabs: [{ path, scroll }], active, watchers: Map(path -> unwatch) } */
 const windows = new Map();
@@ -561,6 +567,7 @@ function rebuildMenu() {
             : [{ label: 'No recent folders', enabled: false }],
         },
         cmd('close-folder', 'Close Folder'),
+        { id: 'import-docx', label: 'Import Word Document…', click: () => { const st = targetState(); if (st) importDocx(st); } },
         cmd('reopen-closed-tab', 'Reopen Closed Tab', 'CmdOrCtrl+Shift+T'),
         { type: 'separator' },
         cmd('save', 'Save', 'CmdOrCtrl+S'),
@@ -608,9 +615,13 @@ function rebuildMenu() {
         cmd('find-next', 'Find Next', 'F3'),
         cmd('find-prev', 'Find Previous', 'Shift+F3'),
         cmd('find-in-folder', 'Find in Folder…', 'CmdOrCtrl+Shift+F'),
+        cmd('replace-in-folder', 'Replace in Folder…', 'CmdOrCtrl+Shift+R'),
         { type: 'separator' },
         cmd('compare-saved', 'Compare with Saved Version'),
         cmd('compare-file', 'Compare with File…'),
+        cmd('panel-history', 'Version History', 'CmdOrCtrl+Shift+Y'),
+        { type: 'separator' },
+        cmd('edit-table', 'Edit Table…'),
         { type: 'separator' },
         cmd('highlight', 'Highlight Selection', 'CmdOrCtrl+Shift+H'),
         cmd('bookmark', 'Bookmark This File', 'CmdOrCtrl+D'),
@@ -646,15 +657,16 @@ function rebuildMenu() {
         cmd('panel-outline', 'Show Outline'),
         cmd('panel-files', 'Show Files'),
         cmd('panel-highlights', 'Show Highlights'),
+        cmd('panel-history', 'Show Version History', undefined, { id: 'panel-history-view' }),
         { type: 'separator' },
         cmd('split-toggle', 'Split View', 'CmdOrCtrl+\\'),
         cmd('split-link', 'Link Scrolling in Split View'),
         ...(isMac ? [] : [{ id: 'toggle-menubar', label: 'Always Show Menu Bar', type: 'checkbox', checked: s.showMenuBar, click: () => setSetting({ showMenuBar: !settings.get().showMenuBar }) }]),
         { type: 'separator' },
-        { label: 'Larger Text', accelerator: 'CmdOrCtrl+=', click: () => setSetting({ fontScale: settings.get().fontScale + 0.1 }) },
-        { label: 'Larger Text', accelerator: 'CmdOrCtrl+Plus', visible: false, acceleratorWorksWhenHidden: true, click: () => setSetting({ fontScale: settings.get().fontScale + 0.1 }) },
-        { label: 'Smaller Text', accelerator: 'CmdOrCtrl+-', click: () => setSetting({ fontScale: settings.get().fontScale - 0.1 }) },
-        { label: 'Reset Text Size', accelerator: 'CmdOrCtrl+0', click: () => setSetting({ fontScale: 1 }) },
+        { id: 'text-larger', label: 'Larger Text', accelerator: 'CmdOrCtrl+=', click: () => setSetting({ fontScale: settings.get().fontScale + 0.1 }) },
+        { id: 'text-larger-alt', label: 'Larger Text', accelerator: 'CmdOrCtrl+Plus', visible: false, acceleratorWorksWhenHidden: true, click: () => setSetting({ fontScale: settings.get().fontScale + 0.1 }) },
+        { id: 'text-smaller', label: 'Smaller Text', accelerator: 'CmdOrCtrl+-', click: () => setSetting({ fontScale: settings.get().fontScale - 0.1 }) },
+        { id: 'text-reset', label: 'Reset Text Size', accelerator: 'CmdOrCtrl+0', click: () => setSetting({ fontScale: 1 }) },
         { type: 'separator' },
         cmd('back', 'Back', isMac ? 'Cmd+[' : 'Alt+Left'),
         { role: 'togglefullscreen' },
@@ -685,6 +697,8 @@ function rebuildMenu() {
       submenu: [
         { label: 'Open Feature Showcase', click: () => openFile(SHOWCASE) },
         cmd('shortcuts', 'Keyboard Shortcuts', 'F1'),
+        cmd('customize-shortcuts', 'Customize Keyboard Shortcuts…'),
+        cmd('command-palette', 'Find a Command…', 'CmdOrCtrl+Shift+K'),
         { type: 'separator' },
         updateReady
           ? { id: 'restart-to-update', label: `Restart to Update (${updater.status.version})`, click: () => updater.installNow() }
@@ -698,7 +712,135 @@ function rebuildMenu() {
       ],
     },
   ];
+  applyShortcuts(template, s.shortcuts);
+  commandRegistry = collectCommands(template);
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+// ---------------------------------------------------------------- your own shortcuts & commands by name
+/** Menu items with these ids can't be given other shortcuts (they're duplicates or lists). */
+const FIXED_IDS = /(-alt|^template-)/;
+
+/** Replace default shortcuts with the ones you chose (by menu item id). Records each default. */
+function applyShortcuts(items, chosen) {
+  for (const item of items) {
+    if (item.submenu && Array.isArray(item.submenu)) applyShortcuts(item.submenu, chosen);
+    if (!item.id) continue;
+    item.defaultAccelerator = item.accelerator || '';
+    if (!FIXED_IDS.test(item.id) && Object.hasOwn(chosen, item.id)) item.accelerator = chosen[item.id] || undefined;
+  }
+}
+
+/** Every clickable menu command, keyed by its id (or its place in the menus). */
+function collectCommands(items, trail = [], out = new Map()) {
+  for (const item of items) {
+    if (item.type === 'separator' || item.role || item.visible === false) continue;
+    const label = String(item.label || '').replace(/&/g, '');
+    if (Array.isArray(item.submenu)) {
+      if (/^Open Recent/.test(label)) continue;
+      collectCommands(item.submenu, [...trail, label], out);
+      continue;
+    }
+    if (typeof item.click !== 'function') continue;
+    const key = item.id || [...trail, label].join('/').toLowerCase().replace(/[^a-z0-9/]+/g, '-');
+    if (out.has(key)) continue;
+    out.set(key, {
+      key, label, path: trail.join(' › '), accelerator: item.accelerator || '', defaultAccelerator: item.defaultAccelerator ?? item.accelerator ?? '',
+      enabled: item.enabled !== false, customizable: !!item.id && !FIXED_IDS.test(item.id), click: item.click,
+    });
+  }
+  return out;
+}
+
+/** Shortcuts written different ways ("Ctrl+K" and "CmdOrCtrl+K" on Windows) compare equal. */
+function sameShortcut(a, b) {
+  const norm = (acc) => {
+    if (!acc) return '';
+    const parts = acc.split('+');
+    let key = parts.pop();
+    if (key === '') { parts.pop(); key = '+'; }
+    const alias = { CommandOrControl: 'CmdOrCtrl', Control: 'Ctrl', Command: 'Cmd', Option: 'Alt', Return: 'Enter', Esc: 'Escape', Plus: '+' };
+    const mods = parts.map((m) => alias[m] || m).map((m) => (m === (isMac ? 'Cmd' : 'Ctrl') ? 'CmdOrCtrl' : m));
+    return [...new Set(mods)].sort().join('+') + '+' + (alias[key] || key).toUpperCase();
+  };
+  return !!a && !!b && norm(a) === norm(b);
+}
+
+function commandList() {
+  return [...commandRegistry.values()].map(({ click, ...rest }) => rest);
+}
+
+/** Set (or with accelerator null, reset) one command's shortcut. */
+function setShortcut(id, accelerator, { takeOver = false } = {}) {
+  const entry = commandRegistry.get(id);
+  if (!entry?.customizable) return { error: 'That command’s shortcut can’t be changed.' };
+  const chosen = { ...settings.get().shortcuts };
+  if (accelerator === null) delete chosen[id];
+  else if (accelerator === '') chosen[id] = '';
+  else {
+    const acc = cleanAccelerator(accelerator);
+    if (!acc) return { error: 'That key combination can’t be used. Use Ctrl, Alt or Shift with a letter, number or key, or a function key (F1–F24).' };
+    const clash = [...commandRegistry.values()].find((c) => c.key !== id && sameShortcut(c.accelerator, acc));
+    if (clash && !takeOver) return { conflict: { key: clash.key, label: clash.label, path: clash.path, customizable: clash.customizable } };
+    if (clash) {
+      if (!clash.customizable) return { error: `${acc} is used by ${clash.label}, which can’t be changed.` };
+      chosen[clash.key] = '';
+    }
+    chosen[id] = acc === entry.defaultAccelerator ? undefined : acc;
+    if (chosen[id] === undefined) delete chosen[id];
+  }
+  settings.update({ shortcuts: chosen });
+  rebuildMenu();
+  return { ok: true, commands: commandList() };
+}
+
+// ---------------------------------------------------------------- importing Word documents
+async function importDocx(state, given = null) {
+  let src = given;
+  if (!src) {
+    const res = await dialog.showOpenDialog(state.win, {
+      title: 'Import Word Document', properties: ['openFile'],
+      defaultPath: settings.get().recent[0] ? path.dirname(settings.get().recent[0]) : app.getPath('documents'),
+      filters: [{ name: 'Word Document', extensions: ['docx'] }],
+    });
+    if (res.canceled || !res.filePaths[0]) return { canceled: true };
+    src = res.filePaths[0];
+  }
+  try {
+    const st = await fs.promises.stat(src);
+    if (!st.isFile() || !/\.docx$/i.test(src)) return { error: 'That isn’t a Word document (.docx).' };
+    if (st.size > 100 * 1024 * 1024) return { error: 'That Word document is too large to import (over 100 MB).' };
+  } catch (err) { return { error: errorMessage(err, src) }; }
+  const base = path.basename(src).replace(/\.docx$/i, '');
+  const out = await dialog.showSaveDialog(state.win, {
+    title: 'Save the Markdown version as', defaultPath: path.join(path.dirname(src), `${base}.md`),
+    filters: [{ name: 'Markdown', extensions: ['md'] }], properties: ['showOverwriteConfirmation', 'createDirectory'],
+  });
+  if (out.canceled || !out.filePath) return { canceled: true };
+  let target = out.filePath;
+  if (!isMarkdownPath(target)) target += '.md';
+  try {
+    const { docxToMarkdown } = publish.exportTools(ROOT);
+    const prefix = safeName(base, 'x').replace(/\.x$/, '');
+    const conv = await docxToMarkdown(await fs.promises.readFile(src), { imagePrefix: prefix });
+    let md = conv.markdown;
+    if (conv.images.length) {
+      const dir = path.join(path.dirname(target), 'images');
+      await fs.promises.mkdir(dir, { recursive: true });
+      for (const img of conv.images) {
+        const name = freeName(dir, img.name);
+        await fs.promises.writeFile(path.join(dir, name), img.data, { flag: 'wx' });
+        if (name !== img.name) md = md.split(`(images/${img.name})`).join(`(images/${name})`);
+      }
+    }
+    if (fs.existsSync(target)) { await editing.backup(target); await editing.keepVersion(target, 'save'); }
+    await fs.promises.writeFile(target, encodeForSave(`${md}\n`, { eol: process.platform === 'win32' ? '\r\n' : '\n' }));
+    const doc = await loadDoc(target);
+    sendDoc(state, 'tab:open', doc);
+    return { ok: true, images: conv.images.length, warnings: conv.warnings.length };
+  } catch (err) {
+    return { error: `Couldn’t import that document: ${err?.message || err}` };
+  }
 }
 
 /** Right-click inside the page: spelling suggestions and clipboard actions in the editor, Copy elsewhere. */
@@ -1134,6 +1276,175 @@ function registerIpc() {
       return { doc: out };
     } catch (err) { return { error: errorMessage(err, p) }; }
   });
+  // ---- pictures pasted or dropped into the editor: saved next to a document you're allowed to edit
+  ipcMain.handle('image:save', async (e, req = {}) => {
+    const st = stateFor(e);
+    const p = req.path;
+    if (!st || !isStr(p, 4096) || !isOpenablePath(p)) return { ok: false, reason: 'invalid' };
+    if (isLockedPath(p)) return { ok: false, reason: 'locked' };
+    if (!editing.isGranted(st, p)) return { ok: false, reason: 'not-allowed' };
+    if (!(req.data instanceof Uint8Array) && !(req.data instanceof ArrayBuffer)) return { ok: false, reason: 'invalid' };
+    try {
+      return await saveImage(p, { name: isStr(req.name, 260) ? req.name : '', data: Buffer.from(req.data) });
+    } catch (err) { return { ok: false, reason: 'error', message: errorMessage(err, p) }; }
+  });
+
+  // ---- Word documents → Markdown
+  ipcMain.handle('docx:import', (e, given) => {
+    const st = stateFor(e);
+    if (!st) return { error: 'No window' };
+    return importDocx(st, isStr(given, 4096) && /\.docx$/i.test(given) ? given : null);
+  });
+
+  // ---- version history: only for documents open in this window
+  const openHere = (st, p) => !!st && isStr(p, 4096) && isOpenablePath(p) && st.tabs.some((t) => lockId(t.path) === lockId(p));
+  ipcMain.handle('history:list', async (e, p) => {
+    const st = stateFor(e);
+    if (!openHere(st, p)) return [];
+    return history.list(p);
+  });
+  ipcMain.handle('history:read', async (e, p, id) => {
+    const st = stateFor(e);
+    if (!openHere(st, p) || !isStr(id, 40)) return { error: 'invalid' };
+    try {
+      const bytes = await history.read(p, id);
+      if (isLockedPath(p)) {
+        const key = keyFor(p);
+        if (!key) return { error: 'Unlock the document to see its earlier versions.' };
+        return { content: locked.unlockWithKey(bytes.toString('utf8'), key).content.replace(/\r\n/g, '\n') };
+      }
+      return { content: bytes.toString('utf8').replace(/^\ufeff/, '').replace(/\r\n/g, '\n') };
+    } catch (err) { return { error: String(err?.message || err) }; }
+  });
+  ipcMain.handle('history:restore', async (e, p, id) => {
+    const st = stateFor(e);
+    if (!openHere(st, p) || !isStr(id, 40)) return { ok: false, reason: 'invalid' };
+    let bytes;
+    try { bytes = await history.read(p, id); } catch (err) { return { ok: false, reason: 'missing', message: String(err?.message || err) }; }
+    const versions = await history.list(p);
+    const when = new Date(versions.find((v) => v.id === id)?.time || Date.now()).toLocaleString();
+    if (editing.isGranted(st, p)) {
+      const { response } = await dialog.showMessageBox(st.win, {
+        type: 'question', title: 'Restore this version?', noLink: true, buttons: ['Restore', 'Cancel'], defaultId: 0, cancelId: 1,
+        message: `Restore “${path.basename(p)}” to the version from ${when}?`,
+        detail: 'The current version is kept in Version History first, so you can come back to it.',
+      });
+      if (response !== 0) return { ok: false, reason: 'cancelled' };
+    } else {
+      const grant = await editing.requestEdit(st, p);
+      if (!grant.ok) return { ok: false, reason: grant.reason };
+    }
+    if (!(await isWritable(p))) return { ok: false, reason: 'readonly' };
+    await editing.backup(p);
+    await editing.keepVersion(p, 'restore');
+    await fs.promises.writeFile(p, bytes);
+    return { ok: true };
+  });
+
+  // ---- find & replace across the open folder: preview first, ask, back up, keep History, undo
+  const cleanReplaceOpts = (o = {}) => ({ regex: o.regex === true, matchCase: o.matchCase === true, wholeWord: o.wholeWord === true });
+  ipcMain.handle('replace:preview', async (e, req = {}) => {
+    const st = stateFor(e);
+    if (!st?.folder) return { ok: false, error: 'Open a folder first.' };
+    if (typeof req.find !== 'string' || req.find.length > 1000 || typeof req.replacement !== 'string' || req.replacement.length > 10000) return { ok: false, error: 'invalid' };
+    const opts = cleanReplaceOpts(req.opts);
+    const files = st.folder.scan.files.filter((f) => !isLockedPath(f)).map((f) => ({ path: f, rel: path.relative(st.folder.root, f) }));
+    const res = await runReplaceJob({ mode: 'preview', files, find: req.find, replacement: req.replacement, opts });
+    st.replacePlan = res.ok ? { find: req.find, replacement: req.replacement, opts, root: st.folder.root, files: new Map(res.results.map((r) => [r.path, r.mtime])) } : null;
+    return res;
+  });
+  ipcMain.handle('replace:apply', async (e, req = {}) => {
+    const st = stateFor(e);
+    const plan = st?.replacePlan;
+    if (!plan) return { ok: false, error: 'Preview the changes first.' };
+    const chosen = {};
+    let count = 0;
+    for (const [p, list] of Object.entries(req.chosen && typeof req.chosen === 'object' ? req.chosen : {})) {
+      if (!plan.files.has(p) || !Array.isArray(list)) continue;
+      const ids = [...new Set(list.filter((i) => Number.isInteger(i) && i >= 0 && i < 100000))];
+      if (ids.length) { chosen[p] = ids; count += ids.length; }
+    }
+    const fileCount = Object.keys(chosen).length;
+    if (!count) return { ok: false, error: 'Nothing is ticked.' };
+    const { response } = await dialog.showMessageBox(st.win, {
+      type: 'question', title: 'Replace in folder?', noLink: true, buttons: ['Replace', 'Cancel'], defaultId: 0, cancelId: 1,
+      message: `Replace ${count} match${count === 1 ? '' : 'es'} in ${fileCount} file${fileCount === 1 ? '' : 's'}?`,
+      detail: `In “${path.basename(plan.root)}”. Each file is backed up and its current version kept in Version History first, and Undo Replace puts them all back.`,
+    });
+    if (response !== 0) return { ok: false, canceled: true };
+    const res = await runReplaceJob({ mode: 'apply', chosen, find: plan.find, replacement: plan.replacement, opts: plan.opts });
+    if (!res.ok) return res;
+    const batch = [];
+    const skipped = [];
+    let replaced = 0;
+    for (const f of res.files) {
+      if (f.error) { skipped.push({ path: f.path, reason: f.error }); continue; }
+      if (Math.abs(f.mtime - plan.files.get(f.path)) > 1) { skipped.push({ path: f.path, reason: 'changed' }); continue; }
+      if (!(await isWritable(f.path))) { skipped.push({ path: f.path, reason: 'readonly' }); continue; }
+      try {
+        const before = await fs.promises.readFile(f.path);
+        await editing.backup(f.path);
+        await history.add(f.path, before, 'replace');
+        await fs.promises.writeFile(f.path, encodeForSave(f.content, { eol: f.eol, bom: f.bom }));
+        batch.push({ path: f.path, before, after: (await fs.promises.stat(f.path)).mtimeMs });
+        replaced += f.count;
+      } catch { skipped.push({ path: f.path, reason: 'error' }); }
+    }
+    st.replacePlan = null;
+    st.replaceUndo = batch.length ? { batch, root: plan.root } : null;
+    return { ok: true, replaced, files: batch.length, skipped };
+  });
+  ipcMain.handle('replace:undo', async (e) => {
+    const st = stateFor(e);
+    const undo = st?.replaceUndo;
+    if (!undo) return { ok: false, error: 'There’s nothing to undo.' };
+    const { response } = await dialog.showMessageBox(st.win, {
+      type: 'question', title: 'Undo replace?', noLink: true, buttons: ['Undo Replace', 'Cancel'], defaultId: 0, cancelId: 1,
+      message: `Put back the ${undo.batch.length} file${undo.batch.length === 1 ? '' : 's'} changed by the last Replace?`,
+      detail: 'Files changed again since then are left alone (their earlier versions are still in Version History).',
+    });
+    if (response !== 0) return { ok: false, canceled: true };
+    let restored = 0;
+    const skipped = [];
+    for (const item of undo.batch) {
+      try {
+        const now = await fs.promises.stat(item.path);
+        if (Math.abs(now.mtimeMs - item.after) > 1) { skipped.push({ path: item.path, reason: 'changed' }); continue; }
+        await history.add(item.path, await fs.promises.readFile(item.path), 'restore');
+        await fs.promises.writeFile(item.path, item.before);
+        restored++;
+      } catch { skipped.push({ path: item.path, reason: 'error' }); }
+    }
+    st.replaceUndo = null;
+    return { ok: true, restored, skipped };
+  });
+
+  // ---- commands by name (Quick Open ">") and your own shortcuts
+  ipcMain.handle('commands:list', () => commandList());
+  ipcMain.handle('commands:run', (_e, key) => {
+    const entry = isStr(key, 200) ? commandRegistry.get(key) : null;
+    if (!entry || !entry.enabled) return false;
+    entry.click();
+    return true;
+  });
+  ipcMain.handle('shortcuts:set', (_e, id, accelerator, opts = {}) => {
+    if (!isStr(id, 48) || !(accelerator === null || typeof accelerator === 'string')) return { error: 'invalid' };
+    return setShortcut(id, accelerator, { takeOver: opts?.takeOver === true });
+  });
+  // While you press keys for a new shortcut, the menus mustn't act on them.
+  ipcMain.handle('shortcuts:recording', (e, on) => { e.sender.setIgnoreMenuShortcuts(on === true); });
+  ipcMain.handle('shortcuts:reset-all', async (e) => {
+    const st = stateFor(e);
+    const { response } = await dialog.showMessageBox(st?.win, {
+      type: 'question', title: 'Reset shortcuts?', noLink: true, buttons: ['Reset All', 'Cancel'], defaultId: 0, cancelId: 1,
+      message: 'Put every keyboard shortcut back to how it came?',
+    });
+    if (response !== 0) return null;
+    settings.update({ shortcuts: {} });
+    rebuildMenu();
+    return commandList();
+  });
+
   ipcMain.handle('grants:revoke', (_e, kind, value) => (isStr(value, 4096) ? editing.revokeGrant(kind, value) : editing.listGrants()));
   ipcMain.handle('backups:open', () => openBackups());
 }
@@ -1149,7 +1460,8 @@ async function openBackups() {
 app.whenReady().then(() => {
   settings = new Settings(app.getPath('userData'));
   updater = new Updater(onUpdateStatus);
-  editing = new Editing({ settings, dialog, backupDir: backupDir(), defaultDir: app.getPath('documents'), sealLocked });
+  history = new HistoryStore(path.join(app.getPath('userData'), 'history'));
+  editing = new Editing({ settings, dialog, backupDir: backupDir(), defaultDir: app.getPath('documents'), sealLocked, history });
   annotations = new AnnotationStore(app.getPath('userData'));
   // Documents never need camera, mic, notifications, etc.; only clipboard writes for "Copy".
   session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));

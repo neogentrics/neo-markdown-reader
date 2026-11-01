@@ -1,7 +1,7 @@
 {
   "name": "neo-markdown-reader",
   "productName": "Neo Markdown Reader",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "A beautiful, distraction-free Markdown reader for Windows, macOS and Linux.",
   "author": "Neo Gentrics <author@neogentrics.com>",
   "license": "SEE LICENSE IN LICENSE",
@@ -16,7 +16,7 @@
     "dist:linux": "npm run build:renderer && electron-builder --linux AppImage deb --publish never",
     "dev": "node scripts/build-renderer.mjs && electron . samples/showcase.md",
     "icons": "node scripts/make-icons.mjs",
-    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs && node test/e2e/power.e2e.cjs && node test/e2e/a11y.e2e.cjs",
+    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs && node test/e2e/power.e2e.cjs && node test/e2e/write.e2e.cjs && node test/e2e/a11y.e2e.cjs",
     "build:preview": "dotnet build preview/NeoMarkdownPreview -c Release -o preview-dist && powershell -NoProfile -ExecutionPolicy Bypass -File preview/shim/build.ps1 -Out preview-dist",
     "test:preview": "dotnet test preview/NeoMarkdownPreview.Tests"
   },
@@ -134,6 +134,7 @@
     "@codemirror/search": "^6.7.2",
     "@codemirror/state": "^6.7.6",
     "@codemirror/view": "^6.43.15",
+    "@joplin/turndown-plugin-gfm": "^1.0.68",
     "axe-core": "^4.14.0",
     "codemirror": "^6.0.2",
     "diff": "^9.0.0",
@@ -147,6 +148,7 @@
     "js-yaml": "^5.5.0",
     "jsdom": "^30.1.3",
     "katex": "^0.19.1",
+    "mammoth": "^1.13.0",
     "markdown-it": "^15.0.3",
     "markdown-it-anchor": "^10.0.0",
     "markdown-it-deflist": "^4.0.0",
@@ -162,7 +164,8 @@
     "mermaid": "^12.2.0",
     "pdf-lib": "^1.17.1",
     "playwright-core": "^1.64.1",
-    "pyodide": "^314.0.7"
+    "pyodide": "^314.0.7",
+    "turndown": "^7.2.4"
   },
   "homepage": "https://github.com/neogentrics/neo-markdown-reader",
   "repository": {
