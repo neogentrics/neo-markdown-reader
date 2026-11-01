@@ -243,6 +243,11 @@ with your own accent colour and in exports.
   - Text meets WCAG AA contrast.
   - Tabs, the sidebar and Quick Open work from the keyboard and are announced properly by screen readers.
   - Focus is always visible, and animations stop when Windows' *Animation effects* setting is off.
+
+<img src="docs/screenshots/high-contrast.png" width="860" alt="Neo Markdown Reader in Windows high-contrast mode, using the system colours, with the keyboard focus outlined on the tab bar and sidebar">
+
+*In Windows high-contrast mode the app uses the system colours, and the keyboard focus is always outlined.*
+
 - **More ways to install:**
   - A Linux `.deb` package.
   - A Mac build for Intel Macs as well as Apple silicon.
@@ -299,7 +304,18 @@ On macOS use `Cmd` instead of `Ctrl`.
   (Linux `.deb`, Intel Mac, `winget`), and builds that are signed as soon as a code-signing
   certificate is added.
 
-Next: signed installers (once a code-signing certificate is bought).
+Coming next, before the next major version:
+
+- **v2.2, Write faster:** paste and drop images, a table editor (with paste from Excel), paste from Word and
+  web pages as clean Markdown, version history with one-click restore, find & replace across a folder, and
+  running any command from Quick Open.
+- **v2.3, Connected notes:** `[[wiki links]]`, backlinks and a link map, tags, a Tasks panel with daily
+  notes, a link checker, and (optionally) asking AI questions about a folder.
+- **v2.4, Read, listen & share:** read aloud, focus mode, folding sections, CSV / JSON / Jupyter notebook
+  files, charts from data, EPUB and PowerPoint export, and AI writing help in the editor.
+- **v3.0 ideas:** add-ons, the app in your language, sync between your computers, Git built in.
+
+Signed installers follow as soon as a code-signing certificate is bought.
 
 **[See the full roadmap →](ROADMAP.md)**
 

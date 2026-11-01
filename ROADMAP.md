@@ -2,7 +2,7 @@
 title: Neo Markdown Reader Roadmap
 subtitle: From reader to Markdown workspace
 author: Neo Gentrics
-date: 2026-10-31
+date: 2026-11-01
 tags: [roadmap, planning]
 ---
 
@@ -26,7 +26,11 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v1.4](#v14--publish-beautifully) | Publish beautifully | ✅ Released ([1.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.4.0)) |
 | [v2.0](#v20--power-features) | Power features | ✅ Released ([2.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.0.0)) |
 | [v2.1](#v21--at-home-on-windows) | At home on Windows | ✅ Released ([2.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.1.0)) |
-| [Ongoing](#ongoing--polish--distribution) | Polish & distribution | ⏭️ Next |
+| [v2.2](#v22--write-faster) | Write faster | ⏭️ Next |
+| [v2.3](#v23--connected-notes) | Connected notes | Planned |
+| [v2.4](#v24--read-listen--share) | Read, listen & share | Planned |
+| [v3.0](#v30--the-next-major-release) | The next major release | Ideas — to be decided |
+| [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
 
 ## v1.0 — The reader
 
@@ -115,11 +119,65 @@ updates itself from here on.
 | ✅ More install options | S | A Linux `.deb` package, a Mac build for Intel Macs, and a generator for the `winget` manifests (`winget install NeoGentrics.NeoMarkdownReader` once they're accepted). |
 | ✅ Ready for code signing | S | The release builds sign the Windows installer automatically as soon as a code-signing certificate is added to the repository's secrets (buying the certificate is the only step left). |
 
+## v2.2 — Write faster
+
+⏭️ **Next.** Make writing and editing quicker, and make every change easy to undo.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| 🛡️ Paste & drop images | M | Paste a screenshot or drag a picture into the editor: it's saved next to the document (in an `images` folder) and linked for you. Nothing outside the document's folder is touched. |
+| Table editor & paste from spreadsheets | M | Edit a table as a grid (add, move or delete rows and columns, set alignment) and paste cells from Excel, Google Sheets or Word to get a Markdown table. |
+| Bring content in | M | Paste from a web page or Word as clean Markdown (headings, lists, links, bold), and open a Word `.docx` as a new Markdown document, with its images. |
+| 🛡️ Version history | M | Every save keeps the earlier version. A *History* panel lists them by time; compare any version with the current one (using Compare) and restore it with one click. Stored by the app, never in your folder. |
+| 🛡️ Find & replace across a folder | M | Replace text, or a pattern, in many files at once: preview every change, untick the ones you don't want, and undo the whole batch. Only files you've allowed editing are changed, and each is backed up first. |
+| Commands from the keyboard & your own shortcuts | S | Type `>` in Quick Open (`Ctrl+K`) to run any menu command by name, and change any keyboard shortcut in Settings. |
+
+## v2.3 — Connected notes
+
+Turn a folder of documents into a small knowledge base.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| Wiki links | M | Type `[[` to link another document by name (or `[[Name#Heading]]`), with suggestions as you type. Renaming a file offers to update the links to it. Exports turn them into normal links. |
+| Backlinks & link map | M | A *Backlinks* panel shows every document that links to this one, with the sentence around each link; a map view draws how the folder's documents connect. |
+| Tags | S | Tags from the front matter and `#tags` in the text, with a *Tags* panel that filters the folder. |
+| 🛡️ Tasks across a folder & daily notes | M | A *Tasks* panel gathers every `- [ ]` checkbox in the folder, with due dates, sorted by date; ticking one off updates its file (with permission). One click creates today's note from a template. |
+| Link checker | S | Finds broken links, missing images and links to headings that no longer exist, across the whole folder. |
+| Ask your folder (AI, optional) | M | Ask a question and get an answer drawn from the documents you choose, with links to the passages it used. Uses your own key; locked documents are never sent. |
+
+## v2.4 — Read, listen & share
+
+More ways to take in a document, and more ways to hand it on.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| Read aloud | M | Reads the document with your computer's built-in voices, highlighting each sentence as it goes; pause, change the speed, skip by heading. Works offline. |
+| Comfortable reading | S | Focus mode (dims everything but the paragraph you're reading), a reading progress bar, sections that fold under their headings, and hover previews of footnotes and of links to other documents. |
+| More file types | M | Open CSV and TSV files as sortable tables, JSON and YAML formatted, and Jupyter notebooks (`.ipynb`) with their outputs, read-only. |
+| Charts from data | M | A `chart` code block, or a table, becomes a bar, line or pie chart in the theme's colours; PDF and Word exports include it. |
+| eBooks & slide decks | M | Export an EPUB for e-readers, and presentations as PDF or PowerPoint (`.pptx`). |
+| AI writing help (optional) | M | Proofread, rewrite, shorten or translate a selection in the editor; the suggestion appears as a change you accept or reject. |
+
+## v3.0 — The next major release
+
+💡 **Ideas — to be decided** (see [open decision 8](#open-decisions)). Bigger changes, each worth a release of its own.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| 🛡️ Add-ons | L | Install add-ons for new code-block types, themes and export formats. Each add-on says what it can do, and you approve it before it runs. |
+| The app in your language | L | Menus and dialogs translated (Spanish, French and German first), and right-to-left documents (Arabic, Hebrew). |
+| Sync between your computers | M | Highlights, notes, bookmarks, history and settings kept in step through a folder you already sync (OneDrive, Dropbox, iCloud). No account needed. |
+| Git built in | M | Changed files marked in the Files panel, compare with the last commit, and commit from the app. |
+| Shared review | L | Comments that other people can see and answer. It needs a sharing service, so it's an open question whether it's worth it. |
+
 ## Ongoing — Polish & distribution
 
 | Feature | Size | Details |
 |---|:-:|---|
-| Code signing | S | Removes the *Windows protected your PC* warning. Needs a paid code-signing certificate; 2.1 makes the builds ready to use one. |
+| Code signing (Windows) | S | Removes the *Windows protected your PC* warning. Needs a paid code-signing certificate; 2.1 makes the builds ready to use one. |
+| Signed & notarized Mac app | S | Removes macOS's *cannot be opened because the developer cannot be verified* warning. Needs an Apple Developer membership (yearly fee). |
+| Store listings | S | `winget` (submitted after each release), the Microsoft Store, and Flathub for Linux. |
+| Keeping dependencies up to date | S | Regular updates and security fixes, starting with the open Dependabot alert. |
 
 ## Open decisions
 
@@ -127,3 +185,7 @@ updates itself from here on.
 2. **Menu bar visible by default?** ✅ *Decided:* yes, with an option to auto-hide (shipped in 1.1.0).
 3. **Which languages may *Run* execute?** ✅ *Decided:* JavaScript and Python only (shipped in 2.0.0). Shell stays off.
 4. **Password lock: locked copy or replace the original?** ✅ *Decided:* a locked copy by default, with a checkbox to move the original to the Recycle Bin (shipped in 2.0.0).
+5. **Where should pasted images go?** *Proposed:* an `images` folder next to the document, changeable per folder.
+6. **Wiki links aren't standard Markdown.** Keep them as `[[Name]]` in the file (the same as Obsidian), or write standard links? *Proposed:* `[[Name]]` by default, with a setting to write standard Markdown links instead.
+7. **How much version history to keep?** *Proposed:* every save for 30 days, then one a day, up to 1 GB in total, adjustable.
+8. **What should 3.0 focus on?** *Proposed:* add-ons and the app in your language first, then sync; shared review only if it's needed.
