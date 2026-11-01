@@ -25,7 +25,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v1.3](#v13--compare--organize) | Compare & organize | ✅ Released ([1.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.3.0)) |
 | [v1.4](#v14--publish-beautifully) | Publish beautifully | ✅ Released ([1.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.4.0)) |
 | [v2.0](#v20--power-features) | Power features | ✅ Released ([2.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.0.0)) |
-| [Later](#later) | Explorer preview | ⏭️ Next |
+| [v2.1](#v21--at-home-on-windows) | At home on Windows | 🚧 In progress |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Planned |
 
 ## v1.0 — The reader
@@ -104,19 +104,22 @@ updates itself from here on.
 > Markdown has no built-in password feature, so locking is done with an app-specific encrypted file.
 > **A forgotten password cannot be recovered** — that is what makes the lock real.
 
-## Later
+## v2.1 — At home on Windows
+
+🚧 **In progress.**
 
 | Feature | Size | Details |
 |---|:-:|---|
-| Preview in File Explorer | L | See a formatted preview of a `.md` file in Explorer's Preview pane. Moved out of 2.0: it needs a Windows-only preview-handler add-on that the automated builds can't test yet. |
+| Preview in File Explorer | L | Select a `.md` file in Explorer and see it formatted in the Preview pane, without opening the app. A small Windows add-on installed with the app (not the portable version), built and tested on Windows in the automated builds. Moved here from 2.0. |
+| Accessibility pass | S | Screen-reader labels throughout, Windows high-contrast support, and full keyboard navigation of tabs, the sidebar and dialogs — checked automatically in the tests. |
+| More install options | S | A Linux `.deb` package, a Mac build for Intel Macs, and a ready-to-submit `winget` manifest (`winget install NeoGentrics.NeoMarkdownReader`). |
+| Ready for code signing | S | The release builds sign the Windows installer automatically as soon as a code-signing certificate is added to the repository's secrets (buying the certificate is the only step left). |
 
 ## Ongoing — Polish & distribution
 
 | Feature | Size | Details |
 |---|:-:|---|
-| Code signing | S | Removes the *Windows protected your PC* warning. Needs a paid code-signing certificate. |
-| More install options | S | `winget install NeoMarkdownReader`, an Intel/universal Mac build, a Linux `.deb`. |
-| Accessibility pass | S | Screen-reader labels, Windows high-contrast support, full keyboard navigation. |
+| Code signing | S | Removes the *Windows protected your PC* warning. Needs a paid code-signing certificate; 2.1 makes the builds ready to use one. |
 
 ## Open decisions
 

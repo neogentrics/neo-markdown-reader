@@ -261,7 +261,8 @@ On macOS use `Cmd` instead of `Ctrl`.
 - **v2.0** added running code blocks in a sandbox, password-locked documents, optional AI
   assist with Claude, and four more colour themes.
 
-Next: a formatted preview in Windows File Explorer, signed installers and more ways to install.
+Now in progress is **v2.1, At home on Windows**: a formatted preview in File Explorer, an accessibility pass, more ways
+to install (Linux `.deb`, Intel Mac, `winget`), and builds ready for code signing.
 
 **[See the full roadmap →](ROADMAP.md)**
 
