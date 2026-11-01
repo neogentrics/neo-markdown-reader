@@ -1,12 +1,12 @@
-# Diagnoses how Windows activates the preview handler (run by CI). Registers the built handler
-# for the current user exactly as build/installer.nsh does, then tries to create it:
-#   - in-process and through the preview host (prevhost.exe), the way Explorer does,
-#   - from this (elevated) process and from a de-elevated one (Explorer is never elevated).
+# Diagnoses how Windows activates the preview handler (run by CI). Writes several variants of the
+# per-user registration and, for each, tries to create the handler in a fresh process: elevated and
+# de-elevated (Explorer is never elevated), in-process and through the preview host (prevhost.exe).
 param([string]$Dll, [string]$Out, [switch]$Child)
 $ErrorActionPreference = 'Stop'
 $clsid = '{24f83a0a-a913-4d0d-aef4-c0b0fc7b1248}'
 
-Add-Type -TypeDefinition @'
+if ($Child) {
+  Add-Type -TypeDefinition @'
 using System; using System.Runtime.InteropServices;
 public static class NmrComTest {
   [DllImport("ole32.dll")] static extern int CoCreateInstance(ref Guid clsid, IntPtr outer, uint ctx, ref Guid iid, out IntPtr ppv);
@@ -18,92 +18,64 @@ public static class NmrComTest {
     int qi = Marshal.QueryInterface(p, ref iph, out q);
     if (qi == 0) Marshal.Release(q);
     Marshal.Release(p);
-    return qi == 0 ? "OK (IPreviewHandler available)" : "CREATED, but no IPreviewHandler: 0x" + qi.ToString("X8");
+    return qi == 0 ? "OK" : "no IPreviewHandler 0x" + qi.ToString("X8");
   }
 }
 '@
-
-function Report {
   $id = [Security.Principal.WindowsIdentity]::GetCurrent()
   $elevated = (New-Object Security.Principal.WindowsPrincipal $id).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-  $lines = @("elevated=$elevated")
-  $lines += "in-process (CLSCTX_INPROC_SERVER): " + [NmrComTest]::Try($clsid, 1)
-  $lines += "preview host (CLSCTX_LOCAL_SERVER): " + [NmrComTest]::Try($clsid, 4)
-  return $lines
+  $who = if ($elevated) { 'elevated   ' } else { 'de-elevated' }
+  "$who in-process: $([NmrComTest]::Try($clsid, 1)); preview host: $([NmrComTest]::Try($clsid, 4))" | Set-Content -Path $Out -Encoding UTF8
+  exit 0
 }
 
-if ($Child) { Report | Set-Content -Path $Out -Encoding UTF8; exit 0 }
-
-# Log every assembly bind the CLR makes, so a failure names the file it could not find.
-$fusion = Join-Path $env:TEMP 'nmr-fusion'
-Remove-Item $fusion -Recurse -Force -ErrorAction SilentlyContinue
-New-Item -ItemType Directory $fusion | Out-Null
-$fk = 'HKLM:\SOFTWARE\Microsoft\Fusion'
-New-ItemProperty $fk -Name EnableLog -Value 1 -PropertyType DWord -Force | Out-Null
-New-ItemProperty $fk -Name ForceLog -Value 1 -PropertyType DWord -Force | Out-Null
-New-ItemProperty $fk -Name LogFailures -Value 1 -PropertyType DWord -Force | Out-Null
-New-ItemProperty $fk -Name LogPath -Value ($fusion + '\') -PropertyType String -Force | Out-Null
-
-# Register for the current user, mirroring build/installer.nsh.
 $dllPath = (Resolve-Path $Dll).Path
-Write-Host "Assembly: $([Reflection.AssemblyName]::GetAssemblyName($dllPath).FullName)"
-Write-Host "Files beside it: $((Get-ChildItem (Split-Path $dllPath) -Filter *.dll | ForEach-Object Name) -join ', ')"
 $codebase = 'file:///' + ($dllPath -replace '\\', '/')
 $asm = 'NeoMarkdownPreview, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null'
+$class = 'Neo.MarkdownPreview.PreviewHandler'
 $key = "HKCU:\Software\Classes\CLSID\$clsid"
-New-Item -Path "$key\InprocServer32\2.1.0.0" -Force | Out-Null
-Set-ItemProperty $key '(default)' 'Neo Markdown Reader preview'
-Set-ItemProperty $key 'DisplayName' 'Neo Markdown Reader preview'
-Set-ItemProperty $key 'AppID' '{6d2b5079-2f0b-48dd-ab7f-97cec514d30b}'
-New-ItemProperty $key -Name 'DisableLowILProcessIsolation' -Value 1 -PropertyType DWord -Force | Out-Null
-foreach ($k in @("$key\InprocServer32", "$key\InprocServer32\2.1.0.0")) {
-  if ($k -eq "$key\InprocServer32") { Set-ItemProperty $k '(default)' 'mscoree.dll'; Set-ItemProperty $k 'ThreadingModel' 'Apartment' }
-  Set-ItemProperty $k 'Class' 'Neo.MarkdownPreview.PreviewHandler'
-  Set-ItemProperty $k 'Assembly' $asm
-  Set-ItemProperty $k 'RuntimeVersion' 'v4.0.30319'
-  Set-ItemProperty $k 'CodeBase' $codebase
-}
-Write-Host "Registered $codebase"
-Write-Host "UAC EnableLUA = $((Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System').EnableLUA)"
-
-Write-Host '--- this process'
-Report | ForEach-Object { Write-Host $_ }
-
-Write-Host '--- de-elevated process (like Explorer)'
-$outFile = Join-Path $env:TEMP 'nmr-com-diag.txt'
-Remove-Item $outFile -ErrorAction SilentlyContinue
 $self = $PSCommandPath
-& runas.exe /trustlevel:0x20000 "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$self`" -Child -Out `"$outFile`""
-for ($i = 0; $i -lt 60 -and -not (Test-Path $outFile); $i++) { Start-Sleep -Milliseconds 500 }
-if (Test-Path $outFile) { Get-Content $outFile | ForEach-Object { Write-Host $_ } } else { Write-Host 'de-elevated run produced no output' }
 
-Write-Host '--- the registration as COM sees it (HKEY_CLASSES_ROOT)'
-$ErrorActionPreference = 'Continue'
-@(Get-Item "Registry::HKEY_CLASSES_ROOT\CLSID\$clsid") + @(Get-ChildItem "Registry::HKEY_CLASSES_ROOT\CLSID\$clsid" -Recurse) | ForEach-Object {
-  $k = $_; $k.Property | ForEach-Object { Write-Host "    [$($k.PSChildName)] $_ = $($k.GetValue($_))" }
+function Register([hashtable]$o) {
+  Remove-Item $key -Recurse -Force -ErrorAction SilentlyContinue
+  New-Item -Path "$key\InprocServer32\2.1.0.0" -Force | Out-Null
+  New-Item -Path "$key\Implemented Categories\{62C8FE65-4EBB-45E7-B440-6E39B2CDBF29}" -Force | Out-Null
+  Set-ItemProperty $key '(default)' $(if ($o.RootDefault) { $o.RootDefault } else { 'Neo Markdown Reader preview' })
+  if ($o.AppId) {
+    Set-ItemProperty $key 'AppID' '{6d2b5079-2f0b-48dd-ab7f-97cec514d30b}'
+    New-ItemProperty $key -Name 'DisableLowILProcessIsolation' -Value 1 -PropertyType DWord -Force | Out-Null
+  }
+  if ($o.ProgId) { New-Item -Path "$key\ProgId" -Force | Out-Null; Set-ItemProperty "$key\ProgId" '(default)' 'NeoMarkdownReader.Preview' }
+  Set-ItemProperty "$key\InprocServer32" '(default)' 'mscoree.dll'
+  Set-ItemProperty "$key\InprocServer32" 'ThreadingModel' $o.Threading
+  foreach ($k in @("$key\InprocServer32", "$key\InprocServer32\2.1.0.0")) {
+    Set-ItemProperty $k 'Class' $class
+    Set-ItemProperty $k 'Assembly' $asm
+    Set-ItemProperty $k 'RuntimeVersion' 'v4.0.30319'
+    Set-ItemProperty $k 'CodeBase' $codebase
+  }
 }
 
-Write-Host '--- assembly binding log (Fusion)'
-Get-ChildItem $fusion -Recurse -Filter *.htm | ForEach-Object {
-  $t = (Get-Content $_.FullName -Raw) -replace '<[^>]+>', ''
-  if ($t -match 'NeoMarkdownPreview|Markdig') { Write-Host "== $($_.FullName)"; Write-Host $t }
+function Probe([string]$name) {
+  Write-Host "--- $name"
+  $f1 = Join-Path $env:TEMP 'nmr-diag-elev.txt'; $f2 = Join-Path $env:TEMP 'nmr-diag-user.txt'
+  Remove-Item $f1, $f2 -ErrorAction SilentlyContinue
+  Start-Process -Wait -WindowStyle Hidden powershell.exe -ArgumentList '-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-File', "`"$self`"", '-Child', '-Out', "`"$f1`""
+  & runas.exe /trustlevel:0x20000 "powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File `"$self`" -Child -Out `"$f2`"" | Out-Null
+  for ($i = 0; $i -lt 60 -and -not (Test-Path $f2); $i++) { Start-Sleep -Milliseconds 500 }
+  foreach ($f in @($f1, $f2)) { if (Test-Path $f) { Write-Host "    $(Get-Content $f)" } else { Write-Host '    (no result)' } }
 }
 
-Write-Host '--- what regasm /codebase would register'
+Write-Host "Assembly: $([Reflection.AssemblyName]::GetAssemblyName($dllPath).FullName)"
+Register @{ Threading = 'Apartment'; AppId = $true };                                  Probe 'A. as the installer writes it'
+Register @{ Threading = 'Apartment' };                                                 Probe 'B. without the preview-host AppID'
+Register @{ Threading = 'Both'; AppId = $true };                                       Probe 'C. ThreadingModel Both'
+Register @{ Threading = 'Apartment'; AppId = $true; ProgId = $true };                  Probe 'D. with a ProgId'
+Register @{ Threading = 'Apartment'; AppId = $true; RootDefault = $class };            Probe 'E. class name as the key default'
+Register @{ Threading = 'Both'; ProgId = $true; RootDefault = $class };                Probe 'F. exactly like regasm, per user'
+Remove-Item $key -Recurse -Force -ErrorAction SilentlyContinue
+
 $regasm = Join-Path ([Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory()) 'RegAsm.exe'
-$regFile = Join-Path $env:TEMP 'nmr-regasm.reg'
-& $regasm /nologo /codebase $dllPath /regfile:$regFile | Out-Null
-if (Test-Path $regFile) { Get-Content $regFile | Select-String -Pattern ([regex]::Escape($clsid.Trim('{}'))) -Context 0,12 | ForEach-Object { Write-Host $_ } }
-
-Write-Host '--- registered machine-wide by regasm /codebase instead'
-Remove-Item "HKCU:\Software\Classes\CLSID\$clsid" -Recurse -Force
-& $regasm /nologo /codebase $dllPath | ForEach-Object { Write-Host $_ }
-Report | ForEach-Object { Write-Host $_ }
-& $regasm /nologo /unregister $dllPath | Out-Null
-
-Write-Host '--- assembly binding log after the machine-wide attempt'
-Get-ChildItem $fusion -Recurse -Filter *.htm | Sort-Object LastWriteTime | Select-Object -Last 4 | ForEach-Object {
-  $t = (Get-Content $_.FullName -Raw) -replace '<[^>]+>', ''
-  Write-Host "== $($_.FullName)"; Write-Host $t
-}
-Remove-ItemProperty $fk -Name EnableLog, ForceLog, LogFailures, LogPath -ErrorAction SilentlyContinue
+& $regasm /nologo /codebase $dllPath 2>&1 | Out-Null
+Probe 'G. regasm /codebase, machine-wide'
+& $regasm /nologo /unregister $dllPath 2>&1 | Out-Null
