@@ -71,6 +71,46 @@ function buildFolderPrompt(question, docs) {
     + 'If the documents don\'t answer the question, say so plainly instead of guessing. Keep the answer short.';
 }
 
+// ---------------------------------------------------------------- writing help in the editor (2.4)
+const EDIT_TASKS = {
+  proofread: 'Proofread the text: fix spelling, grammar and punctuation mistakes. Change nothing else: keep the wording, tone and meaning.',
+  rewrite: 'Rewrite the text so it reads clearly and naturally, keeping its meaning, every fact, its tone and roughly its length.',
+  shorten: 'Make the text shorter, about half as long, keeping every important fact, name, number and date.',
+  translate: 'Translate the text into {language}. Translate naturally, not word for word.',
+};
+const LANGUAGE_RE = /^[\p{L}][\p{L}\p{M} ()'’-]{1,59}$/u;
+
+/**
+ * Ask for a suggested change to the selected text. The text around it goes along as context only.
+ * Throws a friendly error for an empty or oversized selection or an unknown language.
+ */
+function buildEditPrompt(action, { text = '', before = '', after = '', language = '' } = {}) {
+  const sel = String(text || '');
+  if (!EDIT_TASKS[action]) throw new Error('Unknown AI action.');
+  if (!sel.trim()) throw new Error('Select some text in the editor first.');
+  if (sel.length > 60_000) throw new Error(`That selection is too long (${Math.round(sel.length / 1000)}K characters; the limit is 60K). Select less.`);
+  const lang = String(language || '').trim();
+  if (action === 'translate' && !LANGUAGE_RE.test(lang)) throw new Error('Choose the language to translate into.');
+  const b = String(before || '').slice(-2000);
+  const a = String(after || '').slice(0, 2000);
+  const context = b.trim() || a.trim() ? `<context_before>\n${b}\n</context_before>\n<context_after>\n${a}\n</context_after>\n\n` : '';
+  return `${context}<text>\n${sel}\n</text>\n\n${EDIT_TASKS[action].replace('{language}', lang)}\n`
+    + 'Keep its Markdown formatting (headings, lists, links, emphasis, tables). Never change code, URLs or anything in backticks. '
+    + (action === 'translate' ? '' : 'Keep the same language. ')
+    + 'The context is only there to help you: change only what is inside <text>.\n'
+    + 'Reply with only the revised text: no introduction, no explanation, no code fence and no <text> tags.';
+}
+
+/** Tidy an answer into the text to put in place of the selection (keeping the selection's outer spacing). */
+function cleanEditResult(original, answer) {
+  let t = String(answer || '').replace(/^\s*<text>\s*\n?/, '').replace(/\n?\s*<\/text>\s*$/, '');
+  const fenced = /^\s*```(?:markdown|md|text)?\s*\n([\s\S]*?)\n```\s*$/.exec(t);
+  if (fenced && !/^\s*```/.test(original)) t = fenced[1];
+  const lead = /^\s*/.exec(original)[0];
+  const trail = /\s*$/.exec(original)[0];
+  return lead + t.trim() + trail;
+}
+
 function cleanAiSettings(a) {
   const out = { enabled: false, model: DEFAULT_MODEL };
   if (!a || typeof a !== 'object') return out;
@@ -130,4 +170,4 @@ async function runAi({ Anthropic, apiKey, model, content, onText, signal, baseUR
   return { text, stopReason: message.stop_reason, model: message.model, note };
 }
 
-module.exports = { MODELS, DEFAULT_MODEL, MAX_CHARS, KEY_RE, SYSTEM, buildPrompt, buildFolderPrompt, cleanAiSettings, requestParams, friendlyError, runAi };
+module.exports = { MODELS, DEFAULT_MODEL, MAX_CHARS, KEY_RE, SYSTEM, buildPrompt, buildFolderPrompt, buildEditPrompt, cleanEditResult, EDIT_TASKS, cleanAiSettings, requestParams, friendlyError, runAi };

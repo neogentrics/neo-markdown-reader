@@ -1,0 +1,85 @@
+/* ===================== v2.4: read, listen & share */
+
+/* ---------- data files and notebooks (read-only) */
+.markdown-body .sort-btn {
+  all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .35em; font-weight: inherit; color: inherit;
+}
+.markdown-body .sort-btn::after { content: "↕"; font-size: .8em; opacity: .35; }
+.markdown-body th[aria-sort="ascending"] .sort-btn::after { content: "↑"; opacity: .9; color: var(--accent); }
+.markdown-body th[aria-sort="descending"] .sort-btn::after { content: "↓"; opacity: .9; color: var(--accent); }
+.markdown-body .sort-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+/* ---------- read aloud */
+.speak-bar {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 55; display: flex; align-items: center; gap: 6px;
+  padding: 6px 8px 6px 10px; border-radius: 14px; background: var(--page); color: var(--text); border: 1px solid var(--chrome-border);
+  box-shadow: 0 14px 40px -12px rgba(0, 0, 0, .45); font: 12.5px var(--font-sans); max-width: calc(100vw - 32px);
+}
+.speak-bar[hidden] { display: none; }
+body.speaking .toast { bottom: 84px; }
+.speak-play { background: var(--accent); color: #fff; border-radius: 50%; }
+.speak-play:hover { background: color-mix(in srgb, var(--accent) 85%, #000); color: #fff; }
+.speak-play .i-play { display: none; }
+.speak-play.paused .i-play { display: inline; fill: currentColor; }
+.speak-play.paused .i-pause { display: none; }
+.speak-field { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-weight: 600; font-size: 11.5px; }
+.speak-field select { font: 12.5px var(--font-sans); color: var(--text); background: var(--chrome); border: 1px solid var(--chrome-border); border-radius: 7px; padding: 3px 6px; max-width: 190px; }
+.speak-status { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 64px; text-align: center; }
+::highlight(nmr-speak) { background-color: color-mix(in srgb, var(--accent) 26%, transparent); }
+:root[data-theme="contrast"] ::highlight(nmr-speak) { background-color: Highlight; color: HighlightText; }
+
+/* ---------- focus mode (chosen by the reader): everything but the paragraph you're on fades back */
+body.focus-mode .page > * { transition: opacity .25s ease; }
+body.focus-mode .page:has(> .in-focus) > *:not(.in-focus) { opacity: .3; }
+body.focus-mode .page > *:hover { opacity: 1 !important; }
+@media (prefers-reduced-motion: reduce) { body.focus-mode .page > * { transition: none; } }
+
+/* ---------- folding sections */
+.markdown-body .fold-hidden { display: none !important; }
+.markdown-body :is(h1, h2, h3, h4, h5, h6):has(> .fold-btn) { position: relative; }
+.markdown-body .fold-btn {
+  all: unset; box-sizing: border-box; position: absolute; left: -1.45em; top: .12em; display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; border-radius: 5px; color: var(--muted); cursor: pointer; opacity: 0; transition: opacity .15s; margin-top: .22em;
+  font-size: .62em; line-height: 1;
+}
+.markdown-body .fold-btn::before { content: "▾"; font-size: 1.6em; line-height: 1; transition: transform .15s; }
+.markdown-body h1:hover > .fold-btn, .markdown-body h2:hover > .fold-btn, .markdown-body h3:hover > .fold-btn,
+.markdown-body h4:hover > .fold-btn, .markdown-body h5:hover > .fold-btn, .markdown-body h6:hover > .fold-btn,
+.markdown-body .fold-btn:focus-visible, .markdown-body .folded > .fold-btn { opacity: 1; }
+.markdown-body .folded > .fold-btn { color: var(--accent); }
+.markdown-body .folded > .fold-btn::before { transform: rotate(-90deg); }
+.markdown-body .fold-btn:hover { background: var(--btn-hover); color: var(--heading); }
+.markdown-body .fold-btn:focus-visible { outline: 2px solid var(--accent); }
+.markdown-body .folded::after { content: " …"; color: var(--muted); font-weight: 400; }
+
+/* ---------- hover previews */
+.peek {
+  position: fixed; z-index: 70; width: min(440px, calc(100vw - 24px)); max-height: 46vh; overflow: hidden; padding: 12px 16px;
+  background: var(--page); color: var(--text); border: 1px solid var(--chrome-border); border-radius: 12px;
+  box-shadow: 0 18px 46px -14px rgba(0, 0, 0, .45); font-size: 13.5px; line-height: 1.55; pointer-events: none;
+}
+.peek[hidden] { display: none; }
+.peek.peek-doc::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 36px; background: linear-gradient(transparent, var(--page)); }
+.peek .peek-name { font: 600 11px var(--font-sans); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+.peek h1, .peek h2, .peek h3 { font-size: 1.15em; margin: .2em 0 .4em; border: 0; padding: 0; }
+.peek h1::before, .peek h2::before, .peek h3::before { display: none; }
+.peek .fold-btn, .peek .copy-btn { display: none; }
+.peek p, .peek ul, .peek ol, .peek pre, .peek .table-wrap, .peek blockquote { margin: 0 0 .6em; }
+.peek img { max-height: 120px; }
+@media print { .speak-bar, .peek, .fold-btn { display: none !important; } .fold-hidden { display: revert !important; } }
+
+/* ---------- AI writing help: the suggestion as a change */
+.ai-edit-dlg { width: min(720px, 94vw); padding: 18px 22px 14px; }
+.ai-edit-dlg .ai-head h3 { margin: 0; }
+.ai-edit-lang { display: flex; align-items: flex-end; gap: 10px; margin: 12px 0 4px; }
+.ai-edit-lang[hidden] { display: none; }
+.ai-edit-lang .field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: var(--muted); flex: 1; }
+.ai-edit-lang input { font: 14px var(--font-sans); padding: 8px 11px; border-radius: 8px; border: 1px solid var(--rule-strong); background: var(--code-bg); color: var(--text); }
+.ai-edit-diff {
+  margin: 12px 0; padding: 12px 14px; max-height: 50vh; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere;
+  font: 14.5px/1.6 var(--font-sans); color: var(--text); background: var(--code-bg); border: 1px solid var(--rule); border-radius: 10px; min-height: 64px;
+}
+.ai-edit-diff del { background: color-mix(in srgb, #e03131 18%, transparent); text-decoration: line-through; text-decoration-color: color-mix(in srgb, #e03131 70%, transparent); border-radius: 2px; }
+.ai-edit-diff ins { background: color-mix(in srgb, #2f9e44 22%, transparent); text-decoration: none; border-radius: 2px; }
+.ai-edit-diff del + ins { margin-left: .2em; }
+.ai-edit-dlg .ai-foot .spacer { flex: 1; }
+@media (forced-colors: active) { .ai-edit-diff del, .ai-edit-diff ins { border: 1px solid CanvasText; } }

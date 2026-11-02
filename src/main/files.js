@@ -17,9 +17,20 @@ function isLockedPath(p) {
   return typeof p === 'string' && path.extname(p).toLowerCase() === LOCKED_EXT;
 }
 
-/** Anything the reader opens: Markdown, plain text, or a locked document. */
+/** A document the reader opens and can edit: Markdown, plain text, or a locked document. */
 function isOpenablePath(p) {
   return isMarkdownPath(p) || isLockedPath(p);
+}
+
+/** A data file shown read-only (2.4): CSV, TSV, JSON, YAML or a Jupyter notebook. */
+function isDataPath(p) {
+  const { DATA_KINDS } = require('./data-docs');
+  return typeof p === 'string' && Object.prototype.hasOwnProperty.call(DATA_KINDS, path.extname(p).toLowerCase());
+}
+
+/** Anything the reader can show: documents and data files. */
+function isViewablePath(p) {
+  return isOpenablePath(p) || isDataPath(p);
 }
 
 /** Pick the first markdown file passed on a command line (double-click / "Open with" / CLI). */
@@ -27,7 +38,7 @@ function fileFromArgv(argv, cwd = process.cwd()) {
   for (const arg of argv.slice(1)) {
     if (!arg || arg.startsWith('-')) continue;
     const abs = path.resolve(cwd, arg);
-    if (isOpenablePath(abs) && fs.existsSync(abs)) return abs;
+    if (isViewablePath(abs) && fs.existsSync(abs)) return abs;
   }
   return null;
 }
@@ -91,9 +102,24 @@ async function readLocked(filePath, keyFor = () => null) {
   return { ...base, content: content.replace(/\r\n/g, '\n') };
 }
 
-/** Read anything openable. */
+/** Read a data file and turn it into Markdown to show (read-only). */
+async function readData(filePath) {
+  const { DATA_KINDS, dataToMarkdown } = require('./data-docs');
+  const abs = path.resolve(filePath);
+  const kind = DATA_KINDS[path.extname(abs).toLowerCase()];
+  if (!kind) throw new Error('Not a supported file: ' + path.basename(abs));
+  const stat = await fs.promises.stat(abs);
+  if (!stat.isFile()) throw new Error('Not a file: ' + abs);
+  if (stat.size > MAX_BYTES) throw new Error('File is too large to display (over 50 MB).');
+  const raw = await fs.promises.readFile(abs, 'utf8');
+  return { ...docBase(abs, stat), content: dataToMarkdown(raw, path.basename(abs), kind), data: kind, eol: '\n', bom: false, writable: false };
+}
+
+/** Read anything the reader shows. */
 function readDocument(filePath, keyFor) {
-  return isLockedPath(filePath) ? readLocked(filePath, keyFor) : readMarkdown(filePath);
+  if (isLockedPath(filePath)) return readLocked(filePath, keyFor);
+  if (isDataPath(filePath)) return readData(filePath);
+  return readMarkdown(filePath);
 }
 
 /** Turn editor text back into the file's original format (line endings, BOM). */
@@ -115,4 +141,4 @@ function isInside(folder, file, platform = process.platform) {
   return p === f || p.startsWith(f.endsWith(path.sep) ? f : f + path.sep);
 }
 
-module.exports = { MARKDOWN_EXTS, LOCKED_EXT, isLockedPath, isOpenablePath, readLocked, readDocument, isMarkdownPath, fileFromArgv, readMarkdown, encodeForSave, detectEol, isWritable, isInside };
+module.exports = { MARKDOWN_EXTS, LOCKED_EXT, isLockedPath, isOpenablePath, isDataPath, isViewablePath, readData, readLocked, readDocument, isMarkdownPath, fileFromArgv, readMarkdown, encodeForSave, detectEol, isWritable, isInside };

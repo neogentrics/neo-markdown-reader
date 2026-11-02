@@ -16,6 +16,7 @@ import { createAiUi } from './ai-ui.js';
 import { createHistoryUi } from './history-ui.js';
 import { createKeysUi } from './keys-ui.js';
 import { createNotesUi } from './notes-ui.js';
+import { createReadUi, cleanCopy } from './read-ui.js';
 import { resolveWiki, relative, dirOf, slugify as wikiSlug } from '../main/notes-core.js';
 import './styles/app.css';
 
@@ -56,6 +57,7 @@ let aiUi = null;
 let historyUi = null;
 let keysUi = null;
 let notesUi = null;
+let readUi = null;
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -123,7 +125,10 @@ function renderInto(tab, doc, { preview = false } = {}) {
   if (!preview) tab.doc = doc;
   tab.result = result;
   tab.el.innerHTML = result.html;
-  enhance(tab.el);
+  tab.el.classList.toggle('data-page', !!doc.data);
+  enhance(tab.el, { run: !doc.data });
+  if (doc.data === 'csv' || doc.data === 'tsv') makeSortable(tab.el);
+  readUi?.afterRender(tab);
   updateTabButton(tab);
   return renderMermaid(tab.el, false).then(() => highlights?.apply(tab));
 }
@@ -217,6 +222,7 @@ function activate(id) {
   next.btn.tabIndex = 0;                       // the active tab is the one Tab key lands on
   next.btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   if (!els.findBar.hidden) closeFind();
+  if (prev !== next) readUi?.tabChanged();
   split?.afterActivate(prev, next);
   showActiveDoc();
   editMode?.show(next);
@@ -419,8 +425,44 @@ async function refreshTab(tab, doc) {
 }
 
 // ================================================================ rendering helpers
-function enhance(root) {
-  addRunButtons(root, { api, toast, docFor: (pre) => tabs.find((t) => t.el.contains(pre))?.doc });
+/**
+ * A CSV / TSV table: click a column heading (or press Enter on it) to sort by it, again to reverse.
+ * Numbers sort as numbers; the file itself is never changed.
+ */
+function makeSortable(root) {
+  for (const table of root.querySelectorAll('table')) {
+    const body = table.tBodies[0];
+    if (!body) continue;
+    const heads = [...table.querySelectorAll('thead th')];
+    const num = (v) => { const n = Number(v.replace(/[\s,$€£¥%]/g, '')); return v.trim() && Number.isFinite(n) ? n : null; };
+    heads.forEach((th, col) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sort-btn';
+      btn.append(...th.childNodes);
+      th.appendChild(btn);
+      th.setAttribute('aria-sort', 'none');
+      btn.onclick = () => {
+        const dir = th.getAttribute('aria-sort') === 'ascending' ? -1 : 1;
+        for (const h of heads) h.setAttribute('aria-sort', 'none');
+        th.setAttribute('aria-sort', dir === 1 ? 'ascending' : 'descending');
+        const rows = [...body.rows];
+        const key = (r) => r.cells[col]?.textContent ?? '';
+        rows.sort((a, b) => {
+          const x = key(a); const y = key(b);
+          const nx = num(x); const ny = num(y);
+          if (nx !== null && ny !== null) return (nx - ny) * dir;
+          if (nx !== null || ny !== null) return (nx === null ? 1 : -1);      // blanks and text after numbers
+          return x.localeCompare(y, undefined, { numeric: true, sensitivity: 'base' }) * dir;
+        });
+        body.append(...rows);
+      };
+    });
+  }
+}
+
+function enhance(root, { run = true } = {}) {
+  if (run) addRunButtons(root, { api, toast, docFor: (pre) => tabs.find((t) => t.el.contains(pre))?.doc });
   for (const pre of root.querySelectorAll('pre.code-block')) {
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
@@ -529,6 +571,7 @@ function scrollToId(id, tab = activeTab()) {
   try { key = decodeURIComponent(key); } catch { /* keep raw */ }
   const target = tab.el.querySelector(`[id="${CSS.escape(key)}"]`);
   if (!target) return;
+  readUi?.reveal(target, tab);
   scrollToElement(target, { desk: deskFor(tab) });
   target.classList.add('flash');
   setTimeout(() => target.classList.remove('flash'), 1200);
@@ -543,6 +586,7 @@ async function openAtLine(path, line, query) {
   for (const el of tab.el.querySelectorAll('[data-line]')) { if (Number(el.dataset.line) <= line) best = el; else break; }
   pendingRestore = null;
   if (best) {
+    readUi?.reveal(best, tab);
     scrollToElement(best, { smooth: false });
     best.classList.add('flash');
     setTimeout(() => best.classList.remove('flash'), 1400);
@@ -667,6 +711,7 @@ async function copyRich() {
     text = sel.toString();
   } else {
     holder.innerHTML = tab.el.innerHTML;
+    cleanCopy(holder);
     text = tab.el.innerText;
   }
   holder.querySelectorAll('.copy-btn, .footnote-backref').forEach((n) => n.remove());
@@ -888,6 +933,9 @@ api.onCommand(({ cmd, arg }) => {
     case 'export-docx': publish.exportAs('docx'); break;
     case 'export-html': publish.exportAs('html'); break;
     case 'export-txt': publish.exportAs('txt'); break;
+    case 'export-epub': publish.exportAs('epub'); break;
+    case 'export-slides': publish.exportAs('slides'); break;
+    case 'export-pptx': publish.exportAs('pptx'); break;
     case 'present': if (presenter.active()) presenter.stop(); else presenter.start(); break;
     case 'customize-theme': themeUi.open(); break;
     case 'lock-protect': lockUi.protect(); break;
@@ -898,6 +946,12 @@ api.onCommand(({ cmd, arg }) => {
     case 'ai-report': aiUi.run('report'); break;
     case 'ai-settings': aiUi.openSettings(); break;
     case 'ai-folder': aiUi.askFolder(); break;
+    case 'ai-proofread': case 'ai-rewrite': case 'ai-shorten': case 'ai-translate': aiUi.editSelection(cmd.slice(3)); break;
+    // read, listen & share (v2.4)
+    case 'read-aloud': readUi.toggleSpeak(); break;
+    case 'focus-mode': readUi.toggleFocus(); break;
+    case 'fold-all': readUi.foldAll(); break;
+    case 'unfold-all': readUi.unfoldAll(); break;
     // connected notes (v2.3)
     case 'panel-tasks': showSidebar(); sidebar.show('tasks'); break;
     case 'link-map': notesUi.openMap(); break;
@@ -992,7 +1046,7 @@ window.addEventListener('drop', async (e) => {
   if (pics.length && activeTab()?.editing) { editMode.dropImages(pics); return; }
   const all = files.map((f) => api.pathForFile(f));
   const word = all.filter((p) => /\.docx$/i.test(p));
-  const paths = all.filter((p) => /\.(md|markdown|mdown|mkdn?|mdwn|mdx|txt|mdlock)$/i.test(p));
+  const paths = all.filter((p) => /\.(md|markdown|mdown|mkdn?|mdwn|mdx|txt|mdlock|csv|tsv|tab|json|ya?ml|ipynb)$/i.test(p));
   for (const p of word) { const res = await api.importDocx(p); if (res?.error) toast(res.error); else if (res?.ok) toast(importedNote(res)); }
   if (!paths.length && !word.length) { toast(pics.length ? 'Click Edit first to add pictures to the document' : 'That isn’t a Markdown file (.md)'); return; }
   for (const p of paths) await openPath(p);
@@ -1149,6 +1203,15 @@ aiUi = createAiUi({
   openAtLine,
   folder: () => sidebar.folder(),
   folderFiles: () => sidebar.allFiles(),
+  /** The editor's selection with a little text either side, or null when not editing. */
+  editorSelection() {
+    const tab = activeTab();
+    const view = tab?.editing && tab.editor?.view;
+    if (!view) return null;
+    const st = view.state;
+    const { from, to } = st.selection.main;
+    return { tab, from, to, text: st.sliceDoc(from, to), before: st.sliceDoc(Math.max(0, from - 2000), from), after: st.sliceDoc(to, Math.min(st.doc.length, to + 2000)) };
+  },
 });
 lockUi = createLockUi({
   api, activeTab, openInTab, closeTab, toast,
@@ -1159,6 +1222,11 @@ lockUi = createLockUi({
     if (tab.id === activeId) { showActiveDoc(); restoreScroll(tab); }
     syncSoon();
   },
+});
+readUi = createReadUi({
+  api, toast, activeTab, render, desk: els.desk,
+  settings: () => settings,
+  deskFor: (t) => deskFor(t),
 });
 publish = createPublish({ api, activeTab, settings: () => settings, toast, themeCss: () => themeUi.exportCss() });
 presenter = createPresenter({ api, activeTab, toast });

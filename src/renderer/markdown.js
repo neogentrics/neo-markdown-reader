@@ -17,6 +17,7 @@ import hljs from 'highlight.js';
 import { load as yamlLoad, JSON_SCHEMA } from 'js-yaml';
 import createDOMPurify from 'dompurify';
 import { parseWikiTarget } from '../main/notes-core.js';
+import { renderChart, fromRows, chartSvg } from './charts.js';
 
 const MEDIA_ATTRS = { IMG: 'src', VIDEO: 'src', AUDIO: 'src', SOURCE: 'src', TRACK: 'src' };
 const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
@@ -50,6 +51,44 @@ export function resolveMediaUrl(value, baseUrl) {
  * [[Name]], [[Name#Heading]] and [[Name|label]] become links. env.wiki(target) says where each one goes
  * ({ href, missing }); without it (no folder open) a link points to "Name.md" next to the document.
  */
+/**
+ * Charts (2.4): a ```chart block is drawn as a chart, and so is a table that has
+ * <!-- chart: bar; title: Sales --> on the line just before it (the table stays below the chart).
+ */
+function charts(md) {
+  const fence = md.renderer.rules.fence;
+  md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+    const t = tokens[idx];
+    if (/^chart\b/i.test(t.info.trim())) return `${renderChart(t.content)}\n`;
+    return fence(tokens, idx, options, env, self);
+  };
+  md.core.ruler.push('table_charts', (state) => {
+    const toks = state.tokens;
+    for (let i = 0; i < toks.length - 1; i++) {
+      const m = toks[i].type === 'html_block' && /^<!--\s*chart\s*:?\s*([\s\S]*?)-->\s*$/i.exec(toks[i].content.trim());
+      if (!m || toks[i + 1].type !== 'table_open') continue;
+      const opts = {};
+      m[1].split(';').forEach((part, k) => {
+        const kv = /^\s*([a-z]+)\s*[:=]\s*(.*?)\s*$/i.exec(part);
+        if (kv) opts[kv[1].toLowerCase()] = kv[2];
+        else if (k === 0 && part.trim()) opts.type = part.trim();
+      });
+      const rows = [];
+      let row = null;
+      for (let j = i + 1; j < toks.length && toks[j].type !== 'table_close'; j++) {
+        if (toks[j].type === 'tr_open') row = [];
+        else if (toks[j].type === 'tr_close') { rows.push(row); row = null; }
+        else if (toks[j].type === 'inline' && row) row.push(toks[j].content.replace(/[*_`~]/g, '').trim());
+      }
+      let html;
+      try { html = `<figure class="chart">${chartSvg(fromRows(rows, opts))}</figure>`; } catch (err) {
+        html = `<div class="chart-error"><b>This chart can’t be drawn:</b> ${escapeHtml(err.message)}</div>`;
+      }
+      toks[i].content = `${html}\n`;
+    }
+  });
+}
+
 function wikiLinks(md) {
   md.inline.ruler.before('link', 'wikilink', (state, silent) => {
     const { src, pos } = state;
@@ -106,6 +145,7 @@ function buildMarkdownIt(state) {
     .use(sup)
     .use(alerts)
     .use(wikiLinks)
+    .use(charts)
     .use(texmath, { engine: katex, delimiters: ['dollars', 'beg_end'], katexOptions: { throwOnError: false, output: 'htmlAndMathml' } });
 
   // Tag block elements with their source line so the editor and preview can scroll together.

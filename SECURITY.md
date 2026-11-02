@@ -150,6 +150,24 @@ Markdown files are treated as **untrusted input**:
   Markdown file in the open folder and not a locked document before reading it. Citations in the answer only
   link to documents that were sent.
 
+### Read, listen & share (since 2.4)
+
+- **Read aloud** only offers voices installed on the computer (`localService`), so the text isn't sent to an
+  online speech service.
+- **CSV, JSON, YAML and notebooks** are converted to Markdown by the main process and shown read-only through
+  the same sanitizer as any document; they can't be edited or saved from the app. Notebook outputs are what
+  was saved in the file: nothing is run, notebook code gets no *Run* button, and HTML outputs are sanitized
+  like HTML in a document.
+- **Charts** are drawn as SVG from the numbers and labels in the document; all text in them is escaped,
+  and the result is sanitized with the rest of the page.
+- **Hover previews** read only Markdown and data files, never locked documents, and don't remember or
+  watch what they read.
+- **E-books** keep only links within the book and to the web; links to files on the computer are removed.
+  Pictures are copied in; diagrams are drawn to pictures in a hidden window that runs no scripts.
+- **AI writing help** sends only the selected text and up to 2,000 characters either side, never from a
+  locked document. The suggestion changes nothing until it's accepted, and only if the selected text is
+  still unchanged.
+
 ### AI assist (since 2.0)
 
 - Off by default. Requests are made only from an explicit menu command, contain only the current

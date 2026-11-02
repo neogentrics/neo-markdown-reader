@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
 const { Settings, cleanAccelerator } = require('./settings');
-const { isMarkdownPath, isLockedPath, isOpenablePath, fileFromArgv, readMarkdown, readDocument, isWritable, encodeForSave } = require('./files');
+const { isMarkdownPath, isLockedPath, isOpenablePath, isViewablePath, isDataPath, fileFromArgv, readMarkdown, readDocument, isWritable, encodeForSave } = require('./files');
 const { HistoryStore } = require('./history');
 const { runJob: runReplaceJob } = require('./folder-replace');
 const { saveImage, safeName, freeName } = require('./images');
@@ -30,6 +30,8 @@ let sandbox = null;
 
 // Tests point the app at a throwaway profile folder.
 if (process.env.NMR_USER_DATA) app.setPath('userData', process.env.NMR_USER_DATA);
+// Read aloud uses the computer's own voices; on Linux Chromium reaches them through speech-dispatcher.
+if (process.platform === 'linux') app.commandLine.appendSwitch('enable-speech-dispatcher');
 
 let settings;
 let updater;
@@ -388,7 +390,7 @@ async function resolveLink(href, fromPath) {
   if (url.protocol !== 'file:') return { kind: 'none' };
   let target;
   try { target = fileURLToPath(url); } catch { return { kind: 'none' }; }
-  if (isOpenablePath(target)) {
+  if (isViewablePath(target)) {
     try {
       const doc = await loadDoc(target, { remember: false });
       return { kind: 'doc', doc: { ...doc, position: 0, hash: url.hash ? url.hash.slice(1) : '' } };
@@ -402,11 +404,14 @@ async function resolveLink(href, fromPath) {
 async function showOpenDialog(win) {
   const recent = settings.get().recent[0];
   const res = await dialog.showOpenDialog(win, {
-    title: 'Open Markdown file',
+    title: 'Open',
     properties: ['openFile', 'multiSelections'],
     defaultPath: recent ? path.dirname(recent) : app.getPath('documents'),
     filters: [
       { name: 'Markdown', extensions: ['md', 'markdown', 'mdown', 'mkd', 'mkdn', 'mdwn', 'mdx', 'mdlock'] },
+      { name: 'Everything the reader opens', extensions: ['md', 'markdown', 'mdown', 'mkd', 'mkdn', 'mdwn', 'mdx', 'mdlock', 'txt', 'csv', 'tsv', 'tab', 'json', 'yaml', 'yml', 'ipynb'] },
+      { name: 'Data (CSV, TSV, JSON, YAML)', extensions: ['csv', 'tsv', 'tab', 'json', 'yaml', 'yml'] },
+      { name: 'Jupyter Notebook', extensions: ['ipynb'] },
       { name: 'Text', extensions: ['txt'] },
     ],
   });
@@ -427,6 +432,9 @@ const EXPORT_FORMATS = {
   docx: { title: 'Export as Word Document', name: 'Word Document', ext: 'docx' },
   html: { title: 'Export as Web Page', name: 'Web Page', ext: 'html' },
   txt: { title: 'Export as Plain Text', name: 'Plain Text', ext: 'txt' },
+  epub: { title: 'Export as E-book', name: 'EPUB E-book', ext: 'epub' },
+  slides: { title: 'Export Slides as PDF', name: 'PDF', ext: 'pdf', suffix: ' (slides)' },
+  pptx: { title: 'Export Slides as PowerPoint', name: 'PowerPoint Presentation', ext: 'pptx' },
 };
 
 /** Ask where to save an export of the active tab's document. */
@@ -436,7 +444,7 @@ async function exportTarget(state, format) {
   const base = current ? path.basename(current).replace(/\.[^.]+$/, '') : 'document';
   const res = await dialog.showSaveDialog(state.win, {
     title: f.title,
-    defaultPath: path.join(current ? path.dirname(current) : app.getPath('documents'), `${base}.${f.ext}`),
+    defaultPath: path.join(current ? path.dirname(current) : app.getPath('documents'), `${base}${f.suffix || ''}.${f.ext}`),
     filters: [{ name: f.name, extensions: [f.ext] }],
   });
   return res.canceled || !res.filePath ? null : res.filePath;
@@ -474,6 +482,21 @@ async function runExport(state, payload) {
     } else if (format === 'html') {
       const exportCss = await fs.promises.readFile(path.join(ROOT, 'dist', 'export.css'), 'utf8');
       data = await publish.buildStandaloneHtml({ content: payload.content, meta, css, theme: options.colors === 'theme' ? theme : 'light', font, exportCss, distDir: path.join(ROOT, 'dist') });
+    } else if (format === 'epub') {
+      if (!Array.isArray(payload.chapters) || !payload.chapters.length || payload.chapters.length > 2000) return { ok: false, error: 'Nothing to export' };
+      data = await publish.renderEpub({ root: ROOT, payload: {
+        chapters: payload.chapters.filter((c) => c && typeof c.html === 'string').map((c) => ({ title: String(c.title || '').slice(0, 500), html: c.html })),
+        toc: Array.isArray(payload.toc) ? payload.toc.slice(0, 5000) : [],
+        graphics: Array.isArray(payload.graphics) ? payload.graphics.slice(0, 500).filter((g) => g && typeof g.html === 'string') : [],
+        meta, css, lang: isStr(payload.lang, 35) ? payload.lang : 'en',
+      } });
+    } else if (format === 'slides') {
+      if (!Array.isArray(payload.slides) || !payload.slides.length || payload.slides.length > 1000) return { ok: false, error: 'Nothing to export' };
+      data = await publish.renderSlidesPdf({ root: ROOT, payload: { slides: payload.slides.filter((sl) => sl && typeof sl.html === 'string'), meta, css, theme, font } });
+    } else if (format === 'pptx') {
+      if (!Array.isArray(payload.slides) || !payload.slides.length || payload.slides.length > 1000 || !payload.slides.every(Array.isArray)) return { ok: false, error: 'Nothing to export' };
+      const brand = settings.get().brand;
+      data = await publish.renderPptx({ root: ROOT, payload: { slides: payload.slides, meta, css }, options: { accent: brand.accent, bodyFont: brand.bodyFont, headingFont: brand.headingFont, codeFont: brand.codeFont } });
     } else if (format === 'docx') {
       if (!Array.isArray(payload.model)) return { ok: false, error: 'Nothing to export' };
       const brand = settings.get().brand;
@@ -592,6 +615,10 @@ function rebuildMenu() {
             cmd('export-docx', 'Word Document (.docx)…'),
             cmd('export-html', 'Web Page (.html)…'),
             cmd('export-txt', 'Plain Text (.txt)…'),
+            { type: 'separator' },
+            cmd('export-epub', 'E-book (.epub)…'),
+            cmd('export-slides', 'Slides as PDF…'),
+            cmd('export-pptx', 'Slides as PowerPoint (.pptx)…'),
           ],
         },
         { id: 'print', label: 'Print…', accelerator: 'CmdOrCtrl+P', click: () => targetState()?.win.webContents.print({ printBackground: true }) },
@@ -641,6 +668,11 @@ function rebuildMenu() {
             cmd('ai-report', 'Turn Notes into a Report'),
             cmd('ai-folder', 'Ask About This Folder…'),
             { type: 'separator' },
+            cmd('ai-proofread', 'Proofread Selection'),
+            cmd('ai-rewrite', 'Rewrite Selection'),
+            cmd('ai-shorten', 'Shorten Selection'),
+            cmd('ai-translate', 'Translate Selection…'),
+            { type: 'separator' },
             cmd('ai-settings', 'AI Assist Settings…'),
           ],
         },
@@ -657,6 +689,9 @@ function rebuildMenu() {
         cmd('customize-theme', 'Customize Theme…'),
         { type: 'separator' },
         cmd('present', 'Present as Slides', 'CmdOrCtrl+Shift+P'),
+        cmd('read-aloud', 'Read Aloud', 'CmdOrCtrl+Shift+U'),
+        cmd('focus-mode', 'Focus Mode', 'F8'),
+        { label: 'Sections', submenu: [cmd('fold-all', 'Fold All Sections', 'CmdOrCtrl+Shift+['), cmd('unfold-all', 'Unfold All Sections', 'CmdOrCtrl+Shift+]')] },
         { type: 'separator' },
         cmd('quick-open', 'Go to File or Heading…', 'CmdOrCtrl+K'),
         { type: 'separator' },
@@ -861,6 +896,14 @@ function showEditContextMenu(win, params) {
     items.push({ label: 'Add to Dictionary', click: () => win.webContents.session.addWordToSpellCheckerDictionary(params.misspelledWord) });
     items.push({ type: 'separator' });
   }
+  // Writing help on the editor's selection (only offered when AI assist is on).
+  if (params.isEditable && params.selectionText?.trim() && settings.get().ai?.enabled) {
+    const send = (cmd) => () => win.webContents.send('menu:command', { cmd });
+    items.push({ label: 'AI Assist', submenu: [
+      { label: 'Proofread', click: send('ai-proofread') }, { label: 'Rewrite', click: send('ai-rewrite') },
+      { label: 'Shorten', click: send('ai-shorten') }, { label: 'Translate…', click: send('ai-translate') },
+    ] }, { type: 'separator' });
+  }
   if (params.isEditable) {
     items.push({ role: 'undo', enabled: params.editFlags.canUndo }, { role: 'redo', enabled: params.editFlags.canRedo }, { type: 'separator' },
       { role: 'cut', enabled: params.editFlags.canCut }, { role: 'copy', enabled: params.editFlags.canCopy },
@@ -1023,7 +1066,7 @@ function registerIpc() {
   ipcMain.handle('annotations:get', (_e, p) => (isStr(p, 4096) && isMarkdownPath(p) ? annotations.get(p) : []));
   ipcMain.handle('annotations:set', (_e, p, list) => (isStr(p, 4096) && isMarkdownPath(p) && Array.isArray(list) ? annotations.set(p, list) : []));
   ipcMain.handle('bookmarks:toggle', (_e, p) => {
-    if (!isStr(p, 4096) || !isOpenablePath(p)) return settings.get().bookmarks;
+    if (!isStr(p, 4096) || !isViewablePath(p)) return settings.get().bookmarks;
     const list = settings.get().bookmarks;
     const has = list.some((b) => b.toLowerCase() === p.toLowerCase());
     settings.update({ bookmarks: has ? list.filter((b) => b.toLowerCase() !== p.toLowerCase()) : [p, ...list] });
@@ -1032,12 +1075,21 @@ function registerIpc() {
   });
 
   ipcMain.handle('doc:read', async (e, p, opts = {}) => {
-    if (!isStr(p, 4096) || !isOpenablePath(p)) return { error: 'Not a Markdown file.' };
+    if (!isStr(p, 4096) || !isViewablePath(p)) return { error: 'Not a file the reader can open.' };
     try {
       const doc = await loadDoc(p, { remember: opts.remember !== false });
       const st = stateFor(e);
       if (st) ensureWatch(st, doc.path, doc.mtime);
       return { doc };
+    } catch (err) { return { error: errorMessage(err, p) }; }
+  });
+  // A hover preview of a linked document: the start of its text (or of one section), nothing remembered or watched.
+  ipcMain.handle('doc:peek', async (_e, p) => {
+    if (!isStr(p, 4096) || !isViewablePath(p)) return { error: 'invalid' };
+    if (isLockedPath(p)) return { name: path.basename(p), locked: true };
+    try {
+      const doc = await readDocument(p, () => null);
+      return { name: doc.name, path: doc.path, baseUrl: doc.baseUrl, content: doc.content.slice(0, 60000), data: doc.data || '' };
     } catch (err) { return { error: errorMessage(err, p) }; }
   });
   ipcMain.handle('doc:open-dialog', (e) => openViaDialog(stateFor(e)));
@@ -1059,7 +1111,7 @@ function registerIpc() {
     const st = stateFor(e);
     if (!st || !payload || !Array.isArray(payload.tabs)) return;
     st.tabs = payload.tabs
-      .filter((t) => isStr(t?.path, 4096) && isOpenablePath(t.path))
+      .filter((t) => isStr(t?.path, 4096) && isViewablePath(t.path))
       .slice(0, 100)
       .map((t) => ({ path: t.path, scroll: Number.isFinite(t.scroll) ? Math.min(1, Math.max(0, t.scroll)) : 0 }));
     st.active = Number.isInteger(payload.active) ? Math.max(0, Math.min(payload.active, st.tabs.length - 1)) : 0;
@@ -1075,7 +1127,7 @@ function registerIpc() {
   });
   ipcMain.handle('tab:detach', (e, payload) => {
     const st = stateFor(e);
-    if (!st || !isStr(payload?.path, 4096) || !isOpenablePath(payload.path)) return false;
+    if (!st || !isStr(payload?.path, 4096) || !isViewablePath(payload.path)) return false;
     const at = Number.isFinite(payload.screenX) && Number.isFinite(payload.screenY) ? { x: payload.screenX, y: payload.screenY } : null;
     createWindow({ tabs: [{ path: payload.path, scroll: Number(payload.scroll) || 0 }], at });
     return true;
@@ -1086,7 +1138,7 @@ function registerIpc() {
   });
   ipcMain.handle('window:close', (e) => stateFor(e)?.win.close());
 
-  ipcMain.handle('shell:reveal', (_e, p) => { if (isStr(p, 4096) && isOpenablePath(p)) shell.showItemInFolder(p); });
+  ipcMain.handle('shell:reveal', (_e, p) => { if (isStr(p, 4096) && isViewablePath(p)) shell.showItemInFolder(p); });
   ipcMain.handle('shell:open-external', (_e, url) => { if (isStr(url) && isSafeExternal(url)) shell.openExternal(url); });
   ipcMain.handle('clipboard:text', async (_e, text) => {
     if (typeof text === 'string' && text.length < 1e6) await clipboard.writeText(text);
@@ -1123,7 +1175,7 @@ function registerIpc() {
   ipcMain.handle('doc:print', (e) => { stateFor(e)?.win.webContents.print({ printBackground: true }); });
   ipcMain.handle('settings:set', (_e, patch) => {
     if (!patch || typeof patch !== 'object') return rendererSettings();
-    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'exportOptions', 'brand'];
+    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'exportOptions', 'brand', 'readAloud'];
     setSetting(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
     return rendererSettings();
   });
@@ -1218,6 +1270,31 @@ function registerIpc() {
     } finally { aiRuns.delete(req.id); }
   });
   ipcMain.handle('ai:cancel', (_e, id) => { aiRuns.get(id)?.abort(); });
+
+  // Writing help: a suggested change to the editor's selection, which the page shows for accepting or rejecting.
+  ipcMain.handle('ai:edit', async (e, req = {}) => {
+    const conf = settings.get().ai;
+    const apiKey = loadAiKey();
+    if (!conf.enabled || !apiKey) return { error: 'AI assist is off.', setup: true };
+    if (isStr(req.path, 4096) && isLockedPath(req.path)) return { error: 'AI assist is off for locked documents, so their text never leaves this computer.' };
+    if (!isStr(req.id, 100)) return { error: 'invalid' };
+    const str = (v) => (typeof v === 'string' ? v : '');
+    let content;
+    try { content = ai.buildEditPrompt(req.action, { text: str(req.text), before: str(req.before), after: str(req.after), language: str(req.language) }); } catch (err) { return { error: err.message }; }
+    const { Anthropic } = publish.exportTools(ROOT);
+    const ctl = new AbortController();
+    aiRuns.set(req.id, ctl);
+    try {
+      const res = await ai.runAi({
+        Anthropic, apiKey, model: conf.model, content, signal: ctl.signal,
+        baseURL: process.env.NMR_AI_BASE_URL || undefined,
+        onText: (text) => { if (!e.sender.isDestroyed()) e.sender.send('ai:delta', { id: req.id, text }); },
+      });
+      return { ...res, text: ai.cleanEditResult(str(req.text), res.text) };
+    } catch (err) {
+      return { error: ctl.signal.aborted ? 'Stopped.' : ai.friendlyError(err, Anthropic) };
+    } finally { aiRuns.delete(req.id); }
+  });
 
   // ---- running code blocks: always asked, always sandboxed
   ipcMain.handle('code:run', async (e, req = {}) => {

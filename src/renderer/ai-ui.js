@@ -1,7 +1,11 @@
 // AI assist in the page: the settings dialog and the panel that shows Claude's answer as it streams.
 // Requests are made by the main process (src/main/ai.js) with the reader's own API key.
 
+import { diffWordsWithSpace } from 'diff';
+
 const $ = (id) => document.getElementById(id);
+const escHtml = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const EDIT_TITLES = { proofread: 'Proofread', rewrite: 'Rewrite', shorten: 'Shorten', translate: 'Translate' };
 const TITLES = { summarize: 'Summary', explain: 'Explanation', report: 'Report draft' };
 
 export function createAiUi(ctx) {
@@ -187,6 +191,110 @@ export function createAiUi(ctx) {
     });
   }
 
+  // ---------------------------------------------------------------- writing help in the editor (2.4)
+  // The suggestion is shown as a change (old words struck through, new ones marked) to accept or reject;
+  // nothing in the document changes until Accept.
+  const ed = { dlg: $('ai-edit-dlg'), diff: $('ai-edit-diff'), status: $('ai-edit-status'), accept: $('ai-edit-accept'), lang: $('ai-edit-lang'), language: $('ai-edit-language') };
+  let edit = null;                 // { id, action, tab, from, to, original, text, done, language }
+  let editPaint = 0;
+  try { ed.language.value = localStorage.getItem('nmr-translate-to') || ''; } catch { /* first time */ }
+
+  function paintEdit() {
+    editPaint = 0;
+    if (!edit) return;
+    if (!edit.text) { ed.diff.innerHTML = `<p class="ai-wait">${edit.started ? 'Thinking…' : ''}</p>`; return; }
+    const parts = diffWordsWithSpace(edit.original, edit.done ? edit.text : edit.text.replace(/\S*$/, ''));
+    // Changes that are only spacing or line breaks aren't marked: a removed line break would show as a stray mark.
+    ed.diff.innerHTML = parts.map((p) => {
+      const blank = !p.value.trim();
+      if (p.added) return blank ? escHtml(p.value) : `<ins>${escHtml(p.value)}</ins>`;
+      if (p.removed) return blank || !edit.done ? '' : `<del>${escHtml(p.value)}</del>`;
+      return escHtml(p.value);
+    }).join('');
+  }
+
+  async function runEdit() {
+    const id = Math.random().toString(36).slice(2);
+    Object.assign(edit, { id, text: '', done: false, started: true });
+    ed.accept.disabled = true;
+    ed.status.textContent = `Sent to Claude: the selected text${edit.action === 'translate' ? '' : ' and a little of the text around it'}`;
+    paintEdit();
+    const res = await api.aiEdit({ id, action: edit.action, text: edit.original, before: edit.before, after: edit.after, language: edit.language, path: edit.tab.doc.path || '' });
+    if (!edit || edit.id !== id) return;
+    edit.done = true;
+    if (res?.error) {
+      ed.status.textContent = res.error;
+      if (res.setup) { ed.dlg.close(); openSettings(res.error); }
+      edit.text = '';
+      ed.diff.innerHTML = '';
+      return;
+    }
+    edit.text = res.text || '';
+    paintEdit();
+    const same = edit.text.trim() === edit.original.trim();
+    ed.accept.disabled = !edit.text.trim() || same;
+    ed.status.textContent = res.note || (same ? 'No changes suggested.' : 'Suggested by Claude — check it before accepting.');
+    if (!ed.accept.disabled) ed.accept.focus();
+  }
+
+  async function editSelection(action) {
+    const sel = ctx.editorSelection();
+    if (!sel) { toast('Click Edit and select some text first'); return; }
+    if (!sel.text.trim()) { toast('Select some text in the editor first'); return; }
+    if (sel.tab.doc.locked) { toast('AI assist is off for locked documents, so their text never leaves this computer'); return; }
+    const st = await api.aiStatus();
+    if (!st.enabled || !st.hasKey) { openSettings('Turn on AI assist and add your Anthropic API key to use this.'); return; }
+    if (edit) api.aiCancel(edit.id);
+    edit = { id: '', action, tab: sel.tab, from: sel.from, to: sel.to, original: sel.text, before: sel.before, after: sel.after, text: '', done: false, language: '' };
+    $('ai-edit-h').textContent = `${EDIT_TITLES[action]} — suggested change`;
+    ed.diff.innerHTML = '';
+    ed.status.textContent = '';
+    ed.accept.disabled = true;
+    ed.lang.hidden = action !== 'translate';
+    $('ai-edit-again').hidden = false;
+    if (!ed.dlg.open) ed.dlg.showModal();
+    if (action === 'translate') { ed.diff.innerHTML = `<p class="hint-text">${escHtml(sel.text.length > 400 ? `${sel.text.slice(0, 400)}…` : sel.text)}</p>`; ed.language.focus(); ed.language.select(); return; }
+    runEdit();
+  }
+
+  ed.lang.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const lang = ed.language.value.trim();
+    if (!lang) { ed.language.focus(); return; }
+    try { localStorage.setItem('nmr-translate-to', lang); } catch { /* not kept */ }
+    edit.language = lang;
+    ed.lang.hidden = true;
+    runEdit();
+  });
+  api.onAiDelta(({ id, text }) => {
+    if (!edit || edit.id !== id || edit.done) return;
+    edit.text += text;
+    if (!editPaint) editPaint = requestAnimationFrame(paintEdit);
+  });
+  ed.accept.onclick = () => {
+    if (!edit?.done || !edit.text) return;
+    const view = edit.tab.editing && edit.tab.editor?.view;
+    if (!view || view.state.sliceDoc(edit.from, edit.to) !== edit.original) {
+      toast('That text changed in the meantime — nothing was replaced');
+      ed.dlg.close();
+      return;
+    }
+    edit.tab.editor.replaceRange(edit.from, edit.to, edit.text);
+    view.dispatch({ selection: { anchor: edit.from, head: edit.from + edit.text.length } });
+    ed.dlg.close();
+    toast('Change accepted — Ctrl+Z undoes it');
+  };
+  $('ai-edit-again').onclick = () => { if (edit && (edit.action !== 'translate' || edit.language)) runEdit(); };
+  $('ai-edit-reject').onclick = () => ed.dlg.close();
+  $('ai-edit-close').onclick = () => ed.dlg.close();
+  ed.dlg.addEventListener('close', () => {
+    if (ed.dlg.open) return;
+    if (edit && !edit.done) api.aiCancel(edit.id);
+    const tab = edit?.tab;
+    edit = null;
+    if (tab?.editing) tab.editor?.focus();
+  });
+
   $('ai-stop').addEventListener('click', () => { if (current) api.aiCancel(current.id); });
   $('ai-close').addEventListener('click', () => panel.close());
   // The dialog's close event arrives a moment after it closes; if a new request already reopened
@@ -222,5 +330,5 @@ export function createAiUi(ctx) {
     if (/^https?:/i.test(href)) api.openExternal(a.href);
   });
 
-  return { run, openSettings, askFolder };
+  return { run, openSettings, askFolder, editSelection };
 }

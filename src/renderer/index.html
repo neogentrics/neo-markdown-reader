@@ -229,6 +229,16 @@
 
   <div class="drop-overlay" id="drop-overlay" hidden><div>Drop to open</div></div>
   <div class="toast" id="toast" hidden></div>
+  <div class="speak-bar" id="speak-bar" role="toolbar" aria-label="Read aloud" hidden>
+    <button type="button" class="tb-btn" id="speak-prev" title="Previous section" aria-label="Previous section"><svg viewBox="0 0 24 24"><path d="M6 5v14M18 6l-9 6 9 6z"/></svg></button>
+    <button type="button" class="tb-btn speak-play" id="speak-play" title="Pause" aria-label="Pause"><svg viewBox="0 0 24 24"><path class="i-pause" d="M8 5v14M16 5v14"/><path class="i-play" d="M7 5l12 7-12 7z"/></svg></button>
+    <button type="button" class="tb-btn" id="speak-next" title="Next section" aria-label="Next section"><svg viewBox="0 0 24 24"><path d="M18 5v14M6 6l9 6-9 6z"/></svg></button>
+    <label class="speak-field">Speed <select id="speak-rate"><option value="0.75">0.75×</option><option value="1">1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="1.75">1.75×</option><option value="2">2×</option></select></label>
+    <label class="speak-field">Voice <select id="speak-voice"></select></label>
+    <span class="speak-status" id="speak-status" role="status"></span>
+    <button type="button" class="tb-btn" id="speak-stop" title="Stop reading (Esc)" aria-label="Stop reading"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="peek markdown-body" id="peek" role="tooltip" hidden></div>
   <dialog class="shortcuts publish-dlg" id="publish" aria-labelledby="publish-h">
     <div class="publish-head">
       <h3 id="publish-h">Export as PDF</h3>
@@ -371,6 +381,21 @@
       <p class="hint-text" id="ask-size"></p>
       <div class="grants-actions"><button type="button" class="link-btn" id="ask-cancel">Cancel</button><span class="spacer"></span><button type="submit" class="big-btn sm" id="ask-go">Ask</button></div>
     </form>
+  </dialog>
+
+  <dialog class="shortcuts ai-edit-dlg" id="ai-edit-dlg" aria-labelledby="ai-edit-h">
+    <div class="ai-head"><h3 id="ai-edit-h">Suggested change</h3><button type="button" class="tb-btn sm" id="ai-edit-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <form class="ai-edit-lang" id="ai-edit-lang" hidden>
+      <label class="field">Translate into<input type="text" id="ai-edit-language" list="ai-languages" placeholder="e.g. Spanish" spellcheck="false" autocomplete="off"></label>
+      <datalist id="ai-languages"><option value="English"><option value="Spanish"><option value="French"><option value="German"><option value="Italian"><option value="Portuguese"><option value="Dutch"><option value="Polish"><option value="Swedish"><option value="Japanese"><option value="Chinese (Simplified)"><option value="Korean"><option value="Arabic"><option value="Hindi"><option value="Ukrainian"></datalist>
+      <button type="submit" class="big-btn sm">Translate</button>
+    </form>
+    <div class="ai-edit-diff" id="ai-edit-diff" aria-live="polite"></div>
+    <div class="ai-foot"><span class="ai-status" id="ai-edit-status"></span><span class="spacer"></span>
+      <button type="button" class="link-btn" id="ai-edit-reject">Reject</button>
+      <button type="button" class="link-btn" id="ai-edit-again">Try again</button>
+      <button type="button" class="big-btn sm" id="ai-edit-accept" disabled>Accept</button>
+    </div>
   </dialog>
 
   <dialog class="shortcuts rename-dlg" id="rename-dlg" aria-labelledby="rename-dlg-h">

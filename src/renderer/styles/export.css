@@ -2,5 +2,6 @@
 @import 'katex/dist/katex.min.css';
 @import './theme.css';
 @import './markdown.css';
+@import './blocks.css';
 @import './code.css';
 @import './publish.css';

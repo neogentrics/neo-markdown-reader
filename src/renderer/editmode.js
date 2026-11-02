@@ -69,6 +69,7 @@ export function createEditMode(ctx) {
     if (!tab || tab.editing) { tab?.editor?.focus(); return; }
     if (tab.doc.compare) { ctx.toast('A comparison can’t be edited — open the document itself to edit it'); return; }
     if (tab.doc.needsPassword) { ctx.toast('Unlock the document first'); return; }
+    if (tab.doc.data) { ctx.toast('Data files and notebooks open read-only here — edit them in their own app'); return; }
     ctx.beforeEdit?.();                      // e.g. close split view to make room for the editor
     if (!tab.untitled) {
       const res = await api.requestEdit(tab.doc.path);
@@ -301,7 +302,7 @@ export function createEditMode(ctx) {
 
   function refresh() {
     const tab = ctx.activeTab();
-    els.edit.hidden = !tab || !!tab.doc.compare;           // comparisons are read-only views
+    els.edit.hidden = !tab || !!tab.doc.compare || !!tab.doc.data;           // comparisons and data files are read-only views
     els.save.hidden = !tab?.editing;
     if (!tab) return;
     const locked = !tab.untitled && tab.doc.writable === false && !tab.editing;

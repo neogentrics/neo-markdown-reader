@@ -10,7 +10,7 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
-**[Features](#features)** · **[Install](#install-windows)** · **[Connected notes](#connected-notes)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+**[Features](#features)** · **[Install](#install-windows)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
 
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
@@ -43,7 +43,8 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
-| **Connected notes** *(new in 2.3)* | Link documents with `[[wiki links]]` (suggested as you type, kept up to date when you rename); see what links here, a map of how a folder fits together, tags and every task in one list, a daily note, a link checker, and (optionally) ask Claude questions about a folder with links to its sources ([details](#connected-notes)) |
+| **Read, listen & share** *(new in 2.4)* | Read aloud with your computer's voices; focus mode, folding sections and hover previews; open CSV, JSON, YAML and Jupyter notebooks; charts from a table or a `chart` block; export e-books (EPUB) and slides (PDF or PowerPoint); and (optionally) proofread, rewrite, shorten or translate a selection with Claude ([details](#read-listen--share)) |
+| **Connected notes** *(2.3)* | Link documents with `[[wiki links]]` (suggested as you type, kept up to date when you rename); see what links here, a map of how a folder fits together, tags and every task in one list, a daily note, a link checker, and (optionally) ask Claude questions about a folder with links to its sources ([details](#connected-notes)) |
 | **Write faster** *(2.2)* | Paste or drop pictures (saved next to the document); edit tables in a grid and paste cells from Excel; paste from Word and web pages as clean Markdown, or import a Word document; version history with compare and restore; replace across a folder with a preview and undo; run any command from `Ctrl+K` and choose your own shortcuts ([details](#writing-faster)) |
 | **At home on Windows** *(2.1)* | A formatted preview of `.md` files in File Explorer's Preview pane; a full accessibility pass (screen readers, keyboard, high contrast); a Linux `.deb`, an Intel Mac build and `winget` ([details](#at-home-on-windows)) |
 | **Power features** *(2.0)* | Run JavaScript and Python code blocks in a sealed sandbox; lock documents with a password (AES-256); summarize, explain or turn notes into a report with Claude, using your own API key (optional, off by default); four more colour themes ([details](#power-features)) |
@@ -210,6 +211,68 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
 
 <img src="docs/screenshots/ask-folder.png" width="860" alt="Claude's answer to a question about the folder, with each point followed by a link to the document and line it came from">
 
+## Read, listen & share
+
+<img src="docs/screenshots/read-aloud.png" width="860" alt="A document being read aloud: the current sentence is highlighted and a bar at the bottom has pause, previous and next section, speed and voice controls">
+
+- **Read aloud** (*View → Read Aloud*, `Ctrl+Shift+U`): the document is read with your computer's own voices,
+  one sentence at a time, each highlighted as it's read.
+  - It starts at the sentence you selected, or the first one on screen.
+  - Pause, skip to the next or previous section, change the speed (0.75× to 2×) or the voice. `Esc` stops.
+  - Code, equations and diagrams are skipped. It works offline: only voices on your computer are offered,
+    so the text never leaves it. (On Linux, install `speech-dispatcher` and a voice such as `espeak-ng`.)
+- **Focus mode** (`F8`): everything except the paragraph you're reading fades back.
+- **Folding sections:** point at a heading and click the arrow beside it to fold its section away. Use
+  *View → Sections → Fold All* (`Ctrl+Shift+[`) to fold everything and see the document's shape.
+  - Going to a heading from the outline, a link or a search opens its section again.
+  - Exports and printing always include everything.
+- **Hover previews:** point at a footnote number to read the note. Point at a link to another document to see
+  the start of it, or of the section it links to.
+- **More file types**, opened read-only (*File → Open*, drag and drop, or a link):
+  - **CSV and TSV** as a table. Click a column heading to sort by it; numbers sort as numbers.
+  - **JSON and YAML** formatted and coloured.
+  - **Jupyter notebooks** (`.ipynb`) with their text, code and the outputs saved in the file. Nothing is run.
+  - Like any document, they can be searched, printed and exported.
+- **Charts from data:** a table becomes a bar, line or pie chart in the theme's colours. Write
+  `<!-- chart: bar -->` on the line before the table (it stays below the chart), or put the data in a
+  `chart` block:
+
+  ````markdown
+  ```chart
+  type: line          (bar, line or pie)
+  title: Weekly sign-ups
+  Week, Web, App
+  1, 310, 120
+  2, 365, 160
+  ```
+  ````
+
+  Charts are included in PDF, Word, web page, e-book and slide exports.
+- **E-books and slides** (*File → Export*):
+  - **E-book (.epub)** for Apple Books, Kobo, Google Play Books and most e-readers. It has a chapter for each
+    main section, a table of contents, and its pictures and diagrams.
+  - **Slides as PDF:** each slide on a 16:9 page, exactly as in presentation mode.
+  - **Slides as PowerPoint (.pptx):** editable text, with pictures, tables, charts and diagrams. Slides are
+    split the same way as presentation mode: at `---` lines, or at the main headings.
+- **AI writing help** (optional): select text in the editor, then choose *AI Assist → Proofread, Rewrite,
+  Shorten* or *Translate…* (also on the editor's right-click menu).
+  - Claude's suggestion appears as a change: removed words struck through, new ones highlighted.
+  - Nothing changes until you click **Accept**, and one `Ctrl+Z` undoes it.
+  - Only the selection and a little of the text around it are sent.
+
+<table>
+<tr>
+<td><img src="docs/screenshots/charts.png" alt="A bar chart drawn from the table below it, in the theme's colours"></td>
+<td><img src="docs/screenshots/data-files.png" alt="A CSV file shown as a table, sorted by its Revenue column"></td>
+</tr>
+<tr>
+<td align="center"><sub>A chart from a table, in the theme's colours</sub></td>
+<td align="center"><sub>A CSV file, sorted by any column</sub></td>
+</tr>
+</table>
+
+<img src="docs/screenshots/ai-writing.png" width="860" alt="A suggested rewrite of a paragraph shown as a change, with Reject, Try again and Accept buttons">
+
 ## Organizing your documents
 
 <img src="docs/screenshots/compare-split.png" width="860" alt="Find in Folder results, a comparison of two versions, and a second document side by side">
@@ -312,6 +375,8 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
   - **Summarize Document**
   - **Explain Selection** (in plain language)
   - **Turn Notes into a Report**, which opens the draft as a new document.
+  - **Ask About This Folder…** (2.3) and **Proofread, Rewrite, Shorten** or **Translate** a selection in
+    the editor (2.4; see [AI writing help](#read-listen--share)).
 - It uses Claude, with **your own Anthropic API key**, and is off until you turn it on in
   *AI Assist Settings…*. Requests are billed to your Anthropic account.
 - Choose Claude Opus 5.5 (the default), Sonnet 5.5 or Haiku 5.5. Answers stream in as they're written.
@@ -383,6 +448,8 @@ with your own accent colour and in exports.
 | `Ctrl` `Shift` `O` / `Ctrl` `Shift` `F` / `Ctrl` `Shift` `R` | Open folder / find in folder / replace in folder |
 | `Ctrl` `Shift` `Y` | Version history of this document |
 | `F2` | Rename the document (and update links to it) |
+| `Ctrl` `Shift` `U` / `F8` | Read aloud / focus mode |
+| `Ctrl` `Shift` `[` / `Ctrl` `Shift` `]` | Fold / unfold all sections |
 | `Ctrl` `Shift` `L` / `Ctrl` `Shift` `M` / `Ctrl` `Shift` `D` | Tasks panel / link map / today's note |
 | `[[` (while editing) | Link to another document in the folder |
 | `Ctrl` `Shift` `K` | Find a command by name |
@@ -417,10 +484,10 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help �
   any command from Quick Open with your own shortcuts.
 - **v2.3** added `[[wiki links]]` (suggested as you type, updated when you rename), backlinks, a link map,
   tags, a Tasks panel with daily notes, a link checker, and (optionally) asking Claude about a folder.
+- **v2.4** added read aloud, focus mode, folding sections, hover previews, CSV / JSON / YAML / Jupyter
+  notebook files, charts from data, EPUB and PowerPoint export, and (optionally) AI writing help in the editor.
 
-Coming next, before the next major version:
-- **v2.4, Read, listen & share** *(in progress)*: read aloud, focus mode, folding sections, CSV / JSON / Jupyter notebook
-  files, charts from data, EPUB and PowerPoint export, and AI writing help in the editor.
+Coming next:
 - **v3.0 ideas:** add-ons, the app in your language, sync between your computers, Git built in.
 
 Signed installers follow as soon as a code-signing certificate is bought.
@@ -458,13 +525,14 @@ src/
 ├── main/                 Electron "main" process (Node.js, talks to the OS)
 │   ├── main.js           windows, tabs bookkeeping, menus, file opening, live reload, sessions, links
 │   ├── publish.js        exports: the PDF designer's pages, web pages, Word documents (runs hidden, script-free windows)
-│   ├── export-tools.js   PDF finishing (pdf-lib) and .docx writing (docx), bundled into dist/export-tools.cjs
+│   ├── export-tools.js   PDF finishing (pdf-lib), .docx (docx), .epub (fflate) and .pptx (pptxgenjs), bundled into dist/export-tools.cjs
 │   ├── editing.js        edit permission, saving, backups, conflict checks (the only code that writes files)
 │   ├── locked.js         password-locked documents: AES-256-GCM with a scrypt key
 │   ├── sandbox.js        the sealed code sandbox (own session, private scheme, every other request refused)
 │   ├── ai.js             AI assist prompts and the Claude request (official Anthropic SDK)
 │   ├── notes-core.js     wiki links, backlinks, tags, tasks, link checking and rename rewrites (pure functions, shared with the page)
 │   ├── folder-index.js   the open folder's links, tags and tasks, re-reading only files that changed
+│   ├── data-docs.js      CSV / TSV, JSON, YAML and Jupyter notebooks as read-only Markdown
 │   ├── folders.js        scanning and searching an opened folder
 │   ├── annotations.js    private highlights & notes (stored in app data, never in the file)
 │   ├── updater.js        update checks against GitHub Releases (electron-updater for the installer)
@@ -480,6 +548,8 @@ src/
     ├── templates.js      File → New from Template
     ├── sidebar.js        Outline · Files · Search · Tasks · Notes · History panels
     ├── notes-ui.js       Backlinks, tag chips, the Tasks panel, the link map, the link checker and Rename
+    ├── read-ui.js        read aloud, focus mode, folding sections and hover previews
+    ├── charts.js         ```chart blocks and charted tables, drawn as SVG
     ├── palette.js        Quick Open (Ctrl+K)
     ├── split.js          split view and linked scrolling
     ├── compare.js        line and word diffs for Compare
