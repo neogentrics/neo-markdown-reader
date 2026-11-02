@@ -419,7 +419,7 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help â†
   tags, a Tasks panel with daily notes, a link checker, and (optionally) asking Claude about a folder.
 
 Coming next, before the next major version:
-- **v2.4, Read, listen & share:** read aloud, focus mode, folding sections, CSV / JSON / Jupyter notebook
+- **v2.4, Read, listen & share** *(in progress)*: read aloud, focus mode, folding sections, CSV / JSON / Jupyter notebook
   files, charts from data, EPUB and PowerPoint export, and AI writing help in the editor.
 - **v3.0 ideas:** add-ons, the app in your language, sync between your computers, Git built in.
 

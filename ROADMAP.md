@@ -28,7 +28,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v2.1](#v21--at-home-on-windows) | At home on Windows | ✅ Released ([2.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.1.0)) |
 | [v2.2](#v22--write-faster) | Write faster | ✅ Released ([2.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.2.0)) |
 | [v2.3](#v23--connected-notes) | Connected notes | ✅ Released ([2.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.3.0)) |
-| [v2.4](#v24--read-listen--share) | Read, listen & share | Planned |
+| [v2.4](#v24--read-listen--share) | Read, listen & share | 🚧 In progress |
 | [v3.0](#v30--the-next-major-release) | The next major release | Ideas — to be decided |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
 
@@ -147,12 +147,12 @@ updates itself from here on.
 
 ## v2.4 — Read, listen & share
 
-More ways to take in a document, and more ways to hand it on.
+🚧 **In progress.** More ways to take in a document, and more ways to hand it on.
 
 | Feature | Size | Details |
 |---|:-:|---|
 | Read aloud | M | Reads the document with your computer's built-in voices, highlighting each sentence as it goes; pause, change the speed, skip by heading. Works offline. |
-| Comfortable reading | S | Focus mode (dims everything but the paragraph you're reading), a reading progress bar, sections that fold under their headings, and hover previews of footnotes and of links to other documents. |
+| Comfortable reading | S | Focus mode (dims everything but the paragraph you're reading), sections that fold under their headings, and hover previews of footnotes and of links to other documents. (The reading progress bar is already there.) |
 | More file types | M | Open CSV and TSV files as sortable tables, JSON and YAML formatted, and Jupyter notebooks (`.ipynb`) with their outputs, read-only. |
 | Charts from data | M | A `chart` code block, or a table, becomes a bar, line or pie chart in the theme's colours; PDF and Word exports include it. |
 | eBooks & slide decks | M | Export an EPUB for e-readers, and presentations as PDF or PowerPoint (`.pptx`). |
