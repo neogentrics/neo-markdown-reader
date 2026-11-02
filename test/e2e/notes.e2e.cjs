@@ -202,11 +202,13 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await win.evaluate((v) => { const ed = eval(v); ed.dispatch({ selection: { anchor: ed.state.doc.length } }); ed.focus(); }, view());
     await win.keyboard.type('\n[[Ide');
     await win.waitForSelector('.cm-tooltip-autocomplete li >> text=Ideas');
+    await win.waitForTimeout(150);                         // the editor ignores Enter for 75 ms after the list opens
     await win.keyboard.press('Enter');
     assert.match(await editorText(), /\n\[\[Ideas\]\]$/);
     await menu('wiki-style');
     await win.keyboard.type(' [[Road');
     await win.waitForSelector('.cm-tooltip-autocomplete li >> text=Roadmap');
+    await win.waitForTimeout(150);                         // the editor ignores Enter for 75 ms after the list opens
     await win.keyboard.press('Enter');
     assert.match(await editorText(), /\[\[Ideas\]\] \[Roadmap\]\(Roadmap\.md\)$/);
     await menu('wiki-style');
