@@ -24,6 +24,7 @@ const DEFAULTS = Object.freeze({
   runCode: 'ask',         // ask | off — running code blocks (always asks before each run)
   brand: null,            // custom theme: accent colour, fonts, brand stylesheet (see BRAND_DEFAULTS)
   shortcuts: {},          // your own keyboard shortcuts: menu command id -> accelerator ('' = none)
+  wikiLinks: 'wiki',      // wiki | markdown — what the editor inserts when you pick a document after [[
   windowBounds: null,
 });
 
@@ -148,6 +149,7 @@ function sanitize(input) {
   if (Array.isArray(input.bookmarks)) s.bookmarks = [...new Set(input.bookmarks.filter(isPath))].slice(0, 300);
   if (Array.isArray(input.recentFolders)) s.recentFolders = [...new Set(input.recentFolders.filter(isPath))].slice(0, 10);
   if (['ask', 'off'].includes(input.runCode)) s.runCode = input.runCode;
+  if (['wiki', 'markdown'].includes(input.wikiLinks)) s.wikiLinks = input.wikiLinks;
   s.ai = cleanAiSettings(input.ai);
   s.exportOptions = cleanExportOptions(input.exportOptions);
   s.brand = cleanBrand(input.brand);

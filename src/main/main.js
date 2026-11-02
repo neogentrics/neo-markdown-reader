@@ -8,6 +8,8 @@ const { isMarkdownPath, isLockedPath, isOpenablePath, fileFromArgv, readMarkdown
 const { HistoryStore } = require('./history');
 const { runJob: runReplaceJob } = require('./folder-replace');
 const { saveImage, safeName, freeName } = require('./images');
+const { FolderIndex } = require('./folder-index');
+const { detectEol } = require('./files');
 const locked = require('./locked');
 const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = require('./sandbox');
 const ai = require('./ai');
@@ -567,6 +569,8 @@ function rebuildMenu() {
             : [{ label: 'No recent folders', enabled: false }],
         },
         cmd('close-folder', 'Close Folder'),
+        { id: 'daily-note', label: 'Today’s Note', accelerator: 'CmdOrCtrl+Shift+D', click: () => { const st = targetState(); if (st) openDailyNote(st); } },
+        cmd('rename-doc', 'Rename…', 'F2'),
         { id: 'import-docx', label: 'Import Word Document…', click: () => { const st = targetState(); if (st) importDocx(st); } },
         cmd('reopen-closed-tab', 'Reopen Closed Tab', 'CmdOrCtrl+Shift+T'),
         { type: 'separator' },
@@ -616,12 +620,14 @@ function rebuildMenu() {
         cmd('find-prev', 'Find Previous', 'Shift+F3'),
         cmd('find-in-folder', 'Find in Folder…', 'CmdOrCtrl+Shift+F'),
         cmd('replace-in-folder', 'Replace in Folder…', 'CmdOrCtrl+Shift+R'),
+        cmd('check-links', 'Check Links in Folder…'),
         { type: 'separator' },
         cmd('compare-saved', 'Compare with Saved Version'),
         cmd('compare-file', 'Compare with File…'),
         cmd('panel-history', 'Version History', 'CmdOrCtrl+Shift+Y'),
         { type: 'separator' },
         cmd('edit-table', 'Edit Table…'),
+        { id: 'wiki-style', label: 'Insert Standard Markdown Links', type: 'checkbox', checked: s.wikiLinks === 'markdown', click: () => setSetting({ wikiLinks: settings.get().wikiLinks === 'markdown' ? 'wiki' : 'markdown' }) },
         { type: 'separator' },
         cmd('highlight', 'Highlight Selection', 'CmdOrCtrl+Shift+H'),
         cmd('bookmark', 'Bookmark This File', 'CmdOrCtrl+D'),
@@ -633,6 +639,7 @@ function rebuildMenu() {
             cmd('ai-summarize', 'Summarize Document'),
             cmd('ai-explain', 'Explain Selection'),
             cmd('ai-report', 'Turn Notes into a Report'),
+            cmd('ai-folder', 'Ask About This Folder…'),
             { type: 'separator' },
             cmd('ai-settings', 'AI Assist Settings…'),
           ],
@@ -658,6 +665,8 @@ function rebuildMenu() {
         cmd('panel-files', 'Show Files'),
         cmd('panel-highlights', 'Show Highlights'),
         cmd('panel-history', 'Show Version History', undefined, { id: 'panel-history-view' }),
+        cmd('panel-tasks', 'Show Tasks', 'CmdOrCtrl+Shift+L'),
+        cmd('link-map', 'Link Map', 'CmdOrCtrl+Shift+M'),
         { type: 'separator' },
         cmd('split-toggle', 'Split View', 'CmdOrCtrl+\\'),
         cmd('split-link', 'Link Scrolling in Split View'),
@@ -929,6 +938,45 @@ async function openRecentFolder(state, root) {
   const info = await setFolder(state, root);
   if (info) state.win.webContents.send('folder:opened', info);
   else state.win.webContents.send('doc:error', { message: `Folder not found:\n${root}` });
+}
+
+// ---------------------------------------------------------------- connected notes (2.3)
+/** The open folder's link / tag / task index, brought up to date. */
+async function folderIndex(st) {
+  if (!st?.folder) return null;
+  st.index ??= new FolderIndex();
+  return st.index.update(st.folder.scan);
+}
+
+/** Write new text over a Markdown file, keeping its line endings and BOM, after a backup and a History copy. */
+async function rewriteFile(p, text, reason = 'save') {
+  const raw = await fs.promises.readFile(p);
+  const str = raw.toString('utf8');
+  await editing.backup(p);
+  await history.add(p, raw, reason);
+  await fs.promises.writeFile(p, encodeForSave(text, { eol: detectEol(str), bom: str.startsWith('\ufeff') }));
+}
+
+const pad2 = (n) => String(n).padStart(2, '0');
+const isoDay = (d = new Date()) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+
+/** File › Today’s Note: open (or create) Daily/YYYY-MM-DD.md in the open folder. */
+async function openDailyNote(st) {
+  if (!st.folder) { st.win.webContents.send('doc:error', { message: 'Open a folder first: daily notes go in its “Daily” folder.' }); return; }
+  const day = isoDay();
+  const dir = path.join(st.folder.root, 'Daily');
+  const file = path.join(dir, `${day}.md`);
+  try {
+    if (!fs.existsSync(file)) {
+      const long = new Date().toLocaleDateString(app.getLocale() || undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      await fs.promises.mkdir(dir, { recursive: true });
+      const body = `---\ntitle: ${long}\ndate: ${day}\ntags: [daily]\n---\n# ${long}\n\n## Tasks\n\n- [ ] \n\n## Notes\n\n`;
+      await fs.promises.writeFile(file, encodeForSave(body, { eol: process.platform === 'win32' ? '\r\n' : '\n' }), { flag: 'wx' });
+      st.folder.scan = await scanFolder(st.folder.root);
+      st.win.webContents.send('folder:changed', folderInfo(st.folder.scan));
+    }
+    sendDoc(st, 'tab:open', await loadDoc(file));
+  } catch (err) { st.win.webContents.send('doc:error', { message: errorMessage(err, file) }); }
 }
 
 // ---------------------------------------------------------------- IPC
@@ -1417,6 +1465,130 @@ function registerIpc() {
     }
     st.replaceUndo = null;
     return { ok: true, restored, skipped };
+  });
+
+  // ---- connected notes: backlinks, link map, tags, tasks, link checker (open folder only)
+  ipcMain.handle('notes:backlinks', async (e, p) => {
+    const idx = await folderIndex(stateFor(e));
+    return idx && isStr(p, 4096) ? idx.backlinks(p) : [];
+  });
+  ipcMain.handle('notes:graph', async (e) => { const idx = await folderIndex(stateFor(e)); return idx ? idx.graph() : null; });
+  ipcMain.handle('notes:tags', async (e) => { const idx = await folderIndex(stateFor(e)); return idx ? idx.tags() : []; });
+  ipcMain.handle('notes:tasks', async (e, today) => {
+    const idx = await folderIndex(stateFor(e));
+    return idx ? idx.tasks(/^\d{4}-\d{2}-\d{2}$/.test(today) ? today : isoDay()) : [];
+  });
+  ipcMain.handle('notes:check', async (e) => { const idx = await folderIndex(stateFor(e)); return idx ? idx.check() : null; });
+
+  // Ticking a task off changes its file: only with edit permission, only if that line is unchanged.
+  ipcMain.handle('tasks:toggle', async (e, req = {}) => {
+    const st = stateFor(e);
+    const p = req.path;
+    if (!st?.folder || !isStr(p, 4096) || !isMarkdownPath(p) || !st.folder.scan.files.includes(p) || !Number.isInteger(req.line) || typeof req.text !== 'string') return { ok: false, reason: 'invalid' };
+    if (!editing.isGranted(st, p)) {
+      const grant = await editing.requestEdit(st, p);
+      if (!grant.ok) return { ok: false, reason: grant.reason };
+    }
+    if (!(await isWritable(p))) return { ok: false, reason: 'readonly' };
+    const raw = (await fs.promises.readFile(p, 'utf8')).replace(/^\ufeff/, '').replace(/\r\n?/g, '\n');
+    const lines = raw.split('\n');
+    const m = /^(\s*(?:[-*+]|\d+[.)])\s+)\[( |x|X)\](\s+)(.*)$/.exec(lines[req.line] ?? '');
+    if (!m || m[4].trim() !== req.text.trim()) return { ok: false, reason: 'changed' };
+    lines[req.line] = `${m[1]}[${req.done ? 'x' : ' '}]${m[3]}${m[4]}`;
+    await rewriteFile(p, lines.join('\n'));
+    return { ok: true };
+  });
+
+  // A [[link]] to a document that doesn't exist yet: create it (after asking) next to the linking one.
+  ipcMain.handle('doc:create-linked', async (e, fromPath, name) => {
+    const st = stateFor(e);
+    if (!st || !isStr(fromPath, 4096) || !isOpenablePath(fromPath) || !isStr(name, 200)) return { error: 'invalid' };
+    const clean = String(name).trim().replace(/[\\:*?"<>|]/g, '-').replace(/^[./]+/, '');
+    if (!clean || clean.split('/').some((seg) => !seg || seg === '..')) return { error: 'That isn’t a name a document can have.' };
+    const base = clean.includes('/') && st.folder ? st.folder.root : path.dirname(fromPath);     // "projects/plan" is from the folder's top
+    const target = path.join(base, ...clean.split('/')) + (isMarkdownPath(clean) ? '' : '.md');
+    if (fs.existsSync(target)) return { doc: await loadDoc(target) };
+    const { response } = await dialog.showMessageBox(st.win, {
+      type: 'question', title: 'Create document?', noLink: true, buttons: ['Create', 'Cancel'], defaultId: 0, cancelId: 1,
+      message: `Create “${path.basename(target)}”?`, detail: `There’s no document called “${name}” yet. It will be created in:\n${path.dirname(target)}`,
+    });
+    if (response !== 0) return { canceled: true };
+    try {
+      await fs.promises.mkdir(path.dirname(target), { recursive: true });
+      await fs.promises.writeFile(target, encodeForSave(`# ${path.basename(target).replace(/\.[^.]+$/, '')}\n\n`, { eol: process.platform === 'win32' ? '\r\n' : '\n' }), { flag: 'wx' });
+      editing.sessionGrants(st).add(editing.key(target));
+      return { doc: await loadDoc(target) };
+    } catch (err) { return { error: errorMessage(err, target) }; }
+  });
+
+  // Rename a document, then offer to update the links to it in the open folder.
+  ipcMain.handle('doc:rename', async (e, p, newName) => {
+    const st = stateFor(e);
+    if (!st || !isStr(p, 4096) || !isMarkdownPath(p) || !isStr(newName, 255)) return { error: 'invalid' };
+    let name = newName.trim();
+    if (!name || /[\\/:*?"<>|]/.test(name) || /^\.+$/.test(name)) return { error: 'A name can’t contain \\ / : * ? " < > |' };
+    if (!isMarkdownPath(name)) name += path.extname(p) || '.md';
+    const target = path.join(path.dirname(p), name);
+    if (target === p) return { error: 'That’s already its name.' };
+    if (fs.existsSync(target) && target.toLowerCase() !== p.toLowerCase()) return { error: `“${name}” already exists in that folder.` };
+    if (!editing.isGranted(st, p)) {
+      const grant = await editing.requestEdit(st, p);
+      if (!grant.ok) return { error: grant.reason === 'readonly' ? 'This file is read-only.' : null, canceled: true };
+    }
+    const idx = await folderIndex(st);
+    const updates = idx && st.folder.scan.files.includes(p) ? idx.retarget(p, target) : [];
+    try { await fs.promises.rename(p, target); } catch (err) { return { error: errorMessage(err, p) }; }
+    editing.sessionGrants(st).add(editing.key(target));
+    let updated = 0;
+    if (updates.length) {
+      const links = updates.reduce((n, u) => n + u.count, 0);
+      const { response } = await dialog.showMessageBox(st.win, {
+        type: 'question', title: 'Update links?', noLink: true, buttons: ['Update Links', 'Leave Them'], defaultId: 0, cancelId: 1,
+        message: `Update ${links} link${links === 1 ? '' : 's'} to “${path.basename(p)}” in ${updates.length} other document${updates.length === 1 ? '' : 's'}?`,
+        detail: 'Each document is backed up and its current version kept in Version History first.',
+      });
+      if (response === 0) {
+        for (const u of updates) {
+          try {
+            const raw = (await fs.promises.readFile(u.path, 'utf8')).replace(/^\ufeff/, '').replace(/\r\n?/g, '\n');
+            const res = require('./notes-core').retargetLinks(raw, u.path, p, target, idx.files);
+            if (res.count && (await isWritable(u.path))) { await rewriteFile(u.path, res.text); updated += res.count; }
+          } catch { /* left as it was */ }
+        }
+      }
+    }
+    if (st.folder) { st.folder.scan = await scanFolder(st.folder.root); st.win.webContents.send('folder:changed', folderInfo(st.folder.scan)); }
+    return { doc: await loadDoc(target), updated };
+  });
+
+  // ---- AI: ask a question about documents from the open folder
+  ipcMain.handle('ai:ask-folder', async (e, req = {}) => {
+    const st = stateFor(e);
+    const conf = settings.get().ai;
+    const apiKey = loadAiKey();
+    if (!conf.enabled || !apiKey) return { error: 'AI assist is off.', setup: true };
+    if (!st?.folder) return { error: 'Open a folder first.' };
+    if (!isStr(req.id, 100) || !Array.isArray(req.paths) || req.paths.length > 500) return { error: 'invalid' };
+    const allowed = new Set(st.folder.scan.files.filter((f) => !isLockedPath(f)));
+    const docs = [];
+    for (const p of req.paths) {
+      if (!allowed.has(p)) continue;                 // never locked documents, never files outside the folder
+      try { docs.push({ rel: path.relative(st.folder.root, p).replace(/\\/g, '/'), text: (await fs.promises.readFile(p, 'utf8')).replace(/^\ufeff/, '') }); } catch { /* skipped */ }
+    }
+    let content;
+    try { content = ai.buildFolderPrompt(typeof req.question === 'string' ? req.question : '', docs); } catch (err) { return { error: err.message }; }
+    const { Anthropic } = publish.exportTools(ROOT);
+    const ctl = new AbortController();
+    aiRuns.set(req.id, ctl);
+    try {
+      return await ai.runAi({
+        Anthropic, apiKey, model: conf.model, content, signal: ctl.signal,
+        baseURL: process.env.NMR_AI_BASE_URL || undefined,
+        onText: (text) => { if (!e.sender.isDestroyed()) e.sender.send('ai:delta', { id: req.id, text }); },
+      });
+    } catch (err) {
+      return { error: ctl.signal.aborted ? 'Stopped.' : ai.friendlyError(err, Anthropic) };
+    } finally { aiRuns.delete(req.id); }
   });
 
   // ---- commands by name (Quick Open ">") and your own shortcuts

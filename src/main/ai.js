@@ -47,6 +47,30 @@ function buildPrompt(action, { text = '', selection = '', title = '' } = {}) {
   }
 }
 
+/**
+ * Ask a question about several documents from the open folder. Lines are numbered so the answer can
+ * point at its sources as [path:line]. Throws a friendly error for an empty question or too much text.
+ * @param {string} question  @param {{ rel: string, text: string }[]} docs
+ */
+function buildFolderPrompt(question, docs) {
+  const q = String(question || '').trim();
+  if (!q) throw new Error('Type a question first.');
+  if (q.length > 4000) throw new Error('That question is too long.');
+  const usable = (docs || []).filter((d) => String(d.text || '').trim());
+  if (!usable.length) throw new Error('None of the chosen documents has any text.');
+  let total = 0;
+  const parts = [];
+  for (const d of usable) {
+    const numbered = String(d.text).replace(/\r\n?/g, '\n').split('\n').map((l, i) => `${i + 1}| ${l}`).join('\n');
+    total += numbered.length;
+    if (total > MAX_CHARS) throw new Error(`The chosen documents are too long together (over ${MAX_CHARS / 1000}K characters). Choose fewer.`);
+    parts.push(`<document path="${escAttr(d.rel)}">\n${numbered}\n</document>`);
+  }
+  return `${parts.join('\n\n')}\n\nAnswer this question using only the documents above:\n<question>\n${q}\n</question>\n\n`
+    + 'After each statement, cite where it comes from as [path:line], using the document path and the line number shown before the "|" (for example [notes/plan.md:12]). '
+    + 'If the documents don\'t answer the question, say so plainly instead of guessing. Keep the answer short.';
+}
+
 function cleanAiSettings(a) {
   const out = { enabled: false, model: DEFAULT_MODEL };
   if (!a || typeof a !== 'object') return out;
@@ -106,4 +130,4 @@ async function runAi({ Anthropic, apiKey, model, content, onText, signal, baseUR
   return { text, stopReason: message.stop_reason, model: message.model, note };
 }
 
-module.exports = { MODELS, DEFAULT_MODEL, MAX_CHARS, KEY_RE, SYSTEM, buildPrompt, cleanAiSettings, requestParams, friendlyError, runAi };
+module.exports = { MODELS, DEFAULT_MODEL, MAX_CHARS, KEY_RE, SYSTEM, buildPrompt, buildFolderPrompt, cleanAiSettings, requestParams, friendlyError, runAi };

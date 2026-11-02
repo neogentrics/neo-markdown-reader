@@ -99,6 +99,7 @@ export function createEditMode(ctx) {
       onTopLine: (line) => syncPreviewTo(tab, line),
       onImages: (files, pos) => addImages(tab, files, pos),
       onPasted: (kind) => ctx.toast(kind === 'table' ? 'Pasted as a table' : 'Pasted as Markdown — Ctrl+Shift+V pastes plain text'),
+      linkTargets: () => ctx.linkTargets(tab),
     });
     show(tab);
     tab.editor.focus();

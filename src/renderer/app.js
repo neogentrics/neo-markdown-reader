@@ -15,6 +15,8 @@ import { addRunButtons } from './run-ui.js';
 import { createAiUi } from './ai-ui.js';
 import { createHistoryUi } from './history-ui.js';
 import { createKeysUi } from './keys-ui.js';
+import { createNotesUi } from './notes-ui.js';
+import { resolveWiki, relative, dirOf, slugify as wikiSlug } from '../main/notes-core.js';
 import './styles/app.css';
 
 const api = window.reader;
@@ -53,6 +55,7 @@ let lockUi = null;
 let aiUi = null;
 let historyUi = null;
 let keysUi = null;
+let notesUi = null;
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -116,7 +119,7 @@ function renderInto(tab, doc, { preview = false } = {}) {
     return Promise.resolve();
   }
   tab.el.classList.remove('locked-page');
-  const result = render(doc.content, { baseUrl: doc.baseUrl });
+  const result = render(doc.content, { baseUrl: doc.baseUrl, wiki: wikiResolver(doc) });
   if (!preview) tab.doc = doc;
   tab.result = result;
   tab.el.innerHTML = result.html;
@@ -300,6 +303,7 @@ function showActiveDoc() {
   updateBookmarkButton();
   updateChrome();
   if (sidebar?.panel() === 'history') historyUi?.render(tab);
+  notesUi?.renderBacklinks(tab);
 }
 
 function isBookmarked(p) { return !!p && (settings.bookmarks || []).some((b) => b.toLowerCase() === p.toLowerCase()); }
@@ -569,9 +573,29 @@ els.desk.addEventListener('scroll', () => {
 }, { passive: true });
 
 // ================================================================ links & images in documents
+/** Where [[wiki links]] in `doc` go: documents in the open folder, found by name. */
+function wikiResolver(doc) {
+  const files = sidebar?.allFiles() || [];
+  if (!files.length || !doc.path) return null;
+  return (w) => {
+    const to = w.name ? resolveWiki(w.name, files, doc.path) : doc.path;
+    const hash = w.heading ? `#${wikiSlug(w.heading)}` : '';
+    if (!to) return { href: `${encodeURI(w.name)}.md${hash}`, missing: true };
+    const rel = to === doc.path ? '' : relative(dirOf(doc.path), to).split('/').map(encodeURIComponent).join('/');
+    return { href: rel + hash || '#', missing: false };
+  };
+}
+
 async function followLink(a, { newTab = false, tab = activeTab() } = {}) {
   const href = a.getAttribute('href');
   if (!tab || !href) return;
+  if (a.classList.contains('wikilink-missing')) {
+    // A link to a document that doesn't exist yet: offer to create it next to this one.
+    const res = await api.createLinked(tab.doc.path, a.dataset.wiki || '');
+    if (res?.doc) { await openInTab(res.doc, { activate: true, scroll: 0 }); sidebar.refresh(); }
+    else if (res?.error) toast(res.error);
+    return;
+  }
   if (href.startsWith('#')) { scrollToId(href.slice(1), tab); return; }
   const res = await api.resolveLink(href, tab.doc.path);
   if (res.kind === 'doc') {
@@ -873,11 +897,37 @@ api.onCommand(({ cmd, arg }) => {
     case 'ai-explain': aiUi.run('explain'); break;
     case 'ai-report': aiUi.run('report'); break;
     case 'ai-settings': aiUi.openSettings(); break;
+    case 'ai-folder': aiUi.askFolder(); break;
+    // connected notes (v2.3)
+    case 'panel-tasks': showSidebar(); sidebar.show('tasks'); break;
+    case 'link-map': notesUi.openMap(); break;
+    case 'check-links': notesUi.checkLinks(); break;
+    case 'rename-doc': notesUi.rename(target || activeTab()); break;
     default: break;
   }
 });
 
 function showSidebar() { if (!settings.showToc) api.setSettings({ showToc: true }); }
+
+// ================================================================ connected notes (v2.3)
+/**
+ * The open folder was opened, changed on disk or closed: [[links]] may now go somewhere else, and
+ * Backlinks, tags and tasks may have changed. Documents are re-rendered only when the list of files
+ * changed (a save alone doesn't move any link).
+ */
+let folderKey = '';
+function folderUpdated(folder) {
+  const key = folder ? `${folder.root}\n${(sidebar?.allFiles() || []).map((f) => f.path).join('\n')}` : '';
+  if (key !== folderKey) {
+    folderKey = key;
+    for (const t of tabs) if (t.result && !t.doc.compare && !t.doc.locked && /\[\[/.test(t.editing ? t.editor.getText() : t.doc.content)) rerender(t);
+  }
+  if (!notesUi) return;
+  if (!folder) notesUi.clearTag();
+  notesUi.renderTags();
+  notesUi.renderBacklinks();
+  if (sidebar.panel() === 'tasks') notesUi.renderTasks();
+}
 
 // ================================================================ compare
 async function openCompare(left, right) {
@@ -1023,6 +1073,7 @@ editMode = createEditMode({
   platform: () => platform,
   desk: els.desk,
   beforeEdit: () => split?.close(),
+  linkTargets: (tab) => ({ files: sidebar?.allFiles() || [], style: settings.wikiLinks === 'markdown' ? 'markdown' : 'wiki', from: tab.doc.path || '' }),
 });
 sidebar = createSidebar({
   api,
@@ -1033,7 +1084,23 @@ sidebar = createSidebar({
   renderHighlights: () => highlights.renderPanel(activeTab()),
   renderHistory: () => historyUi.render(activeTab()),
   unsavedPaths: () => tabs.filter((t) => t.editing && t.dirty && t.doc.path).map((t) => t.doc.path),
+  renderTasks: () => notesUi.renderTasks(),
+  onFolder: folderUpdated,
   toast,
+});
+notesUi = createNotesUi({
+  api, activeTab, openAtLine, openPath, toast,
+  folder: () => sidebar.folder(),
+  setTagFilter: (t) => sidebar.setTagFilter(t),
+  async retargetTab(tab, doc) {
+    tab.doc = { ...doc, position: 0 };
+    tab.history = [];
+    if (!tab.editing) await refreshTab(tab, tab.doc);
+    else { tab.doc.content = tab.savedText ?? doc.content; updateTabButton(tab); if (tab.id === activeId) showActiveDoc(); }
+    updateTabButton(tab);
+    sidebar.markActive();
+    syncSoon();
+  },
 });
 historyUi = createHistoryUi({
   api, activeTab, toast, openCompare,
@@ -1079,6 +1146,9 @@ aiUi = createAiUi({
     return sel.toString().trim();
   },
   newDocument: (given) => editMode.newDocument('blank', given),
+  openAtLine,
+  folder: () => sidebar.folder(),
+  folderFiles: () => sidebar.allFiles(),
 });
 lockUi = createLockUi({
   api, activeTab, openInTab, closeTab, toast,

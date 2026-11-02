@@ -74,6 +74,16 @@ contextBridge.exposeInMainWorld('reader', {
   setShortcut: invoke('shortcuts:set'),
   resetShortcuts: invoke('shortcuts:reset-all'),
   recordShortcuts: invoke('shortcuts:recording'),
+  // connected notes (open folder only)
+  backlinks: invoke('notes:backlinks'),
+  linkGraph: invoke('notes:graph'),
+  tags: invoke('notes:tags'),
+  tasks: invoke('notes:tasks'),
+  checkLinks: invoke('notes:check'),
+  toggleTask: invoke('tasks:toggle'),
+  createLinked: invoke('doc:create-linked'),
+  renameDoc: invoke('doc:rename'),
+  askFolder: invoke('ai:ask-folder'),
   // folders, compare, highlights & bookmarks
   openFolder: invoke('folder:open'),
   closeFolder: invoke('folder:close'),

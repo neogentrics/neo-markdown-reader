@@ -2,7 +2,7 @@
 title: Neo Markdown Reader Roadmap
 subtitle: From reader to Markdown workspace
 author: Neo Gentrics
-date: 2026-11-01
+date: 2026-11-02
 tags: [roadmap, planning]
 ---
 
@@ -27,7 +27,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v2.0](#v20--power-features) | Power features | ✅ Released ([2.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.0.0)) |
 | [v2.1](#v21--at-home-on-windows) | At home on Windows | ✅ Released ([2.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.1.0)) |
 | [v2.2](#v22--write-faster) | Write faster | ✅ Released ([2.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.2.0)) |
-| [v2.3](#v23--connected-notes) | Connected notes | 🚧 In progress |
+| [v2.3](#v23--connected-notes) | Connected notes | ✅ Done — ships in 2.3.0 |
 | [v2.4](#v24--read-listen--share) | Read, listen & share | Planned |
 | [v3.0](#v30--the-next-major-release) | The next major release | Ideas — to be decided |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
@@ -134,16 +134,16 @@ updates itself from here on.
 
 ## v2.3 — Connected notes
 
-🚧 **In progress** (using the proposed answer to open decision 6). Turn a folder of documents into a small knowledge base.
+✅ **Done — ships in 2.3.0.** Turn a folder of documents into a small knowledge base.
 
 | Feature | Size | Details |
 |---|:-:|---|
-| Wiki links | M | Type `[[` to link another document by name (or `[[Name#Heading]]`), with suggestions as you type. Renaming a file offers to update the links to it. Exports turn them into normal links. |
-| Backlinks & link map | M | A *Backlinks* panel shows every document that links to this one, with the sentence around each link; a map view draws how the folder's documents connect. |
-| Tags | S | Tags from the front matter and `#tags` in the text, with a *Tags* panel that filters the folder. |
-| 🛡️ Tasks across a folder & daily notes | M | A *Tasks* panel gathers every `- [ ]` checkbox in the folder, with due dates, sorted by date; ticking one off updates its file (with permission). One click creates today's note from a template. |
-| Link checker | S | Finds broken links, missing images and links to headings that no longer exist, across the whole folder. |
-| Ask your folder (AI, optional) | M | Ask a question and get an answer drawn from the documents you choose, with links to the passages it used. Uses your own key; locked documents are never sent. |
+| ✅ Wiki links | M | Type `[[` to link another document by name (or `[[Name#Heading]]`, `[[Name\|your text]]`), with suggestions as you type. Clicking a link to a document that doesn't exist yet offers to create it. Renaming a file (`F2`) offers to update every link to it. A setting writes standard Markdown links instead. |
+| ✅ Backlinks & link map | M | *Linked from*, under the outline, shows every document that links to this one, with the line around each link; the link map draws how the folder's documents connect. |
+| ✅ Tags | S | Tags from the front matter and `#tags` in the text, shown as chips in the *Files* panel that filter the folder. |
+| ✅ 🛡️ Tasks across a folder & daily notes | M | A *Tasks* panel gathers every `- [ ]` checkbox in the folder, with due dates, sorted by date; ticking one off updates its file (with permission). One click creates today's note from a template. |
+| ✅ Link checker | S | Finds broken links, missing images and links to headings that no longer exist, across the whole folder. |
+| ✅ Ask your folder (AI, optional) | M | Ask a question and get an answer drawn from the documents you choose, with links to the passages it used. Uses your own key; locked documents are never sent. |
 
 ## v2.4 — Read, listen & share
 
@@ -186,6 +186,6 @@ More ways to take in a document, and more ways to hand it on.
 3. **Which languages may *Run* execute?** ✅ *Decided:* JavaScript and Python only (shipped in 2.0.0). Shell stays off.
 4. **Password lock: locked copy or replace the original?** ✅ *Decided:* a locked copy by default, with a checkbox to move the original to the Recycle Bin (shipped in 2.0.0).
 5. **Where should pasted images go?** ✅ *Decided:* an `images` folder next to the document (shipped in 2.2.0).
-6. **Wiki links aren't standard Markdown.** Keep them as `[[Name]]` in the file (the same as Obsidian), or write standard links? *Proposed:* `[[Name]]` by default, with a setting to write standard Markdown links instead.
+6. **Wiki links aren't standard Markdown.** ✅ *Decided:* `[[Name]]` by default (the same as Obsidian), with *Edit → Insert Standard Markdown Links* to write `[Name](path.md)` instead (ships in 2.3.0).
 7. **How much version history to keep?** ✅ *Decided:* every save for 30 days, then one a day, up to 1 GB in total (shipped in 2.2.0).
 8. **What should 3.0 focus on?** *Proposed:* add-ons and the app in your language first, then sync; shared review only if it's needed.
