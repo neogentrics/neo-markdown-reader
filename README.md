@@ -488,7 +488,11 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help â†
   notebook files, charts from data, EPUB and PowerPoint export, and (optionally) AI writing help in the editor.
 
 Coming next:
-- **v3.0 ideas:** add-ons, the app in your language, sync between your computers, Git built in.
+- **v3.0, Make it yours** *(in progress)*: add-ons (new code-block types, themes and export formats, each
+  approved by you) and the app in your language, with right-to-left documents.
+- **v3.1, Across your computers:** highlights, notes, bookmarks, history and settings synced through a folder
+  you already sync. No account needed.
+- **Later, if needed:** Git built in, shared review.
 
 Signed installers follow as soon as a code-signing certificate is bought.
 

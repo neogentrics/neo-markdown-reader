@@ -29,7 +29,9 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v2.2](#v22--write-faster) | Write faster | ✅ Released ([2.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.2.0)) |
 | [v2.3](#v23--connected-notes) | Connected notes | ✅ Released ([2.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.3.0)) |
 | [v2.4](#v24--read-listen--share) | Read, listen & share | ✅ Released ([2.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.4.0)) |
-| [v3.0](#v30--the-next-major-release) | The next major release | Ideas — to be decided |
+| [v3.0](#v30--make-it-yours) | Make it yours | 🚧 In progress |
+| [v3.1](#v31--across-your-computers) | Across your computers | Planned |
+| [Later](#later--only-if-needed) | Only if needed | Ideas |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
 
 ## v1.0 — The reader
@@ -158,15 +160,29 @@ updates itself from here on.
 | ✅ eBooks & slide decks | M | Export an EPUB for e-readers, and presentations as PDF or PowerPoint (`.pptx`). |
 | ✅ AI writing help (optional) | M | Proofread, rewrite, shorten or translate a selection in the editor; the suggestion appears as a change you accept or reject. |
 
-## v3.0 — The next major release
+## v3.0 — Make it yours
 
-💡 **Ideas — to be decided** (see [open decision 8](#open-decisions)). Bigger changes, each worth a release of its own.
+🚧 **In progress** (open decision 8: add-ons and the app in your language first). The next major release.
 
 | Feature | Size | Details |
 |---|:-:|---|
 | 🛡️ Add-ons | L | Install add-ons for new code-block types, themes and export formats. Each add-on says what it can do, and you approve it before it runs. |
 | The app in your language | L | Menus and dialogs translated (Spanish, French and German first), and right-to-left documents (Arabic, Hebrew). |
+
+## v3.1 — Across your computers
+
+Planned. Your reading life, the same on every computer, without an account.
+
+| Feature | Size | Details |
+|---|:-:|---|
 | Sync between your computers | M | Highlights, notes, bookmarks, history and settings kept in step through a folder you already sync (OneDrive, Dropbox, iCloud). No account needed. |
+
+## Later — only if needed
+
+💡 Ideas kept for later, if people ask for them.
+
+| Feature | Size | Details |
+|---|:-:|---|
 | Git built in | M | Changed files marked in the Files panel, compare with the last commit, and commit from the app. |
 | Shared review | L | Comments that other people can see and answer. It needs a sharing service, so it's an open question whether it's worth it. |
 
@@ -188,4 +204,4 @@ updates itself from here on.
 5. **Where should pasted images go?** ✅ *Decided:* an `images` folder next to the document (shipped in 2.2.0).
 6. **Wiki links aren't standard Markdown.** ✅ *Decided:* `[[Name]]` by default (the same as Obsidian), with *Edit → Insert Standard Markdown Links* to write `[Name](path.md)` instead (shipped in 2.3.0).
 7. **How much version history to keep?** ✅ *Decided:* every save for 30 days, then one a day, up to 1 GB in total (shipped in 2.2.0).
-8. **What should 3.0 focus on?** *Proposed:* add-ons and the app in your language first, then sync; shared review only if it's needed.
+8. **What should 3.0 focus on?** ✅ *Decided:* add-ons and the app in your language (3.0), then sync (3.1); Git and shared review only if they're needed.
