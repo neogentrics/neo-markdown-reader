@@ -17,6 +17,7 @@ import { createHistoryUi } from './history-ui.js';
 import { createKeysUi } from './keys-ui.js';
 import { createNotesUi } from './notes-ui.js';
 import { createReadUi, cleanCopy } from './read-ui.js';
+import { createUiTranslator } from './i18n-ui.js';
 import { resolveWiki, relative, dirOf, slugify as wikiSlug } from '../main/notes-core.js';
 import './styles/app.css';
 
@@ -58,6 +59,7 @@ let historyUi = null;
 let keysUi = null;
 let notesUi = null;
 let readUi = null;
+const uiText = createUiTranslator();
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -125,6 +127,9 @@ function renderInto(tab, doc, { preview = false } = {}) {
   if (!preview) tab.doc = doc;
   tab.result = result;
   tab.el.innerHTML = result.html;
+  // Right-to-left documents (front matter dir: rtl, or lang: ar / he / fa…); otherwise each block decides.
+  if (result.dir) tab.el.dir = result.dir; else tab.el.removeAttribute('dir');
+  if (result.lang) tab.el.lang = result.lang; else tab.el.removeAttribute('lang');
   tab.el.classList.toggle('data-page', !!doc.data);
   enhance(tab.el, { run: !doc.data });
   if (doc.data === 'csv' || doc.data === 'tsv') makeSortable(tab.el);
@@ -1056,6 +1061,7 @@ const importedNote = (res) => `Imported from Word${res.images ? ` with ${res.ima
 // ================================================================ settings, updates, misc
 function applySettings(s) {
   settings = s;
+  uiText.setLanguage(s.lang || 'en');
   const root = document.documentElement;
   const prevTheme = root.dataset.theme;
   const prevTone = root.dataset.tone;

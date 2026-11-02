@@ -11,6 +11,13 @@ const SKIP = '.copy-btn, .run-output, .footnote-backref, .octicon, script, style
 
 const clean = (s) => s.replace(/[ \t\r\n\f]+/g, ' ');
 
+/** Does this text read right to left (its first letter is Arabic, Hebrew…)? The same rule as dir="auto". */
+export function rtlText(text) {
+  const m = /[\p{L}]/u.exec(String(text || ''));
+  return !!m && /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/.test(m[0]);
+}
+const rtlOf = (el) => (el.getAttribute?.('dir') === 'rtl' || el.closest?.('[dir="rtl"]') && el.getAttribute?.('dir') !== 'auto' ? true : rtlText(el.textContent));
+
 function size(el) {
   const w = el.naturalWidth || el.width?.baseVal?.value || Number(el.getAttribute?.('width')) || 0;
   const h = el.naturalHeight || el.height?.baseVal?.value || Number(el.getAttribute?.('height')) || 0;
@@ -174,13 +181,13 @@ function block(el, out) {
     return;
   }
   if (/^H[1-6]$/.test(tag)) {
-    out.push({ t: 'h', level: Number(tag[1]), id: el.id || '', runs: trimRuns(runsOf(el)) });
+    out.push({ t: 'h', level: Number(tag[1]), id: el.id || '', runs: trimRuns(runsOf(el)), ...(rtlOf(el) ? { rtl: true } : {}) });
     return;
   }
   switch (tag) {
     case 'P': {
       const runs = trimRuns(runsOf(el));
-      if (runs.length) out.push({ t: 'p', runs, align: align(el) });
+      if (runs.length) out.push({ t: 'p', runs, align: align(el), ...(rtlOf(el) ? { rtl: true } : {}) });
       return;
     }
     case 'UL': case 'OL': out.push(listOf(el)); return;

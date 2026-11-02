@@ -1,0 +1,308 @@
+en	es	fr	de
+Open	Abrir	Ouvrir	Öffnen
+Save	Guardar	Enregistrer	Speichern
+Edit	Editar	Modifier	Bearbeiten
+Theme	Tema	Thème	Design
+Auto	Automático	Auto	Automatisch
+Paper	Papel	Papier	Papier
+Sepia	Sepia	Sépia	Sepia
+Mist	Niebla	Brume	Nebel
+Night	Noche	Nuit	Nacht
+Forest	Bosque	Forêt	Wald
+Dusk	Crepúsculo	Crépuscule	Dämmerung
+Contrast	Contraste	Contraste	Kontrast
+Typeface	Tipo de letra	Police	Schrift
+Modern	Moderna	Moderne	Modern
+Book	Libro	Livre	Buch
+Page width	Ancho de página	Largeur de page	Seitenbreite
+Narrow	Estrecho	Étroite	Schmal
+Normal	Normal	Normale	Normal
+Wide	Ancho	Large	Breit
+Full	Completo	Pleine	Voll
+Customize colours & fonts…	Personalizar colores y fuentes…	Personnaliser couleurs et polices…	Farben und Schriften anpassen…
+Outline	Índice	Plan	Inhalt
+Files	Archivos	Fichiers	Dateien
+Search	Buscar	Chercher	Suche
+Tasks	Tareas	Tâches	To-dos
+Notes	Notas	Notes	Notizen
+History	Historial	Versions	Verlauf
+Linked from	Enlazado desde	Lié depuis	Verlinkt von
+No folder open	Ninguna carpeta abierta	Aucun dossier ouvert	Kein Ordner geöffnet
+Match case	Mayúsculas y minúsculas	Respecter la casse	Groß-/Kleinschreibung
+Whole words	Palabras completas	Mots entiers	Ganze Wörter
+Pattern	Patrón	Motif	Muster
+Preview changes	Vista previa de los cambios	Prévisualiser les modifications	Änderungen anzeigen
+Undo last replace	Deshacer el último reemplazo	Annuler le dernier remplacement	Letztes Ersetzen rückgängig
+Replace…	Reemplazar…	Remplacer…	Ersetzen…
+Today’s note	Nota de hoy	Note du jour	Heutige Notiz
+Show done	Mostrar hechas	Afficher les terminées	Erledigte anzeigen
+Kept by the app, never in your folder: every save from the last 30 days, then one a day.	Las guarda la aplicación, nunca en su carpeta: cada guardado de los últimos 30 días y después una al día.	Conservées par l’application, jamais dans votre dossier : chaque enregistrement des 30 derniers jours, puis un par jour.	Von der App aufbewahrt, nie in Ihrem Ordner: jede Speicherung der letzten 30 Tage, danach eine pro Tag.
+This file was changed by another program.	Otro programa ha cambiado este archivo.	Ce fichier a été modifié par un autre programme.	Diese Datei wurde von einem anderen Programm geändert.
+Load that version	Cargar esa versión	Charger cette version	Diese Version laden
+Keep mine	Conservar la mía	Garder la mienne	Meine behalten
+Read Markdown the way it was meant to look.	Lea Markdown con el aspecto que debía tener.	Lisez le Markdown tel qu’il devait apparaître.	Markdown so lesen, wie es aussehen soll.
+Open a Markdown file	Abrir un archivo Markdown	Ouvrir un fichier Markdown	Markdown-Datei öffnen
+…or drag a	…o arrastre un archivo	…ou faites glisser un fichier	…oder ziehen Sie eine
+file anywhere onto this window, or	a cualquier lugar de esta ventana, o	n’importe où dans cette fenêtre, ou	Datei irgendwo in dieses Fenster, oder
+start a new document	cree un documento nuevo	créez un nouveau document	beginnen Sie ein neues Dokument
+Recent files	Archivos recientes	Fichiers récents	Zuletzt geöffnete Dateien
+Clear	Borrar	Effacer	Leeren
+See what it can display →	Vea lo que puede mostrar →	Voir ce qu’il peut afficher →	Sehen, was es anzeigen kann →
+Highlight	Resaltar	Surligner	Markieren
+Add note	Añadir nota	Ajouter une note	Notiz hinzufügen
+Remove highlight	Quitar resaltado	Retirer le surlignage	Markierung entfernen
+Click image to zoom · Esc to close	Haga clic en la imagen para ampliar · Esc para cerrar	Cliquez sur l’image pour zoomer · Échap pour fermer	Bild anklicken zum Zoomen · Esc zum Schließen
+Drop to open	Suelte para abrir	Déposez pour ouvrir	Zum Öffnen ablegen
+Speed	Velocidad	Vitesse	Tempo
+Voice	Voz	Voix	Stimme
+Export as PDF	Exportar como PDF	Exporter en PDF	Als PDF exportieren
+Auto (	Automático (	Auto (	Automatisch (
+Letter	Carta	Lettre US	Letter
+Legal	Oficio	Légal US	Legal
+Margins	Márgenes	Marges	Ränder
+Pages	Páginas	Pages	Seiten
+Cover page	Portada	Page de couverture	Titelseite
+title, subtitle, author and date from the front matter	título, subtítulo, autor y fecha del encabezado YAML	titre, sous-titre, auteur et date de l’en-tête YAML	Titel, Untertitel, Autor und Datum aus dem YAML-Kopf
+Contents page	Índice	Table des matières	Inhaltsverzeichnis
+with page numbers	con números de página	avec numéros de page	mit Seitenzahlen
+— this document has no headings	— este documento no tiene títulos	— ce document n’a pas de titres	— dieses Dokument hat keine Überschriften
+Start each chapter (	Empezar cada capítulo (	Commencer chaque chapitre (	Jedes Kapitel (
+heading) on a new page	título) en una página nueva	titre) sur une nouvelle page	Überschrift) auf neuer Seite beginnen
+Header & footer	Encabezado y pie	En-tête et pied de page	Kopf- und Fußzeile
+Title and author at the top of each page	Título y autor en la parte superior de cada página	Titre et auteur en haut de chaque page	Titel und Autor oben auf jeder Seite
+Page numbers	Números de página	Numéros de page	Seitenzahlen
+Colours	Colores	Couleurs	Farben
+Paper (light)	Papel (claro)	Papier (clair)	Papier (hell)
+As shown on screen	Como en pantalla	Comme à l’écran	Wie auf dem Bildschirm
+Contents	Índice	Sommaire	Inhalt
+Or export as	O exportar como	Ou exporter en	Oder exportieren als
+Word	Word	Word	Word
+web page	página web	page web	Webseite
+plain text	texto sin formato	texte brut	Nur-Text
+Cancel	Cancelar	Annuler	Abbrechen
+Export PDF…	Exportar PDF…	Exporter le PDF…	PDF exportieren…
+AI assist	Asistente de IA	Assistant IA	KI-Assistent
+Summarize a document, explain a passage, or turn notes into a report with Claude, using your own Anthropic API key. Nothing is sent until you choose an	Resuma un documento, explique un pasaje o convierta notas en un informe con Claude, usando su propia clave de API de Anthropic. No se envía nada hasta que elija un comando de	Résumez un document, expliquez un passage ou transformez des notes en rapport avec Claude, avec votre propre clé d’API Anthropic. Rien n’est envoyé tant que vous ne choisissez pas une commande	Fassen Sie Dokumente zusammen, lassen Sie Passagen erklären oder Notizen in Berichte verwandeln – mit Claude und Ihrem eigenen Anthropic-API-Schlüssel. Nichts wird gesendet, bevor Sie einen Befehl unter
+AI Assist	Asistente de IA	Assistant IA	KI-Assistent
+command, only that document is sent, and locked documents are never sent. Requests are billed to your Anthropic account.	; solo se envía ese documento y los documentos bloqueados nunca se envían. Las solicitudes se cobran en su cuenta de Anthropic.	; seul ce document est envoyé, et les documents verrouillés ne le sont jamais. Les requêtes sont facturées sur votre compte Anthropic.	wählen; nur dieses Dokument wird gesendet, gesperrte Dokumente nie. Anfragen werden Ihrem Anthropic-Konto berechnet.
+Turn on AI assist	Activar el asistente de IA	Activer l’assistant IA	KI-Assistent einschalten
+Anthropic API key	Clave de API de Anthropic	Clé d’API Anthropic	Anthropic-API-Schlüssel
+Get an API key	Obtener una clave de API	Obtenir une clé d’API	API-Schlüssel erhalten
+· stored encrypted by your operating system, never in the settings file ·	· la guarda cifrada su sistema operativo, nunca en el archivo de ajustes ·	· stockée chiffrée par votre système, jamais dans le fichier de réglages ·	· verschlüsselt vom Betriebssystem gespeichert, nie in der Einstellungsdatei ·
+Remove saved key	Quitar la clave guardada	Supprimer la clé enregistrée	Gespeicherten Schlüssel entfernen
+This computer has no secure key store, so the key is kept only until you quit.	Este equipo no tiene un almacén de claves seguro, así que la clave solo se guarda hasta que salga.	Cet ordinateur n’a pas de trousseau sécurisé : la clé n’est conservée que jusqu’à la fermeture.	Dieser Computer hat keinen sicheren Schlüsselspeicher, daher wird der Schlüssel nur bis zum Beenden aufbewahrt.
+Model	Modelo	Modèle	Modell
+Stop	Detener	Arrêter	Stopp
+Copy	Copiar	Copier	Kopieren
+Open as New Document	Abrir como documento nuevo	Ouvrir comme nouveau document	Als neues Dokument öffnen
+Protect “	Proteger “	Protéger « 	„
+” with a password	” con una contraseña	 » par un mot de passe	“ mit Passwort schützen
+Saves an encrypted copy,	Guarda una copia cifrada,	Enregistre une copie chiffrée,	Speichert eine verschlüsselte Kopie,
+, next to the original. Only Neo Markdown Reader can open it, and only with the password.	, junto al original. Solo Neo Markdown Reader puede abrirla, y solo con la contraseña.	, à côté de l’original. Seul Neo Markdown Reader peut l’ouvrir, et seulement avec le mot de passe.	, neben dem Original. Nur Neo Markdown Reader kann sie öffnen, und nur mit dem Passwort.
+Password	Contraseña	Mot de passe	Passwort
+Type it again	Escríbala otra vez	Saisissez-le à nouveau	Erneut eingeben
+Show passwords	Mostrar contraseñas	Afficher les mots de passe	Passwörter anzeigen
+Move the unlocked original to the Recycle Bin	Mover el original sin bloquear a la Papelera	Mettre l’original non verrouillé à la corbeille	Das ungesperrte Original in den Papierkorb verschieben
+A forgotten password can’t be recovered.	Una contraseña olvidada no se puede recuperar.	Un mot de passe oublié ne peut pas être récupéré.	Ein vergessenes Passwort kann nicht wiederhergestellt werden.
+Keep it somewhere safe — without it, the locked document can never be opened again.	Guárdela en un lugar seguro: sin ella, el documento bloqueado no se podrá volver a abrir.	Conservez-le en lieu sûr : sans lui, le document verrouillé ne pourra plus jamais être ouvert.	Bewahren Sie es sicher auf – ohne es lässt sich das gesperrte Dokument nie wieder öffnen.
+Lock	Bloquear	Verrouiller	Sperren
+Customize theme	Personalizar tema	Personnaliser le thème	Design anpassen
+Your colour and fonts apply to every theme, and to PDFs, Word documents and web pages you export.	Su color y sus fuentes se aplican a todos los temas y a los PDF, documentos de Word y páginas web que exporte.	Votre couleur et vos polices s’appliquent à tous les thèmes, ainsi qu’aux PDF, documents Word et pages web exportés.	Ihre Farbe und Schriften gelten für jedes Design und für exportierte PDFs, Word-Dokumente und Webseiten.
+Accent colour	Color de acento	Couleur d’accent	Akzentfarbe
+Custom	Personalizado	Personnalisée	Eigene
+Text font	Fuente del texto	Police du texte	Textschrift
+Heading font	Fuente de los títulos	Police des titres	Überschriftenschrift
+Code font	Fuente del código	Police du code	Codeschrift
+Brand stylesheet	Hoja de estilos de marca	Feuille de style de marque	Marken-Stylesheet
+None	Ninguna	Aucune	Keines
+Choose .css file…	Elegir archivo .css…	Choisir un fichier .css…	CSS-Datei auswählen…
+Remove	Quitar	Supprimer	Entfernen
+A stylesheet for	Una hoja de estilos para	Une feuille de style pour	Ein Stylesheet für
+— for example your company’s house style. It is read from disk, never run as code.	— por ejemplo, el estilo de su empresa. Se lee del disco y nunca se ejecuta como código.	— par exemple la charte de votre entreprise. Elle est lue sur le disque, jamais exécutée.	– zum Beispiel den Hausstil Ihrer Firma. Es wird von der Festplatte gelesen, nie als Code ausgeführt.
+Reset to default	Restablecer	Rétablir par défaut	Auf Standard zurücksetzen
+Done	Listo	Terminé	Fertig
+← → to move · Esc to leave	← → para moverse · Esc para salir	← → pour avancer · Échap pour quitter	← → zum Blättern · Esc zum Beenden
+Edit Table	Editar tabla	Modifier le tableau	Tabelle bearbeiten
+Tab moves between cells, Enter goes down a row. Paste cells from Excel or Google Sheets into any cell to fill the table from there.	Tab pasa de una celda a otra; Intro baja una fila. Pegue celdas de Excel o Google Sheets en cualquier celda para rellenar la tabla desde ahí.	Tab passe d’une cellule à l’autre, Entrée descend d’une ligne. Collez des cellules d’Excel ou Google Sheets dans une cellule pour remplir le tableau à partir de là.	Tab wechselt zwischen Zellen, Eingabe geht eine Zeile nach unten. Fügen Sie Zellen aus Excel oder Google Sheets in eine Zelle ein, um die Tabelle ab dort zu füllen.
++ Row	+ Fila	+ Ligne	+ Zeile
++ Column	+ Columna	+ Colonne	+ Spalte
+Update Table	Actualizar tabla	Mettre à jour le tableau	Tabelle aktualisieren
+Link map	Mapa de enlaces	Carte des liens	Linkkarte
+Each dot is a document; lines are links between them. Bigger dots have more links. Click a document to open it.	Cada punto es un documento; las líneas son enlaces entre ellos. Los puntos más grandes tienen más enlaces. Haga clic en un documento para abrirlo.	Chaque point est un document ; les lignes sont les liens entre eux. Les plus gros points ont plus de liens. Cliquez sur un document pour l’ouvrir.	Jeder Punkt ist ein Dokument; Linien sind Links dazwischen. Größere Punkte haben mehr Links. Klicken Sie auf ein Dokument, um es zu öffnen.
+Check links	Comprobar enlaces	Vérifier les liens	Links prüfen
+Check again	Comprobar de nuevo	Vérifier à nouveau	Erneut prüfen
+Close	Cerrar	Fermer	Schließen
+Ask about this folder	Preguntar sobre esta carpeta	Poser une question sur ce dossier	Fragen zu diesem Ordner
+Claude answers from the documents you tick, with links to the lines it used. Only those documents are sent, with your own API key; locked documents are never included.	Claude responde a partir de los documentos que marque, con enlaces a las líneas que usó. Solo se envían esos documentos, con su propia clave de API; los documentos bloqueados nunca se incluyen.	Claude répond à partir des documents cochés, avec des liens vers les lignes utilisées. Seuls ces documents sont envoyés, avec votre propre clé d’API ; les documents verrouillés ne sont jamais inclus.	Claude antwortet anhand der angehakten Dokumente, mit Links zu den verwendeten Zeilen. Nur diese Dokumente werden mit Ihrem eigenen API-Schlüssel gesendet; gesperrte Dokumente nie.
+Your question	Su pregunta	Votre question	Ihre Frage
+All	Todos	Tous	Alle
+Ask	Preguntar	Demander	Fragen
+Suggested change	Cambio sugerido	Modification suggérée	Vorgeschlagene Änderung
+Translate into	Traducir al	Traduire en	Übersetzen in
+Translate	Traducir	Traduire	Übersetzen
+Reject	Rechazar	Refuser	Ablehnen
+Try again	Volver a intentar	Réessayer	Erneut versuchen
+Accept	Aceptar	Accepter	Annehmen
+Rename	Cambiar nombre	Renommer	Umbenennen
+New name	Nombre nuevo	Nouveau nom	Neuer Name
+Links to it from other documents in the open folder can be updated too.	También se pueden actualizar los enlaces a él desde otros documentos de la carpeta abierta.	Les liens vers lui depuis d’autres documents du dossier ouvert peuvent aussi être mis à jour.	Links darauf aus anderen Dokumenten im geöffneten Ordner können ebenfalls aktualisiert werden.
+Customize keyboard shortcuts	Personalizar atajos de teclado	Personnaliser les raccourcis clavier	Tastenkürzel anpassen
+Click	Haga clic en	Cliquez sur	Klicken Sie auf
+Change	Cambiar	Modifier	Ändern
+, then press the keys you want. Every command can also be run by name: press Ctrl+K and type	y pulse las teclas que quiera. Cualquier comando también se puede ejecutar por su nombre: pulse Ctrl+K y escriba	, puis appuyez sur les touches voulues. Chaque commande peut aussi être lancée par son nom : appuyez sur Ctrl+K et tapez	und drücken Sie die gewünschten Tasten. Jeder Befehl lässt sich auch per Name ausführen: Strg+K drücken und
+Reset all to defaults	Restablecer todo	Tout réinitialiser	Alle auf Standard zurücksetzen
+Editing permissions	Permisos de edición	Autorisations de modification	Bearbeitungsberechtigungen
+Files and folders you chose	Archivos y carpetas para los que eligió	Fichiers et dossiers pour lesquels vous avez choisi	Dateien und Ordner, für die Sie
+Always allow	Permitir siempre	Toujours autoriser	Immer erlauben
+for. Everything else asks first;	. Todo lo demás pregunta primero;	. Tout le reste demande d’abord ;	gewählt haben. Alles andere fragt zuerst;
+Just this time	Solo esta vez	Juste cette fois	Nur dieses Mal
+ends when you close the tab.	termina al cerrar la pestaña.	se termine à la fermeture de l’onglet.	endet, wenn Sie den Tab schließen.
+Open backups folder	Abrir carpeta de copias de seguridad	Ouvrir le dossier des sauvegardes	Sicherungsordner öffnen
+Keyboard shortcuts	Atajos de teclado	Raccourcis clavier	Tastenkürzel
+Open file (in a new tab)	Abrir archivo (en una pestaña nueva)	Ouvrir un fichier (dans un nouvel onglet)	Datei öffnen (in neuem Tab)
+Next / previous tab	Pestaña siguiente / anterior	Onglet suivant / précédent	Nächster / vorheriger Tab
+Close tab	Cerrar pestaña	Fermer l’onglet	Tab schließen
+Reopen closed tab	Volver a abrir la pestaña cerrada	Rouvrir l’onglet fermé	Geschlossenen Tab wieder öffnen
+Jump to tab	Ir a la pestaña	Aller à l’onglet	Zu Tab springen
++ click a link	+ clic en un enlace	+ clic sur un lien	+ Klick auf einen Link
+Open linked document in a new tab	Abrir el documento enlazado en una pestaña nueva	Ouvrir le document lié dans un nouvel onglet	Verlinktes Dokument in neuem Tab öffnen
+Copy as formatted text	Copiar como texto con formato	Copier en texte mis en forme	Als formatierten Text kopieren
+New document	Nuevo documento	Nouveau document	Neues Dokument
+Edit / finish editing	Editar / terminar de editar	Modifier / terminer	Bearbeiten / Bearbeiten beenden
+Save / Save As	Guardar / Guardar como	Enregistrer / Enregistrer sous	Speichern / Speichern unter
+(while editing)	(al editar)	(en modification)	(beim Bearbeiten)
+Bold · italic · link	Negrita · cursiva · enlace	Gras · italique · lien	Fett · kursiv · Link
+Go to a file, type	Ir a un archivo, escriba	Aller à un fichier, tapez	Zu einer Datei, tippen Sie
+for a heading, or	para un título, o	pour un titre, ou	für eine Überschrift, oder
+to run a command	para ejecutar un comando	pour lancer une commande	für einen Befehl
+Open folder	Abrir carpeta	Ouvrir un dossier	Ordner öffnen
+Find / replace in folder	Buscar / reemplazar en la carpeta	Rechercher / remplacer dans le dossier	Im Ordner suchen / ersetzen
+Version history of this document	Historial de versiones de este documento	Historique des versions de ce document	Versionsverlauf dieses Dokuments
+Paste as plain text (while editing)	Pegar como texto sin formato (al editar)	Coller en texte brut (en modification)	Als Nur-Text einfügen (beim Bearbeiten)
+Split view	Vista dividida	Affichage partagé	Geteilte Ansicht
+Highlight selected text	Resaltar el texto seleccionado	Surligner le texte sélectionné	Markierten Text hervorheben
+Bookmark this file	Añadir este archivo a marcadores	Ajouter ce fichier aux favoris	Lesezeichen für diese Datei
+Find in document	Buscar en el documento	Rechercher dans le document	Im Dokument suchen
+Show / hide the sidebar	Mostrar / ocultar la barra lateral	Afficher / masquer la barre latérale	Seitenleiste ein-/ausblenden
+Text size	Tamaño del texto	Taille du texte	Textgröße
+Export as PDF (Word, web page and text from File › Export)	Exportar como PDF (Word, página web y texto desde Archivo › Exportar)	Exporter en PDF (Word, page web et texte via Fichier › Exporter)	Als PDF exportieren (Word, Webseite und Text über Datei › Exportieren)
+Present as slides (	Presentar como diapositivas (	Présenter en diapositives (	Als Folien präsentieren (
+to move,	para moverse,	pour avancer,	zum Blättern,
+to leave)	para salir)	pour quitter)	zum Beenden)
+Print	Imprimir	Imprimer	Drucken
+Reload file	Volver a cargar el archivo	Recharger le fichier	Datei neu laden
+Back to previous document	Volver al documento anterior	Revenir au document précédent	Zurück zum vorherigen Dokument
+New window	Nueva ventana	Nouvelle fenêtre	Neues Fenster
+Close window	Cerrar ventana	Fermer la fenêtre	Fenster schließen
+This list	Esta lista	Cette liste	Diese Liste
+Right-click a tab	Clic derecho en una pestaña	Clic droit sur un onglet	Rechtsklick auf einen Tab
+Move to new window, duplicate, close others…	Mover a una ventana nueva, duplicar, cerrar las demás…	Déplacer vers une nouvelle fenêtre, dupliquer, fermer les autres…	In neues Fenster verschieben, duplizieren, andere schließen…
+Change shortcuts…	Cambiar atajos…	Modifier les raccourcis…	Tastenkürzel ändern…
+Toggle outline (Ctrl+B)	Mostrar u ocultar el esquema (Ctrl+B)	Afficher ou masquer le plan (Ctrl+B)	Gliederung ein-/ausblenden (Strg+B)
+Toggle outline	Mostrar u ocultar el esquema	Afficher ou masquer le plan	Gliederung ein-/ausblenden
+Back (Alt+←)	Atrás (Alt+←)	Retour (Alt+←)	Zurück (Alt+←)
+Back	Atrás	Retour	Zurück
+Open a Markdown file (Ctrl+O)	Abrir un archivo Markdown (Ctrl+O)	Ouvrir un fichier Markdown (Ctrl+O)	Markdown-Datei öffnen (Strg+O)
+Save (Ctrl+S)	Guardar (Ctrl+S)	Enregistrer (Ctrl+S)	Speichern (Strg+S)
+Edit this document (Ctrl+E)	Editar este documento (Ctrl+E)	Modifier ce document (Ctrl+E)	Dieses Dokument bearbeiten (Strg+E)
+Bookmark this file (Ctrl+D)	Añadir este archivo a marcadores (Ctrl+D)	Ajouter ce fichier aux favoris (Ctrl+D)	Lesezeichen für diese Datei (Strg+D)
+Go to file or heading (Ctrl+K)	Ir a un archivo o título (Ctrl+K)	Aller à un fichier ou un titre (Ctrl+K)	Zu Datei oder Überschrift (Strg+K)
+Go to file or heading	Ir a un archivo o título	Aller à un fichier ou un titre	Zu Datei oder Überschrift
+Split view (Ctrl+\)	Vista dividida (Ctrl+\)	Affichage partagé (Ctrl+\)	Geteilte Ansicht (Strg+\)
+Find in document (Ctrl+F)	Buscar en el documento (Ctrl+F)	Rechercher dans le document (Ctrl+F)	Im Dokument suchen (Strg+F)
+Find	Buscar	Rechercher	Suchen
+Smaller text (Ctrl+−)	Texto más pequeño (Ctrl+−)	Texte plus petit (Ctrl+−)	Kleinerer Text (Strg+−)
+Smaller text	Texto más pequeño	Texte plus petit	Kleinerer Text
+Larger text (Ctrl+=)	Texto más grande (Ctrl+=)	Texte plus grand (Ctrl+=)	Größerer Text (Strg+=)
+Larger text	Texto más grande	Texte plus grand	Größerer Text
+Theme & layout	Tema y diseño	Thème et mise en page	Design und Layout
+Theme and layout	Tema y diseño	Thème et mise en page	Design und Layout
+High contrast	Alto contraste	Contraste élevé	Hoher Kontrast
+Present as slides (Ctrl+Shift+P)	Presentar como diapositivas (Ctrl+Mayús+P)	Présenter en diapositives (Ctrl+Maj+P)	Als Folien präsentieren (Strg+Umschalt+P)
+Present as slides	Presentar como diapositivas	Présenter en diapositives	Als Folien präsentieren
+Export as PDF, Word or web page (Ctrl+Shift+E)	Exportar como PDF, Word o página web (Ctrl+Mayús+E)	Exporter en PDF, Word ou page web (Ctrl+Maj+E)	Als PDF, Word oder Webseite exportieren (Strg+Umschalt+E)
+Export	Exportar	Exporter	Exportieren
+Print (Ctrl+P)	Imprimir (Ctrl+P)	Imprimer (Ctrl+P)	Drucken (Strg+P)
+Open documents	Documentos abiertos	Documents ouverts	Geöffnete Dokumente
+Open a file in a new tab (Ctrl+O)	Abrir un archivo en una pestaña nueva (Ctrl+O)	Ouvrir un fichier dans un nouvel onglet (Ctrl+O)	Datei in neuem Tab öffnen (Strg+O)
+Open file in new tab	Abrir archivo en una pestaña nueva	Ouvrir un fichier dans un nouvel onglet	Datei in neuem Tab öffnen
+Dismiss	Descartar	Ignorer	Schließen
+Previous (Shift+Enter)	Anterior (Mayús+Intro)	Précédent (Maj+Entrée)	Zurück (Umschalt+Eingabe)
+Previous	Anterior	Précédent	Zurück
+Next (Enter)	Siguiente (Intro)	Suivant (Entrée)	Weiter (Eingabe)
+Next	Siguiente	Suivant	Weiter
+Close (Esc)	Cerrar (Esc)	Fermer (Échap)	Schließen (Esc)
+Sidebar	Barra lateral	Barre latérale	Seitenleiste
+Outline of this document	Esquema de este documento	Plan de ce document	Gliederung dieses Dokuments
+Files in the open folder, and bookmarks	Archivos de la carpeta abierta y marcadores	Fichiers du dossier ouvert et favoris	Dateien im geöffneten Ordner und Lesezeichen
+Find in folder (Ctrl+Shift+F)	Buscar en la carpeta (Ctrl+Mayús+F)	Rechercher dans le dossier (Ctrl+Maj+F)	Im Ordner suchen (Strg+Umschalt+F)
+Tasks across the folder (Ctrl+Shift+L)	Tareas de toda la carpeta (Ctrl+Mayús+L)	Tâches de tout le dossier (Ctrl+Maj+L)	Aufgaben im ganzen Ordner (Strg+Umschalt+L)
+Your highlights and notes	Sus resaltados y notas	Vos surlignages et notes	Ihre Markierungen und Notizen
+Earlier versions of this document (Ctrl+Shift+Y)	Versiones anteriores de este documento (Ctrl+Mayús+Y)	Versions précédentes de ce document (Ctrl+Maj+Y)	Frühere Versionen dieses Dokuments (Strg+Umschalt+Y)
+Filter headings…	Filtrar títulos…	Filtrer les titres…	Überschriften filtern…
+Document outline	Esquema del documento	Plan du document	Dokumentgliederung
+Link map (Ctrl+Shift+M)	Mapa de enlaces (Ctrl+Mayús+M)	Carte des liens (Ctrl+Maj+M)	Linkkarte (Strg+Umschalt+M)
+Check links in folder	Comprobar enlaces de la carpeta	Vérifier les liens du dossier	Links im Ordner prüfen
+Refresh	Actualizar	Actualiser	Aktualisieren
+Close folder	Cerrar carpeta	Fermer le dossier	Ordner schließen
+Filter files	Filtrar archivos	Filtrer les fichiers	Dateien filtern
+Filter files…	Filtrar archivos…	Filtrer les fichiers…	Dateien filtern…
+Tags	Etiquetas	Étiquettes	Tags
+Find in folder	Buscar en la carpeta	Rechercher dans le dossier	Im Ordner suchen
+Find in folder…	Buscar en la carpeta…	Rechercher dans le dossier…	Im Ordner suchen…
+Replace with	Reemplazar por	Remplacer par	Ersetzen durch
+Replace with…	Reemplazar por…	Remplacer par…	Ersetzen durch…
+A regular expression; use $1, $2… in the replacement for captured groups	Una expresión regular; use $1, $2… en el reemplazo para los grupos capturados	Une expression régulière ; utilisez $1, $2… dans le remplacement pour les groupes capturés	Ein regulärer Ausdruck; verwenden Sie $1, $2… im Ersatz für erfasste Gruppen
+Open or create today’s note (Ctrl+Shift+D)	Abrir o crear la nota de hoy (Ctrl+Mayús+D)	Ouvrir ou créer la note du jour (Ctrl+Maj+D)	Heutige Notiz öffnen oder erstellen (Strg+Umschalt+D)
+Editor	Editor	Éditeur	Editor
+Formatting	Formato	Mise en forme	Formatierung
+Heading 1	Título 1	Titre 1	Überschrift 1
+Heading 2	Título 2	Titre 2	Überschrift 2
+Heading 3	Título 3	Titre 3	Überschrift 3
+Bold (Ctrl+B)	Negrita (Ctrl+B)	Gras (Ctrl+B)	Fett (Strg+B)
+Italic (Ctrl+I)	Cursiva (Ctrl+I)	Italique (Ctrl+I)	Kursiv (Strg+I)
+Strikethrough (Ctrl+Shift+X)	Tachado (Ctrl+Mayús+X)	Barré (Ctrl+Maj+X)	Durchgestrichen (Strg+Umschalt+X)
+Inline code (Ctrl+`)	Código en línea (Ctrl+`)	Code en ligne (Ctrl+`)	Inline-Code (Strg+`)
+Bulleted list	Lista con viñetas	Liste à puces	Aufzählung
+Numbered list	Lista numerada	Liste numérotée	Nummerierte Liste
+Checklist	Lista de comprobación	Liste de contrôle	Checkliste
+Quote	Cita	Citation	Zitat
+Link (Ctrl+K)	Enlace (Ctrl+K)	Lien (Ctrl+K)	Link (Strg+K)
+Image	Imagen	Image	Bild
+Insert or edit a table	Insertar o editar una tabla	Insérer ou modifier un tableau	Tabelle einfügen oder bearbeiten
+Code block	Bloque de código	Bloc de code	Codeblock
+Divider line	Línea divisoria	Ligne de séparation	Trennlinie
+Undo (Ctrl+Z)	Deshacer (Ctrl+Z)	Annuler (Ctrl+Z)	Rückgängig (Strg+Z)
+Redo (Ctrl+Y)	Rehacer (Ctrl+Y)	Rétablir (Ctrl+Y)	Wiederholen (Strg+Y)
+Second document	Segundo documento	Second document	Zweites Dokument
+Document shown on the right	Documento que se muestra a la derecha	Document affiché à droite	Rechts angezeigtes Dokument
+Link scrolling	Sincronizar desplazamiento	Lier le défilement	Bildlauf koppeln
+Swap sides	Intercambiar lados	Inverser les côtés	Seiten tauschen
+Close split view (Ctrl+\)	Cerrar vista dividida (Ctrl+\)	Fermer l’affichage partagé (Ctrl+\)	Geteilte Ansicht schließen (Strg+\)
+Close split view	Cerrar vista dividida	Fermer l’affichage partagé	Geteilte Ansicht schließen
+Quick open	Apertura rápida	Ouverture rapide	Schnell öffnen
+Matches	Coincidencias	Résultats	Treffer
+Yellow	Amarillo	Jaune	Gelb
+Green	Verde	Vert	Grün
+Blue	Azul	Bleu	Blau
+Pink	Rosa	Rose	Rosa
+Add a private note…	Añadir una nota privada…	Ajouter une note privée…	Private Notiz hinzufügen…
+Read aloud	Leer en voz alta	Lire à voix haute	Vorlesen
+Previous section	Sección anterior	Section précédente	Vorheriger Abschnitt
+Pause	Pausa	Pause	Pause
+Next section	Sección siguiente	Section suivante	Nächster Abschnitt
+Stop reading (Esc)	Dejar de leer (Esc)	Arrêter la lecture (Échap)	Vorlesen beenden (Esc)
+Stop reading	Dejar de leer	Arrêter la lecture	Vorlesen beenden
+Pick any colour	Elija cualquier color	Choisir une couleur	Beliebige Farbe wählen
+Custom accent colour	Color de acento personalizado	Couleur d’accent personnalisée	Eigene Akzentfarbe
+Theme default	Predeterminado del tema	Couleur du thème	Design-Standard
+Presentation	Presentación	Présentation	Präsentation
+Leave presentation (Esc)	Salir de la presentación (Esc)	Quitter la présentation (Échap)	Präsentation beenden (Esc)
+Leave presentation	Salir de la presentación	Quitter la présentation	Präsentation beenden
+e.g. What did we decide about the budget, and what’s still open?	p. ej., ¿Qué decidimos sobre el presupuesto y qué sigue pendiente?	ex. : Qu’avons-nous décidé pour le budget, et qu’est-ce qui reste ouvert ?	z. B. Was haben wir zum Budget beschlossen, und was ist noch offen?
+Filter documents	Filtrar documentos	Filtrer les documents	Dokumente filtern
+Filter documents…	Filtrar documentos…	Filtrer les documents…	Dokumente filtern…
+e.g. Spanish	p. ej., inglés	ex. : anglais	z. B. Englisch
+Find a command	Buscar un comando	Rechercher une commande	Befehl suchen
+Find a command…	Buscar un comando…	Rechercher une commande…	Befehl suchen…
+Read	Leer	Lire	Vorlesen

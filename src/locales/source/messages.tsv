@@ -1,0 +1,172 @@
+en	es	fr	de
+API key removed — AI assist is off	Clave de API eliminada: el asistente de IA está desactivado	Clé d’API supprimée — l’assistant IA est désactivé	API-Schlüssel entfernt – KI-Assistent ist aus
+Open a document first	Abra primero un documento	Ouvrez d’abord un document	Öffnen Sie zuerst ein Dokument
+AI assist is off for locked documents, so their text never leaves this computer	El asistente de IA está desactivado para los documentos bloqueados, así que su texto nunca sale de este equipo	L’assistant IA est désactivé pour les documents verrouillés : leur texte ne quitte jamais cet ordinateur	Der KI-Assistent ist für gesperrte Dokumente aus, damit ihr Text diesen Computer nie verlässt
+Select some text on the page first	Seleccione primero algo de texto en la página	Sélectionnez d’abord du texte sur la page	Markieren Sie zuerst Text auf der Seite
+Open a folder first — Claude answers from the documents in it	Abra primero una carpeta: Claude responde a partir de sus documentos	Ouvrez d’abord un dossier — Claude répond à partir de ses documents	Öffnen Sie zuerst einen Ordner – Claude antwortet anhand seiner Dokumente
+No documents in this folder	No hay documentos en esta carpeta	Aucun document dans ce dossier	Keine Dokumente in diesem Ordner
+Click Edit and select some text first	Haga clic en Editar y seleccione primero algo de texto	Cliquez sur Modifier et sélectionnez d’abord du texte	Klicken Sie auf Bearbeiten und markieren Sie zuerst Text
+Select some text in the editor first	Seleccione primero algo de texto en el editor	Sélectionnez d’abord du texte dans l’éditeur	Markieren Sie zuerst Text im Editor
+That text changed in the meantime — nothing was replaced	Ese texto ha cambiado mientras tanto: no se ha reemplazado nada	Ce texte a changé entre-temps — rien n’a été remplacé	Dieser Text hat sich inzwischen geändert – nichts wurde ersetzt
+Change accepted — Ctrl+Z undoes it	Cambio aceptado: Ctrl+Z lo deshace	Modification acceptée — Ctrl+Z l’annule	Änderung übernommen – Strg+Z macht sie rückgängig
+Copied as Markdown	Copiado como Markdown	Copié en Markdown	Als Markdown kopiert
+Save this document first (Ctrl+S)	Guarde primero este documento (Ctrl+S)	Enregistrez d’abord ce document (Ctrl+S)	Speichern Sie zuerst dieses Dokument (Strg+S)
+Resumed where you left off	Retomado donde lo dejó	Reprise là où vous en étiez	Dort fortgesetzt, wo Sie aufgehört haben
+Finish editing (click Done) before moving this tab to another window	Termine de editar (haga clic en Listo) antes de mover esta pestaña a otra ventana	Terminez la modification (cliquez sur Terminé) avant de déplacer cet onglet vers une autre fenêtre	Beenden Sie das Bearbeiten (Fertig), bevor Sie diesen Tab in ein anderes Fenster verschieben
+Save the document first to bookmark it	Guarde primero el documento para añadirlo a marcadores	Enregistrez d’abord le document pour l’ajouter aux favoris	Speichern Sie das Dokument zuerst, um ein Lesezeichen zu setzen
+You’re editing this document — save it, or click Done first	Está editando este documento: guárdelo o haga clic en Listo primero	Vous modifiez ce document — enregistrez-le ou cliquez d’abord sur Terminé	Sie bearbeiten dieses Dokument – speichern Sie es oder klicken Sie zuerst auf Fertig
+Not saved yet	Aún no guardado	Pas encore enregistré	Noch nicht gespeichert
+Path copied	Ruta copiada	Chemin copié	Pfad kopiert
+Open another document to compare with	Abra otro documento con el que comparar	Ouvrez un autre document à comparer	Öffnen Sie ein weiteres Dokument zum Vergleichen
+Compare with Saved Version shows your unsaved edits — click Edit and make a change first	Comparar con la versión guardada muestra sus cambios sin guardar: haga clic en Editar y cambie algo primero	Comparer avec la version enregistrée montre vos modifications non enregistrées — cliquez sur Modifier et changez d’abord quelque chose	„Mit gespeicherter Version vergleichen“ zeigt Ihre ungespeicherten Änderungen – klicken Sie auf Bearbeiten und ändern Sie zuerst etwas
+Updated from disk	Actualizado desde el disco	Mis à jour depuis le disque	Von der Festplatte aktualisiert
+Couldn’t reopen {0} (moved or deleted)	No se pudo volver a abrir {0} (movido o eliminado)	Impossible de rouvrir {0} (déplacé ou supprimé)	{0} konnte nicht wieder geöffnet werden (verschoben oder gelöscht)
+A comparison can’t be edited — open the document itself to edit it	Una comparación no se puede editar: abra el propio documento para editarlo	Une comparaison ne peut pas être modifiée — ouvrez le document lui-même pour le modifier	Ein Vergleich kann nicht bearbeitet werden – öffnen Sie das Dokument selbst
+Unlock the document first	Desbloquee primero el documento	Déverrouillez d’abord le document	Entsperren Sie zuerst das Dokument
+Data files and notebooks open read-only here — edit them in their own app	Los archivos de datos y los cuadernos se abren aquí en solo lectura: edítelos en su propia aplicación	Les fichiers de données et les notebooks s’ouvrent ici en lecture seule — modifiez-les dans leur propre application	Datendateien und Notebooks sind hier schreibgeschützt – bearbeiten Sie sie in ihrer eigenen App
+Still read-only — nothing was changed	Sigue en solo lectura: no se ha cambiado nada	Toujours en lecture seule — rien n’a été modifié	Weiterhin schreibgeschützt – nichts wurde geändert
+Editing allowed — remembered for this {0}	Edición permitida: se recordará para este {0}	Modification autorisée — mémorisée pour ce {0}	Bearbeiten erlaubt – für diese(n) {0} gespeichert
+Nothing to save — click Edit to make changes	Nada que guardar: haga clic en Editar para hacer cambios	Rien à enregistrer — cliquez sur Modifier pour faire des changements	Nichts zu speichern – klicken Sie auf Bearbeiten, um etwas zu ändern
+Couldn’t save the file	No se pudo guardar el archivo	Impossible d’enregistrer le fichier	Die Datei konnte nicht gespeichert werden
+Saved as {0}	Guardado como {0}	Enregistré sous {0}	Gespeichert als {0}
+Save the document first, so its pictures can be kept next to it	Guarde primero el documento, para que sus imágenes se puedan guardar junto a él	Enregistrez d’abord le document, pour que ses images soient rangées à côté	Speichern Sie zuerst das Dokument, damit seine Bilder daneben abgelegt werden können
+Click Edit first, then put the cursor in a table	Haga clic en Editar y ponga el cursor en una tabla	Cliquez sur Modifier, puis placez le curseur dans un tableau	Klicken Sie zuerst auf Bearbeiten und setzen Sie den Cursor in eine Tabelle
+Save the document first to highlight it	Guarde primero el documento para resaltarlo	Enregistrez d’abord le document pour le surligner	Speichern Sie zuerst das Dokument, um es zu markieren
+Highlights aren’t available in locked documents — they would be stored without the lock	Los resaltados no están disponibles en documentos bloqueados: se guardarían sin la protección	Les surlignages ne sont pas disponibles dans les documents verrouillés — ils seraient stockés sans protection	Markierungen sind in gesperrten Dokumenten nicht verfügbar – sie würden ungeschützt gespeichert
+Highlights are for Markdown documents	Los resaltados son para documentos Markdown	Les surlignages sont réservés aux documents Markdown	Markierungen gibt es für Markdown-Dokumente
+Save or discard your edits first, then restore	Guarde o descarte primero sus cambios y después restaure	Enregistrez ou abandonnez d’abord vos modifications, puis restaurez	Speichern oder verwerfen Sie zuerst Ihre Änderungen und stellen Sie dann wieder her
+Restored — the version it replaced is in History too	Restaurado: la versión sustituida también está en el historial	Restauré — la version remplacée est aussi dans l’historique	Wiederhergestellt – die ersetzte Version ist ebenfalls im Verlauf
+Not restored — the file is read-only	No restaurado: el archivo es de solo lectura	Non restauré — le fichier est en lecture seule	Nicht wiederhergestellt – die Datei ist schreibgeschützt
+Open the document itself to lock it	Abra el propio documento para bloquearlo	Ouvrez le document lui-même pour le verrouiller	Öffnen Sie das Dokument selbst, um es zu sperren
+This document is already locked	Este documento ya está bloqueado	Ce document est déjà verrouillé	Dieses Dokument ist bereits gesperrt
+Save the document first (Ctrl+S)	Guarde primero el documento (Ctrl+S)	Enregistrez d’abord le document (Ctrl+S)	Speichern Sie zuerst das Dokument (Strg+S)
+Save your changes first (Ctrl+S)	Guarde primero sus cambios (Ctrl+S)	Enregistrez d’abord vos modifications (Ctrl+S)	Speichern Sie zuerst Ihre Änderungen (Strg+S)
+This document isn’t locked	Este documento no está bloqueado	Ce document n’est pas verrouillé	Dieses Dokument ist nicht gesperrt
+Finish editing first (click Done)	Termine primero de editar (haga clic en Listo)	Terminez d’abord la modification (cliquez sur Terminé)	Beenden Sie zuerst das Bearbeiten (Fertig)
+Locked — enter the password to read it again	Bloqueado: escriba la contraseña para volver a leerlo	Verrouillé — saisissez le mot de passe pour le relire	Gesperrt – geben Sie das Passwort ein, um es wieder zu lesen
+Unlocked copy saved as {0}	Copia desbloqueada guardada como {0}	Copie déverrouillée enregistrée sous {0}	Entsperrte Kopie gespeichert als {0}
+Open a folder to see how its documents link together	Abra una carpeta para ver cómo se enlazan sus documentos	Ouvrez un dossier pour voir comment ses documents sont liés	Öffnen Sie einen Ordner, um zu sehen, wie seine Dokumente verlinkt sind
+Open a folder to check the links in it	Abra una carpeta para comprobar sus enlaces	Ouvrez un dossier pour vérifier ses liens	Öffnen Sie einen Ordner, um seine Links zu prüfen
+Save the document first	Guarde primero el documento	Enregistrez d’abord le document	Speichern Sie zuerst das Dokument
+Locked documents can’t be renamed here — use your file manager	Los documentos bloqueados no se pueden renombrar aquí: use su explorador de archivos	Les documents verrouillés ne peuvent pas être renommés ici — utilisez votre gestionnaire de fichiers	Gesperrte Dokumente können hier nicht umbenannt werden – verwenden Sie Ihren Dateimanager
+Save your changes first, then rename	Guarde primero sus cambios y después cambie el nombre	Enregistrez d’abord vos modifications, puis renommez	Speichern Sie zuerst Ihre Änderungen und benennen Sie dann um
+A comparison can’t be presented	Una comparación no se puede presentar	Une comparaison ne peut pas être présentée	Ein Vergleich kann nicht präsentiert werden
+This document is empty	Este documento está vacío	Ce document est vide	Dieses Dokument ist leer
+A comparison can’t be exported — export one of the documents instead	Una comparación no se puede exportar: exporte uno de los documentos	Une comparaison ne peut pas être exportée — exportez plutôt l’un des documents	Ein Vergleich kann nicht exportiert werden – exportieren Sie stattdessen eines der Dokumente
+Exporting {0}…	Exportando {0}…	Exportation ({0})…	Exportiere {0}…
+Saved {0}	Guardado {0}	{0} enregistré	{0} gespeichert
+Export cancelled	Exportación cancelada	Exportation annulée	Export abgebrochen
+Open a document to read aloud	Abra un documento para leerlo en voz alta	Ouvrez un document à lire à voix haute	Öffnen Sie ein Dokument zum Vorlesen
+Read aloud isn’t available on this computer	La lectura en voz alta no está disponible en este equipo	La lecture à voix haute n’est pas disponible sur cet ordinateur	Vorlesen ist auf diesem Computer nicht verfügbar
+There’s no text to read here	Aquí no hay texto que leer	Il n’y a pas de texte à lire ici	Hier gibt es keinen Text zum Vorlesen
+Focus mode — F8 to leave	Modo concentración: F8 para salir	Mode concentration — F8 pour quitter	Fokusmodus – F8 zum Beenden
+Replaced {0} in {1} file{2}.{3}	Reemplazado(s) {0} en {1} archivo(s).{3}	{0} remplacé(s) dans {1} fichier(s).{3}	{0} ersetzt in {1} Datei(en).{3}
+Put back {0} file{1}{2}	Devueltos {0} archivo(s){2}	{0} fichier(s) remis en place{2}	{0} Datei(en) wiederhergestellt{2}
+Finish editing (click Done) to use split view	Termine de editar (haga clic en Listo) para usar la vista dividida	Terminez la modification (cliquez sur Terminé) pour utiliser l’affichage partagé	Beenden Sie das Bearbeiten (Fertig), um die geteilte Ansicht zu nutzen
+Open a second document to see two side by side	Abra un segundo documento para ver dos en paralelo	Ouvrez un second document pour en voir deux côte à côte	Öffnen Sie ein zweites Dokument, um zwei nebeneinander zu sehen
+Enter your API key to turn AI assist on.	Escriba su clave de API para activar el asistente de IA.	Saisissez votre clé d’API pour activer l’assistant IA.	Geben Sie Ihren API-Schlüssel ein, um den KI-Assistenten einzuschalten.
+Sent to Claude: {0}	Enviado a Claude: {0}	Envoyé à Claude : {0}	An Claude gesendet: {0}
+Type a question first.	Escriba primero una pregunta.	Saisissez d’abord une question.	Geben Sie zuerst eine Frage ein.
+Sent to Claude: {0} document{1} from {2}	Enviado a Claude: {0} documento(s) de {2}	Envoyé à Claude : {0} document(s) de {2}	An Claude gesendet: {0} Dokument(e) aus {2}
+Sent to Claude: the selected text{0}	Enviado a Claude: el texto seleccionado{0}	Envoyé à Claude : le texte sélectionné{0}	An Claude gesendet: der markierte Text{0}
+{0} — suggested change	{0}: cambio sugerido	{0} — modification suggérée	{0} – vorgeschlagene Änderung
+Copy	Copiar	Copier	Kopieren
+Copied	Copiado	Copié	Kopiert
+Image not found: {0}	Imagen no encontrada: {0}	Image introuvable : {0}	Bild nicht gefunden: {0}
+Diagram error: {0}	Error en el diagrama: {0}	Erreur de diagramme : {0}	Diagrammfehler: {0}
+Version {0} is ready to install.	La versión {0} está lista para instalarse.	La version {0} est prête à être installée.	Version {0} ist bereit zur Installation.
+Restart to update	Reiniciar para actualizar	Redémarrer pour mettre à jour	Zum Aktualisieren neu starten
+Version {0} is available.	La versión {0} está disponible.	La version {0} est disponible.	Version {0} ist verfügbar.
+Download	Descargar	Télécharger	Herunterladen
+Remove	Quitar	Supprimer	Entfernen
+Compare	Comparar	Comparer	Vergleichen
+Show what changed between this version and the current text	Mostrar qué cambió entre esta versión y el texto actual	Afficher ce qui a changé entre cette version et le texte actuel	Zeigen, was sich zwischen dieser Version und dem aktuellen Text geändert hat
+Restore	Restaurar	Restaurer	Wiederherstellen
+Put this version back (the current one is kept here first)	Volver a esta versión (antes se guarda aquí la actual)	Remettre cette version (l’actuelle est d’abord conservée ici)	Diese Version wiederherstellen (die aktuelle wird zuerst hier aufbewahrt)
+Use it here instead	Usarla aquí	L’utiliser ici	Stattdessen hier verwenden
+Unlocking…	Desbloqueando…	Déverrouillage…	Wird entsperrt…
+Unlock	Desbloquear	Déverrouiller	Entsperren
+Locking…	Bloqueando…	Verrouillage…	Wird gesperrt…
+Lock	Bloquear	Verrouiller	Sperren
+{0} document{1} tagged #{2}	{0} documento(s) con la etiqueta #{2}	{0} document(s) avec l’étiquette #{2}	{0} Dokument(e) mit dem Tag #{2}
++{0} more	{0} más	{0} de plus	{0} weitere
+{0}, line {1}	{0}, línea {1}	{0}, ligne {1}	{0}, Zeile {1}
+{0} document{1} · {2} link{3}{4}	{0} documento(s) · {2} enlace(s){4}	{0} document(s) · {2} lien(s){4}	{0} Dokument(e) · {2} Link(s){4}
+Checking…	Comprobando…	Vérification…	Wird geprüft…
+Open a folder to check its links.	Abra una carpeta para comprobar sus enlaces.	Ouvrez un dossier pour vérifier ses liens.	Öffnen Sie einen Ordner, um seine Links zu prüfen.
+Exporting…	Exportando…	Exportation…	Wird exportiert…
+Export PDF…	Exportar PDF…	Exporter le PDF…	PDF exportieren…
+{0} of {1}	{0} de {1}	{0} sur {1}	{0} von {1}
+Finished	Terminado	Terminé	Fertig
+Paused	En pausa	En pause	Pausiert
+Fold or unfold this section	Plegar o desplegar esta sección	Replier ou déplier cette section	Diesen Abschnitt ein- oder ausklappen
+Close output	Cerrar el resultado	Fermer la sortie	Ausgabe schließen
+Run this {0} in a sandbox (asks first)	Ejecutar este {0} en un entorno aislado (pregunta antes)	Exécuter ce {0} dans un bac à sable (demande d’abord)	Diesen {0}-Code in einer Sandbox ausführen (fragt zuerst)
+Running…	Ejecutando…	Exécution…	Wird ausgeführt…
+▶ Run	▶ Ejecutar	▶ Exécuter	▶ Ausführen
+Searching…	Buscando…	Recherche…	Suche läuft…
+Press Preview changes to see every match before anything changes.	Pulse Vista previa de los cambios para ver todas las coincidencias antes de que cambie nada.	Appuyez sur Prévisualiser les modifications pour voir chaque occurrence avant tout changement.	Drücken Sie „Änderungen anzeigen“, um jeden Treffer zu sehen, bevor sich etwas ändert.
+Open a folder first: Replace changes the Markdown files in it.	Abra primero una carpeta: Reemplazar cambia sus archivos Markdown.	Ouvrez d’abord un dossier : Remplacer modifie ses fichiers Markdown.	Öffnen Sie zuerst einen Ordner: „Ersetzen“ ändert die Markdown-Dateien darin.
+Looking for matches…	Buscando coincidencias…	Recherche des occurrences…	Suche nach Treffern…
+No matches.	No hay coincidencias.	Aucune occurrence.	Keine Treffer.
+{0}{1} match{2} in {3} file{4} — untick any you want to keep.	{0}{1} coincidencia(s) en {3} archivo(s): desmarque las que quiera conservar.	{0}{1} occurrence(s) dans {3} fichier(s) — décochez celles à garder.	{0}{1} Treffer in {3} Datei(en) – entfernen Sie den Haken bei allen, die bleiben sollen.
+Show this line	Mostrar esta línea	Afficher cette ligne	Diese Zeile anzeigen
+Heading	Título	Titre	Überschrift
+AI assist is on — the key is kept until you quit	Asistente de IA activado: la clave se guarda hasta que salga	Assistant IA activé — la clé est conservée jusqu’à la fermeture	KI-Assistent ist an – der Schlüssel bleibt bis zum Beenden erhalten
+AI assist is on	Asistente de IA activado	Assistant IA activé	KI-Assistent ist an
+AI assist is off	Asistente de IA desactivado	Assistant IA désactivé	KI-Assistent ist aus
+Bookmark removed	Marcador eliminado	Favori supprimé	Lesezeichen entfernt
+Bookmarked — find it under Files or with Ctrl+K	Añadido a marcadores: búsquelo en Archivos o con Ctrl+K	Ajouté aux favoris — retrouvez-le dans Fichiers ou avec Ctrl+K	Lesezeichen gesetzt – unter Dateien oder mit Strg+K zu finden
+Copied selection as formatted text	Selección copiada como texto con formato	Sélection copiée en texte mis en forme	Auswahl als formatierter Text kopiert
+Copied the whole document as formatted text	Documento completo copiado como texto con formato	Document entier copié en texte mis en forme	Ganzes Dokument als formatierter Text kopiert
+Click Edit first to add pictures to the document	Haga clic primero en Editar para añadir imágenes al documento	Cliquez d’abord sur Modifier pour ajouter des images au document	Klicken Sie zuerst auf Bearbeiten, um Bilder einzufügen
+That isn’t a Markdown file (.md)	No es un archivo Markdown (.md)	Ce n’est pas un fichier Markdown (.md)	Das ist keine Markdown-Datei (.md)
+Pasted as a table	Pegado como tabla	Collé en tableau	Als Tabelle eingefügt
+Pasted as Markdown — Ctrl+Shift+V pastes plain text	Pegado como Markdown: Ctrl+Mayús+V pega texto sin formato	Collé en Markdown — Ctrl+Maj+V colle du texte brut	Als Markdown eingefügt – Strg+Umschalt+V fügt Nur-Text ein
+Saved — the original was backed up first	Guardado: antes se hizo una copia de seguridad del original	Enregistré — l’original a d’abord été sauvegardé	Gespeichert – das Original wurde zuerst gesichert
+Saved	Guardado	Enregistré	Gespeichert
+Picture saved in the images folder next to this document	Imagen guardada en la carpeta images junto a este documento	Image enregistrée dans le dossier images à côté de ce document	Bild im Ordner „images“ neben diesem Dokument gespeichert
+{0} pictures saved in the images folder	{0} imágenes guardadas en la carpeta images	{0} images enregistrées dans le dossier images	{0} Bilder im Ordner „images“ gespeichert
+Locked — the unlocked original was moved to the Recycle Bin	Bloqueado: el original sin bloquear se movió a la Papelera	Verrouillé — l’original non verrouillé a été mis à la corbeille	Gesperrt – das ungesperrte Original wurde in den Papierkorb verschoben
+Locked copy saved as {0}	Copia bloqueada guardada como {0}	Copie verrouillée enregistrée sous {0}	Gesperrte Kopie gespeichert als {0}
+That file is read-only	Ese archivo es de solo lectura	Ce fichier est en lecture seule	Diese Datei ist schreibgeschützt
+Couldn’t change that task	No se pudo cambiar esa tarea	Impossible de modifier cette tâche	Diese Aufgabe konnte nicht geändert werden
+Renamed — {0} link{1} updated	Nombre cambiado: {0} enlace(s) actualizado(s)	Renommé — {0} lien(s) mis à jour	Umbenannt – {0} Link(s) aktualisiert
+Renamed	Nombre cambiado	Renommé	Umbenannt
+No voice is available — install a voice in your system’s speech settings (on Linux: speech-dispatcher with espeak-ng)	No hay ninguna voz disponible: instale una en los ajustes de voz del sistema (en Linux: speech-dispatcher con espeak-ng)	Aucune voix disponible — installez une voix dans les réglages vocaux du système (sous Linux : speech-dispatcher avec espeak-ng)	Keine Stimme verfügbar – installieren Sie eine in den Spracheinstellungen des Systems (unter Linux: speech-dispatcher mit espeak-ng)
+Reading aloud stopped	Lectura en voz alta detenida	Lecture à voix haute arrêtée	Vorlesen beendet
+Sections folded — click a heading’s arrow to open one	Secciones plegadas: haga clic en la flecha de un título para abrir una	Sections repliées — cliquez sur la flèche d’un titre pour en ouvrir une	Abschnitte eingeklappt – klicken Sie auf den Pfeil einer Überschrift, um einen zu öffnen
+All sections open	Todas las secciones abiertas	Toutes les sections sont ouvertes	Alle Abschnitte geöffnet
+Scrolling is linked	Desplazamiento sincronizado	Défilement lié	Bildlauf gekoppelt
+Scrolling is independent	Desplazamiento independiente	Défilement indépendant	Bildlauf unabhängig
+Edit	Editar	Modifier	Bearbeiten
+Done	Listo	Terminé	Fertig
+Read-only	Solo lectura	Lecture seule	Schreibgeschützt
+words	palabras	mots	Wörter
+min read	min de lectura	min de lecture	Min. Lesezeit
+Show in folder	Mostrar en la carpeta	Afficher dans le dossier	Im Ordner anzeigen
+{0} words	{0} palabras	{0} mots	{0} Wörter
+{0} min read	{0} min de lectura	{0} min de lecture	{0} Min. Lesezeit
+Open Folder…	Abrir carpeta…	Ouvrir un dossier…	Ordner öffnen…
+Open a folder to browse all of its Markdown files here.	Abra una carpeta para ver aquí todos sus archivos Markdown.	Ouvrez un dossier pour parcourir ici tous ses fichiers Markdown.	Öffnen Sie einen Ordner, um hier alle seine Markdown-Dateien zu durchsuchen.
+No Markdown files in this folder.	No hay archivos Markdown en esta carpeta.	Aucun fichier Markdown dans ce dossier.	Keine Markdown-Dateien in diesem Ordner.
+No files match.	Ningún archivo coincide.	Aucun fichier ne correspond.	Keine passenden Dateien.
+★ Bookmarks	★ Marcadores	★ Favoris	★ Lesezeichen
+No results.	No hay resultados.	Aucun résultat.	Keine Ergebnisse.
+Hide replace	Ocultar reemplazo	Masquer le remplacement	Ersetzen ausblenden
+Nothing ticked	Nada marcado	Rien de coché	Nichts angehakt
+Replace {0}	Reemplazar {0}	Remplacer {0}	{0} ersetzen
+Overdue	Vencidas	En retard	Überfällig
+Today	Hoy	Aujourd’hui	Heute
+Upcoming	Próximas	À venir	Demnächst
+No date	Sin fecha	Sans date	Ohne Datum
+Overdue · {0}	Vencida · {0}	En retard · {0}	Überfällig · {0}
+System default	Predeterminado del sistema	Par défaut du système	Systemstandard
+Missing document	Falta el documento	Document manquant	Fehlendes Dokument
+Missing file	Falta el archivo	Fichier manquant	Fehlende Datei
+Missing picture	Falta la imagen	Image manquante	Fehlendes Bild
+Missing heading	Falta el título	Titre manquant	Fehlende Überschrift
+Thinking…	Pensando…	Réflexion…	Denkt nach…
+No changes suggested.	No se sugieren cambios.	Aucune modification suggérée.	Keine Änderungen vorgeschlagen.
+Suggested by Claude — check it before accepting.	Sugerido por Claude: revíselo antes de aceptarlo.	Suggéré par Claude — vérifiez avant d’accepter.	Von Claude vorgeschlagen – vor dem Annehmen prüfen.
+Written by Claude — check anything important against the document.	Escrito por Claude: compruebe lo importante con el documento.	Écrit par Claude — vérifiez tout point important dans le document.	Von Claude geschrieben – Wichtiges anhand des Dokuments prüfen.

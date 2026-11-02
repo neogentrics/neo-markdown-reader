@@ -83,3 +83,6 @@ body.focus-mode .page > *:hover { opacity: 1 !important; }
 .ai-edit-diff del + ins { margin-left: .2em; }
 .ai-edit-dlg .ai-foot .spacer { flex: 1; }
 @media (forced-colors: active) { .ai-edit-diff del, .ai-edit-diff ins { border: 1px solid CanvasText; } }
+
+/* ---------- 3.0: longer words in other languages still fit the sidebar tabs */
+.side-tabs button { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 2px; padding-right: 2px; }

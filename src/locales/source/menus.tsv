@@ -1,0 +1,149 @@
+en	es	fr	de
+&File	&Archivo	&Fichier	&Datei
+&Edit	&Edición	É&dition	&Bearbeiten
+&View	&Ver	&Affichage	&Ansicht
+&Tabs	&Pestañas	&Onglets	&Tabs
+&Help	A&yuda	Aid&e	&Hilfe
+Clear Recent	Borrar recientes	Effacer les récents	Zuletzt verwendete löschen
+No recent files	No hay archivos recientes	Aucun fichier récent	Keine zuletzt geöffneten Dateien
+New from Template	Nuevo desde plantilla	Nouveau à partir d’un modèle	Neu aus Vorlage
+New Window	Nueva ventana	Nouvelle fenêtre	Neues Fenster
+Open…	Abrir…	Ouvrir…	Öffnen…
+Open Recent	Abrir reciente	Ouvrir un fichier récent	Zuletzt geöffnet
+Open Folder…	Abrir carpeta…	Ouvrir un dossier…	Ordner öffnen…
+Open Recent Folder	Abrir carpeta reciente	Ouvrir un dossier récent	Zuletzt geöffneter Ordner
+No recent folders	No hay carpetas recientes	Aucun dossier récent	Keine zuletzt geöffneten Ordner
+Today’s Note	Nota de hoy	Note du jour	Heutige Notiz
+Import Word Document…	Importar documento de Word…	Importer un document Word…	Word-Dokument importieren…
+Export	Exportar	Exporter	Exportieren
+Print…	Imprimir…	Imprimer…	Drucken…
+Close Window	Cerrar ventana	Fermer la fenêtre	Fenster schließen
+Exit	Salir	Quitter	Beenden
+Insert Standard Markdown Links	Insertar enlaces Markdown estándar	Insérer des liens Markdown standard	Standard-Markdown-Links einfügen
+AI Assist	Asistente de IA	Assistant IA	KI-Assistent
+Allow Running Code Blocks	Permitir ejecutar bloques de código	Autoriser l’exécution des blocs de code	Ausführen von Codeblöcken erlauben
+Open Backups Folder	Abrir carpeta de copias de seguridad	Ouvrir le dossier des sauvegardes	Sicherungsordner öffnen
+Theme	Tema	Thème	Design
+Typeface	Tipo de letra	Police	Schrift
+Page Width	Ancho de página	Largeur de page	Seitenbreite
+Sections	Secciones	Sections	Abschnitte
+Sidebar	Barra lateral	Barre latérale	Seitenleiste
+Always Show Menu Bar	Mostrar siempre la barra de menús	Toujours afficher la barre de menus	Menüleiste immer anzeigen
+Larger Text	Texto más grande	Texte plus grand	Größerer Text
+Smaller Text	Texto más pequeño	Texte plus petit	Kleinerer Text
+Reset Text Size	Restablecer tamaño del texto	Réinitialiser la taille du texte	Textgröße zurücksetzen
+Tab {0}	Pestaña {0}	Onglet {0}	Tab {0}
+Last Tab	Última pestaña	Dernier onglet	Letzter Tab
+Open Feature Showcase	Abrir la demostración de funciones	Ouvrir la démonstration des fonctions	Funktionsübersicht öffnen
+Restart to Update ({0})	Reiniciar para actualizar ({0})	Redémarrer pour mettre à jour ({0})	Neu starten zum Aktualisieren ({0})
+Check for Updates…	Buscar actualizaciones…	Rechercher des mises à jour…	Nach Updates suchen…
+Releases Page	Página de versiones	Page des versions	Versionsseite
+About Neo Markdown Reader {0}	Acerca de Neo Markdown Reader {0}	À propos de Neo Markdown Reader {0}	Über Neo Markdown Reader {0}
+No spelling suggestions	No hay sugerencias ortográficas	Aucune suggestion d’orthographe	Keine Rechtschreibvorschläge
+Add to Dictionary	Añadir al diccionario	Ajouter au dictionnaire	Zum Wörterbuch hinzufügen
+Proofread	Revisar	Relire	Korrigieren
+Rewrite	Reescribir	Reformuler	Umformulieren
+Shorten	Acortar	Raccourcir	Kürzen
+Translate…	Traducir…	Traduire…	Übersetzen…
+Copy as Formatted Text	Copiar como texto con formato	Copier en texte mis en forme	Als formatierten Text kopieren
+Move to New Window	Mover a una ventana nueva	Déplacer vers une nouvelle fenêtre	In neues Fenster verschieben
+Duplicate	Duplicar	Dupliquer	Duplizieren
+Open to the Side	Abrir al lado	Ouvrir sur le côté	Daneben öffnen
+Compare with…	Comparar con…	Comparer avec…	Vergleichen mit…
+Copy Path	Copiar ruta	Copier le chemin	Pfad kopieren
+Show in Folder	Mostrar en la carpeta	Afficher dans le dossier	Im Ordner anzeigen
+Close	Cerrar	Fermer	Schließen
+Close Other Tabs	Cerrar las demás pestañas	Fermer les autres onglets	Andere Tabs schließen
+Close Tabs to the Right	Cerrar las pestañas de la derecha	Fermer les onglets à droite	Tabs rechts schließen
+New Document	Nuevo documento	Nouveau document	Neues Dokument
+Close Folder	Cerrar carpeta	Fermer le dossier	Ordner schließen
+Rename…	Cambiar nombre…	Renommer…	Umbenennen…
+Reopen Closed Tab	Volver a abrir la pestaña cerrada	Rouvrir l’onglet fermé	Geschlossenen Tab wieder öffnen
+Save	Guardar	Enregistrer	Speichern
+Save As…	Guardar como…	Enregistrer sous…	Speichern unter…
+Protect with Password…	Proteger con contraseña…	Protéger par mot de passe…	Mit Passwort schützen…
+Lock Now	Bloquear ahora	Verrouiller maintenant	Jetzt sperren
+Save an Unlocked Copy…	Guardar una copia desbloqueada…	Enregistrer une copie déverrouillée…	Entsperrte Kopie speichern…
+Reload File	Volver a cargar el archivo	Recharger le fichier	Datei neu laden
+Copy File Path	Copiar ruta del archivo	Copier le chemin du fichier	Dateipfad kopieren
+PDF…	PDF…	PDF…	PDF…
+Word Document (.docx)…	Documento de Word (.docx)…	Document Word (.docx)…	Word-Dokument (.docx)…
+Web Page (.html)…	Página web (.html)…	Page web (.html)…	Webseite (.html)…
+Plain Text (.txt)…	Texto sin formato (.txt)…	Texte brut (.txt)…	Nur-Text (.txt)…
+E-book (.epub)…	Libro electrónico (.epub)…	Livre numérique (.epub)…	E-Book (.epub)…
+Slides as PDF…	Diapositivas en PDF…	Diapositives en PDF…	Folien als PDF…
+Slides as PowerPoint (.pptx)…	Diapositivas en PowerPoint (.pptx)…	Diapositives PowerPoint (.pptx)…	Folien als PowerPoint (.pptx)…
+Close Tab	Cerrar pestaña	Fermer l’onglet	Tab schließen
+Edit Document	Editar documento	Modifier le document	Dokument bearbeiten
+Find…	Buscar…	Rechercher…	Suchen…
+Find Next	Buscar siguiente	Rechercher le suivant	Weitersuchen
+Find Previous	Buscar anterior	Rechercher le précédent	Rückwärts suchen
+Find in Folder…	Buscar en la carpeta…	Rechercher dans le dossier…	Im Ordner suchen…
+Replace in Folder…	Reemplazar en la carpeta…	Remplacer dans le dossier…	Im Ordner ersetzen…
+Check Links in Folder…	Comprobar enlaces de la carpeta…	Vérifier les liens du dossier…	Links im Ordner prüfen…
+Compare with Saved Version	Comparar con la versión guardada	Comparer avec la version enregistrée	Mit gespeicherter Version vergleichen
+Compare with File…	Comparar con un archivo…	Comparer avec un fichier…	Mit Datei vergleichen…
+Version History	Historial de versiones	Historique des versions	Versionsverlauf
+Edit Table…	Editar tabla…	Modifier le tableau…	Tabelle bearbeiten…
+Highlight Selection	Resaltar la selección	Surligner la sélection	Auswahl markieren
+Bookmark This File	Añadir este archivo a marcadores	Ajouter ce fichier aux favoris	Lesezeichen für diese Datei
+Editing Permissions…	Permisos de edición…	Autorisations de modification…	Bearbeitungsberechtigungen…
+Summarize Document	Resumir documento	Résumer le document	Dokument zusammenfassen
+Explain Selection	Explicar la selección	Expliquer la sélection	Auswahl erklären
+Turn Notes into a Report	Convertir notas en un informe	Transformer des notes en rapport	Notizen in einen Bericht umwandeln
+Ask About This Folder…	Preguntar sobre esta carpeta…	Poser une question sur ce dossier…	Fragen zu diesem Ordner…
+Proofread Selection	Revisar la selección	Relire la sélection	Auswahl korrigieren
+Rewrite Selection	Reescribir la selección	Reformuler la sélection	Auswahl umformulieren
+Shorten Selection	Acortar la selección	Raccourcir la sélection	Auswahl kürzen
+Translate Selection…	Traducir la selección…	Traduire la sélection…	Auswahl übersetzen…
+AI Assist Settings…	Ajustes del asistente de IA…	Réglages de l’assistant IA…	Einstellungen des KI-Assistenten…
+Customize Theme…	Personalizar tema…	Personnaliser le thème…	Design anpassen…
+Present as Slides	Presentar como diapositivas	Présenter en diapositives	Als Folien präsentieren
+Read Aloud	Leer en voz alta	Lire à voix haute	Vorlesen
+Focus Mode	Modo concentración	Mode concentration	Fokusmodus
+Fold All Sections	Plegar todas las secciones	Replier toutes les sections	Alle Abschnitte einklappen
+Unfold All Sections	Desplegar todas las secciones	Déplier toutes les sections	Alle Abschnitte ausklappen
+Go to File or Heading…	Ir a un archivo o título…	Aller à un fichier ou un titre…	Zu Datei oder Überschrift…
+Show Outline	Mostrar esquema	Afficher le plan	Gliederung anzeigen
+Show Files	Mostrar archivos	Afficher les fichiers	Dateien anzeigen
+Show Highlights	Mostrar resaltados	Afficher les surlignages	Markierungen anzeigen
+Show Version History	Mostrar historial de versiones	Afficher l’historique des versions	Versionsverlauf anzeigen
+Show Tasks	Mostrar tareas	Afficher les tâches	Aufgaben anzeigen
+Link Map	Mapa de enlaces	Carte des liens	Linkkarte
+Split View	Vista dividida	Affichage partagé	Geteilte Ansicht
+Link Scrolling in Split View	Desplazamiento sincronizado en vista dividida	Défilement lié en affichage partagé	Gekoppelter Bildlauf in geteilter Ansicht
+Back	Atrás	Retour	Zurück
+Next Tab	Pestaña siguiente	Onglet suivant	Nächster Tab
+Previous Tab	Pestaña anterior	Onglet précédent	Vorheriger Tab
+Duplicate Tab	Duplicar pestaña	Dupliquer l’onglet	Tab duplizieren
+Open Tab to the Side	Abrir pestaña al lado	Ouvrir l’onglet sur le côté	Tab daneben öffnen
+Compare Tab with…	Comparar pestaña con…	Comparer l’onglet avec…	Tab vergleichen mit…
+Move Tab to New Window	Mover pestaña a una ventana nueva	Déplacer l’onglet vers une nouvelle fenêtre	Tab in neues Fenster verschieben
+Keyboard Shortcuts	Atajos de teclado	Raccourcis clavier	Tastenkürzel
+Customize Keyboard Shortcuts…	Personalizar atajos de teclado…	Personnaliser les raccourcis clavier…	Tastenkürzel anpassen…
+Find a Command…	Buscar un comando…	Rechercher une commande…	Befehl suchen…
+Follow System	Igual que el sistema	Suivre le système	Wie System
+Paper (light)	Papel (claro)	Papier (clair)	Papier (hell)
+Sepia	Sepia	Sépia	Sepia
+Mist	Niebla	Brume	Nebel
+Night (dark)	Noche (oscuro)	Nuit (sombre)	Nacht (dunkel)
+Forest (dark)	Bosque (oscuro)	Forêt (sombre)	Wald (dunkel)
+Dusk (dark)	Crepúsculo (oscuro)	Crépuscule (sombre)	Dämmerung (dunkel)
+High Contrast	Alto contraste	Contraste élevé	Hoher Kontrast
+Sans-serif (modern)	Sin serifa (moderna)	Sans empattement (moderne)	Serifenlos (modern)
+Serif (book)	Con serifa (libro)	Avec empattement (livre)	Serifen (Buch)
+Narrow	Estrecho	Étroite	Schmal
+Normal	Normal	Normale	Normal
+Wide	Ancho	Large	Breit
+Full Window	Ventana completa	Fenêtre entière	Ganzes Fenster
+Language	Idioma	Langue	Sprache
+System Default	Predeterminado del sistema	Langue du système	Systemstandard
+Add-ons…	Complementos…	Modules complémentaires…	Add-ons…
+Add-on Exports	Exportaciones de complementos	Exports des modules	Exporte aus Add-ons
+Undo	Deshacer	Annuler	Rückgängig
+Redo	Rehacer	Rétablir	Wiederholen
+Cut	Cortar	Couper	Ausschneiden
+Paste	Pegar	Coller	Einfügen
+Select All	Seleccionar todo	Tout sélectionner	Alles auswählen
+Toggle Full Screen	Pantalla completa	Plein écran	Vollbild
+Delete	Eliminar	Supprimer	Löschen

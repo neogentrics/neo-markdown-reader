@@ -179,13 +179,15 @@ async function buildDocx(model, assets = {}, options = {}) {
           if (b.tags?.length) out.push(new Paragraph({ children: [new TextRun({ text: b.tags.join(' · '), color: accent, size: 18 })] }));
           break;
         case 'h': {
-          const children = runsToChildren(b.runs);
-          out.push(new Paragraph({ heading: HEADINGS[Math.min(5, Math.max(0, b.level - 1))],
+          const children = runsToChildren(b.runs, b.rtl ? { rightToLeft: true } : {});
+          out.push(new Paragraph({ heading: HEADINGS[Math.min(5, Math.max(0, b.level - 1))], bidirectional: !!b.rtl,
             children: b.id ? [new Bookmark({ id: bookmarkName(b.id), children })] : children }));
           break;
         }
         case 'p':
-          out.push(new Paragraph({ alignment: ALIGN[b.align], indent, border: quoteBorder, children: runsToChildren(b.runs, ctx.quote ? { italics: false } : {}) }));
+          // Right-to-left paragraphs (Arabic, Hebrew…) are marked so Word lays them out from the right.
+          out.push(new Paragraph({ alignment: ALIGN[b.align], indent, border: quoteBorder, bidirectional: !!b.rtl,
+            children: runsToChildren(b.runs, { ...(ctx.quote ? { italics: false } : {}), ...(b.rtl ? { rightToLeft: true } : {}) }) }));
           break;
         case 'code': {
           const lines = b.text.split('\n');

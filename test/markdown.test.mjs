@@ -11,7 +11,7 @@ const BASE = 'file:///C:/Users/me/Docs/';
 test('GitHub-flavoured tables, task lists and strikethrough', () => {
   const { html } = render('| a | b |\n|---|:-:|\n| 1 | 2 |\n\n- [x] done\n- [ ] todo\n\n~~gone~~');
   assert.match(html, /<div class="table-wrap"><table>/);
-  assert.match(html, /<th style="text-align:center">b<\/th>/);
+  assert.match(html, /<th style="text-align:center" dir="auto">b<\/th>/);
   assert.match(html, /class="task-list-item-checkbox"[^>]*checked/);
   assert.match(html, /<s>gone<\/s>/);
 });
@@ -35,7 +35,7 @@ test('relative and Windows-style image paths resolve against the document folder
 test('headings get GitHub-style ids and build the outline', () => {
   const { toc, html, title } = render('# Hello World!\n\n## Step 1: Install\n\n### `code` heading\n\n## Step 1: Install');
   assert.deepEqual(toc.map((h) => h.id), ['hello-world', 'step-1-install', 'code-heading', 'step-1-install-1']);
-  assert.match(html, /<h2 id="step-1-install" data-line="2">/);      // data-line drives editor/preview scroll sync
+  assert.match(html, /<h2 id="step-1-install" dir="auto" data-line="2">/);      // data-line drives editor/preview scroll sync
   assert.equal(title, 'Hello World!');
   assert.equal(slugify('Ünïcode Wörds & Stuff'), 'ünïcode-wörds--stuff');
 });

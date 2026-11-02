@@ -89,6 +89,30 @@ function charts(md) {
   });
 }
 
+/**
+ * Right-to-left text (3.0): each paragraph, heading, list, quote and table cell takes its direction from
+ * its own first letters, so Arabic or Hebrew reads right to left and English beside it left to right.
+ */
+const DIR_AUTO = new Set(['paragraph_open', 'heading_open', 'list_item_open', 'th_open', 'td_open', 'dt_open', 'dd_open']);
+// Containers can't use dir="auto" (it skips children that have their own dir), so they take the direction
+// of their first text: a list, quote or table that starts in Arabic or Hebrew lays out right to left.
+const DIR_CONTAINER = new Set(['bullet_list_open', 'ordered_list_open', 'blockquote_open', 'table_open']);
+const RTL_FIRST = (text) => { const m = /\p{L}/u.exec(text || ''); return !!m && /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/.test(m[0]); };
+function directions(md) {
+  md.core.ruler.push('dir_auto', (state) => {
+    const toks = state.tokens;
+    toks.forEach((tok, i) => {
+      if (tok.attrGet('dir')) return;
+      if (DIR_AUTO.has(tok.type)) tok.attrSet('dir', 'auto');
+      else if (DIR_CONTAINER.has(tok.type)) {
+        const first = toks.slice(i + 1).find((x) => x.type === 'inline' && x.content.trim());
+        if (first && RTL_FIRST(first.content)) tok.attrSet('dir', 'rtl');
+      }
+    });
+  });
+}
+const RTL_LANGS = /^(ar|he|iw|fa|ur|ps|yi|dv|ckb|sd|ug)(-|$)/i;
+
 function wikiLinks(md) {
   md.inline.ruler.before('link', 'wikilink', (state, silent) => {
     const { src, pos } = state;
@@ -146,6 +170,7 @@ function buildMarkdownIt(state) {
     .use(alerts)
     .use(wikiLinks)
     .use(charts)
+    .use(directions)
     .use(texmath, { engine: katex, delimiters: ['dollars', 'beg_end'], katexOptions: { throwOnError: false, output: 'htmlAndMathml' } });
 
   // Tag block elements with their source line so the editor and preview can scroll together.
@@ -156,7 +181,7 @@ function buildMarkdownIt(state) {
   });
 
   // Tables get a wrapper so wide tables scroll instead of breaking the page layout.
-  md.renderer.rules.table_open = () => '<div class="table-wrap"><table>\n';
+  md.renderer.rules.table_open = (tokens, idx) => `<div class="table-wrap"${tokens[idx].attrGet('dir') === 'rtl' ? ' dir="rtl"' : ''}><table>\n`;
   md.renderer.rules.table_close = () => '</table></div>\n';
   return md;
 }
@@ -255,6 +280,10 @@ export function createRenderer(window) {
     const plain = src.replace(/```[\s\S]*?```/g, ' ').replace(/<[^>]+>/g, ' ');
     const words = (plain.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) || []).length;
     const title = (fm && fm.title && fmValue(fm.title)) || toc.find((h) => h.level === 1)?.text || toc[0]?.text || '';
-    return { html, toc, title, frontMatter: fm, stats: { words, minutes: Math.max(1, Math.round(words / 230)) } };
+    // The whole document's direction: front matter `dir: rtl`, or a right-to-left `lang:` (ar, he, fa…).
+    const fmDir = fm && String(fm.dir ?? '').toLowerCase();
+    const fmLang = fm && String(fm.lang ?? fm.language ?? '');
+    const dir = fmDir === 'rtl' || fmDir === 'ltr' ? fmDir : RTL_LANGS.test(fmLang) ? 'rtl' : '';
+    return { html, toc, title, frontMatter: fm, dir, lang: /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(fmLang) ? fmLang : '', stats: { words, minutes: Math.max(1, Math.round(words / 230)) } };
   };
 }

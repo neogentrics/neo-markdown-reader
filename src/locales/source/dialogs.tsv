@@ -1,0 +1,125 @@
+en	es	fr	de
+Unsaved changes	Cambios sin guardar	Modifications non enregistrées	Ungespeicherte Änderungen
+This window has unsaved changes.	Esta ventana tiene cambios sin guardar.	Cette fenêtre contient des modifications non enregistrées.	Dieses Fenster enthält ungespeicherte Änderungen.
+Close it anyway and lose them? Choose Cancel to go back and save.	¿Cerrarla de todos modos y perderlos? Elija Cancelar para volver y guardar.	La fermer quand même et les perdre ? Choisissez Annuler pour revenir et enregistrer.	Trotzdem schließen und die Änderungen verlieren? Wählen Sie „Abbrechen“, um zurückzugehen und zu speichern.
+File not found:\n{0}	No se encontró el archivo:\n{0}	Fichier introuvable :\n{0}	Datei nicht gefunden:\n{0}
+Open	Abrir	Ouvrir	Öffnen
+Export as PDF	Exportar como PDF	Exporter en PDF	Als PDF exportieren
+Export as Word Document	Exportar como documento de Word	Exporter en document Word	Als Word-Dokument exportieren
+Export as Web Page	Exportar como página web	Exporter en page web	Als Webseite exportieren
+Export as Plain Text	Exportar como texto sin formato	Exporter en texte brut	Als Nur-Text exportieren
+Export as E-book	Exportar como libro electrónico	Exporter en livre numérique	Als E-Book exportieren
+Export Slides as PDF	Exportar diapositivas como PDF	Exporter les diapositives en PDF	Folien als PDF exportieren
+Export Slides as PowerPoint	Exportar diapositivas como PowerPoint	Exporter les diapositives en PowerPoint	Folien als PowerPoint exportieren
+Check for Updates	Buscar actualizaciones	Rechercher des mises à jour	Nach Updates suchen
+You’re up to date	Está al día	Vous êtes à jour	Sie sind auf dem neuesten Stand
+Neo Markdown Reader {0} is the latest version.	Neo Markdown Reader {0} es la versión más reciente.	Neo Markdown Reader {0} est la dernière version.	Neo Markdown Reader {0} ist die neueste Version.
+Version {0} is available	La versión {0} está disponible	La version {0} est disponible	Version {0} ist verfügbar
+This copy can’t update itself. Download the new version from the Releases page.	Esta copia no puede actualizarse sola. Descargue la nueva versión desde la página de versiones.	Cette copie ne peut pas se mettre à jour seule. Téléchargez la nouvelle version depuis la page des versions.	Diese Kopie kann sich nicht selbst aktualisieren. Laden Sie die neue Version von der Versionsseite herunter.
+Version {0} is {1}	La versión {0} está {1}	La version {0} est {1}	Version {0} ist {1}
+Couldn’t check for updates	No se pudo buscar actualizaciones	Impossible de rechercher des mises à jour	Updates konnten nicht gesucht werden
+About	Acerca de	À propos	Über
+Version {0}\n© {1} Neo Gentrics. All rights reserved.	Versión {0}\n© {1} Neo Gentrics. Todos los derechos reservados.	Version {0}\n© {1} Neo Gentrics. Tous droits réservés.	Version {0}\n© {1} Neo Gentrics. Alle Rechte vorbehalten.
+Import Word Document	Importar documento de Word	Importer un document Word	Word-Dokument importieren
+Save the Markdown version as	Guardar la versión Markdown como	Enregistrer la version Markdown sous	Markdown-Version speichern unter
+Open Folder	Abrir carpeta	Ouvrir un dossier	Ordner öffnen
+Folder not found:\n{0}	No se encontró la carpeta:\n{0}	Dossier introuvable :\n{0}	Ordner nicht gefunden:\n{0}
+Open a folder first: daily notes go in its “Daily” folder.	Abra primero una carpeta: las notas diarias van en su carpeta “Daily”.	Ouvrez d’abord un dossier : les notes du jour vont dans son dossier « Daily ».	Öffnen Sie zuerst einen Ordner: Tagesnotizen kommen in dessen Ordner „Daily“.
+Choose a brand stylesheet	Elija una hoja de estilos de marca	Choisissez une feuille de style de marque	Marken-Stylesheet auswählen
+Run code?	¿Ejecutar código?	Exécuter le code ?	Code ausführen?
+Run this {0} code{1}	Ejecutar este código {0}{1}	Exécuter ce code {0}{1}	Diesen {0}-Code ausführen{1}
+{0}\n\nIt runs in a sealed sandbox: it can’t read or change your files, use the network or see your settings, and it’s stopped after {1} seconds.	{0}\n\nSe ejecuta en un entorno aislado: no puede leer ni cambiar sus archivos, usar la red ni ver sus ajustes, y se detiene a los {1} segundos.	{0}\n\nIl s’exécute dans un bac à sable fermé : il ne peut ni lire ni modifier vos fichiers, ni utiliser le réseau, ni voir vos réglages, et il est arrêté après {1} secondes.	{0}\n\nEr läuft in einer abgeschotteten Sandbox: Er kann Ihre Dateien weder lesen noch ändern, nicht ins Netz und Ihre Einstellungen nicht sehen, und er wird nach {1} Sekunden gestoppt.
+Don’t ask again for this document until I close it	No volver a preguntar para este documento hasta que lo cierre	Ne plus demander pour ce document jusqu’à sa fermeture	Für dieses Dokument nicht mehr fragen, bis ich es schließe
+Replace locked file?	¿Reemplazar el archivo bloqueado?	Remplacer le fichier verrouillé ?	Gesperrte Datei ersetzen?
+“{0}” already exists.	“{0}” ya existe.	« {0} » existe déjà.	„{0}“ existiert bereits.
+Replacing it overwrites that locked document with this one.	Al reemplazarlo, ese documento bloqueado se sobrescribe con este.	Le remplacer écrase ce document verrouillé par celui-ci.	Beim Ersetzen wird dieses gesperrte Dokument mit diesem überschrieben.
+Save an Unlocked Copy	Guardar una copia desbloqueada	Enregistrer une copie déverrouillée	Entsperrte Kopie speichern
+Restore this version?	¿Restaurar esta versión?	Restaurer cette version ?	Diese Version wiederherstellen?
+Restore “{0}” to the version from {1}?	¿Restaurar “{0}” a la versión del {1}?	Restaurer « {0} » à la version du {1} ?	„{0}“ auf die Version vom {1} zurücksetzen?
+The current version is kept in Version History first, so you can come back to it.	La versión actual se guarda antes en el historial de versiones, para que pueda volver a ella.	La version actuelle est d’abord conservée dans l’historique des versions, pour que vous puissiez y revenir.	Die aktuelle Version wird zuerst im Versionsverlauf aufbewahrt, damit Sie zu ihr zurückkehren können.
+Replace in folder?	¿Reemplazar en la carpeta?	Remplacer dans le dossier ?	Im Ordner ersetzen?
+Replace {0} match{1} in {2} file{3}?	¿Reemplazar {0} coincidencia(s) en {2} archivo(s)?	Remplacer {0} occurrence(s) dans {2} fichier(s) ?	{0} Treffer in {2} Datei(en) ersetzen?
+In “{0}”. Each file is backed up and its current version kept in Version History first, and Undo Replace puts them all back.	En “{0}”. Antes se hace una copia de seguridad de cada archivo y su versión actual se guarda en el historial de versiones; Deshacer reemplazo lo devuelve todo.	Dans « {0} ». Chaque fichier est d’abord sauvegardé et sa version actuelle conservée dans l’historique des versions ; Annuler le remplacement remet tout en place.	In „{0}“. Jede Datei wird zuerst gesichert und ihre aktuelle Version im Versionsverlauf aufbewahrt; „Ersetzen rückgängig“ stellt alles wieder her.
+Undo replace?	¿Deshacer el reemplazo?	Annuler le remplacement ?	Ersetzen rückgängig machen?
+Put back the {0} file{1} changed by the last Replace?	¿Devolver los {0} archivo(s) cambiados por el último reemplazo?	Remettre les {0} fichier(s) modifiés par le dernier remplacement ?	Die {0} durch das letzte Ersetzen geänderte(n) Datei(en) wiederherstellen?
+Files changed again since then are left alone (their earlier versions are still in Version History).	Los archivos que han vuelto a cambiar desde entonces no se tocan (sus versiones anteriores siguen en el historial).	Les fichiers modifiés depuis sont laissés tels quels (leurs versions précédentes restent dans l’historique).	Dateien, die seitdem erneut geändert wurden, bleiben unverändert (ihre früheren Versionen sind weiterhin im Versionsverlauf).
+Create document?	¿Crear documento?	Créer le document ?	Dokument erstellen?
+Create “{0}”?	¿Crear “{0}”?	Créer « {0} » ?	„{0}“ erstellen?
+There’s no document called “{0}” yet. It will be created in:\n{1}	Aún no hay ningún documento llamado “{0}”. Se creará en:\n{1}	Il n’y a pas encore de document nommé « {0} ». Il sera créé dans :\n{1}	Es gibt noch kein Dokument namens „{0}“. Es wird erstellt in:\n{1}
+Update links?	¿Actualizar enlaces?	Mettre à jour les liens ?	Links aktualisieren?
+Update {0} link{1} to “{2}” in {3} other document{4}?	¿Actualizar {0} enlace(s) a “{2}” en {3} documento(s) más?	Mettre à jour {0} lien(s) vers « {2} » dans {3} autre(s) document(s) ?	{0} Link(s) auf „{2}“ in {3} anderen Dokument(en) aktualisieren?
+Each document is backed up and its current version kept in Version History first.	Antes se hace una copia de seguridad de cada documento y su versión actual se guarda en el historial de versiones.	Chaque document est d’abord sauvegardé et sa version actuelle conservée dans l’historique des versions.	Jedes Dokument wird zuerst gesichert und seine aktuelle Version im Versionsverlauf aufbewahrt.
+Reset shortcuts?	¿Restablecer atajos?	Réinitialiser les raccourcis ?	Tastenkürzel zurücksetzen?
+Put every keyboard shortcut back to how it came?	¿Devolver todos los atajos de teclado a como venían?	Remettre tous les raccourcis clavier comme à l’origine ?	Alle Tastenkürzel auf den Auslieferungszustand zurücksetzen?
+File is read-only	El archivo es de solo lectura	Le fichier est en lecture seule	Datei ist schreibgeschützt
+“{0}” is read-only.	“{0}” es de solo lectura.	« {0} » est en lecture seule.	„{0}“ ist schreibgeschützt.
+Windows (or the folder’s permissions) won’t let this file be changed, so it stays locked.\n\nTo edit it, save a copy with File → Save As…, or remove the read-only setting in the file’s Properties.	Windows (o los permisos de la carpeta) no permiten cambiar este archivo, así que sigue bloqueado.\n\nPara editarlo, guarde una copia con Archivo → Guardar como… o quite la opción de solo lectura en las propiedades del archivo.	Windows (ou les autorisations du dossier) n’autorise pas la modification de ce fichier ; il reste donc verrouillé.\n\nPour le modifier, enregistrez une copie avec Fichier → Enregistrer sous…, ou retirez l’attribut lecture seule dans les propriétés du fichier.	Windows (oder die Ordnerberechtigungen) erlaubt keine Änderung dieser Datei, daher bleibt sie gesperrt.\n\nUm sie zu bearbeiten, speichern Sie eine Kopie mit Datei → Speichern unter… oder entfernen Sie den Schreibschutz in den Dateieigenschaften.
+Allow editing?	¿Permitir la edición?	Autoriser la modification ?	Bearbeiten erlauben?
+Allow Neo Markdown Reader to edit “{0}”?	¿Permitir que Neo Markdown Reader edite “{0}”?	Autoriser Neo Markdown Reader à modifier « {0} » ?	Neo Markdown Reader erlauben, „{0}“ zu bearbeiten?
+Changes will be saved to:\n{0}\n\nThe original is backed up before the first save, and nothing is written until you choose Save.	Los cambios se guardarán en:\n{0}\n\nAntes del primer guardado se hace una copia de seguridad del original, y no se escribe nada hasta que elija Guardar.	Les modifications seront enregistrées dans :\n{0}\n\nL’original est sauvegardé avant le premier enregistrement, et rien n’est écrit tant que vous ne choisissez pas Enregistrer.	Änderungen werden gespeichert in:\n{0}\n\nDas Original wird vor dem ersten Speichern gesichert, und nichts wird geschrieben, bevor Sie „Speichern“ wählen.
+File changed	El archivo ha cambiado	Fichier modifié	Datei geändert
+“{0}” was changed by another program after you started editing.	Otro programa cambió “{0}” después de que empezara a editarlo.	« {0} » a été modifié par un autre programme après le début de votre modification.	„{0}“ wurde von einem anderen Programm geändert, nachdem Sie mit dem Bearbeiten begonnen haben.
+Saving now replaces those changes with yours. To keep both, choose Cancel, then File → Save As… to save your version under a new name.	Si guarda ahora, esos cambios se sustituyen por los suyos. Para conservar ambos, elija Cancelar y después Archivo → Guardar como… para guardar su versión con otro nombre.	Enregistrer maintenant remplace ces modifications par les vôtres. Pour garder les deux, choisissez Annuler, puis Fichier → Enregistrer sous… pour enregistrer votre version sous un autre nom.	Speichern ersetzt diese Änderungen jetzt durch Ihre. Um beide zu behalten, wählen Sie „Abbrechen“ und dann Datei → Speichern unter…, um Ihre Version unter neuem Namen zu speichern.
+Save As	Guardar como	Enregistrer sous	Speichern unter
+Your changes will be lost if you don’t save them.	Si no guarda los cambios, se perderán.	Vos modifications seront perdues si vous ne les enregistrez pas.	Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.
+Cancel	Cancelar	Annuler	Abbrechen
+Close Without Saving	Cerrar sin guardar	Fermer sans enregistrer	Ohne Speichern schließen
+OK	Aceptar	OK	OK
+Open Download Page	Abrir la página de descarga	Ouvrir la page de téléchargement	Downloadseite öffnen
+Later	Más tarde	Plus tard	Später
+Run	Ejecutar	Exécuter	Ausführen
+Replace	Reemplazar	Remplacer	Ersetzen
+Restore	Restaurar	Restaurer	Wiederherstellen
+Undo Replace	Deshacer reemplazo	Annuler le remplacement	Ersetzen rückgängig
+Create	Crear	Créer	Erstellen
+Update Links	Actualizar enlaces	Mettre à jour les liens	Links aktualisieren
+Leave Them	Dejarlos así	Les laisser	So lassen
+Reset All	Restablecer todo	Tout réinitialiser	Alle zurücksetzen
+Just This Time	Solo esta vez	Juste cette fois	Nur dieses Mal
+Always for This File	Siempre para este archivo	Toujours pour ce fichier	Immer für diese Datei
+Always for This Folder	Siempre para esta carpeta	Toujours pour ce dossier	Immer für diesen Ordner
+Replace With My Version	Reemplazar con mi versión	Remplacer par ma version	Durch meine Version ersetzen
+Nothing to export	Nada que exportar	Rien à exporter	Nichts zu exportieren
+That command’s shortcut can’t be changed.	El atajo de ese comando no se puede cambiar.	Le raccourci de cette commande ne peut pas être modifié.	Das Tastenkürzel dieses Befehls kann nicht geändert werden.
+That key combination can’t be used. Use Ctrl, Alt or Shift with a letter, number or key, or a function key (F1–F24).	Esa combinación de teclas no se puede usar. Use Ctrl, Alt o Mayús con una letra, un número o una tecla, o una tecla de función (F1–F24).	Cette combinaison de touches ne peut pas être utilisée. Utilisez Ctrl, Alt ou Maj avec une lettre, un chiffre ou une touche, ou une touche de fonction (F1–F24).	Diese Tastenkombination kann nicht verwendet werden. Verwenden Sie Strg, Alt oder Umschalt mit einem Buchstaben, einer Zahl oder Taste oder eine Funktionstaste (F1–F24).
+{0} is used by {1}, which can’t be changed.	{0} lo usa {1}, que no se puede cambiar.	{0} est utilisé par {1}, qui ne peut pas être modifié.	{0} wird von {1} verwendet, das nicht geändert werden kann.
+That isn’t a Word document (.docx).	No es un documento de Word (.docx).	Ce n’est pas un document Word (.docx).	Das ist kein Word-Dokument (.docx).
+That Word document is too large to import (over 100 MB).	Ese documento de Word es demasiado grande para importarlo (más de 100 MB).	Ce document Word est trop volumineux pour être importé (plus de 100 Mo).	Dieses Word-Dokument ist zu groß zum Importieren (über 100 MB).
+Couldn’t import that document: {0}	No se pudo importar ese documento: {0}	Impossible d’importer ce document : {0}	Dieses Dokument konnte nicht importiert werden: {0}
+Not a file the reader can open.	No es un archivo que el lector pueda abrir.	Ce n’est pas un fichier que le lecteur peut ouvrir.	Diese Datei kann der Reader nicht öffnen.
+That stylesheet is larger than 1 MB.	Esa hoja de estilos ocupa más de 1 MB.	Cette feuille de style dépasse 1 Mo.	Dieses Stylesheet ist größer als 1 MB.
+That doesn’t look like an Anthropic API key (they start with sk-ant-).	No parece una clave de API de Anthropic (empiezan por sk-ant-).	Cela ne ressemble pas à une clé d’API Anthropic (elles commencent par sk-ant-).	Das sieht nicht wie ein Anthropic-API-Schlüssel aus (diese beginnen mit sk-ant-).
+AI assist is off.	El asistente de IA está desactivado.	L’assistant IA est désactivé.	Der KI-Assistent ist ausgeschaltet.
+AI assist is off for locked documents, so their text never leaves this computer.	El asistente de IA está desactivado para los documentos bloqueados, así que su texto nunca sale de este equipo.	L’assistant IA est désactivé pour les documents verrouillés : leur texte ne quitte jamais cet ordinateur.	Der KI-Assistent ist für gesperrte Dokumente ausgeschaltet, damit ihr Text diesen Computer nie verlässt.
+Running code is switched off. Turn it on under Edit → Allow Running Code Blocks.	La ejecución de código está desactivada. Actívela en Edición → Permitir ejecutar bloques de código.	L’exécution de code est désactivée. Activez-la dans Édition → Autoriser l’exécution des blocs de code.	Das Ausführen von Code ist ausgeschaltet. Schalten Sie es unter Bearbeiten → Ausführen von Codeblöcken erlauben ein.
+Only JavaScript and Python code can be run.	Solo se puede ejecutar código JavaScript y Python.	Seul le code JavaScript et Python peut être exécuté.	Nur JavaScript- und Python-Code kann ausgeführt werden.
+There’s no code to run.	No hay código que ejecutar.	Il n’y a pas de code à exécuter.	Es gibt keinen Code zum Ausführen.
+Enter the password.	Escriba la contraseña.	Saisissez le mot de passe.	Geben Sie das Passwort ein.
+Save the document first.	Guarde primero el documento.	Enregistrez d’abord le document.	Speichern Sie zuerst das Dokument.
+Use a password of at least {0} characters.	Use una contraseña de al menos {0} caracteres.	Utilisez un mot de passe d’au moins {0} caractères.	Verwenden Sie ein Passwort mit mindestens {0} Zeichen.
+Unlock the document first.	Desbloquee primero el documento.	Déverrouillez d’abord le document.	Entsperren Sie zuerst das Dokument.
+Unlock the document to see its earlier versions.	Desbloquee el documento para ver sus versiones anteriores.	Déverrouillez le document pour voir ses versions précédentes.	Entsperren Sie das Dokument, um seine früheren Versionen zu sehen.
+Open a folder first.	Abra primero una carpeta.	Ouvrez d’abord un dossier.	Öffnen Sie zuerst einen Ordner.
+Preview the changes first.	Vea antes la vista previa de los cambios.	Prévisualisez d’abord les modifications.	Sehen Sie sich zuerst die Vorschau der Änderungen an.
+Nothing is ticked.	No hay nada marcado.	Rien n’est coché.	Nichts ist angehakt.
+There’s nothing to undo.	No hay nada que deshacer.	Il n’y a rien à annuler.	Es gibt nichts rückgängig zu machen.
+That isn’t a name a document can have.	Ese nombre no es válido para un documento.	Ce nom n’est pas valide pour un document.	Dieser Name ist für ein Dokument nicht zulässig.
+That’s already its name.	Ya tiene ese nombre.	C’est déjà son nom.	Das ist bereits sein Name.
+“{0}” already exists in that folder.	“{0}” ya existe en esa carpeta.	« {0} » existe déjà dans ce dossier.	„{0}“ existiert in diesem Ordner bereits.
+ready to install	lista para instalarse	prête à être installée	bereit zur Installation
+downloading	descargándose	en cours de téléchargement	wird heruntergeladen
+Choose Help → Restart to Update, or it will install next time you quit.	Elija Ayuda → Reiniciar para actualizar, o se instalará la próxima vez que salga.	Choisissez Aide → Redémarrer pour mettre à jour, ou elle s’installera à la prochaine fermeture.	Wählen Sie Hilfe → Neu starten zum Aktualisieren, oder sie wird beim nächsten Beenden installiert.
+You’ll be asked to restart when it’s ready.	Se le pedirá que reinicie cuando esté lista.	On vous demandera de redémarrer quand elle sera prête.	Sie werden zum Neustart aufgefordert, sobald sie bereit ist.
+Check your internet connection and try again.	Compruebe su conexión a internet y vuelva a intentarlo.	Vérifiez votre connexion internet et réessayez.	Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.
+{0}\n\nYou can always find new versions at:\n{1}	{0}\n\nSiempre puede encontrar las versiones nuevas en:\n{1}	{0}\n\nVous trouverez toujours les nouvelles versions sur :\n{1}	{0}\n\nNeue Versionen finden Sie immer unter:\n{1}
+Markdown	Markdown	Markdown	Markdown
+Everything the reader opens	Todo lo que abre el lector	Tout ce que le lecteur ouvre	Alles, was der Reader öffnet
+Data (CSV, TSV, JSON, YAML)	Datos (CSV, TSV, JSON, YAML)	Données (CSV, TSV, JSON, YAML)	Daten (CSV, TSV, JSON, YAML)
+Jupyter Notebook	Cuaderno de Jupyter	Notebook Jupyter	Jupyter-Notebook
+Text	Texto	Texte	Text
+Word Document	Documento de Word	Document Word	Word-Dokument
+Web Page	Página web	Page web	Webseite
+Plain Text	Texto sin formato	Texte brut	Nur-Text
+EPUB E-book	Libro electrónico EPUB	Livre numérique EPUB	EPUB-E-Book
+PowerPoint Presentation	Presentación de PowerPoint	Présentation PowerPoint	PowerPoint-Präsentation
+Stylesheet	Hoja de estilos	Feuille de style	Stylesheet
