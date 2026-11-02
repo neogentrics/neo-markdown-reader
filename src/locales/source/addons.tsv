@@ -43,3 +43,4 @@ This add-on is damaged and can’t be used: {0}	Este complemento está dañado y
 Add-on installed	Complemento instalado	Module installé	Add-on installiert
 Add-on removed	Complemento eliminado	Module supprimé	Add-on entfernt
 Turn on {0}	Activar {0}	Activer {0}	{0} einschalten
+Theme “{0}” would be hard to read: {1} on {2} has a contrast of {3}:1 (at least 4.5:1 is needed).	El tema “{0}” sería difícil de leer: {1} sobre {2} tiene un contraste de {3}:1 (se necesita al menos 4,5:1).	Le thème « {0} » serait difficile à lire : {1} sur {2} a un contraste de {3}:1 (au moins 4,5:1 est nécessaire).	Das Design „{0}“ wäre schwer lesbar: {1} auf {2} hat einen Kontrast von {3}:1 (mindestens 4,5:1 ist nötig).

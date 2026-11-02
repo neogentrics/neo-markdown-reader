@@ -11,7 +11,7 @@
       "tone": "light",
       "colors": {
         "page": "#fdf6e3", "desk": "#eee8d5", "text": "#3b4a52", "textSoft": "#53626a", "muted": "#5f6e75", "heading": "#073642",
-        "accent": "#b25f00", "accent2": "#2aa198", "accentSoft": "#f5e9cc", "link": "#1f5fa8", "rule": "#e6dfca", "ruleStrong": "#d6ccb0",
+        "accent": "#8a4700", "accent2": "#2aa198", "accentSoft": "#f5e9cc", "link": "#1f5fa8", "rule": "#e6dfca", "ruleStrong": "#d6ccb0",
         "codeBg": "#f6efdb", "codeBorder": "#e6dcbd", "quoteBar": "#d3b880", "quoteBg": "#f8f0dc", "tableHead": "#f3eacf", "tableStripe": "#faf3df",
         "chrome": "#f7f0de", "chromeBorder": "#e0d6b8"
       }

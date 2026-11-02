@@ -678,6 +678,7 @@
  "The current version is kept in Version History first, so you can come back to it.": "La versión actual se guarda antes en el historial de versiones, para que pueda volver a ella.",
  "The exported file would be too large.": "El archivo exportado sería demasiado grande.",
  "Theme": "Tema",
+ "Theme “{0}” would be hard to read: {1} on {2} has a contrast of {3}:1 (at least 4.5:1 is needed).": "El tema “{0}” sería difícil de leer: {1} sobre {2} tiene un contraste de {3}:1 (se necesita al menos 4,5:1).",
  "Theme & layout": "Tema y diseño",
  "Theme and layout": "Tema y diseño",
  "Theme default": "Predeterminado del tema",

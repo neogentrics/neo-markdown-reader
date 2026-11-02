@@ -30,6 +30,36 @@ const COLORS = {
   chrome: '--chrome', chromeBorder: '--chrome-border',
 };
 
+// Text-on-background pairs the app draws, checked for contrast (WCAG AA, 4.5:1) so a theme stays readable.
+// A colour the theme leaves out comes from the built-in light or dark theme it sits on.
+const BASE = {
+  light: { page: '#ffffff', text: '#1d2330', textSoft: '#4b5466', muted: '#5f687b', heading: '#111827', accent: '#3b5bdb', accentSoft: '#edf2ff', onAccent: '#ffffff', link: '#2f54c9', codeBg: '#f5f7fb', inlineCodeBg: '#eef1f7', inlineCodeText: '#c2255c', chrome: '#fafbfd' },
+  dark: { page: '#171a21', text: '#dfe3ea', textSoft: '#b4bccb', muted: '#8f99ad', heading: '#f3f5f9', accent: '#7c9cff', accentSoft: '#1d2440', onAccent: '#0e1014', link: '#8eaaff', codeBg: '#12151b', inlineCodeBg: '#252b37', inlineCodeText: '#ff8fb3', chrome: '#14171d' },
+};
+const PAIRS = [['text', 'page'], ['textSoft', 'page'], ['muted', 'page'], ['heading', 'page'], ['link', 'page'], ['text', 'codeBg'],
+  ['inlineCodeText', 'inlineCodeBg'], ['text', 'chrome'], ['muted', 'chrome'], ['accent', 'accentSoft'], ['onAccent', 'accent']];
+
+function luminance(hex) {
+  let h = hex.slice(1);
+  if (h.length <= 4) h = [...h].map((c) => c + c).join('');
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+function contrast(a, b) {
+  const [x, y] = [luminance(a), luminance(b)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+}
+/** The first pair of the theme's colours that is too faint to read, or null. */
+function faintPair(tone, colors) {
+  const all = { ...BASE[tone], ...colors };
+  for (const [fg, bg] of PAIRS) {
+    if (!(fg in colors) && !(bg in colors)) continue;
+    const ratio = contrast(all[fg], all[bg]);
+    if (ratio < 4.5) return { fg, bg, ratio: Math.floor(ratio * 100) / 100 };
+  }
+  return null;
+}
+
 const str = (v, max) => (typeof v === 'string' && v.trim() && v.length <= max ? v.trim() : null);
 
 /** A script path inside the add-on: relative, forward slashes, .js, no way out of the folder. */
@@ -69,7 +99,10 @@ function validateManifest(raw, has = () => true) {
       colors[k] = v.toLowerCase();
     }
     if (!Object.keys(colors).length) return { error: `Theme “${th.name}” sets no colours.` };
-    out.themes.push({ id: th.id, name: th.name.trim(), tone: th.tone === 'dark' ? 'dark' : 'light', colors });
+    const tone = th.tone === 'dark' ? 'dark' : 'light';
+    const faint = faintPair(tone, colors);
+    if (faint) return { error: `Theme “${th.name}” would be hard to read: ${faint.fg} on ${faint.bg} has a contrast of ${faint.ratio}:1 (at least 4.5:1 is needed).` };
+    out.themes.push({ id: th.id, name: th.name.trim(), tone, colors });
   }
   for (const b of Array.isArray(m.codeBlocks) ? m.codeBlocks : []) {
     if (out.codeBlocks.length >= 10) return { error: 'It may add at most 10 code-block types.' };
