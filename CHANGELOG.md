@@ -4,6 +4,30 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [2.3.0] - 2026-11-02
+
+### Added
+- **Wiki links:** `[[Name]]` links to the document called *Name* anywhere in the open folder;
+  `[[Name#Heading]]` goes to a heading and `[[Name|text]]` shows your own text. Links to documents that
+  don't exist yet look faded, and clicking one offers to create it.
+- **Link suggestions while editing:** type `[[` to pick a document. *Edit → Insert Standard Markdown Links*
+  writes `[Name](path.md)` instead.
+- **Rename** (`F2`, *File → Rename…*): renames the document and offers to update every `[[link]]` and
+  `[link](path)` to it in the folder, backing each changed document up and keeping it in History first.
+- **Linked from:** the Outline panel lists the documents that link to the one you're reading.
+- **Link map** (`Ctrl+Shift+M`): the folder's documents and the links between them; click one to open it.
+- **Tags:** `#tags` and front-matter `tags:` show as chips in the Files panel and filter the files.
+- **Tasks** (`Ctrl+Shift+L`): a new sidebar panel with every `- [ ]` item in the folder, overdue first, with
+  due dates (`📅 2026-11-20`, `due: 2026-11-20` or `@due(2026-11-20)`). Ticking one off changes the file,
+  with permission.
+- **Today's note** (`Ctrl+Shift+D`): opens or creates `Daily/YYYY-MM-DD.md` in the folder.
+- **Check Links in Folder:** lists links to missing documents, headings, pictures and files.
+- **Ask About This Folder** (AI assist, optional): Claude answers a question from the documents you tick,
+  with each point linked to the line it came from. Locked documents are never sent.
+
+### Changed
+- The sidebar has a sixth panel, **Tasks**.
+
 ## [2.2.0] - 2026-11-01
 
 ### Added

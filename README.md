@@ -10,7 +10,7 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
-**[Features](#features)** · **[Install](#install-windows)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+**[Features](#features)** · **[Install](#install-windows)** · **[Connected notes](#connected-notes)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
 
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
@@ -43,7 +43,8 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
-| **Write faster** *(new in 2.2)* | Paste or drop pictures (saved next to the document); edit tables in a grid and paste cells from Excel; paste from Word and web pages as clean Markdown, or import a Word document; version history with compare and restore; replace across a folder with a preview and undo; run any command from `Ctrl+K` and choose your own shortcuts ([details](#writing-faster)) |
+| **Connected notes** *(new in 2.3)* | Link documents with `[[wiki links]]` (suggested as you type, kept up to date when you rename); see what links here, a map of how a folder fits together, tags and every task in one list, a daily note, a link checker, and (optionally) ask Claude questions about a folder with links to its sources ([details](#connected-notes)) |
+| **Write faster** *(2.2)* | Paste or drop pictures (saved next to the document); edit tables in a grid and paste cells from Excel; paste from Word and web pages as clean Markdown, or import a Word document; version history with compare and restore; replace across a folder with a preview and undo; run any command from `Ctrl+K` and choose your own shortcuts ([details](#writing-faster)) |
 | **At home on Windows** *(2.1)* | A formatted preview of `.md` files in File Explorer's Preview pane; a full accessibility pass (screen readers, keyboard, high contrast); a Linux `.deb`, an Intel Mac build and `winget` ([details](#at-home-on-windows)) |
 | **Power features** *(2.0)* | Run JavaScript and Python code blocks in a sealed sandbox; lock documents with a password (AES-256); summarize, explain or turn notes into a report with Claude, using your own API key (optional, off by default); four more colour themes ([details](#power-features)) |
 | **Publish** *(1.4)* | A PDF designer with a cover page, contents page with page numbers, headers and footers; export to Word, a single web page or plain text; present any document as full-screen slides; your own accent colour, fonts or brand stylesheet ([details](#publishing-and-presenting)) |
@@ -163,6 +164,51 @@ version is out and link to the download. *(Coming from 1.0? Install 1.1 once by 
 <td align="center"><sub>Version history: compare with or restore any earlier version</sub></td>
 </tr>
 </table>
+
+## Connected notes
+
+Open a folder (*File → Open Folder…*) and its documents start working together.
+
+<img src="docs/screenshots/backlinks.png" width="860" alt="A document with wiki links, and the Linked From list under the outline showing five documents that link to it">
+
+- **Wiki links:** write `[[Budget]]` to link to `Budget.md` anywhere in the folder, by its name.
+  - `[[Budget#Q3]]` goes to a heading, and `[[Budget|the budget]]` shows your own text.
+  - If two documents share a name, the one in the same folder wins; write `[[Projects/Budget]]` to choose.
+  - A link to a document that doesn't exist yet looks faded. Click it and the app offers to create it.
+  - While editing, type `[[` to pick a document from a list. Prefer links every Markdown app understands?
+    Tick *Edit → Insert Standard Markdown Links* and you get `[Budget](Projects/Budget.md)` instead.
+- **Linked from:** the bottom of the **Outline** panel lists every document that links to the one you're
+  reading, with the line around each link.
+- **Rename** (`F2`, or *File → Rename…*): renames the file and offers to update every link to it in the folder,
+  both `[[links]]` and ordinary `[links](paths)`. Each changed document is backed up and kept in History first.
+- **Link map** (`Ctrl+Shift+M`, or the map button in the Files panel): every document as a dot and every link as a
+  line, so you can see what's connected and what isn't. Click a document to open it.
+- **Tags:** `#tags` in the text and `tags:` in the front matter show as chips at the top of the **Files** panel.
+  Click one to see only those files.
+- **Tasks** (`Ctrl+Shift+L`, the **Tasks** panel): every `- [ ]` checklist item in the folder in one list —
+  overdue first, then today, upcoming and undated.
+  - Give a task a date with `📅 2026-11-20`, `due: 2026-11-20` or `@due(2026-11-20)`.
+  - Tick it off in the list and the file is changed for you (the app asks for permission first, as always).
+- **Today's note** (`Ctrl+Shift+D`, or *File → Today's Note*): opens `Daily/2026-11-02.md` in the folder,
+  creating it from a simple template the first time each day.
+- **Check links** (*Edit → Check Links in Folder…*): finds links to documents, headings, pictures and files that
+  don't exist, and opens each one at its line.
+- **Ask about this folder** (*AI Assist → Ask About This Folder…*, optional): ask a question and Claude answers
+  from the documents you tick, citing each point as a link (`Budget.md:6`) that opens that line. Only the ticked
+  documents are sent, with your own API key, and locked documents are never included.
+
+<table>
+<tr>
+<td><img src="docs/screenshots/tasks.png" alt="The Tasks panel: overdue tasks in red, then today, upcoming and undated tasks, each with its document and date"></td>
+<td><img src="docs/screenshots/link-map.png" alt="The link map: documents as dots joined by lines, with the open document highlighted"></td>
+</tr>
+<tr>
+<td align="center"><sub>Every task in the folder, overdue first</sub></td>
+<td align="center"><sub>The link map: how the folder fits together</sub></td>
+</tr>
+</table>
+
+<img src="docs/screenshots/ask-folder.png" width="860" alt="Claude's answer to a question about the folder, with each point followed by a link to the document and line it came from">
 
 ## Organizing your documents
 
@@ -336,6 +382,9 @@ with your own accent colour and in exports.
 | `Ctrl` `K` | Go to a file, `#` + text to jump to a heading, or `>` to run a command |
 | `Ctrl` `Shift` `O` / `Ctrl` `Shift` `F` / `Ctrl` `Shift` `R` | Open folder / find in folder / replace in folder |
 | `Ctrl` `Shift` `Y` | Version history of this document |
+| `F2` | Rename the document (and update links to it) |
+| `Ctrl` `Shift` `L` / `Ctrl` `Shift` `M` / `Ctrl` `Shift` `D` | Tasks panel / link map / today's note |
+| `[[` (while editing) | Link to another document in the folder |
 | `Ctrl` `Shift` `K` | Find a command by name |
 | `Ctrl` `Shift` `V` | Paste as plain text (while editing) |
 | `Ctrl` `\` | Split view |
@@ -366,10 +415,10 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help �
 - **v2.2** added pasted and dropped pictures, a table editor (with paste from Excel), paste from Word
   and web pages as clean Markdown, Word import, version history, replace across a folder, and running
   any command from Quick Open with your own shortcuts.
+- **v2.3** added `[[wiki links]]` (suggested as you type, updated when you rename), backlinks, a link map,
+  tags, a Tasks panel with daily notes, a link checker, and (optionally) asking Claude about a folder.
 
 Coming next, before the next major version:
-- **v2.3, Connected notes** *(in progress)*: `[[wiki links]]`, backlinks and a link map, tags, a Tasks panel with daily
-  notes, a link checker, and (optionally) asking AI questions about a folder.
 - **v2.4, Read, listen & share:** read aloud, focus mode, folding sections, CSV / JSON / Jupyter notebook
   files, charts from data, EPUB and PowerPoint export, and AI writing help in the editor.
 - **v3.0 ideas:** add-ons, the app in your language, sync between your computers, Git built in.
@@ -414,6 +463,8 @@ src/
 │   ├── locked.js         password-locked documents: AES-256-GCM with a scrypt key
 │   ├── sandbox.js        the sealed code sandbox (own session, private scheme, every other request refused)
 │   ├── ai.js             AI assist prompts and the Claude request (official Anthropic SDK)
+│   ├── notes-core.js     wiki links, backlinks, tags, tasks, link checking and rename rewrites (pure functions, shared with the page)
+│   ├── folder-index.js   the open folder's links, tags and tasks, re-reading only files that changed
 │   ├── folders.js        scanning and searching an opened folder
 │   ├── annotations.js    private highlights & notes (stored in app data, never in the file)
 │   ├── updater.js        update checks against GitHub Releases (electron-updater for the installer)
@@ -427,7 +478,8 @@ src/
     ├── editmode.js       edit mode: editor beside the live preview, save / save as, new documents
     ├── editor-entry.js   the CodeMirror 6 editor (loaded only when you edit)
     ├── templates.js      File → New from Template
-    ├── sidebar.js        Outline · Files · Search · Notes panels
+    ├── sidebar.js        Outline · Files · Search · Tasks · Notes · History panels
+    ├── notes-ui.js       Backlinks, tag chips, the Tasks panel, the link map, the link checker and Rename
     ├── palette.js        Quick Open (Ctrl+K)
     ├── split.js          split view and linked scrolling
     ├── compare.js        line and word diffs for Compare

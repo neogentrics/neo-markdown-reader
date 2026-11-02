@@ -16,6 +16,7 @@ import katex from 'katex';
 import hljs from 'highlight.js';
 import { load as yamlLoad, JSON_SCHEMA } from 'js-yaml';
 import createDOMPurify from 'dompurify';
+import { parseWikiTarget } from '../main/notes-core.js';
 
 const MEDIA_ATTRS = { IMG: 'src', VIDEO: 'src', AUDIO: 'src', SOURCE: 'src', TRACK: 'src' };
 const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
@@ -43,6 +44,34 @@ export function resolveMediaUrl(value, baseUrl) {
   if (SCHEME.test(v) || v.startsWith('//')) return v;
   if (!baseUrl) return v;
   try { return new URL(v.replace(/\\/g, '/'), baseUrl).href; } catch { return v; }
+}
+
+/**
+ * [[Name]], [[Name#Heading]] and [[Name|label]] become links. env.wiki(target) says where each one goes
+ * ({ href, missing }); without it (no folder open) a link points to "Name.md" next to the document.
+ */
+function wikiLinks(md) {
+  md.inline.ruler.before('link', 'wikilink', (state, silent) => {
+    const { src, pos } = state;
+    if (src.charCodeAt(pos) !== 0x5b || src.charCodeAt(pos + 1) !== 0x5b) return false;
+    const end = src.indexOf(']]', pos + 2);
+    if (end < 0) return false;
+    const inner = src.slice(pos + 2, end);
+    if (!inner.trim() || inner.length > 300 || /[[\]\n]/.test(inner)) return false;
+    if (!silent) {
+      const w = parseWikiTarget(inner);
+      const r = state.env?.wiki ? state.env.wiki(w) : null;
+      const href = r?.href ?? `${w.name ? `${encodeURI(w.name)}.md` : ''}${w.heading ? `#${slugify(w.heading)}` : ''}`;
+      const open = state.push('link_open', 'a', 1);
+      open.attrs = [['href', href || '#'], ['class', r?.missing ? 'wikilink wikilink-missing' : 'wikilink'], ['data-wiki', w.name]];
+      if (r?.missing) open.attrs.push(['title', `No document named “${w.name}” yet — click to create it`]);
+      const text = state.push('text', '', 0);
+      text.content = w.label || (w.name && w.heading ? `${w.name} › ${w.heading}` : w.name || w.heading);
+      state.push('link_close', 'a', -1);
+    }
+    state.pos = end + 2;
+    return true;
+  });
 }
 
 function buildMarkdownIt(state) {
@@ -76,6 +105,7 @@ function buildMarkdownIt(state) {
     .use(sub)
     .use(sup)
     .use(alerts)
+    .use(wikiLinks)
     .use(texmath, { engine: katex, delimiters: ['dollars', 'beg_end'], katexOptions: { throwOnError: false, output: 'htmlAndMathml' } });
 
   // Tag block elements with their source line so the editor and preview can scroll together.
@@ -166,11 +196,11 @@ export function createRenderer(window) {
     WHOLE_DOCUMENT: false,
   };
 
-  return function render(markdown, { baseUrl = '' } = {}) {
+  return function render(markdown, { baseUrl = '', wiki = null } = {}) {
     const state = { frontMatterRaw: null };
     const md = buildMarkdownIt(state);
     const src = String(markdown ?? '').replace(/^﻿/, '');
-    const env = {};
+    const env = wiki ? { wiki } : {};
     const tokens = md.parse(src, env);
     let body = md.renderer.render(tokens, md.options, env);
 

@@ -1,5 +1,5 @@
-// Sidebar panels: Outline (built in app.js) · Files (open folder + bookmarks) · Search (find and replace
-// in folder) · Highlights (rendered by highlights.js) · History (history-ui.js).
+// Sidebar panels: Outline (built in app.js, with Backlinks) · Files (open folder, tags + bookmarks) ·
+// Search (find and replace in folder) · Tasks (notes-ui.js) · Highlights (highlights.js) · History (history-ui.js).
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const baseName = (p) => p.split(/[\\/]/).pop();
 
@@ -13,6 +13,7 @@ export function createSidebar(ctx) {
   let folder = null;              // { root, name, tree, count, truncated }
   let panel = 'outline';
   let bookmarks = [];
+  let tagFilter = null;           // { tag, files: [{ path }] } — the Files panel shows only these
 
   // ---------------------------------------------------------------- switching panels
   function show(name) {
@@ -27,6 +28,7 @@ export function createSidebar(ctx) {
     if (name === 'search') { els.search.focus(); els.search.select(); }
     if (name === 'highlights') ctx.renderHighlights();
     if (name === 'history') ctx.renderHistory();
+    if (name === 'tasks') ctx.renderTasks();
   }
   els.tabs.addEventListener('click', (e) => { const b = e.target.closest('button[data-panel]'); if (b) show(b.dataset.panel); });
   // Arrow keys move between the panel tabs (the usual keyboard pattern for tabs).
@@ -89,12 +91,14 @@ export function createSidebar(ctx) {
       markActive();
       return;
     }
-    if (q) {
-      const matches = flatFiles(folder.tree).filter((f) => f.path.toLowerCase().slice(folder.root.length).includes(q));
+    if (q || tagFilter) {
+      const tagged = tagFilter ? new Set(tagFilter.files.map((f) => f.path.toLowerCase())) : null;
+      const matches = flatFiles(folder.tree).filter((f) => (!q || f.path.toLowerCase().slice(folder.root.length).includes(q)) && (!tagged || tagged.has(f.path.toLowerCase())));
       const list = document.createElement('div');
       list.className = 'file-group';
       for (const f of matches.slice(0, 300)) list.appendChild(fileButton(f.path, f.name, f.path.slice(folder.root.length + 1, -f.name.length - 1)));
-      if (!matches.length) list.innerHTML = '<div class="side-empty">No files match.</div>';
+      if (tagFilter) list.insertAdjacentHTML('afterbegin', `<div class="group-head">Tagged #${esc(tagFilter.tag)}</div>`);
+      if (!matches.length) list.insertAdjacentHTML('beforeend', '<div class="side-empty">No files match.</div>');
       box.appendChild(list);
     } else {
       const tree = dirNode(folder.tree, 0);
@@ -123,8 +127,12 @@ export function createSidebar(ctx) {
     els.folderName.title = folder ? folder.root : '';
     $('folder-refresh').hidden = !folder;
     $('folder-close').hidden = !folder;
+    $('folder-map').hidden = !folder;
+    $('folder-check').hidden = !folder;
+    if (!folder) tagFilter = null;
     renderFiles();
     if (folder && els.search.value.trim()) runSearch();
+    ctx.onFolder?.(folder);
   }
 
   els.filesFilter.addEventListener('input', renderFiles);
@@ -316,6 +324,8 @@ export function createSidebar(ctx) {
     folder: () => folder,
     allFiles: () => (folder ? flatFiles(folder.tree).map((f) => ({ path: f.path, name: f.name, rel: f.path.slice(folder.root.length + 1) })) : []),
     setBookmarks(list) { bookmarks = list || []; renderFiles(); },
+    setTagFilter(t) { tagFilter = t || null; renderFiles(); },
+    async refresh() { if (folder) setFolder(await api.refreshFolder()); },
     findInFolder() { ctx.showSidebar(); show('search'); },
     replaceInFolder() { ctx.showSidebar(); show('search'); if (!replacing) setReplacing(true); else rep.input.focus(); },
     panel: () => panel,

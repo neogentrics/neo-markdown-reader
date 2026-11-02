@@ -69,20 +69,28 @@
         <button role="tab" id="side-tab-outline" aria-controls="side-panel-outline" aria-selected="true" tabindex="0" data-panel="outline" class="active" title="Outline of this document">Outline</button>
         <button role="tab" id="side-tab-files" aria-controls="side-panel-files" aria-selected="false" tabindex="-1" data-panel="files" title="Files in the open folder, and bookmarks">Files</button>
         <button role="tab" id="side-tab-search" aria-controls="side-panel-search" aria-selected="false" tabindex="-1" data-panel="search" title="Find in folder (Ctrl+Shift+F)">Search</button>
+        <button role="tab" id="side-tab-tasks" aria-controls="side-panel-tasks" aria-selected="false" tabindex="-1" data-panel="tasks" title="Tasks across the folder (Ctrl+Shift+L)">Tasks</button>
         <button role="tab" id="side-tab-highlights" aria-controls="side-panel-highlights" aria-selected="false" tabindex="-1" data-panel="highlights" title="Your highlights and notes">Notes</button>
         <button role="tab" id="side-tab-history" aria-controls="side-panel-history" aria-selected="false" tabindex="-1" data-panel="history" title="Earlier versions of this document (Ctrl+Shift+Y)">History</button>
       </div>
       <section class="side-panel" data-panel="outline" role="tabpanel" id="side-panel-outline" aria-labelledby="side-tab-outline">
         <input class="side-filter" id="toc-filter" type="search" placeholder="Filter headings…" spellcheck="false">
         <nav class="toc" id="toc" aria-label="Document outline"></nav>
+        <details class="backlinks" id="backlinks" open hidden>
+          <summary>Linked from <span class="count" id="backlinks-count"></span></summary>
+          <div class="backlinks-list" id="backlinks-list"></div>
+        </details>
       </section>
       <section class="side-panel" data-panel="files" role="tabpanel" id="side-panel-files" aria-labelledby="side-tab-files" hidden>
         <div class="files-head">
           <span id="folder-name">No folder open</span>
+          <button class="tb-btn sm" id="folder-map" title="Link map (Ctrl+Shift+M)" aria-label="Link map" hidden><svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8.3 8.2l2.6 7.5M15.6 7l-2.6 8.7M8.5 6.8l7-.6"/></svg></button>
+          <button class="tb-btn sm" id="folder-check" title="Check links in folder" aria-label="Check links in folder" hidden><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/><path d="M16 19l2 2 4-4"/></svg></button>
           <button class="tb-btn sm" id="folder-refresh" title="Refresh" aria-label="Refresh" hidden><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
           <button class="tb-btn sm" id="folder-close" title="Close folder" aria-label="Close folder" hidden><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>
-        <input class="side-filter" id="files-filter" type="search" placeholder="Filter files…" spellcheck="false">
+        <input class="side-filter" id="files-filter" type="search" placeholder="Filter files…" spellcheck="false" aria-label="Filter files">
+        <div class="tag-chips" id="tag-chips" role="group" aria-label="Tags" hidden></div>
         <div class="files-body" id="files-body"></div>
       </section>
       <section class="side-panel" data-panel="search" role="tabpanel" id="side-panel-search" aria-labelledby="side-tab-search" hidden>
@@ -105,6 +113,13 @@
       </section>
       <section class="side-panel" data-panel="highlights" role="tabpanel" id="side-panel-highlights" aria-labelledby="side-tab-highlights" hidden>
         <div class="hl-list" id="hl-list"></div>
+      </section>
+      <section class="side-panel" data-panel="tasks" role="tabpanel" id="side-panel-tasks" aria-labelledby="side-tab-tasks" hidden>
+        <div class="tasks-head">
+          <button class="big-btn sm" id="tasks-daily" title="Open or create today’s note (Ctrl+Shift+D)">Today’s note</button>
+          <label class="check sm"><input type="checkbox" id="tasks-done"> Show done</label>
+        </div>
+        <div class="tasks-list" id="tasks-list"></div>
       </section>
       <section class="side-panel" data-panel="history" role="tabpanel" id="side-panel-history" aria-labelledby="side-tab-history" hidden>
         <div class="hist-list" id="hist-list"></div>
@@ -331,6 +346,41 @@
       <button type="button" class="link-btn" id="table-cancel">Cancel</button>
       <button type="button" class="big-btn sm" id="table-ok">Update Table</button>
     </div>
+  </dialog>
+
+  <dialog class="shortcuts map-dlg" id="map-dlg" aria-labelledby="map-dlg-h">
+    <div class="map-head"><h3 id="map-dlg-h">Link map</h3><span class="map-note" id="map-note"></span><button type="button" class="tb-btn sm" id="map-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <svg class="map-svg" id="map-svg" role="group" aria-labelledby="map-dlg-h"></svg>
+    <p class="hint-text">Each dot is a document; lines are links between them. Bigger dots have more links. Click a document to open it.</p>
+  </dialog>
+
+  <dialog class="shortcuts check-dlg" id="check-dlg" aria-labelledby="check-dlg-h">
+    <h3 id="check-dlg-h">Check links</h3>
+    <p class="grants-intro" id="check-summary" role="status"></p>
+    <div class="check-list" id="check-list"></div>
+    <div class="grants-actions"><button type="button" class="link-btn" id="check-again">Check again</button><span class="spacer"></span><button type="button" class="big-btn sm" id="check-close">Close</button></div>
+  </dialog>
+
+  <dialog class="shortcuts ask-dlg" id="ask-dlg" aria-labelledby="ask-dlg-h">
+    <form id="ask-form">
+      <h3 id="ask-dlg-h">Ask about this folder</h3>
+      <p class="grants-intro">Claude answers from the documents you tick, with links to the lines it used. Only those documents are sent, with your own API key; locked documents are never included.</p>
+      <label class="field">Your question<textarea id="ask-question" rows="3" placeholder="e.g. What did we decide about the budget, and what’s still open?"></textarea></label>
+      <div class="ask-files-head"><input class="side-filter" id="ask-filter" type="search" placeholder="Filter documents…" spellcheck="false" aria-label="Filter documents"><button type="button" class="link-btn" id="ask-all">All</button><button type="button" class="link-btn" id="ask-none">None</button></div>
+      <div class="ask-files" id="ask-files"></div>
+      <p class="hint-text" id="ask-size"></p>
+      <div class="grants-actions"><button type="button" class="link-btn" id="ask-cancel">Cancel</button><span class="spacer"></span><button type="submit" class="big-btn sm" id="ask-go">Ask</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="shortcuts rename-dlg" id="rename-dlg" aria-labelledby="rename-dlg-h">
+    <form id="rename-form">
+      <h3 id="rename-dlg-h">Rename</h3>
+      <label class="field">New name<input type="text" id="rename-input" spellcheck="false" autocomplete="off"></label>
+      <p class="hint-text">Links to it from other documents in the open folder can be updated too.</p>
+      <p class="lock-msg" id="rename-msg" role="alert"></p>
+      <div class="grants-actions"><button type="button" class="link-btn" id="rename-cancel">Cancel</button><span class="spacer"></span><button type="submit" class="big-btn sm">Rename</button></div>
+    </form>
   </dialog>
 
   <dialog class="shortcuts keys-dlg" id="keys-dlg" aria-labelledby="keys-dlg-h">

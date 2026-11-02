@@ -7,6 +7,7 @@ import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { yamlFrontmatter } from '@codemirror/lang-yaml';
 import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching } from '@codemirror/language';
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
+import { autocompletion, completionKeymap } from '@codemirror/autocomplete';
 import { tags as t } from '@lezer/highlight';
 import { findTable } from './tables.js';
 import { convertPaste } from './paste.js';
@@ -150,13 +151,52 @@ function insertAt(view, from, to, text, { block = false } = {}) {
   view.focus();
 }
 
+const stemOf = (p) => p.split(/[\\/]/).pop().replace(/\.[^.]+$/, '');
+/** Relative path from the folder of `from` to `to`, with forward slashes (for standard links). */
+function relPath(from, to) {
+  const a = from.replace(/\\/g, '/').split('/').slice(0, -1);
+  const b = to.replace(/\\/g, '/').split('/');
+  let i = 0;
+  while (i < a.length && i < b.length - 1 && a[i].toLowerCase() === b[i].toLowerCase()) i++;
+  return [...a.slice(i).map(() => '..'), ...b.slice(i)].map((s) => encodeURIComponent(s).replace(/%2E/g, '.')).join('/');
+}
+
+/** After [[ : documents in the open folder. Picking one finishes the link, as [[Name]] or [Name](path.md). */
+function wikiCompletions(linkTargets) {
+  return (context) => {
+    const m = context.matchBefore(/\[\[[^\]\n|#]*$/);
+    if (!m || !linkTargets) return null;
+    const { files, style, from } = linkTargets();
+    if (!files.length) return null;
+    const counts = new Map();
+    for (const f of files) { const s = stemOf(f.path).toLowerCase(); counts.set(s, (counts.get(s) || 0) + 1); }
+    const after = context.state.sliceDoc(context.pos, context.pos + 2);
+    const options = files.filter((f) => f.path !== from && !/\.mdlock$/i.test(f.path)).slice(0, 2000).map((f) => {
+      const stem = stemOf(f.path);
+      const name = counts.get(stem.toLowerCase()) > 1 ? f.rel.replace(/\\/g, '/').replace(/\.[^.]+$/, '') : stem;
+      return {
+        label: stem,
+        detail: f.rel.replace(/\\/g, '/').split('/').slice(0, -1).join('/') || undefined,
+        apply(view, _c, start, end) {
+          const close = after === ']]' ? 2 : 0;
+          const text = style === 'markdown' ? `[${stem}](${relPath(from, f.path)})` : `[[${name}]]`;
+          const s = start - 2;
+          view.dispatch({ changes: { from: s, to: end + close, insert: text }, selection: { anchor: s + text.length } });
+        },
+      };
+    });
+    return { from: m.from + 2, options, validFor: /^[^\]\n|#]*$/ };
+  };
+}
+
 /**
  * Create an editor in `parent`.
  * @param {HTMLElement} parent
  * @param {{ doc: string, onChange: (text: string) => void, onTopLine: (line: number) => void,
- *           onImages?: (files: File[], pos: number) => void, onPasted?: (kind: string) => void }} opts
+ *           onImages?: (files: File[], pos: number) => void, onPasted?: (kind: string) => void,
+ *           linkTargets?: () => { files: { path: string, rel: string, name: string }[], style: 'wiki'|'markdown', from: string } }} opts
  */
-function create(parent, { doc, onChange, onTopLine, onImages, onPasted }) {
+function create(parent, { doc, onChange, onTopLine, onImages, onPasted, linkTargets }) {
   let plainNext = 0;                 // Ctrl+Shift+V: paste as plain text
   const view = new EditorView({
     parent,
@@ -177,6 +217,7 @@ function create(parent, { doc, onChange, onTopLine, onImages, onPasted }) {
         syntaxHighlighting(highlight),
         theme,
         placeholder('Start writing in Markdown…'),
+        autocompletion({ override: [wikiCompletions(linkTargets)], activateOnTyping: true, icons: false }),
         EditorView.contentAttributes.of({ spellcheck: 'true', autocorrect: 'on', autocapitalize: 'sentences', 'aria-label': 'Markdown editor' }),
         keymap.of([
           { key: 'Mod-b', run: COMMANDS.bold },
@@ -184,6 +225,7 @@ function create(parent, { doc, onChange, onTopLine, onImages, onPasted }) {
           { key: 'Mod-k', run: COMMANDS.link },
           { key: 'Mod-Shift-x', run: COMMANDS.strike },
           { key: 'Mod-`', run: COMMANDS.code },
+          ...completionKeymap,
           ...defaultKeymap,
           ...historyKeymap,
           ...searchKeymap,

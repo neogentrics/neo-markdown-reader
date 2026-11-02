@@ -134,6 +134,22 @@ Markdown files are treated as **untrusted input**:
 - **Shortcuts** you choose are checked against a fixed list of keys and modifiers before they're saved or
   used, and menu shortcuts are paused while you press keys for a new one.
 
+### Connected notes (since 2.3)
+
+- The folder's links, tags and tasks are worked out by the main process from the Markdown files in the folder
+  you opened. Locked documents are never read for this, and files over 2 MB are skipped.
+- **Ticking a task off** changes one line of one file, and only after the usual edit permission. The line
+  must still say exactly what the Tasks panel showed; otherwise nothing is written. The file is backed up
+  and its old version kept in History first, and its line endings are kept.
+- **Creating a document from a missing link** asks first, never overwrites an existing file, and only creates
+  it next to the linking document (or, for `[[folder/Name]]`, inside the open folder). `..` is refused.
+- **Rename** needs edit permission for the document, refuses names with path separators and never replaces
+  another file. Updating links to it asks first, and each document changed is backed up and kept in History.
+- **Today's note** is only ever created inside the open folder's `Daily` folder.
+- **Ask About This Folder** sends only the documents you tick, and the main process checks each one is a
+  Markdown file in the open folder and not a locked document before reading it. Citations in the answer only
+  link to documents that were sent.
+
 ### AI assist (since 2.0)
 
 - Off by default. Requests are made only from an explicit menu command, contain only the current
