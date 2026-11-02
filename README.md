@@ -368,7 +368,7 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help â†
   any command from Quick Open with your own shortcuts.
 
 Coming next, before the next major version:
-- **v2.3, Connected notes:** `[[wiki links]]`, backlinks and a link map, tags, a Tasks panel with daily
+- **v2.3, Connected notes** *(in progress)*: `[[wiki links]]`, backlinks and a link map, tags, a Tasks panel with daily
   notes, a link checker, and (optionally) asking AI questions about a folder.
 - **v2.4, Read, listen & share:** read aloud, focus mode, folding sections, CSV / JSON / Jupyter notebook
   files, charts from data, EPUB and PowerPoint export, and AI writing help in the editor.
