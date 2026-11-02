@@ -27,7 +27,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v2.0](#v20--power-features) | Power features | ✅ Released ([2.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.0.0)) |
 | [v2.1](#v21--at-home-on-windows) | At home on Windows | ✅ Released ([2.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.1.0)) |
 | [v2.2](#v22--write-faster) | Write faster | ✅ Released ([2.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.2.0)) |
-| [v2.3](#v23--connected-notes) | Connected notes | ✅ Done — ships in 2.3.0 |
+| [v2.3](#v23--connected-notes) | Connected notes | ✅ Released ([2.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.3.0)) |
 | [v2.4](#v24--read-listen--share) | Read, listen & share | Planned |
 | [v3.0](#v30--the-next-major-release) | The next major release | Ideas — to be decided |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
@@ -134,7 +134,7 @@ updates itself from here on.
 
 ## v2.3 — Connected notes
 
-✅ **Done — ships in 2.3.0.** Turn a folder of documents into a small knowledge base.
+✅ **Released in [2.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.3.0).** Turn a folder of documents into a small knowledge base.
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -186,6 +186,6 @@ More ways to take in a document, and more ways to hand it on.
 3. **Which languages may *Run* execute?** ✅ *Decided:* JavaScript and Python only (shipped in 2.0.0). Shell stays off.
 4. **Password lock: locked copy or replace the original?** ✅ *Decided:* a locked copy by default, with a checkbox to move the original to the Recycle Bin (shipped in 2.0.0).
 5. **Where should pasted images go?** ✅ *Decided:* an `images` folder next to the document (shipped in 2.2.0).
-6. **Wiki links aren't standard Markdown.** ✅ *Decided:* `[[Name]]` by default (the same as Obsidian), with *Edit → Insert Standard Markdown Links* to write `[Name](path.md)` instead (ships in 2.3.0).
+6. **Wiki links aren't standard Markdown.** ✅ *Decided:* `[[Name]]` by default (the same as Obsidian), with *Edit → Insert Standard Markdown Links* to write `[Name](path.md)` instead (shipped in 2.3.0).
 7. **How much version history to keep?** ✅ *Decided:* every save for 30 days, then one a day, up to 1 GB in total (shipped in 2.2.0).
 8. **What should 3.0 focus on?** *Proposed:* add-ons and the app in your language first, then sync; shared review only if it's needed.
