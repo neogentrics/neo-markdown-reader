@@ -1,0 +1,52 @@
+/* ===================== v2.4 content shared by the app and exports (PDF, web page, slides) */
+
+/* ---------- data files and notebooks */
+.markdown-body .data-note { color: var(--muted); font-size: .86em; margin: -.4em 0 1.2em; }
+.data-page .table-wrap { max-height: 78vh; overflow: auto; }
+.data-page thead th { position: sticky; top: 0; background: var(--page); z-index: 1; box-shadow: inset 0 -1px 0 var(--rule); }
+.data-page td { white-space: pre-line; }
+.markdown-body .nb-in, .markdown-body .nb-out {
+  font: 600 .72em var(--font-mono); color: var(--muted); letter-spacing: .04em; margin: 1.6em 0 .45em; line-height: 1.4;
+}
+.markdown-body .nb-out { color: var(--accent); margin-top: -.3em; }
+.markdown-body .nb-html { overflow-x: auto; margin: 0 0 1.1em; }
+.markdown-body .nb-html table { font-size: .85em; }
+
+/* ---------- charts: the first colour is the theme's accent; dark themes get lighter colours */
+:root {
+  --chart-1: var(--accent); --chart-2: #0ca678; --chart-3: #f08c00; --chart-4: #e64980;
+  --chart-5: #7048e8; --chart-6: #1098ad; --chart-7: #d9480f; --chart-8: #5c940d;
+  --chart-ink: var(--muted); --chart-grid: var(--rule); --chart-title: var(--heading);
+}
+:root[data-tone="dark"] {
+  --chart-2: #38d9a9; --chart-3: #ffc078; --chart-4: #f783ac; --chart-5: #b197fc; --chart-6: #66d9e8; --chart-7: #ff8787; --chart-8: #a9e34b;
+}
+:root[data-theme="contrast"] { --chart-ink: var(--text); --chart-grid: var(--text-soft); }
+.markdown-body figure.chart { margin: 0 0 1.4em; padding: .6em .4em .2em; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--page); }
+.markdown-body .chart-svg { display: block; width: 100%; height: auto; max-height: 520px; }
+.markdown-body .chart-svg text { font-family: var(--font-sans); }
+.markdown-body .chart-error { border: 1px dashed #e03131; border-radius: var(--radius); padding: .7em 1em; margin: 0 0 1.1em; color: var(--text-soft); font-size: .92em; }
+.markdown-body .chart-error pre { margin: .5em 0 0; font-size: .85em; white-space: pre-wrap; background: none; border: 0; padding: 0; }
+@media (forced-colors: active) {
+  .markdown-body .chart-svg rect, .markdown-body .chart-svg path, .markdown-body .chart-svg circle { forced-color-adjust: none; }
+  .markdown-body .chart-svg text { fill: CanvasText !important; }
+}
+
+/* ---------- slides (presentation mode, and slides exported as PDF) */
+.present-slide.markdown-body { box-sizing: border-box; width: 1280px; height: 720px; padding: 64px 96px; font-size: 30px; line-height: 1.45;
+  display: flex; flex-direction: column; justify-content: flex-start; overflow: hidden; }
+.present-slide.short { justify-content: center; }
+.present-slide > * { flex: 0 0 auto; }
+.present-slide h1 { font-size: 2.1em; margin: 0 0 .45em; }
+.present-slide h2 { font-size: 1.6em; margin: 0 0 .5em; border-bottom: 0; padding-bottom: 0; }
+.present-slide h3 { font-size: 1.25em; margin: .2em 0 .4em; }
+.present-slide li + li { margin-top: .25em; }
+.present-slide pre { font-size: .7em; }
+.present-slide .markdown-alert, .present-slide blockquote { font-size: .9em; }
+.present-slide img, .present-slide .mermaid-diagram svg { max-height: 14em; max-width: 100%; object-fit: contain; }
+.present-slide.title-slide { justify-content: center; }
+.present-slide.title-slide .doc-meta { border: 0; padding: 0; margin: 0; background: none; }
+.present-slide.title-slide .doc-meta-title { font-size: 2.4em; line-height: 1.1; }
+.present-slide.title-slide .doc-meta-sub { font-size: 1.1em; margin-top: .5em; }
+.present-slide .mermaid-diagram { padding: .4em; }
+.present-slide .mermaid-diagram svg { width: 100%; max-width: 100% !important; height: auto; max-height: 11em; }

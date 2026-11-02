@@ -84,6 +84,7 @@ contextBridge.exposeInMainWorld('reader', {
   createLinked: invoke('doc:create-linked'),
   renameDoc: invoke('doc:rename'),
   askFolder: invoke('ai:ask-folder'),
+  peekDoc: invoke('doc:peek'),
   // folders, compare, highlights & bookmarks
   openFolder: invoke('folder:open'),
   closeFolder: invoke('folder:close'),

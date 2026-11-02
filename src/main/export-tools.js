@@ -332,7 +332,213 @@ async function docxToMarkdown(buffer, { imageDir = 'images', imagePrefix = 'imag
   return { markdown, images, warnings };
 }
 
+// ---------------------------------------------------------------- EPUB (2.4)
+const xmlEsc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/**
+ * Build an EPUB 3 e-book (with an EPUB 2 table of contents for older readers).
+ * book: { title, author, lang, id, chapters: [{ file, title, xhtml }], toc: [{ file, id, text, level }],
+ *         css, images: [{ name, data, mime }], props: { [file]: 'svg mathml' } }
+ */
+function buildEpub(book) {
+  const { zipSync, strToU8 } = require('fflate');
+  const modified = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+  const lang = book.lang || 'en';
+  const page = (title, body, file) => `<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${xmlEsc(lang)}" lang="${xmlEsc(lang)}">
+<head><meta charset="utf-8"/><title>${xmlEsc(title)}</title><link rel="stylesheet" type="text/css" href="style.css"/></head>
+<body class="${file === 'nav.xhtml' ? 'nav' : 'chapter'}">${body}</body>
+</html>`;
+  const toc = book.toc.length ? book.toc : book.chapters.map((c) => ({ file: c.file, id: '', text: c.title, level: 1 }));
+  // Nested <ol> for the reader's table of contents.
+  const navList = () => {
+    let html = '<ol>';
+    let depth = 1;
+    toc.forEach((e, i) => {
+      const lvl = Math.max(1, Math.min(e.level, depth + 1));
+      if (i > 0) {
+        if (lvl > depth) html += '<ol>';
+        else { html += '</li>'; for (let d = depth; d > lvl; d--) html += '</ol></li>'; }
+      }
+      depth = lvl;
+      html += `<li><a href="${xmlEsc(e.file)}${e.id ? `#${xmlEsc(e.id)}` : ''}">${xmlEsc(e.text)}</a>`;
+    });
+    html += '</li>';
+    for (let d = depth; d > 1; d--) html += '</ol></li>';
+    return `${html}</ol>`;
+  };
+  const nav = page('Contents', `<nav epub:type="toc" id="toc"><h1>Contents</h1>${navList()}</nav>`, 'nav.xhtml');
+  const ncx = `<?xml version="1.0" encoding="utf-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1"><head><meta name="dtb:uid" content="${xmlEsc(book.id)}"/></head>
+<docTitle><text>${xmlEsc(book.title)}</text></docTitle><navMap>${toc.map((e, i) => `<navPoint id="np${i + 1}" playOrder="${i + 1}"><navLabel><text>${xmlEsc(e.text)}</text></navLabel><content src="${xmlEsc(e.file)}${e.id ? `#${xmlEsc(e.id)}` : ''}"/></navPoint>`).join('')}</navMap></ncx>`;
+  const manifest = [
+    '<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>',
+    '<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>',
+    '<item id="css" href="style.css" media-type="text/css"/>',
+    ...book.chapters.map((c, i) => `<item id="c${i + 1}" href="${xmlEsc(c.file)}" media-type="application/xhtml+xml"${book.props?.[c.file] ? ` properties="${book.props[c.file]}"` : ''}/>`),
+    ...book.images.map((im, i) => `<item id="img${i + 1}" href="images/${xmlEsc(im.name)}" media-type="${xmlEsc(im.mime)}"/>`),
+  ];
+  const opf = `<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${xmlEsc(lang)}">
+<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:identifier id="bookid">${xmlEsc(book.id)}</dc:identifier>
+<dc:title>${xmlEsc(book.title)}</dc:title>
+<dc:language>${xmlEsc(lang)}</dc:language>
+${book.author ? `<dc:creator>${xmlEsc(book.author)}</dc:creator>` : ''}
+<meta property="dcterms:modified">${modified}</meta>
+</metadata>
+<manifest>${manifest.join('\n')}</manifest>
+<spine toc="ncx">${book.chapters.map((_, i) => `<itemref idref="c${i + 1}"/>`).join('')}</spine>
+</package>`;
+  const files = {
+    mimetype: [strToU8('application/epub+zip'), { level: 0 }],                       // must come first, uncompressed
+    'META-INF/container.xml': strToU8('<?xml version="1.0" encoding="utf-8"?>\n<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>'),
+    'OEBPS/content.opf': strToU8(opf),
+    'OEBPS/nav.xhtml': strToU8(nav),
+    'OEBPS/toc.ncx': strToU8(ncx),
+    'OEBPS/style.css': strToU8(book.css || ''),
+  };
+  for (const c of book.chapters) files[`OEBPS/${c.file}`] = strToU8(page(c.title, c.xhtml, c.file));
+  for (const im of book.images) files[`OEBPS/images/${im.name}`] = [new Uint8Array(im.data), { level: 0 }];
+  return Buffer.from(zipSync(files, { level: 6 }));
+}
+
+// ---------------------------------------------------------------- PowerPoint (2.4)
+/**
+ * Build a .pptx from slides of the document model (one model per slide, split as in presentation mode).
+ * Text stays editable; pictures, diagrams, charts and equations are placed as images.
+ * assets: { images: { [src]: { data, type, width, height } }, graphics: [{ data, width, height } | null] }
+ */
+async function buildPptx(slides, assets, opts = {}) {
+  const PptxGenJS = require('pptxgenjs');
+  const pptx = new PptxGenJS();
+  pptx.layout = 'LAYOUT_WIDE';                       // 13.333 × 7.5 in, 16:9
+  pptx.title = opts.title || '';
+  if (opts.author) pptx.author = opts.author;
+  const accent = hexColor(opts.accent, '3B5BDB');
+  const font = opts.bodyFont || 'Calibri';
+  const mono = opts.codeFont || 'Consolas';
+  const W = 13.333;
+  const H = 7.5;
+  const M = 0.6;
+  const runText = (runs, base = {}) => (runs || []).filter((r) => r.text || r.br).map((r) => (r.br ? { text: '', options: { breakLine: true } } : {
+    text: r.text,
+    options: { ...base, bold: base.bold || !!r.b, italic: base.italic || !!r.i, strike: r.s ? 'sngStrike' : undefined, fontFace: r.code ? mono : base.fontFace,
+      underline: r.u ? { style: 'sng' } : undefined, hyperlink: r.href && /^https?:|^mailto:/i.test(r.href) ? { url: r.href } : undefined,
+      superscript: !!r.sup, subscript: !!r.sub, highlight: r.mark ? 'FFF3BF' : undefined },
+  }));
+  const picOf = (src) => assets.images?.[src];
+  for (const blocks of slides) {
+    const slide = pptx.addSlide();
+    slide.background = { color: 'FFFFFF' };
+    const list = blocks.filter((b, i) => b.t !== 'hr' || i > 0);
+    const meta = list.find((b) => b.t === 'meta');
+    if (meta && list.length <= 2) {
+      slide.addShape(pptx.ShapeType.rect, { x: M, y: 3.05, w: 0.12, h: 1.3, fill: { color: accent }, line: { color: accent } });
+      slide.addText(meta.title || opts.title || '', { x: M + 0.35, y: 2.2, w: W - 2 * M - 0.35, h: 1.6, fontFace: opts.headingFont || font, fontSize: 44, bold: true, color: '1D2330', valign: 'bottom', fit: 'shrink' });
+      const sub = [meta.sub, meta.line].filter(Boolean).join('\n');
+      if (sub) slide.addText(sub, { x: M + 0.35, y: 3.9, w: W - 2 * M - 0.35, h: 1.2, fontFace: font, fontSize: 22, color: '5C6370', valign: 'top' });
+      continue;
+    }
+    let y = M;
+    if (list[0]?.t === 'h') {
+      const h = list.shift();
+      slide.addText(runText(h.runs, { fontFace: opts.headingFont || font }), { x: M, y, w: W - 2 * M, h: 0.95, fontSize: h.level <= 1 ? 36 : 30, bold: true, color: '1D2330', valign: 'middle', fit: 'shrink' });
+      slide.addShape(pptx.ShapeType.rect, { x: M, y: y + 1.0, w: 1.1, h: 0.06, fill: { color: accent }, line: { color: accent } });
+      y += 1.3;
+    }
+    // Text goes in one box; pictures, tables and graphics go beside it (or fill the slide on their own).
+    const text = [];
+    const media = [];
+    // Paragraph settings (bullet, numbering, indent) go on the first piece only. pptxgenjs writes paragraph
+    // settings for every piece, so no other piece may carry any, or it would override the bullet.
+    const addPara = (runs, options = {}) => {
+      const r = runText(runs, { fontFace: font, ...options.base });
+      if (!r.length) return;
+      r[0].options = { ...r[0].options, ...options.first };
+      r[r.length - 1].options = { ...r[r.length - 1].options, breakLine: true };
+      text.push(...r);
+    };
+    let notes = false;                                 // after the footnotes' rule: footnotes, set small
+    const walk = (bs, depth = 0) => {
+      for (const b of bs) {
+        if (b.t === 'hr') { notes = true; continue; }
+        if (notes && b.t === 'list') {
+          b.items.forEach((it, k) => {
+            const first = it.blocks.find((x) => x.t === 'p');
+            if (first) addPara([{ text: `[${b.start + k}] ` }, ...first.runs.filter((r) => !r.img)], { base: { fontSize: 13, color: '5C6370' } });
+          });
+          continue;
+        }
+        if (b.t === 'p') {
+          const imgs = b.runs.filter((r) => r.img);
+          for (const r of imgs) if (picOf(r.img)) media.push({ kind: 'img', ...picOf(r.img) });
+          addPara(b.runs.filter((r) => !r.img), { first: depth ? { indentLevel: depth } : {} });
+        } else if (b.t === 'h') addPara(b.runs, { base: { bold: true, fontSize: 24 } });
+        else if (b.t === 'list') {
+          b.items.forEach((it, k) => {
+            const [first, ...rest] = it.blocks;
+            const mark = it.checked == null ? {} : { text: it.checked ? '☑ ' : '☐ ' };
+            if (first?.t === 'p') {
+              const runs = mark.text ? [{ text: mark.text }, ...first.runs] : first.runs;
+              addPara(runs.filter((r) => !r.img), { first: { bullet: b.ordered ? { type: 'number', startAt: b.start } : true, indentLevel: depth } });
+              walk(rest, depth + 1);
+            } else walk(it.blocks, depth + 1);
+          });
+        } else if (b.t === 'quote') walk(b.blocks.map((q) => (q.t === 'p' ? { ...q, runs: q.runs.map((r) => ({ ...r, i: true })) } : q)), depth + 1);
+        else if (b.t === 'code') { text.push({ text: b.text, options: { fontFace: mono, fontSize: 14, color: '343A40', breakLine: true } }); }
+        else if (b.t === 'deflist') b.items.forEach((it) => { addPara(it.term, { base: { bold: true } }); walk(it.defs, depth + 1); });
+        else if (b.t === 'meta') { if (b.title) addPara([{ text: b.title, b: true }]); if (b.sub) addPara([{ text: b.sub }]); }
+        else if (b.t === 'table') media.push({ kind: 'table', rows: b.rows });
+        else if (b.t === 'graphic') { const g = assets.graphics?.[b.gid]; if (g) media.push({ kind: 'img', ...g, type: 'png' }); }
+      }
+    };
+    walk(list);
+    const bodyH = H - y - M;
+    const hasText = text.length > 0;
+    const mediaX = hasText && media.length ? W * 0.52 : M;
+    const mediaW = hasText && media.length ? W - mediaX - M : W - 2 * M;
+    if (hasText) slide.addText(text, { x: M, y, w: (media.length ? W * 0.52 - M - 0.25 : W - 2 * M), h: bodyH, fontSize: 22, color: '1D2330', valign: 'top', fit: 'shrink' });
+    const each = media.length ? (bodyH - 0.15 * (media.length - 1)) / media.length : 0;
+    media.slice(0, 4).forEach((m, k) => {
+      const my = y + k * (each + 0.15);
+      if (m.kind === 'table') {
+        const rows = m.rows.slice(0, 14).map((r) => r.cells.map((c) => ({ text: c.runs.map((x) => x.text || '').join(''), options: { bold: c.header, fill: { color: c.header ? 'EEF1F6' : 'FFFFFF' }, align: c.align || 'left' } })));
+        slide.addTable(rows, { x: mediaX, y: my, w: mediaW, fontSize: Math.max(10, 18 - m.rows[0].cells.length), fontFace: font, color: '1D2330', border: { type: 'solid', pt: 0.75, color: 'CED4DA' }, autoPage: false });
+      } else if (m.data) {
+        const ratio = (m.width || 4) / (m.height || 3);
+        let w = mediaW;
+        let h = w / ratio;
+        if (h > each) { h = each; w = h * ratio; }
+        const type = m.type === 'jpg' ? 'jpeg' : (m.type || 'png');
+        slide.addImage({ data: `image/${type};base64,${Buffer.from(m.data).toString('base64')}`, x: mediaX + (mediaW - w) / 2, y: my, w, h });
+      }
+    });
+  }
+  return fixParagraphs(await pptx.write({ outputType: 'nodebuffer' }));
+}
+
+/**
+ * pptxgenjs writes paragraph settings (<a:pPr>) before every piece of text, but a paragraph may only have
+ * one, at its start: with more, the bullet of a paragraph with bold words in it is lost and PowerPoint may
+ * offer to repair the file. Keep the first in each paragraph.
+ */
+function fixParagraphs(buf) {
+  const { unzipSync, zipSync, strFromU8, strToU8 } = require('fflate');
+  const files = unzipSync(new Uint8Array(buf));
+  for (const name of Object.keys(files)) {
+    if (!/^ppt\/slides\/slide\d+\.xml$/.test(name)) continue;
+    const xml = strFromU8(files[name]).replace(/<a:p>([\s\S]*?)<\/a:p>/g, (all, inner) => {
+      let seen = false;
+      return `<a:p>${inner.replace(/<a:pPr\b[^>]*?(?:\/>|>[\s\S]*?<\/a:pPr>)/g, (pPr) => (seen ? '' : ((seen = true), pPr)))}</a:p>`;
+    });
+    files[name] = strToU8(xml);
+  }
+  return Buffer.from(zipSync(files, { level: 6 }));
+}
+
 // The Anthropic SDK rides in the same bundle (used by AI assist).
 const Anthropic = require('@anthropic-ai/sdk');
 
-module.exports = { Anthropic: Anthropic.default || Anthropic, docxToMarkdown, readOutline, pagesForEntries, finishPdf, collectAssets, buildDocx, bookmarkName, PAPER_IN, MARGIN_IN };
+module.exports = { Anthropic: Anthropic.default || Anthropic, buildEpub, buildPptx, docxToMarkdown, readOutline, pagesForEntries, finishPdf, collectAssets, buildDocx, bookmarkName, PAPER_IN, MARGIN_IN };
