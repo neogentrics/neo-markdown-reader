@@ -28,7 +28,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v2.1](#v21--at-home-on-windows) | At home on Windows | ✅ Released ([2.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.1.0)) |
 | [v2.2](#v22--write-faster) | Write faster | ✅ Released ([2.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.2.0)) |
 | [v2.3](#v23--connected-notes) | Connected notes | ✅ Released ([2.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.3.0)) |
-| [v2.4](#v24--read-listen--share) | Read, listen & share | ✅ Done — ships in 2.4.0 |
+| [v2.4](#v24--read-listen--share) | Read, listen & share | ✅ Released ([2.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.4.0)) |
 | [v3.0](#v30--the-next-major-release) | The next major release | Ideas — to be decided |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
 
@@ -147,7 +147,7 @@ updates itself from here on.
 
 ## v2.4 — Read, listen & share
 
-✅ **Done — ships in 2.4.0.** More ways to take in a document, and more ways to hand it on.
+✅ **Released in [2.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.4.0).** More ways to take in a document, and more ways to hand it on.
 
 | Feature | Size | Details |
 |---|:-:|---|
