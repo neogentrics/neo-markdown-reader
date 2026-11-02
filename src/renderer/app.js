@@ -946,6 +946,7 @@ api.onCommand(({ cmd, arg }) => {
     case 'ai-report': aiUi.run('report'); break;
     case 'ai-settings': aiUi.openSettings(); break;
     case 'ai-folder': aiUi.askFolder(); break;
+    case 'ai-proofread': case 'ai-rewrite': case 'ai-shorten': case 'ai-translate': aiUi.editSelection(cmd.slice(3)); break;
     // read, listen & share (v2.4)
     case 'read-aloud': readUi.toggleSpeak(); break;
     case 'focus-mode': readUi.toggleFocus(); break;
@@ -1202,6 +1203,15 @@ aiUi = createAiUi({
   openAtLine,
   folder: () => sidebar.folder(),
   folderFiles: () => sidebar.allFiles(),
+  /** The editor's selection with a little text either side, or null when not editing. */
+  editorSelection() {
+    const tab = activeTab();
+    const view = tab?.editing && tab.editor?.view;
+    if (!view) return null;
+    const st = view.state;
+    const { from, to } = st.selection.main;
+    return { tab, from, to, text: st.sliceDoc(from, to), before: st.sliceDoc(Math.max(0, from - 2000), from), after: st.sliceDoc(to, Math.min(st.doc.length, to + 2000)) };
+  },
 });
 lockUi = createLockUi({
   api, activeTab, openInTab, closeTab, toast,

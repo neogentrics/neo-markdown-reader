@@ -221,8 +221,9 @@ export function createReadUi(ctx) {
   let focusMode = false;
   let focusRaf = 0;
   function clearFocus() { for (const n of document.querySelectorAll('.page .in-focus')) n.classList.remove('in-focus'); }
+  /** In focus mode while reading aloud, the paragraph being read is the one in focus. */
   function focusOn(block) {
-    if (!focusMode && bar.hidden) return;
+    if (!focusMode) return;
     const tab = ctx.activeTab();
     if (!tab) return;
     let top = block;

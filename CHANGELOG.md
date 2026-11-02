@@ -4,6 +4,24 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [2.4.0] - 2026-11-02
+
+### Added
+- **Read aloud** (`Ctrl+Shift+U`): reads the document with your computer's own voices, highlighting each
+  sentence. Pause, skip by section, change the speed and the voice; `Esc` stops. Code, equations and
+  diagrams are skipped, and only voices on your computer are used.
+- **Focus mode** (`F8`): everything but the paragraph you're reading fades back.
+- **Folding sections:** fold a section under its heading, or fold them all (`Ctrl+Shift+[`). Going to a
+  heading opens its section; exports include everything.
+- **Hover previews** of footnotes and of links to other documents (or to a section of one).
+- **CSV, TSV, JSON, YAML and Jupyter notebooks** open read-only: CSV as a table you can sort by any column,
+  JSON and YAML formatted, notebooks with their saved outputs (nothing is run).
+- **Charts from data:** a ```` ```chart ```` block, or a table with `<!-- chart: bar -->` before it, becomes a bar,
+  line or pie chart in the theme's colours, included in every export.
+- **Export an e-book (EPUB)**, and **slides as PDF or PowerPoint (.pptx)** with editable text.
+- **AI writing help** (optional): proofread, rewrite, shorten or translate a selection in the editor. The
+  suggestion is shown as a change to accept or reject, and one undo takes it back.
+
 ## [2.3.0] - 2026-11-02
 
 ### Added

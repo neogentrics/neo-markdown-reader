@@ -668,6 +668,11 @@ function rebuildMenu() {
             cmd('ai-report', 'Turn Notes into a Report'),
             cmd('ai-folder', 'Ask About This Folder…'),
             { type: 'separator' },
+            cmd('ai-proofread', 'Proofread Selection'),
+            cmd('ai-rewrite', 'Rewrite Selection'),
+            cmd('ai-shorten', 'Shorten Selection'),
+            cmd('ai-translate', 'Translate Selection…'),
+            { type: 'separator' },
             cmd('ai-settings', 'AI Assist Settings…'),
           ],
         },
@@ -890,6 +895,14 @@ function showEditContextMenu(win, params) {
     if (!params.dictionarySuggestions.length) items.push({ label: 'No spelling suggestions', enabled: false });
     items.push({ label: 'Add to Dictionary', click: () => win.webContents.session.addWordToSpellCheckerDictionary(params.misspelledWord) });
     items.push({ type: 'separator' });
+  }
+  // Writing help on the editor's selection (only offered when AI assist is on).
+  if (params.isEditable && params.selectionText?.trim() && settings.get().ai?.enabled) {
+    const send = (cmd) => () => win.webContents.send('menu:command', { cmd });
+    items.push({ label: 'AI Assist', submenu: [
+      { label: 'Proofread', click: send('ai-proofread') }, { label: 'Rewrite', click: send('ai-rewrite') },
+      { label: 'Shorten', click: send('ai-shorten') }, { label: 'Translate…', click: send('ai-translate') },
+    ] }, { type: 'separator' });
   }
   if (params.isEditable) {
     items.push({ role: 'undo', enabled: params.editFlags.canUndo }, { role: 'redo', enabled: params.editFlags.canRedo }, { type: 'separator' },
@@ -1257,6 +1270,31 @@ function registerIpc() {
     } finally { aiRuns.delete(req.id); }
   });
   ipcMain.handle('ai:cancel', (_e, id) => { aiRuns.get(id)?.abort(); });
+
+  // Writing help: a suggested change to the editor's selection, which the page shows for accepting or rejecting.
+  ipcMain.handle('ai:edit', async (e, req = {}) => {
+    const conf = settings.get().ai;
+    const apiKey = loadAiKey();
+    if (!conf.enabled || !apiKey) return { error: 'AI assist is off.', setup: true };
+    if (isStr(req.path, 4096) && isLockedPath(req.path)) return { error: 'AI assist is off for locked documents, so their text never leaves this computer.' };
+    if (!isStr(req.id, 100)) return { error: 'invalid' };
+    const str = (v) => (typeof v === 'string' ? v : '');
+    let content;
+    try { content = ai.buildEditPrompt(req.action, { text: str(req.text), before: str(req.before), after: str(req.after), language: str(req.language) }); } catch (err) { return { error: err.message }; }
+    const { Anthropic } = publish.exportTools(ROOT);
+    const ctl = new AbortController();
+    aiRuns.set(req.id, ctl);
+    try {
+      const res = await ai.runAi({
+        Anthropic, apiKey, model: conf.model, content, signal: ctl.signal,
+        baseURL: process.env.NMR_AI_BASE_URL || undefined,
+        onText: (text) => { if (!e.sender.isDestroyed()) e.sender.send('ai:delta', { id: req.id, text }); },
+      });
+      return { ...res, text: ai.cleanEditResult(str(req.text), res.text) };
+    } catch (err) {
+      return { error: ctl.signal.aborted ? 'Stopped.' : ai.friendlyError(err, Anthropic) };
+    } finally { aiRuns.delete(req.id); }
+  });
 
   // ---- running code blocks: always asked, always sandboxed
   ipcMain.handle('code:run', async (e, req = {}) => {

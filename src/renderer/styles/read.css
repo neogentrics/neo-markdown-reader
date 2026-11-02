@@ -27,12 +27,11 @@ body.speaking .toast { bottom: 84px; }
 ::highlight(nmr-speak) { background-color: color-mix(in srgb, var(--accent) 26%, transparent); }
 :root[data-theme="contrast"] ::highlight(nmr-speak) { background-color: Highlight; color: HighlightText; }
 
-/* ---------- focus mode: everything but the paragraph you're on fades back */
-body.focus-mode .page > *, body.speaking .page > * { transition: opacity .25s ease; }
-body.focus-mode .page:has(> .in-focus) > *:not(.in-focus),
-body.speaking .page:has(> .in-focus) > *:not(.in-focus) { opacity: .28; }
+/* ---------- focus mode (chosen by the reader): everything but the paragraph you're on fades back */
+body.focus-mode .page > * { transition: opacity .25s ease; }
+body.focus-mode .page:has(> .in-focus) > *:not(.in-focus) { opacity: .3; }
 body.focus-mode .page > *:hover { opacity: 1 !important; }
-@media (prefers-reduced-motion: reduce) { body.focus-mode .page > *, body.speaking .page > * { transition: none; } }
+@media (prefers-reduced-motion: reduce) { body.focus-mode .page > * { transition: none; } }
 
 /* ---------- folding sections */
 .markdown-body .fold-hidden { display: none !important; }
@@ -67,3 +66,20 @@ body.focus-mode .page > *:hover { opacity: 1 !important; }
 .peek p, .peek ul, .peek ol, .peek pre, .peek .table-wrap, .peek blockquote { margin: 0 0 .6em; }
 .peek img { max-height: 120px; }
 @media print { .speak-bar, .peek, .fold-btn { display: none !important; } .fold-hidden { display: revert !important; } }
+
+/* ---------- AI writing help: the suggestion as a change */
+.ai-edit-dlg { width: min(720px, 94vw); padding: 18px 22px 14px; }
+.ai-edit-dlg .ai-head h3 { margin: 0; }
+.ai-edit-lang { display: flex; align-items: flex-end; gap: 10px; margin: 12px 0 4px; }
+.ai-edit-lang[hidden] { display: none; }
+.ai-edit-lang .field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: var(--muted); flex: 1; }
+.ai-edit-lang input { font: 14px var(--font-sans); padding: 8px 11px; border-radius: 8px; border: 1px solid var(--rule-strong); background: var(--code-bg); color: var(--text); }
+.ai-edit-diff {
+  margin: 12px 0; padding: 12px 14px; max-height: 50vh; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere;
+  font: 14.5px/1.6 var(--font-sans); color: var(--text); background: var(--code-bg); border: 1px solid var(--rule); border-radius: 10px; min-height: 64px;
+}
+.ai-edit-diff del { background: color-mix(in srgb, #e03131 18%, transparent); text-decoration: line-through; text-decoration-color: color-mix(in srgb, #e03131 70%, transparent); border-radius: 2px; }
+.ai-edit-diff ins { background: color-mix(in srgb, #2f9e44 22%, transparent); text-decoration: none; border-radius: 2px; }
+.ai-edit-diff del + ins { margin-left: .2em; }
+.ai-edit-dlg .ai-foot .spacer { flex: 1; }
+@media (forced-colors: active) { .ai-edit-diff del, .ai-edit-diff ins { border: 1px solid CanvasText; } }

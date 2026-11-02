@@ -383,6 +383,21 @@
     </form>
   </dialog>
 
+  <dialog class="shortcuts ai-edit-dlg" id="ai-edit-dlg" aria-labelledby="ai-edit-h">
+    <div class="ai-head"><h3 id="ai-edit-h">Suggested change</h3><button type="button" class="tb-btn sm" id="ai-edit-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <form class="ai-edit-lang" id="ai-edit-lang" hidden>
+      <label class="field">Translate into<input type="text" id="ai-edit-language" list="ai-languages" placeholder="e.g. Spanish" spellcheck="false" autocomplete="off"></label>
+      <datalist id="ai-languages"><option value="English"><option value="Spanish"><option value="French"><option value="German"><option value="Italian"><option value="Portuguese"><option value="Dutch"><option value="Polish"><option value="Swedish"><option value="Japanese"><option value="Chinese (Simplified)"><option value="Korean"><option value="Arabic"><option value="Hindi"><option value="Ukrainian"></datalist>
+      <button type="submit" class="big-btn sm">Translate</button>
+    </form>
+    <div class="ai-edit-diff" id="ai-edit-diff" aria-live="polite"></div>
+    <div class="ai-foot"><span class="ai-status" id="ai-edit-status"></span><span class="spacer"></span>
+      <button type="button" class="link-btn" id="ai-edit-reject">Reject</button>
+      <button type="button" class="link-btn" id="ai-edit-again">Try again</button>
+      <button type="button" class="big-btn sm" id="ai-edit-accept" disabled>Accept</button>
+    </div>
+  </dialog>
+
   <dialog class="shortcuts rename-dlg" id="rename-dlg" aria-labelledby="rename-dlg-h">
     <form id="rename-form">
       <h3 id="rename-dlg-h">Rename</h3>
