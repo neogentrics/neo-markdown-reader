@@ -45,7 +45,8 @@ export function createAiUi(ctx) {
 
   // ---------------------------------------------------------------- running
   api.onAiDelta(({ id, text }) => {
-    if (!current || current.id !== id) return;
+    // Once the finished answer is in, a piece that arrives late must not be added to it again.
+    if (!current || current.id !== id || current.done) return;
     current.text += text;
     if (!paint) paint = requestAnimationFrame(() => { paint = 0; show(); });
   });
@@ -76,6 +77,7 @@ export function createAiUi(ctx) {
     if (!panel.open) panel.showModal();
     const res = await api.aiRun({ id, action, text: ctx.textOf(tab), selection, title: tab.result?.title || tab.doc.name, path: tab.doc.path || '' });
     if (!current || current.id !== id) return;
+    current.done = true;
     $('ai-stop').hidden = true;
     if (res?.error) {
       $('ai-status').textContent = res.error;
@@ -161,6 +163,7 @@ export function createAiUi(ctx) {
     if (!panel.open) panel.showModal();
     const res = await api.askFolder({ id, question, paths: [...askChosen] });
     if (!current || current.id !== id) return;
+    current.done = true;
     $('ai-stop').hidden = true;
     if (res?.error) {
       $('ai-status').textContent = res.error;
