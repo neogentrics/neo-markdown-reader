@@ -56,12 +56,15 @@ function docInfo(meta = {}) {
     version: str(fm.version),
     tags,
     logo: str(fm.logo),
+    // How the document reads (3.0): its language and, for Arabic, Hebrew…, right to left.
+    lang: /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(String(meta.lang || '')) ? meta.lang : '',
+    dir: meta.dir === 'rtl' ? 'rtl' : '',
   };
 }
 
-function head({ title, cssHref, css, theme, font, pageCss = '' }) {
+function head({ title, cssHref, css, theme, font, pageCss = '', lang = '', dir = '' }) {
   return `<!doctype html>
-<html lang="en" class="publish-root" data-theme="${esc(theme || 'light')}" data-tone="${tone(theme)}" data-font="${esc(font || 'sans')}">
+<html lang="${esc(lang || 'en')}"${dir ? ' dir="rtl"' : ''} class="publish-root" data-theme="${esc(theme || 'light')}" data-tone="${tone(theme)}" data-font="${esc(font || 'sans')}">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' file:; img-src file: data: https: http:; font-src file: data:; media-src file: data: https:">
@@ -83,7 +86,7 @@ function buildBodyHtml({ content, meta, options, css, cssHref, theme, font, numb
       `<li class="lvl-${Math.min(2, e.depth)}"><a href="#${esc(e.id)}"><span class="t">${esc(e.text)}</span><span class="dots"></span><span class="n">${numbers ? (numbers[i] || '') : ''}</span></a></li>`).join('')}</ol></nav>`
     : '';
   const classes = ['publish', 'print', options.cover ? 'has-cover' : '', options.chapterBreaks ? 'h1-breaks' : ''].filter(Boolean).join(' ');
-  return `${head({ title: info.title, cssHref, css, theme, font, pageCss: `@page { size: ${paper.css}; margin: ${m.top}in ${m.side}in ${m.bottom}in; }` })}
+  return `${head({ title: info.title, lang: info.lang, dir: info.dir, cssHref, css, theme, font, pageCss: `@page { size: ${paper.css}; margin: ${m.top}in ${m.side}in ${m.bottom}in; }` })}
 <body class="${classes}">
 ${toc}<article class="markdown-body pub-body">${content}</article>
 </body>
@@ -104,7 +107,7 @@ function buildCoverHtml({ meta, options, css, cssHref, theme, font, baseUrl = ''
   const kicker = info.organization || info.tags.slice(0, 3).join(' · ');
   const left = [info.author && `<strong>${esc(info.author)}</strong>`, info.organization && info.author ? esc(info.organization) : ''].filter(Boolean).join('<br>');
   const right = [info.date && esc(info.date), info.version && `Version ${esc(info.version)}`].filter(Boolean).join('<br>');
-  return `${head({ title: info.title, cssHref, css, theme, font, pageCss: `@page { size: ${paper.css}; margin: 0; } .pub-cover { width: ${paper.w}in; height: ${(paper.h - 0.02).toFixed(2)}in; }` })}
+  return `${head({ title: info.title, lang: info.lang, dir: info.dir, cssHref, css, theme, font, pageCss: `@page { size: ${paper.css}; margin: 0; } .pub-cover { width: ${paper.w}in; height: ${(paper.h - 0.02).toFixed(2)}in; }` })}
 <body class="publish cover">
 <section class="pub-cover">
 <div class="pub-cover-band"></div>
@@ -175,7 +178,7 @@ async function buildStandaloneHtml({ content, meta, css, theme, font, exportCss,
   const description = info.subtitle ? `<meta name="description" content="${esc(info.subtitle)}">\n` : '';
   const author = info.author ? `<meta name="author" content="${esc(info.author)}">\n` : '';
   return `<!doctype html>
-<html lang="en" class="publish-root" data-theme="${esc(theme || 'light')}" data-tone="${tone(theme)}" data-font="${esc(font || 'sans')}">
+<html lang="${esc(info.lang || 'en')}"${info.dir ? ' dir="rtl"' : ''} class="publish-root" data-theme="${esc(theme || 'light')}" data-tone="${tone(theme)}" data-font="${esc(font || 'sans')}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -381,7 +384,7 @@ async function renderSlidesPdf({ root, payload }) {
   const cssHref = pathToFileURL(path.join(root, 'dist', 'export.css')).href;
   const info = docInfo(payload.meta);
   const pages = payload.slides.map((sl) => `<section class="present-slide markdown-body${sl.cls ? ` ${esc(sl.cls)}` : ''}" style="font-size:${Number(sl.fontSize) || 30}px">${sl.html}</section>`).join('\n');
-  const html = `${head({ title: info.title, cssHref, css: payload.css, theme: payload.theme, font: payload.font,
+  const html = `${head({ title: info.title, lang: info.lang, dir: info.dir, cssHref, css: payload.css, theme: payload.theme, font: payload.font,
     pageCss: '@page { size: 1280px 720px; margin: 0; } html, body { margin: 0; background: var(--page); } .present-slide { break-after: page; break-inside: avoid; }' })}<body class="publish slides">${pages}</body></html>`;
   const { finishPdf } = exportTools(root);
   const pdf = await printHtml(html, { generateDocumentOutline: false, displayHeaderFooter: false });
@@ -453,7 +456,7 @@ async function renderEpub({ root, payload }) {
   }
   const toc = (payload.toc || []).filter((e) => files[e.chapter]).map((e) => ({ file: files[e.chapter], id: e.id, text: e.text, level: e.level }));
   return buildEpub({
-    title: info.title || 'Untitled', author: info.author, lang: payload.lang || 'en', id: `urn:uuid:${require('node:crypto').randomUUID()}`,
+    title: info.title || 'Untitled', author: info.author, lang: info.lang || payload.lang || 'en', dir: info.dir, id: `urn:uuid:${require('node:crypto').randomUUID()}`,
     chapters, toc, css: EPUB_CSS, images, props,
   });
 }

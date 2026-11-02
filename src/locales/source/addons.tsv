@@ -1,0 +1,46 @@
+en	es	fr	de
+Install Add-on	Instalar complemento	Installer un module	Add-on installieren
+Add-on	Complemento	Module	Add-on
+Install add-on?	¿Instalar complemento?	Installer le module ?	Add-on installieren?
+Install	Instalar	Installer	Installieren
+Update	Actualizar	Mettre à jour	Aktualisieren
+Install “{0}” {1}?	¿Instalar “{0}” {1}?	Installer « {0} » {1} ?	„{0}“ {1} installieren?
+Update “{0}” from {1} to {2}?	¿Actualizar “{0}” de {1} a {2}?	Mettre à jour « {0} » de {1} vers {2} ?	„{0}“ von {1} auf {2} aktualisieren?
+By {0}.	De {0}.	Par {0}.	Von {0}.
+{0}It will:\n{1}\n\nAdd-on code runs in a sealed sandbox: it can’t use the internet, read your files or change your documents. Only install add-ons from people you trust.	{0}Hará lo siguiente:\n{1}\n\nEl código de los complementos se ejecuta en un entorno aislado: no puede usar internet, leer sus archivos ni cambiar sus documentos. Instale solo complementos de personas en las que confíe.	{0}Il va :\n{1}\n\nLe code des modules s’exécute dans un bac à sable fermé : il ne peut ni utiliser internet, ni lire vos fichiers, ni modifier vos documents. N’installez que des modules de personnes de confiance.	{0}Es wird:\n{1}\n\nAdd-on-Code läuft in einer abgeschotteten Sandbox: Er kann weder ins Internet noch Ihre Dateien lesen oder Ihre Dokumente ändern. Installieren Sie nur Add-ons von Personen, denen Sie vertrauen.
+Adds the light theme “{0}”.	Añade el tema claro “{0}”.	Ajoute le thème clair « {0} ».	Fügt das helle Design „{0}“ hinzu.
+Adds the dark theme “{0}”.	Añade el tema oscuro “{0}”.	Ajoute le thème sombre « {0} ».	Fügt das dunkle Design „{0}“ hinzu.
+Draws ```{0} code blocks in your documents.	Dibuja los bloques de código ```{0} de sus documentos.	Dessine les blocs de code ```{0} de vos documents.	Zeichnet ```{0}-Codeblöcke in Ihren Dokumenten.
+Adds File › Export › {0} (.{1}).	Añade Archivo › Exportar › {0} (.{1}).	Ajoute Fichier › Exporter › {0} (.{1}).	Fügt Datei › Exportieren › {0} (.{1}) hinzu.
+That add-on can’t be installed: {0}	No se puede instalar ese complemento: {0}	Impossible d’installer ce module : {0}	Dieses Add-on kann nicht installiert werden: {0}
+Remove add-on?	¿Quitar el complemento?	Supprimer le module ?	Add-on entfernen?
+Remove “{0}”?	¿Quitar “{0}”?	Supprimer « {0} » ?	„{0}“ entfernen?
+Its themes, code-block types and export formats will no longer be available. Your documents aren’t changed.	Sus temas, tipos de bloque de código y formatos de exportación dejarán de estar disponibles. Sus documentos no cambian.	Ses thèmes, types de blocs de code et formats d’export ne seront plus disponibles. Vos documents ne sont pas modifiés.	Seine Designs, Codeblock-Typen und Exportformate sind dann nicht mehr verfügbar. Ihre Dokumente bleiben unverändert.
+Export as {0}	Exportar como {0}	Exporter en {0}	Exportieren als {0}
+The add-on took too long and was stopped.	El complemento tardó demasiado y se detuvo.	Le module a mis trop de temps et a été arrêté.	Das Add-on hat zu lange gebraucht und wurde gestoppt.
+The add-on failed: {0}	El complemento falló: {0}	Le module a échoué : {0}	Das Add-on ist fehlgeschlagen: {0}
+The add-on gave an answer the app can’t use.	El complemento dio una respuesta que la aplicación no puede usar.	Le module a renvoyé une réponse inutilisable.	Das Add-on hat eine unbrauchbare Antwort geliefert.
+The add-on’s drawing is too large.	El dibujo del complemento es demasiado grande.	Le dessin du module est trop volumineux.	Die Zeichnung des Add-ons ist zu groß.
+The exported file would be too large.	El archivo exportado sería demasiado grande.	Le fichier exporté serait trop volumineux.	Die exportierte Datei wäre zu groß.
+That file is too large to be an add-on.	Ese archivo es demasiado grande para ser un complemento.	Ce fichier est trop volumineux pour être un module.	Diese Datei ist zu groß für ein Add-on.
+That isn’t an add-on package (.nmraddon or .zip).	No es un paquete de complemento (.nmraddon o .zip).	Ce n’est pas un paquet de module (.nmraddon ou .zip).	Das ist kein Add-on-Paket (.nmraddon oder .zip).
+It’s too large to be an add-on.	Es demasiado grande para ser un complemento.	Il est trop volumineux pour être un module.	Es ist zu groß für ein Add-on.
+There’s no addon.json in it.	No contiene ningún addon.json.	Il ne contient pas de fichier addon.json.	Es enthält keine addon.json.
+It contains a file with an unsafe name.	Contiene un archivo con un nombre no seguro.	Il contient un fichier au nom dangereux.	Es enthält eine Datei mit unsicherem Namen.
+It’s too large (over 4 MB).	Es demasiado grande (más de 4 MB).	Il est trop volumineux (plus de 4 Mo).	Es ist zu groß (über 4 MB).
+Its addon.json isn’t valid JSON.	Su addon.json no es JSON válido.	Son addon.json n’est pas un JSON valide.	Seine addon.json ist kein gültiges JSON.
+It doesn’t add anything (no themes, code-block types or export formats).	No añade nada (ni temas, ni tipos de bloque de código, ni formatos de exportación).	Il n’ajoute rien (ni thème, ni type de bloc de code, ni format d’export).	Es fügt nichts hinzu (keine Designs, Codeblock-Typen oder Exportformate).
+“{0}” code blocks are drawn by the app itself and can’t be taken over.	Los bloques de código “{0}” los dibuja la propia aplicación y no se pueden reemplazar.	Les blocs de code « {0} » sont dessinés par l’application elle-même et ne peuvent pas être remplacés.	„{0}“-Codeblöcke zeichnet die App selbst; sie können nicht übernommen werden.
+Export “{0}” would make .{1} files, which could be run as programs.	La exportación “{0}” crearía archivos .{1}, que podrían ejecutarse como programas.	L’export « {0} » créerait des fichiers .{1}, qui pourraient être exécutés comme des programmes.	Der Export „{0}“ würde .{1}-Dateien erzeugen, die als Programme ausgeführt werden könnten.
+Add-ons	Complementos	Modules complémentaires	Add-ons
+Add-ons add code-block types, export formats and colour themes. Their code runs in a sealed sandbox: it can’t use the internet, read your files or change your documents. You approve what each one does before it’s installed.	Los complementos añaden tipos de bloque de código, formatos de exportación y temas de color. Su código se ejecuta en un entorno aislado: no puede usar internet, leer sus archivos ni cambiar sus documentos. Usted aprueba lo que hace cada uno antes de instalarlo.	Les modules ajoutent des types de blocs de code, des formats d’export et des thèmes de couleurs. Leur code s’exécute dans un bac à sable fermé : il ne peut ni utiliser internet, ni lire vos fichiers, ni modifier vos documents. Vous approuvez ce que fait chacun avant son installation.	Add-ons fügen Codeblock-Typen, Exportformate und Farbdesigns hinzu. Ihr Code läuft in einer abgeschotteten Sandbox: Er kann weder ins Internet noch Ihre Dateien lesen oder Ihre Dokumente ändern. Sie bestätigen vor der Installation, was jedes Add-on tut.
+Install Add-on…	Instalar complemento…	Installer un module…	Add-on installieren…
+No add-ons yet. Install one from a	Aún no hay complementos. Instale uno desde un archivo	Aucun module pour l’instant. Installez-en un depuis un fichier	Noch keine Add-ons. Installieren Sie eines aus einer
+file someone gave you.	que le hayan dado.	qu’on vous a donné.	Datei, die Sie erhalten haben.
+On	Activado	Activé	An
+This add-on is damaged and can’t be used: {0}	Este complemento está dañado y no se puede usar: {0}	Ce module est endommagé et inutilisable : {0}	Dieses Add-on ist beschädigt und kann nicht verwendet werden: {0}
+{0} couldn’t draw this block:	{0} no pudo dibujar este bloque:	{0} n’a pas pu dessiner ce bloc :	{0} konnte diesen Block nicht zeichnen:
+Add-on installed	Complemento instalado	Module installé	Add-on installiert
+Add-on removed	Complemento eliminado	Module supprimé	Add-on entfernt
+Turn on {0}	Activar {0}	Activer {0}	{0} einschalten
+Theme “{0}” would be hard to read: {1} on {2} has a contrast of {3}:1 (at least 4.5:1 is needed).	El tema “{0}” sería difícil de leer: {1} sobre {2} tiene un contraste de {3}:1 (se necesita al menos 4,5:1).	Le thème « {0} » serait difficile à lire : {1} sur {2} a un contraste de {3}:1 (au moins 4,5:1 est nécessaire).	Das Design „{0}“ wäre schwer lesbar: {1} auf {2} hat einen Kontrast von {3}:1 (mindestens 4,5:1 ist nötig).

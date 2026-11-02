@@ -86,6 +86,13 @@ contextBridge.exposeInMainWorld('reader', {
   askFolder: invoke('ai:ask-folder'),
   peekDoc: invoke('doc:peek'),
   aiEdit: invoke('ai:edit'),
+  // add-ons (3.0)
+  addonsList: invoke('addons:list'),
+  addonsInstall: invoke('addons:install'),
+  addonsSetEnabled: invoke('addons:set-enabled'),
+  addonsRemove: invoke('addons:remove'),
+  addonRender: invoke('addons:render'),
+  addonExport: invoke('addons:export'),
   // folders, compare, highlights & bookmarks
   openFolder: invoke('folder:open'),
   closeFolder: invoke('folder:close'),

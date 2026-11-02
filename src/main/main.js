@@ -13,6 +13,8 @@ const { detectEol } = require('./files');
 const locked = require('./locked');
 const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = require('./sandbox');
 const ai = require('./ai');
+const i18n = require('./i18n');
+const addons = require('./addons');
 const { Updater, RELEASES_URL } = require('./updater');
 const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
@@ -27,6 +29,9 @@ const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb', mist: '#
 
 registerScheme(protocol);                     // the code sandbox's private scheme (must precede app ready)
 let sandbox = null;
+let addonSandbox = null;
+/** Installed add-ons (3.0), see addons.js. */
+let addonStore = null;
 
 // Tests point the app at a throwaway profile folder.
 if (process.env.NMR_USER_DATA) app.setPath('userData', process.env.NMR_USER_DATA);
@@ -65,14 +70,39 @@ app.on('open-file', (e, file) => {          // macOS "Open With"
   if (app.isReady()) openFile(file); else pendingOpen.push(file);
 });
 
+// ---------------------------------------------------------------- the app in your language (3.0)
+let t = i18n.createTranslator('en');
+function currentLanguage() { return i18n.pickLanguage(settings?.get().language, app.getLocale()); }
+function refreshLanguage() { if (t.lang !== currentLanguage()) t = i18n.createTranslator(currentLanguage()); return t; }
+/** Native dialogs in the app's language (their English text is translated as they're shown). */
+const trFilters = (o) => (o && Array.isArray(o.filters) ? { ...o, filters: o.filters.map((f) => ({ ...f, name: t(f.name) })) } : o);
+const trFile = (o) => trFilters(o && { ...o, ...(o.title ? { title: t(o.title) } : {}), ...(o.buttonLabel ? { buttonLabel: t(o.buttonLabel) } : {}) });
+const dlg = {
+  showMessageBox: (win, o) => (o === undefined ? dialog.showMessageBox(i18n.translateBox(win, t)) : dialog.showMessageBox(win, i18n.translateBox(o, t))),
+  showMessageBoxSync: (win, o) => dialog.showMessageBoxSync(win, i18n.translateBox(o, t)),
+  showOpenDialog: (win, o) => dialog.showOpenDialog(win, trFile(o)),
+  showSaveDialog: (win, o) => dialog.showSaveDialog(win, trFile(o)),
+};
+
 // ---------------------------------------------------------------- helpers
+/** An add-on theme chosen in View › Theme ("addon:<id>:<theme>"), if it's installed and on. */
+function addonTheme() {
+  const m = /^addon:([a-z0-9-]+):([a-z0-9-]+)$/.exec(settings.get().theme || '');
+  if (!m || !addonOn(m[1])) return null;
+  const th = addonStore?.get(m[1])?.manifest.themes.find((x) => x.id === m[2]);
+  return th ? { key: `${m[1]}:${m[2]}`, theme: th } : null;
+}
+const addonOn = (id) => !!addonStore?.get(id) && !addonStore.get(id).error && !settings.get().addonsOff.includes(id);
+
 function resolvedTheme() {
   const t = settings.get().theme;
+  if (t.startsWith('addon:')) return addonTheme()?.theme.tone === 'dark' ? 'dark' : 'light';   // an add-on's colours go over this
   return t === 'system' ? (nativeTheme.shouldUseDarkColors ? 'dark' : 'light') : t;
 }
 
 function rendererSettings() {
-  return { ...settings.get(), resolvedTheme: resolvedTheme(), paperAuto: publish.resolvePaper('auto', app.getLocaleCountryCode()), positions: undefined, session: undefined };
+  const at = addonTheme();
+  return { ...settings.get(), lang: currentLanguage(), addons: addonInfo(), addonTheme: at ? at.key : '', addonThemeCss: at ? addons.themeCss(at.key, at.theme) : '', resolvedTheme: resolvedTheme(), paperAuto: publish.resolvePaper('auto', app.getLocaleCountryCode()), positions: undefined, session: undefined };
 }
 
 function visibleOnSomeDisplay(b) {
@@ -176,7 +206,7 @@ function createWindow(opts = {}) {
   win.webContents.on('context-menu', (_e, params) => showEditContextMenu(win, params));
   // The page refuses to unload while it has unsaved edits; confirm before discarding them.
   win.webContents.on('will-prevent-unload', (e) => {
-    const choice = dialog.showMessageBoxSync(win, {
+    const choice = dlg.showMessageBoxSync(win, {
       type: 'warning', title: 'Unsaved changes', noLink: true,
       message: 'This window has unsaved changes.',
       detail: 'Close it anyway and lose them? Choose Cancel to go back and save.',
@@ -403,7 +433,7 @@ async function resolveLink(href, fromPath) {
 // ---------------------------------------------------------------- dialogs & export
 async function showOpenDialog(win) {
   const recent = settings.get().recent[0];
-  const res = await dialog.showOpenDialog(win, {
+  const res = await dlg.showOpenDialog(win, {
     title: 'Open',
     properties: ['openFile', 'multiSelections'],
     defaultPath: recent ? path.dirname(recent) : app.getPath('documents'),
@@ -442,7 +472,7 @@ async function exportTarget(state, format) {
   const f = EXPORT_FORMATS[format];
   const current = state.tabs[state.active]?.path;
   const base = current ? path.basename(current).replace(/\.[^.]+$/, '') : 'document';
-  const res = await dialog.showSaveDialog(state.win, {
+  const res = await dlg.showSaveDialog(state.win, {
     title: f.title,
     defaultPath: path.join(current ? path.dirname(current) : app.getPath('documents'), `${base}${f.suffix || ''}.${f.ext}`),
     filters: [{ name: f.name, extensions: [f.ext] }],
@@ -545,14 +575,14 @@ async function checkForUpdatesInteractive() {
   const res = await updater.check({ silent: false });
   const opts = { type: 'info', title: 'Check for Updates', buttons: ['OK'] };
   if (res.state === 'current') {
-    dialog.showMessageBox(s?.win, { ...opts, message: 'You’re up to date', detail: `Neo Markdown Reader ${app.getVersion()} is the latest version.` });
+    dlg.showMessageBox(s?.win, { ...opts, message: 'You’re up to date', detail: `Neo Markdown Reader ${app.getVersion()} is the latest version.` });
   } else if (res.state === 'available') {
-    const { response } = await dialog.showMessageBox(s?.win, { ...opts, message: `Version ${res.version} is available`, detail: 'This copy can’t update itself. Download the new version from the Releases page.', buttons: ['Open Download Page', 'Later'] });
+    const { response } = await dlg.showMessageBox(s?.win, { ...opts, message: `Version ${res.version} is available`, detail: 'This copy can’t update itself. Download the new version from the Releases page.', buttons: ['Open Download Page', 'Later'] });
     if (response === 0) shell.openExternal(res.url || RELEASES_URL);
   } else if (res.state === 'downloading' || res.state === 'ready') {
-    dialog.showMessageBox(s?.win, { ...opts, message: `Version ${res.version} is ${res.state === 'ready' ? 'ready to install' : 'downloading'}`, detail: res.state === 'ready' ? 'Choose Help → Restart to Update, or it will install next time you quit.' : 'You’ll be asked to restart when it’s ready.' });
+    dlg.showMessageBox(s?.win, { ...opts, message: `Version ${res.version} is ${res.state === 'ready' ? 'ready to install' : 'downloading'}`, detail: res.state === 'ready' ? 'Choose Help → Restart to Update, or it will install next time you quit.' : 'You’ll be asked to restart when it’s ready.' });
   } else {
-    dialog.showMessageBox(s?.win, { ...opts, type: 'warning', message: 'Couldn’t check for updates', detail: (res.message || 'Check your internet connection and try again.') + `\n\nYou can always find new versions at:\n${RELEASES_URL}` });
+    dlg.showMessageBox(s?.win, { ...opts, type: 'warning', message: 'Couldn’t check for updates', detail: (res.message || 'Check your internet connection and try again.') + `\n\nYou can always find new versions at:\n${RELEASES_URL}` });
   }
 }
 
@@ -619,6 +649,7 @@ function rebuildMenu() {
             cmd('export-epub', 'E-book (.epub)…'),
             cmd('export-slides', 'Slides as PDF…'),
             cmd('export-pptx', 'Slides as PowerPoint (.pptx)…'),
+            ...addonExportItems(),
           ],
         },
         { id: 'print', label: 'Print…', accelerator: 'CmdOrCtrl+P', click: () => targetState()?.win.webContents.print({ printBackground: true }) },
@@ -683,10 +714,17 @@ function rebuildMenu() {
     {
       label: '&View',
       submenu: [
-        { label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast')] },
+        { label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast'),
+          ...addonThemeItems(s)] },
         { label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif')] },
         { label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] },
         cmd('customize-theme', 'Customize Theme…'),
+        cmd('addons', 'Add-ons…'),
+        { label: 'Language', submenu: [
+          { id: 'language-system', label: 'System Default', type: 'radio', checked: !i18n.CODES.has(s.language), click: () => setSetting({ language: 'system' }) },
+          { type: 'separator' },
+          ...i18n.LANGUAGES.map((l) => ({ id: `language-${l.code}`, label: l.name, type: 'radio', checked: s.language === l.code, click: () => setSetting({ language: l.code }) })),
+        ] },
         { type: 'separator' },
         cmd('present', 'Present as Slides', 'CmdOrCtrl+Shift+P'),
         cmd('read-aloud', 'Read Aloud', 'CmdOrCtrl+Shift+U'),
@@ -751,13 +789,15 @@ function rebuildMenu() {
         { type: 'separator' },
         {
           label: `About Neo Markdown Reader ${app.getVersion()}`,
-          click: () => dialog.showMessageBox(targetState()?.win, { type: 'info', title: 'About', message: 'Neo Markdown Reader', detail: `Version ${app.getVersion()}\n© ${new Date().getFullYear()} Neo Gentrics. All rights reserved.` }),
+          click: () => dlg.showMessageBox(targetState()?.win, { type: 'info', title: 'About', message: 'Neo Markdown Reader', detail: `Version ${app.getVersion()}\n© ${new Date().getFullYear()} Neo Gentrics. All rights reserved.` }),
         },
       ],
     },
   ];
   applyShortcuts(template, s.shortcuts);
   commandRegistry = collectCommands(template);
+  refreshLanguage();
+  i18n.translateMenu(template, t);
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
@@ -811,7 +851,7 @@ function sameShortcut(a, b) {
 }
 
 function commandList() {
-  return [...commandRegistry.values()].map(({ click, ...rest }) => rest);
+  return [...commandRegistry.values()].map(({ click, ...rest }) => ({ ...rest, label: t(rest.label), path: rest.path.split(' › ').map((p) => t(p)).join(' › ') }));
 }
 
 /** Set (or with accelerator null, reset) one command's shortcut. */
@@ -842,7 +882,7 @@ function setShortcut(id, accelerator, { takeOver = false } = {}) {
 async function importDocx(state, given = null) {
   let src = given;
   if (!src) {
-    const res = await dialog.showOpenDialog(state.win, {
+    const res = await dlg.showOpenDialog(state.win, {
       title: 'Import Word Document', properties: ['openFile'],
       defaultPath: settings.get().recent[0] ? path.dirname(settings.get().recent[0]) : app.getPath('documents'),
       filters: [{ name: 'Word Document', extensions: ['docx'] }],
@@ -856,7 +896,7 @@ async function importDocx(state, given = null) {
     if (st.size > 100 * 1024 * 1024) return { error: 'That Word document is too large to import (over 100 MB).' };
   } catch (err) { return { error: errorMessage(err, src) }; }
   const base = path.basename(src).replace(/\.docx$/i, '');
-  const out = await dialog.showSaveDialog(state.win, {
+  const out = await dlg.showSaveDialog(state.win, {
     title: 'Save the Markdown version as', defaultPath: path.join(path.dirname(src), `${base}.md`),
     filters: [{ name: 'Markdown', extensions: ['md'] }], properties: ['showOverwriteConfirmation', 'createDirectory'],
   });
@@ -911,7 +951,7 @@ function showEditContextMenu(win, params) {
   } else if (params.selectionText) {
     items.push({ role: 'copy' }, { label: 'Copy as Formatted Text', click: () => win.webContents.send('menu:command', { cmd: 'copy-rich' }) });
   }
-  if (items.length) Menu.buildFromTemplate(items).popup({ window: win });
+  if (items.length) Menu.buildFromTemplate(i18n.translateMenu(items, t)).popup({ window: win });
 }
 
 function showTabContextMenu(state, { index, count, path: tabPath }) {
@@ -966,7 +1006,7 @@ async function setFolder(state, root) {
 const folderInfo = (scan) => ({ root: scan.root, name: scan.name, tree: scan.tree, count: scan.files.length, truncated: scan.truncated });
 
 async function openFolderDialog(state) {
-  const res = await dialog.showOpenDialog(state.win, {
+  const res = await dlg.showOpenDialog(state.win, {
     title: 'Open Folder', properties: ['openDirectory'],
     defaultPath: settings.get().recentFolders[0] || app.getPath('documents'),
   });
@@ -1020,6 +1060,91 @@ async function openDailyNote(st) {
     }
     sendDoc(st, 'tab:open', await loadDoc(file));
   } catch (err) { st.win.webContents.send('doc:error', { message: errorMessage(err, file) }); }
+}
+
+// ---------------------------------------------------------------- add-ons (3.0)
+/** What the page needs to know about installed add-ons. */
+function addonInfo() {
+  if (!addonStore) return [];
+  return addonStore.list().map(({ manifest: m, error }) => ({
+    id: m.id, name: m.name, version: m.version, author: m.author || '', description: m.description || '', error: error || '',
+    enabled: !error && !settings.get().addonsOff.includes(m.id), capabilities: error ? [] : addons.capabilities(m),
+    themes: m.themes.map((th) => ({ key: `${m.id}:${th.id}`, name: th.name, tone: th.tone })),
+    blocks: m.codeBlocks.map((b) => b.language),
+    exports: m.exports.map((e) => ({ id: e.id, name: e.name, extension: e.extension })),
+  }));
+}
+
+function addonThemeItems(s) {
+  const items = [];
+  for (const { manifest: m } of addonStore?.list() || []) {
+    if (!addonOn(m.id)) continue;
+    for (const th of m.themes) items.push({ label: `${th.name} (${m.name})`, type: 'radio', checked: s.theme === `addon:${m.id}:${th.id}`, click: () => setSetting({ theme: `addon:${m.id}:${th.id}` }) });
+  }
+  return items.length ? [{ type: 'separator' }, ...items] : [];
+}
+
+function addonExportItems() {
+  const items = [];
+  for (const { manifest: m } of addonStore?.list() || []) {
+    if (!addonOn(m.id)) continue;
+    for (const e of m.exports) {
+      items.push({ label: `${e.name} (.${e.extension})…`, click: () => targetState()?.win.webContents.send('menu:command', { cmd: 'addon-export', arg: { id: m.id, exportId: e.id } }) });
+    }
+  }
+  return items.length ? [{ type: 'separator' }, ...items] : [];
+}
+
+/** Run one of an add-on's scripts in the sealed sandbox. Resolves to its result, or throws a plain error. */
+async function runAddon(id, rel, input, timeoutMs) {
+  const source = await addonStore.script(id, rel);
+  addonSandbox ??= new CodeSandbox({ dir: path.join(ROOT, 'dist', 'sandbox'), devTools: false });
+  const res = await addonSandbox.run({ lang: 'javascript', code: addons.sandboxProgram(source, input), timeoutMs });
+  if (res.timedOut) throw new Error('The add-on took too long and was stopped.');
+  if (res.error) throw new Error(`The add-on failed: ${String(res.error).slice(0, 300)}`);
+  try { return JSON.parse(res.result ?? 'null'); } catch { throw new Error('The add-on gave an answer the app can’t use.'); }
+}
+
+/** Read an add-on package the reader chose: a .nmraddon / .zip, or an addon.json in a folder. */
+async function readAddonPackage(file) {
+  const stat = await fs.promises.stat(file);
+  if (!stat.isFile() || stat.size > 8 * 1024 * 1024) return { error: 'That file is too large to be an add-on.' };
+  if (path.basename(file).toLowerCase() === 'addon.json') {
+    const base = path.dirname(file);
+    const files = { 'addon.json': await fs.promises.readFile(file) };
+    let m;
+    try { m = JSON.parse(String(files['addon.json'])); } catch { return { error: 'Its addon.json isn’t valid JSON.' }; }
+    for (const s of [...(Array.isArray(m.codeBlocks) ? m.codeBlocks : []), ...(Array.isArray(m.exports) ? m.exports : [])]) {
+      const rel = addons.scriptPath(s?.script);
+      if (!rel || files[rel]) continue;
+      try { files[rel] = await fs.promises.readFile(path.join(base, ...rel.split('/'))); } catch { /* reported as missing */ }
+    }
+    return addons.checkPackage(files);
+  }
+  let entries;
+  try { entries = publish.exportTools(ROOT).unzipAddon(await fs.promises.readFile(file)); } catch (err) { return { error: err.message || 'That isn’t an add-on package.' }; }
+  const pkg = addons.packageFiles(entries);
+  return pkg.error ? pkg : addons.checkPackage(pkg.files);
+}
+
+async function installAddon(st) {
+  const res = await dlg.showOpenDialog(st.win, { title: 'Install Add-on', properties: ['openFile'], filters: [{ name: 'Add-on', extensions: ['nmraddon', 'zip', 'json'] }] });
+  if (res.canceled || !res.filePaths[0]) return { canceled: true };
+  const pkg = await readAddonPackage(res.filePaths[0]);
+  if (pkg.error) return { error: `That add-on can’t be installed: ${t(pkg.error)}` };
+  const m = pkg.manifest;
+  const old = addonStore.get(m.id);
+  const caps = addons.capabilities(m).map((c) => `• ${t(c)}`).join('\n');
+  const { response } = await dlg.showMessageBox(st.win, {
+    type: 'question', title: 'Install add-on?', noLink: true, buttons: [old ? 'Update' : 'Install', 'Cancel'], defaultId: 1, cancelId: 1,
+    message: old && old.manifest.version ? `Update “${m.name}” from ${old.manifest.version} to ${m.version}?` : `Install “${m.name}” ${m.version}?`,
+    detail: `${m.author ? `By ${m.author}. ` : ''}It will:\n${caps}\n\nAdd-on code runs in a sealed sandbox: it can’t use the internet, read your files or change your documents. Only install add-ons from people you trust.`,
+  });
+  if (response !== 0) return { canceled: true };
+  try { await addonStore.install(pkg); } catch (err) { return { error: errorMessage(err, m.id) }; }
+  if (settings.get().addonsOff.includes(m.id)) settings.update({ addonsOff: settings.get().addonsOff.filter((x) => x !== m.id) });
+  broadcastSettings();
+  return { ok: true, id: m.id };
 }
 
 // ---------------------------------------------------------------- IPC
@@ -1158,7 +1283,7 @@ function registerIpc() {
   });
   ipcMain.handle('brand:pick-stylesheet', async (e) => {
     const st = stateFor(e);
-    const res = await dialog.showOpenDialog(st?.win, { title: 'Choose a brand stylesheet', properties: ['openFile'], filters: [{ name: 'Stylesheet', extensions: ['css'] }] });
+    const res = await dlg.showOpenDialog(st?.win, { title: 'Choose a brand stylesheet', properties: ['openFile'], filters: [{ name: 'Stylesheet', extensions: ['css'] }] });
     if (res.canceled || !res.filePaths[0]) return null;
     setSetting({ brand: { ...settings.get().brand, stylesheet: res.filePaths[0] } });
     return res.filePaths[0];
@@ -1175,7 +1300,7 @@ function registerIpc() {
   ipcMain.handle('doc:print', (e) => { stateFor(e)?.win.webContents.print({ printBackground: true }); });
   ipcMain.handle('settings:set', (_e, patch) => {
     if (!patch || typeof patch !== 'object') return rendererSettings();
-    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'exportOptions', 'brand', 'readAloud'];
+    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'exportOptions', 'brand', 'readAloud', 'language'];
     setSetting(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
     return rendererSettings();
   });
@@ -1310,7 +1435,7 @@ function registerIpc() {
       const label = lang === 'python' ? 'Python' : 'JavaScript';
       const lines = req.code.split('\n');
       const preview = lines.slice(0, 18).join('\n').slice(0, 1400) + (lines.length > 18 || req.code.length > 1400 ? '\n…' : '');
-      const { response, checkboxChecked } = await dialog.showMessageBox(st.win, {
+      const { response, checkboxChecked } = await dlg.showMessageBox(st.win, {
         type: 'question', title: 'Run code?', noLink: true,
         message: `Run this ${label} code${isStr(req.name, 300) ? ` from “${req.name}”` : ''}?`,
         detail: `${preview}\n\nIt runs in a sealed sandbox: it can’t read or change your files, use the network or see your settings, and it’s stopped after ${RUN_TIMEOUT[lang] / 1000} seconds.`,
@@ -1353,7 +1478,7 @@ function registerIpc() {
     if (typeof password !== 'string' || [...password].length < locked.MIN_PASSWORD || password.length > 1024) return { error: `Use a password of at least ${locked.MIN_PASSWORD} characters.` };
     const target = p.replace(/\.[^.\\/]+$/, '') + '.mdlock';
     if (fs.existsSync(target)) {
-      const { response } = await dialog.showMessageBox(st.win, {
+      const { response } = await dlg.showMessageBox(st.win, {
         type: 'warning', title: 'Replace locked file?', noLink: true, buttons: ['Cancel', 'Replace'], defaultId: 0, cancelId: 0,
         message: `“${path.basename(target)}” already exists.`, detail: 'Replacing it overwrites that locked document with this one.',
       });
@@ -1387,7 +1512,7 @@ function registerIpc() {
       const doc = await readAny(p);
       let suggested = path.basename(p).replace(/\.mdlock$/i, '');
       if (!isMarkdownPath(suggested)) suggested += '.md';
-      const res = await dialog.showSaveDialog(st.win, {
+      const res = await dlg.showSaveDialog(st.win, {
         title: 'Save an Unlocked Copy', defaultPath: path.join(path.dirname(p), suggested),
         filters: [{ name: 'Markdown', extensions: ['md'] }], properties: ['showOverwriteConfirmation'],
       });
@@ -1449,7 +1574,7 @@ function registerIpc() {
     const versions = await history.list(p);
     const when = new Date(versions.find((v) => v.id === id)?.time || Date.now()).toLocaleString();
     if (editing.isGranted(st, p)) {
-      const { response } = await dialog.showMessageBox(st.win, {
+      const { response } = await dlg.showMessageBox(st.win, {
         type: 'question', title: 'Restore this version?', noLink: true, buttons: ['Restore', 'Cancel'], defaultId: 0, cancelId: 1,
         message: `Restore “${path.basename(p)}” to the version from ${when}?`,
         detail: 'The current version is kept in Version History first, so you can come back to it.',
@@ -1491,7 +1616,7 @@ function registerIpc() {
     }
     const fileCount = Object.keys(chosen).length;
     if (!count) return { ok: false, error: 'Nothing is ticked.' };
-    const { response } = await dialog.showMessageBox(st.win, {
+    const { response } = await dlg.showMessageBox(st.win, {
       type: 'question', title: 'Replace in folder?', noLink: true, buttons: ['Replace', 'Cancel'], defaultId: 0, cancelId: 1,
       message: `Replace ${count} match${count === 1 ? '' : 'es'} in ${fileCount} file${fileCount === 1 ? '' : 's'}?`,
       detail: `In “${path.basename(plan.root)}”. Each file is backed up and its current version kept in Version History first, and Undo Replace puts them all back.`,
@@ -1523,7 +1648,7 @@ function registerIpc() {
     const st = stateFor(e);
     const undo = st?.replaceUndo;
     if (!undo) return { ok: false, error: 'There’s nothing to undo.' };
-    const { response } = await dialog.showMessageBox(st.win, {
+    const { response } = await dlg.showMessageBox(st.win, {
       type: 'question', title: 'Undo replace?', noLink: true, buttons: ['Undo Replace', 'Cancel'], defaultId: 0, cancelId: 1,
       message: `Put back the ${undo.batch.length} file${undo.batch.length === 1 ? '' : 's'} changed by the last Replace?`,
       detail: 'Files changed again since then are left alone (their earlier versions are still in Version History).',
@@ -1585,7 +1710,7 @@ function registerIpc() {
     const base = clean.includes('/') && st.folder ? st.folder.root : path.dirname(fromPath);     // "projects/plan" is from the folder's top
     const target = path.join(base, ...clean.split('/')) + (isMarkdownPath(clean) ? '' : '.md');
     if (fs.existsSync(target)) return { doc: await loadDoc(target) };
-    const { response } = await dialog.showMessageBox(st.win, {
+    const { response } = await dlg.showMessageBox(st.win, {
       type: 'question', title: 'Create document?', noLink: true, buttons: ['Create', 'Cancel'], defaultId: 0, cancelId: 1,
       message: `Create “${path.basename(target)}”?`, detail: `There’s no document called “${name}” yet. It will be created in:\n${path.dirname(target)}`,
     });
@@ -1619,7 +1744,7 @@ function registerIpc() {
     let updated = 0;
     if (updates.length) {
       const links = updates.reduce((n, u) => n + u.count, 0);
-      const { response } = await dialog.showMessageBox(st.win, {
+      const { response } = await dlg.showMessageBox(st.win, {
         type: 'question', title: 'Update links?', noLink: true, buttons: ['Update Links', 'Leave Them'], defaultId: 0, cancelId: 1,
         message: `Update ${links} link${links === 1 ? '' : 's'} to “${path.basename(p)}” in ${updates.length} other document${updates.length === 1 ? '' : 's'}?`,
         detail: 'Each document is backed up and its current version kept in Version History first.',
@@ -1668,6 +1793,74 @@ function registerIpc() {
     } finally { aiRuns.delete(req.id); }
   });
 
+  // ---- add-ons
+  ipcMain.handle('addons:list', () => addonInfo());
+  ipcMain.handle('addons:install', async (e) => { const st = stateFor(e); return st ? installAddon(st) : { error: 'invalid' }; });
+  ipcMain.handle('addons:set-enabled', (_e, id, on) => {
+    if (!isStr(id, 40) || !addonStore?.get(id)) return addonInfo();
+    const off = settings.get().addonsOff.filter((x) => x !== id);
+    settings.update({ addonsOff: on ? off : [...off, id] });
+    broadcastSettings();
+    return addonInfo();
+  });
+  ipcMain.handle('addons:remove', async (e, id) => {
+    const st = stateFor(e);
+    const item = isStr(id, 40) && addonStore?.get(id);
+    if (!st || !item) return { error: 'invalid' };
+    const { response } = await dlg.showMessageBox(st.win, {
+      type: 'question', title: 'Remove add-on?', noLink: true, buttons: ['Remove', 'Cancel'], defaultId: 0, cancelId: 1,
+      message: `Remove “${item.manifest.name}”?`, detail: 'Its themes, code-block types and export formats will no longer be available. Your documents aren’t changed.',
+    });
+    if (response !== 0) return { canceled: true };
+    await addonStore.remove(id);
+    settings.update({ addonsOff: settings.get().addonsOff.filter((x) => x !== id), ...(settings.get().theme.startsWith(`addon:${id}:`) ? { theme: 'system' } : {}) });
+    broadcastSettings();
+    return { ok: true };
+  });
+  // Draw a code block with an add-on: its script gets the block's text and returns HTML or SVG (sanitized by the page).
+  ipcMain.handle('addons:render', async (_e, req = {}) => {
+    const item = isStr(req.id, 40) && addonOn(req.id) ? addonStore.get(req.id) : null;
+    const block = item?.manifest.codeBlocks.find((b) => b.language === req.language);
+    if (!block || typeof req.code !== 'string' || req.code.length > 100_000) return { error: 'invalid' };
+    try {
+      const out = await runAddon(req.id, block.script, { code: req.code, language: block.language }, 5000);
+      if (typeof out !== 'string') return { error: 'The add-on gave an answer the app can’t use.' };
+      return out.length > 2_000_000 ? { error: 'The add-on’s drawing is too large.' } : { html: out };
+    } catch (err) { return { error: err.message }; }
+  });
+  // Export with an add-on: its script gets the document and returns the new file's text (or base64 bytes).
+  ipcMain.handle('addons:export', async (e, req = {}) => {
+    const st = stateFor(e);
+    const item = st && isStr(req.id, 40) && addonOn(req.id) ? addonStore.get(req.id) : null;
+    const ex = item?.manifest.exports.find((x) => x.id === req.exportId);
+    const d = req.doc || {};
+    if (!ex || typeof d.markdown !== 'string' || d.markdown.length > 20_000_000) return { error: 'invalid' };
+    const doc = {
+      title: isStr(d.title, 1000) ? d.title : '', name: isStr(d.name, 500) ? d.name : '', markdown: d.markdown,
+      html: typeof d.html === 'string' && d.html.length < 40_000_000 ? d.html : '',
+      headings: Array.isArray(d.headings) ? d.headings.slice(0, 5000).filter((h) => h && isStr(h.text, 1000) && Number.isInteger(h.level)).map((h) => ({ level: h.level, text: h.text, id: isStr(h.id, 500) ? h.id : '' })) : [],
+    };
+    let out;
+    try { out = await runAddon(req.id, ex.script, doc, 20_000); } catch (err) { return { error: err.message }; }
+    let data;
+    if (typeof out === 'string') data = Buffer.from(out, 'utf8');
+    else if (out && typeof out.base64 === 'string') data = Buffer.from(out.base64, 'base64');
+    else return { error: 'The add-on gave an answer the app can’t use.' };
+    if (data.length > 50 * 1024 * 1024) return { error: 'The exported file would be too large.' };
+    const current = st.tabs[st.active]?.path;
+    const base = current ? path.basename(current).replace(/\.[^.]+$/, '') : 'document';
+    const res = await dlg.showSaveDialog(st.win, {
+      title: `Export as ${ex.name}`, defaultPath: path.join(current ? path.dirname(current) : app.getPath('documents'), `${base}.${ex.extension}`),
+      filters: [{ name: ex.name, extensions: [ex.extension] }],
+    });
+    if (res.canceled || !res.filePath) return { canceled: true };
+    let target = res.filePath;
+    if (path.extname(target).toLowerCase() !== `.${ex.extension}`) target += `.${ex.extension}`;
+    try { await fs.promises.writeFile(target, data); } catch (err) { return { error: errorMessage(err, target) }; }
+    if (!process.env.NMR_NO_REVEAL) shell.showItemInFolder(target);
+    return { ok: true, path: target };
+  });
+
   // ---- commands by name (Quick Open ">") and your own shortcuts
   ipcMain.handle('commands:list', () => commandList());
   ipcMain.handle('commands:run', (_e, key) => {
@@ -1684,7 +1877,7 @@ function registerIpc() {
   ipcMain.handle('shortcuts:recording', (e, on) => { e.sender.setIgnoreMenuShortcuts(on === true); });
   ipcMain.handle('shortcuts:reset-all', async (e) => {
     const st = stateFor(e);
-    const { response } = await dialog.showMessageBox(st?.win, {
+    const { response } = await dlg.showMessageBox(st?.win, {
       type: 'question', title: 'Reset shortcuts?', noLink: true, buttons: ['Reset All', 'Cancel'], defaultId: 0, cancelId: 1,
       message: 'Put every keyboard shortcut back to how it came?',
     });
@@ -1710,8 +1903,9 @@ app.whenReady().then(() => {
   settings = new Settings(app.getPath('userData'));
   updater = new Updater(onUpdateStatus);
   history = new HistoryStore(path.join(app.getPath('userData'), 'history'));
-  editing = new Editing({ settings, dialog, backupDir: backupDir(), defaultDir: app.getPath('documents'), sealLocked, history });
+  editing = new Editing({ settings, dialog: dlg, backupDir: backupDir(), defaultDir: app.getPath('documents'), sealLocked, history });
   annotations = new AnnotationStore(app.getPath('userData'));
+  addonStore = new addons.AddonStore(path.join(app.getPath('userData'), 'addons')).load();
   // Documents never need camera, mic, notifications, etc.; only clipboard writes for "Copy".
   session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));
   nativeTheme.on('updated', () => { if (settings.get().theme === 'system') broadcastSettings(); });

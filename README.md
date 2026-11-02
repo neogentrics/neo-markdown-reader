@@ -10,7 +10,7 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
-**[Features](#features)** · **[Install](#install-windows)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+**[Features](#features)** · **[Install](#install-windows)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
 
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
@@ -43,7 +43,8 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
-| **Read, listen & share** *(new in 2.4)* | Read aloud with your computer's voices; focus mode, folding sections and hover previews; open CSV, JSON, YAML and Jupyter notebooks; charts from a table or a `chart` block; export e-books (EPUB) and slides (PDF or PowerPoint); and (optionally) proofread, rewrite, shorten or translate a selection with Claude ([details](#read-listen--share)) |
+| **Make it yours** *(new in 3.0)* | The app in English, Spanish, French or German (it follows your computer, or choose in *View → Language*); Arabic, Hebrew and other right-to-left documents read right to left; add-ons for new code-block types, export formats and colour themes, each approved by you and run in a sealed sandbox ([details](#make-it-yours)) |
+| **Read, listen & share** *(2.4)* | Read aloud with your computer's voices; focus mode, folding sections and hover previews; open CSV, JSON, YAML and Jupyter notebooks; charts from a table or a `chart` block; export e-books (EPUB) and slides (PDF or PowerPoint); and (optionally) proofread, rewrite, shorten or translate a selection with Claude ([details](#read-listen--share)) |
 | **Connected notes** *(2.3)* | Link documents with `[[wiki links]]` (suggested as you type, kept up to date when you rename); see what links here, a map of how a folder fits together, tags and every task in one list, a daily note, a link checker, and (optionally) ask Claude questions about a folder with links to its sources ([details](#connected-notes)) |
 | **Write faster** *(2.2)* | Paste or drop pictures (saved next to the document); edit tables in a grid and paste cells from Excel; paste from Word and web pages as clean Markdown, or import a Word document; version history with compare and restore; replace across a folder with a preview and undo; run any command from `Ctrl+K` and choose your own shortcuts ([details](#writing-faster)) |
 | **At home on Windows** *(2.1)* | A formatted preview of `.md` files in File Explorer's Preview pane; a full accessibility pass (screen readers, keyboard, high contrast); a Linux `.deb`, an Intel Mac build and `winget` ([details](#at-home-on-windows)) |
@@ -273,6 +274,45 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
 
 <img src="docs/screenshots/ai-writing.png" width="860" alt="A suggested rewrite of a paragraph shown as a change, with Reject, Try again and Accept buttons">
 
+## Make it yours
+
+<img src="docs/screenshots/language.png" width="860" alt="The app in Spanish: the toolbar, sidebar tabs, outline filter and word count are in Spanish; the document is shown as written">
+
+- **The app in your language:** English, Spanish (Español), French (Français) or German (Deutsch).
+  - It follows your computer's language. To choose another, use *View → Language*; the change is immediate.
+  - Menus, buttons, dialogs, messages and the shortcut list are translated. Your documents, file names and
+    notes are always shown exactly as written.
+- **Right-to-left documents:** Arabic, Hebrew, Persian, Urdu and other right-to-left text reads right to left.
+  - Each paragraph, heading and list item follows its own text, so a document can mix languages.
+  - Lists, quotes and tables that start in a right-to-left language turn as a whole: bullets on the right,
+    the first column on the right.
+  - To turn a whole document, add `lang: ar` (or `he`, `fa`, `ur`…) or `dir: rtl` to its front matter.
+  - The outline, PDF, Word, web page and e-book exports keep the direction.
+- **Add-ons** (*View → Add-ons…*): an add-on is a small package (`.nmraddon`) that can add:
+  - **code-block types:** for example, a `timeline` block that's drawn as a picture;
+  - **export formats** (in *File → Export*): for example, an outline (OPML) for mind-map apps;
+  - **colour themes** (in *View → Theme*), built on the light or dark theme.
+
+  Before an add-on is installed, the app shows what it will add, and nothing is installed until you agree.
+  Its code runs in the same sealed sandbox as ▶ Run: it can't use the internet, read your files or change your
+  documents. What it draws is cleaned like any document, and it can't load anything from the web. Themes are
+  colours only, and one that would be hard to read (below WCAG AA contrast) is refused. Turn an add-on off or
+  remove it in the same window. To write one, see [docs/addons.md](docs/addons.md); a complete example is in
+  [samples/addons/neo-extras](samples/addons/neo-extras).
+
+<table>
+<tr>
+<td><img src="docs/screenshots/addons.png" alt="The Add-ons window, in Spanish, listing Neo Extras with what it adds, over a document with a timeline drawn by the add-on"></td>
+<td><img src="docs/screenshots/right-to-left.png" alt="An Arabic document read right to left, with its outline, bullets and quote on the right"></td>
+</tr>
+<tr>
+<td align="center"><sub>The Add-ons window, and a timeline drawn by an add-on</sub></td>
+<td align="center"><sub>An Arabic document, right to left</sub></td>
+</tr>
+</table>
+
+<img src="docs/screenshots/addon-theme.png" width="860" alt="A document in the Solar theme added by an add-on: warm cream page, brown accents">
+
 ## Organizing your documents
 
 <img src="docs/screenshots/compare-split.png" width="860" alt="Find in Folder results, a comparison of two versions, and a second document side by side">
@@ -486,10 +526,10 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help �
   tags, a Tasks panel with daily notes, a link checker, and (optionally) asking Claude about a folder.
 - **v2.4** added read aloud, focus mode, folding sections, hover previews, CSV / JSON / YAML / Jupyter
   notebook files, charts from data, EPUB and PowerPoint export, and (optionally) AI writing help in the editor.
+- **v3.0** added the app in Spanish, French and German, right-to-left documents, and add-ons (new code-block
+  types, export formats and colour themes, each approved by you and run in a sealed sandbox).
 
 Coming next:
-- **v3.0, Make it yours** *(in progress)*: add-ons (new code-block types, themes and export formats, each
-  approved by you) and the app in your language, with right-to-left documents.
 - **v3.1, Across your computers:** highlights, notes, bookmarks, history and settings synced through a folder
   you already sync. No account needed.
 - **Later, if needed:** Git built in, shared review.
@@ -537,6 +577,8 @@ src/
 │   ├── notes-core.js     wiki links, backlinks, tags, tasks, link checking and rename rewrites (pure functions, shared with the page)
 │   ├── folder-index.js   the open folder's links, tags and tasks, re-reading only files that changed
 │   ├── data-docs.js      CSV / TSV, JSON, YAML and Jupyter notebooks as read-only Markdown
+│   ├── i18n.js           translations: picks the language, translates menus and native dialogs
+│   ├── addons.js         add-ons: checks manifests and packages, installs them, theme CSS, the sandbox program
 │   ├── folders.js        scanning and searching an opened folder
 │   ├── annotations.js    private highlights & notes (stored in app data, never in the file)
 │   ├── updater.js        update checks against GitHub Releases (electron-updater for the installer)
@@ -554,6 +596,8 @@ src/
     ├── notes-ui.js       Backlinks, tag chips, the Tasks panel, the link map, the link checker and Rename
     ├── read-ui.js        read aloud, focus mode, folding sections and hover previews
     ├── charts.js         ```chart blocks and charted tables, drawn as SVG
+    ├── i18n-ui.js        translates the page's own text (never the document) as it appears
+    ├── addons-ui.js      the Add-ons window, add-on code blocks, themes and exports
     ├── palette.js        Quick Open (Ctrl+K)
     ├── split.js          split view and linked scrolling
     ├── compare.js        line and word diffs for Compare
@@ -568,13 +612,17 @@ src/
     ├── ai-ui.js          AI assist settings and the answer panel
     ├── index.html        layout + Content-Security-Policy
     └── styles/           themes, document typography, code colors, print/PDF, export & presentation styles
-└── sandbox/              The code sandbox's page and worker (plus Pyodide, copied in at build time)
+├── sandbox/              The code sandbox's page and worker (plus Pyodide, copied in at build time)
+└── locales/              es.json, fr.json, de.json, built from the tables in locales/source/*.tsv
 preview/                    File Explorer preview: a COM preview handler (C#, .NET Framework 4.8, Markdig) + tests;
                             preview/shim is the native COM server (C++) Windows starts it through
 build/installer.nsh         installer steps: registers the Explorer preview for the current user
 scripts/winget-manifest.mjs writes the winget manifests for a release
 scripts/build-renderer.mjs  bundles the renderer into dist/ with esbuild
+scripts/i18n-build.mjs      builds src/locales/*.json from the translation tables
+scripts/i18n-strings.mjs    lists the app's English text; --missing shows what isn't translated yet
 samples/showcase.md         feature tour (Help → Open Feature Showcase)
+samples/addons/neo-extras/  a sample add-on: timeline blocks, an OPML export and the Solar theme
 test/                       node:test suites (run under jsdom)
 ```
 
@@ -592,7 +640,8 @@ Clicking a link never executes a file: Markdown links open in the reader, web li
 browser, and any other local file is only *shown in its folder*. The page itself can never write a
 file: saving is done by the main process, only for files you allowed, after a native permission prompt
 the page can't fake. Code blocks only ever run after you confirm, in a separate sandbox with no file,
-network or settings access. See [SECURITY.md](SECURITY.md).
+network or settings access. Add-ons are installed only after you approve what they add; their code runs in
+that same sandbox, and what they draw is sanitized like a document. See [SECURITY.md](SECURITY.md).
 
 ## Releasing
 

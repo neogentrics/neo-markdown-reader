@@ -25,7 +25,9 @@ const DEFAULTS = Object.freeze({
   brand: null,            // custom theme: accent colour, fonts, brand stylesheet (see BRAND_DEFAULTS)
   shortcuts: {},          // your own keyboard shortcuts: menu command id -> accelerator ('' = none)
   wikiLinks: 'wiki',      // wiki | markdown — what the editor inserts when you pick a document after [[
-  readAloud: { rate: 1, voice: '' },   // read aloud: speed (0.5–2) and the chosen voice's name ('' = the system's default)
+  readAloud: { rate: 1, voice: '' },
+  language: 'system',     // system | en | es | fr | de — the app's menus and dialogs
+  addonsOff: [],          // ids of installed add-ons that are switched off   // read aloud: speed (0.5–2) and the chosen voice's name ('' = the system's default)
   windowBounds: null,
 });
 
@@ -137,7 +139,7 @@ function sanitize(input) {
   s.shortcuts = {};
   s.ai = cleanAiSettings(null);
   if (!input || typeof input !== 'object') return s;
-  if (THEMES.includes(input.theme)) s.theme = input.theme;
+  if (THEMES.includes(input.theme) || /^addon:[a-z0-9][a-z0-9-]{1,39}:[a-z0-9][a-z0-9-]{1,39}$/.test(input.theme || '')) s.theme = input.theme;
   if (FONTS.includes(input.font)) s.font = input.font;
   if (WIDTHS.includes(input.pageWidth)) s.pageWidth = input.pageWidth;
   for (const k of ['showToc', 'showMenuBar', 'restoreSession']) if (typeof input[k] === 'boolean') s[k] = input[k];
@@ -151,6 +153,8 @@ function sanitize(input) {
   if (Array.isArray(input.recentFolders)) s.recentFolders = [...new Set(input.recentFolders.filter(isPath))].slice(0, 10);
   if (['ask', 'off'].includes(input.runCode)) s.runCode = input.runCode;
   if (['wiki', 'markdown'].includes(input.wikiLinks)) s.wikiLinks = input.wikiLinks;
+  if (['system', 'en', 'es', 'fr', 'de'].includes(input.language)) s.language = input.language;
+  if (Array.isArray(input.addonsOff)) s.addonsOff = [...new Set(input.addonsOff.filter((x) => typeof x === 'string' && /^[a-z0-9][a-z0-9-]{1,39}$/.test(x)))].slice(0, 200);
   if (input.readAloud && typeof input.readAloud === 'object') {
     const rate = Number(input.readAloud.rate);
     s.readAloud = {

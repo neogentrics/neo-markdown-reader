@@ -29,7 +29,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v2.2](#v22--write-faster) | Write faster | ✅ Released ([2.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.2.0)) |
 | [v2.3](#v23--connected-notes) | Connected notes | ✅ Released ([2.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.3.0)) |
 | [v2.4](#v24--read-listen--share) | Read, listen & share | ✅ Released ([2.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.4.0)) |
-| [v3.0](#v30--make-it-yours) | Make it yours | 🚧 In progress |
+| [v3.0](#v30--make-it-yours) | Make it yours | ✅ Done — ships in 3.0.0 |
 | [v3.1](#v31--across-your-computers) | Across your computers | Planned |
 | [Later](#later--only-if-needed) | Only if needed | Ideas |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
@@ -162,12 +162,12 @@ updates itself from here on.
 
 ## v3.0 — Make it yours
 
-🚧 **In progress** (open decision 8: add-ons and the app in your language first). The next major release.
+✅ **Done — ships in 3.0.0** (decision 8: add-ons and the app in your language first). The next major release.
 
 | Feature | Size | Details |
 |---|:-:|---|
-| 🛡️ Add-ons | L | Install add-ons for new code-block types, themes and export formats. Each add-on says what it can do, and you approve it before it runs. |
-| The app in your language | L | Menus and dialogs translated (Spanish, French and German first), and right-to-left documents (Arabic, Hebrew). |
+| ✅ 🛡️ Add-ons | L | Install add-ons for new code-block types, themes and export formats. Each add-on says what it can do, and you approve it before it's installed; its code runs in the sealed sandbox. A guide for writing them is in [docs/addons.md](docs/addons.md). |
+| ✅ The app in your language | L | Menus, dialogs and messages translated into Spanish, French and German, and right-to-left documents (Arabic, Hebrew, Persian, Urdu…). |
 
 ## v3.1 — Across your computers
 

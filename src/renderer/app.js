@@ -17,6 +17,8 @@ import { createHistoryUi } from './history-ui.js';
 import { createKeysUi } from './keys-ui.js';
 import { createNotesUi } from './notes-ui.js';
 import { createReadUi, cleanCopy } from './read-ui.js';
+import { createUiTranslator } from './i18n-ui.js';
+import { createAddonsUi } from './addons-ui.js';
 import { resolveWiki, relative, dirOf, slugify as wikiSlug } from '../main/notes-core.js';
 import './styles/app.css';
 
@@ -58,6 +60,8 @@ let historyUi = null;
 let keysUi = null;
 let notesUi = null;
 let readUi = null;
+let addonsUi = null;
+const uiText = createUiTranslator();
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -125,12 +129,15 @@ function renderInto(tab, doc, { preview = false } = {}) {
   if (!preview) tab.doc = doc;
   tab.result = result;
   tab.el.innerHTML = result.html;
+  // Right-to-left documents (front matter dir: rtl, or lang: ar / he / fa…); otherwise each block decides.
+  if (result.dir) tab.el.dir = result.dir; else tab.el.removeAttribute('dir');
+  if (result.lang) tab.el.lang = result.lang; else tab.el.removeAttribute('lang');
   tab.el.classList.toggle('data-page', !!doc.data);
   enhance(tab.el, { run: !doc.data });
   if (doc.data === 'csv' || doc.data === 'tsv') makeSortable(tab.el);
   readUi?.afterRender(tab);
   updateTabButton(tab);
-  return renderMermaid(tab.el, false).then(() => highlights?.apply(tab));
+  return renderMermaid(tab.el, false).then(() => addonsUi?.drawBlocks(tab.el)).then(() => highlights?.apply(tab));
 }
 
 /** Re-render a tab in place (e.g. after its highlights changed), keeping its scroll position. */
@@ -548,6 +555,7 @@ function buildToc(toc) {
     a.dataset.id = h.id;
     a.style.setProperty('--indent', h.level - min);
     a.className = 'toc-item lvl-' + h.level;
+    a.dir = 'auto';                      // Arabic or Hebrew headings line up on the right
     a.onclick = (e) => { e.preventDefault(); scrollToId(h.id); };
     els.toc.appendChild(a);
   }
@@ -936,6 +944,8 @@ api.onCommand(({ cmd, arg }) => {
     case 'export-epub': publish.exportAs('epub'); break;
     case 'export-slides': publish.exportAs('slides'); break;
     case 'export-pptx': publish.exportAs('pptx'); break;
+    case 'addons': addonsUi.open(); break;
+    case 'addon-export': if (arg) addonsUi.exportWith(arg); break;
     case 'present': if (presenter.active()) presenter.stop(); else presenter.start(); break;
     case 'customize-theme': themeUi.open(); break;
     case 'lock-protect': lockUi.protect(); break;
@@ -1056,6 +1066,8 @@ const importedNote = (res) => `Imported from Word${res.images ? ` with ${res.ima
 // ================================================================ settings, updates, misc
 function applySettings(s) {
   settings = s;
+  uiText.setLanguage(s.lang || 'en');
+  addonsUi?.apply(s);
   const root = document.documentElement;
   const prevTheme = root.dataset.theme;
   const prevTone = root.dataset.tone;
@@ -1222,6 +1234,12 @@ lockUi = createLockUi({
     if (tab.id === activeId) { showActiveDoc(); restoreScroll(tab); }
     syncSoon();
   },
+});
+addonsUi = createAddonsUi({
+  api, toast, render, activeTab,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
+  cleanHtml: (t) => publish.payloadFor(t).content,
+  rerenderAll: () => { for (const t of tabs) if (t.result && !t.doc.compare && !t.doc.needsPassword) rerender(t); },
 });
 readUi = createReadUi({
   api, toast, activeTab, render, desk: els.desk,

@@ -179,13 +179,15 @@ async function buildDocx(model, assets = {}, options = {}) {
           if (b.tags?.length) out.push(new Paragraph({ children: [new TextRun({ text: b.tags.join(' · '), color: accent, size: 18 })] }));
           break;
         case 'h': {
-          const children = runsToChildren(b.runs);
-          out.push(new Paragraph({ heading: HEADINGS[Math.min(5, Math.max(0, b.level - 1))],
+          const children = runsToChildren(b.runs, b.rtl ? { rightToLeft: true } : {});
+          out.push(new Paragraph({ heading: HEADINGS[Math.min(5, Math.max(0, b.level - 1))], bidirectional: !!b.rtl,
             children: b.id ? [new Bookmark({ id: bookmarkName(b.id), children })] : children }));
           break;
         }
         case 'p':
-          out.push(new Paragraph({ alignment: ALIGN[b.align], indent, border: quoteBorder, children: runsToChildren(b.runs, ctx.quote ? { italics: false } : {}) }));
+          // Right-to-left paragraphs (Arabic, Hebrew…) are marked so Word lays them out from the right.
+          out.push(new Paragraph({ alignment: ALIGN[b.align], indent, border: quoteBorder, bidirectional: !!b.rtl,
+            children: runsToChildren(b.runs, { ...(ctx.quote ? { italics: false } : {}), ...(b.rtl ? { rightToLeft: true } : {}) }) }));
           break;
         case 'code': {
           const lines = b.text.split('\n');
@@ -337,7 +339,7 @@ const xmlEsc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;
 
 /**
  * Build an EPUB 3 e-book (with an EPUB 2 table of contents for older readers).
- * book: { title, author, lang, id, chapters: [{ file, title, xhtml }], toc: [{ file, id, text, level }],
+ * book: { title, author, lang, dir, id, chapters: [{ file, title, xhtml }], toc: [{ file, id, text, level }],
  *         css, images: [{ name, data, mime }], props: { [file]: 'svg mathml' } }
  */
 function buildEpub(book) {
@@ -346,7 +348,7 @@ function buildEpub(book) {
   const lang = book.lang || 'en';
   const page = (title, body, file) => `<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${xmlEsc(lang)}" lang="${xmlEsc(lang)}">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${xmlEsc(lang)}" lang="${xmlEsc(lang)}"${book.dir === 'rtl' ? ' dir="rtl"' : ''}>
 <head><meta charset="utf-8"/><title>${xmlEsc(title)}</title><link rel="stylesheet" type="text/css" href="style.css"/></head>
 <body class="${file === 'nav.xhtml' ? 'nav' : 'chapter'}">${body}</body>
 </html>`;
@@ -389,7 +391,7 @@ ${book.author ? `<dc:creator>${xmlEsc(book.author)}</dc:creator>` : ''}
 <meta property="dcterms:modified">${modified}</meta>
 </metadata>
 <manifest>${manifest.join('\n')}</manifest>
-<spine toc="ncx">${book.chapters.map((_, i) => `<itemref idref="c${i + 1}"/>`).join('')}</spine>
+<spine toc="ncx"${book.dir === 'rtl' ? ' page-progression-direction="rtl"' : ''}>${book.chapters.map((_, i) => `<itemref idref="c${i + 1}"/>`).join('')}</spine>
 </package>`;
   const files = {
     mimetype: [strToU8('application/epub+zip'), { level: 0 }],                       // must come first, uncompressed
@@ -538,7 +540,23 @@ function fixParagraphs(buf) {
   return Buffer.from(zipSync(files, { level: 6 }));
 }
 
+/** Unpack an add-on package (zip) safely: limited size and file count; names are checked by addons.js. */
+function unzipAddon(buf) {
+  const { unzipSync } = require('fflate');
+  let total = 0;
+  let count = 0;
+  const filter = (f) => {
+    count += 1;
+    total += f.originalSize;
+    if (count > 200 || f.originalSize > 1024 * 1024 || total > 4 * 1024 * 1024) throw new Error('It’s too large to be an add-on.');
+    return true;
+  };
+  try { return unzipSync(new Uint8Array(buf), { filter }); } catch (err) {
+    throw new Error(/too large/.test(err.message) ? err.message : 'That isn’t an add-on package (.nmraddon or .zip).');
+  }
+}
+
 // The Anthropic SDK rides in the same bundle (used by AI assist).
 const Anthropic = require('@anthropic-ai/sdk');
 
-module.exports = { Anthropic: Anthropic.default || Anthropic, buildEpub, buildPptx, docxToMarkdown, readOutline, pagesForEntries, finishPdf, collectAssets, buildDocx, bookmarkName, PAPER_IN, MARGIN_IN };
+module.exports = { Anthropic: Anthropic.default || Anthropic, unzipAddon, buildEpub, buildPptx, docxToMarkdown, readOutline, pagesForEntries, finishPdf, collectAssets, buildDocx, bookmarkName, PAPER_IN, MARGIN_IN };
