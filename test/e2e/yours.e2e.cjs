@@ -64,7 +64,9 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   const answer = (...r) => app.evaluate((_e, list) => { global.__answers.push(...list); }, r);
   const lastBox = () => app.evaluate(() => global.__boxes.at(-1));
   const menu = (id) => app.evaluate(({ Menu }, itemId) => Menu.getApplicationMenu().getMenuItemById(itemId).click(), id);
-  const menuLabels = () => app.evaluate(({ Menu }) => Menu.getApplicationMenu().items.map((i) => i.label));
+  // macOS puts the app's own menu (named after the app, never translated) first; the rest are ours.
+  const menuLabels = () => app.evaluate(({ Menu }) => Menu.getApplicationMenu().items.map((i) => i.label))
+    .then((l) => (process.platform === 'darwin' ? l.slice(1) : l));
   const findMenu = (re) => app.evaluate(({ Menu }, src) => {
     const r = new RegExp(src); const out = [];
     const walk = (m) => m.items.forEach((i) => { if (r.test(i.label)) out.push(i.label); if (i.submenu) walk(i.submenu); });
