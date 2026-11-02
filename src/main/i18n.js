@@ -46,9 +46,11 @@ function createTranslator(code, dicts = DICTS) {
     if (/\{\d\}/.test(key)) {
       const order = [...key.matchAll(/\{(\d)\}/g)].map((m) => Number(m[1]));
       const re = new RegExp(`^${escRe(key).replace(/\\\{\d\\\}/g, '([\\s\\S]*?)')}$`);
-      patterns.push({ re, order, value });
+      patterns.push({ re, order, value, fixed: key.replace(/\{\d\}/g, '').length });
     } else exact.set(key, value);
   }
+  // The most specific pattern wins: "Replace {0} match{1} in {2} file{3}?" before "Replace {0}".
+  patterns.sort((a, b) => b.fixed - a.fixed);
   const cache = new Map();
   const t = (text) => {
     if (typeof text !== 'string' || !text) return text;

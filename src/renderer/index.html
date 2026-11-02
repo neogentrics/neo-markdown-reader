@@ -398,6 +398,13 @@
     </div>
   </dialog>
 
+  <dialog class="shortcuts addons-dlg" id="addons-dlg" aria-labelledby="addons-h">
+    <div class="ai-head"><h3 id="addons-h">Add-ons</h3><button type="button" class="tb-btn sm" id="addons-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="grants-intro">Add-ons add code-block types, export formats and colour themes. Their code runs in a sealed sandbox: it can’t use the internet, read your files or change your documents. You approve what each one does before it’s installed.</p>
+    <div class="addons-list" id="addons-list"></div>
+    <div class="grants-actions"><button type="button" class="big-btn sm" id="addons-install">Install Add-on…</button><span class="spacer"></span><button type="button" class="link-btn" id="addons-done">Done</button></div>
+  </dialog>
+
   <dialog class="shortcuts rename-dlg" id="rename-dlg" aria-labelledby="rename-dlg-h">
     <form id="rename-form">
       <h3 id="rename-dlg-h">Rename</h3>

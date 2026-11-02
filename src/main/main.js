@@ -14,6 +14,7 @@ const locked = require('./locked');
 const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = require('./sandbox');
 const ai = require('./ai');
 const i18n = require('./i18n');
+const addons = require('./addons');
 const { Updater, RELEASES_URL } = require('./updater');
 const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
@@ -28,6 +29,9 @@ const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb', mist: '#
 
 registerScheme(protocol);                     // the code sandbox's private scheme (must precede app ready)
 let sandbox = null;
+let addonSandbox = null;
+/** Installed add-ons (3.0), see addons.js. */
+let addonStore = null;
 
 // Tests point the app at a throwaway profile folder.
 if (process.env.NMR_USER_DATA) app.setPath('userData', process.env.NMR_USER_DATA);
@@ -81,13 +85,24 @@ const dlg = {
 };
 
 // ---------------------------------------------------------------- helpers
+/** An add-on theme chosen in View › Theme ("addon:<id>:<theme>"), if it's installed and on. */
+function addonTheme() {
+  const m = /^addon:([a-z0-9-]+):([a-z0-9-]+)$/.exec(settings.get().theme || '');
+  if (!m || !addonOn(m[1])) return null;
+  const th = addonStore?.get(m[1])?.manifest.themes.find((x) => x.id === m[2]);
+  return th ? { key: `${m[1]}:${m[2]}`, theme: th } : null;
+}
+const addonOn = (id) => !!addonStore?.get(id) && !addonStore.get(id).error && !settings.get().addonsOff.includes(id);
+
 function resolvedTheme() {
   const t = settings.get().theme;
+  if (t.startsWith('addon:')) return addonTheme()?.theme.tone === 'dark' ? 'dark' : 'light';   // an add-on's colours go over this
   return t === 'system' ? (nativeTheme.shouldUseDarkColors ? 'dark' : 'light') : t;
 }
 
 function rendererSettings() {
-  return { ...settings.get(), lang: currentLanguage(), resolvedTheme: resolvedTheme(), paperAuto: publish.resolvePaper('auto', app.getLocaleCountryCode()), positions: undefined, session: undefined };
+  const at = addonTheme();
+  return { ...settings.get(), lang: currentLanguage(), addons: addonInfo(), addonTheme: at ? at.key : '', addonThemeCss: at ? addons.themeCss(at.key, at.theme) : '', resolvedTheme: resolvedTheme(), paperAuto: publish.resolvePaper('auto', app.getLocaleCountryCode()), positions: undefined, session: undefined };
 }
 
 function visibleOnSomeDisplay(b) {
@@ -634,6 +649,7 @@ function rebuildMenu() {
             cmd('export-epub', 'E-book (.epub)…'),
             cmd('export-slides', 'Slides as PDF…'),
             cmd('export-pptx', 'Slides as PowerPoint (.pptx)…'),
+            ...addonExportItems(),
           ],
         },
         { id: 'print', label: 'Print…', accelerator: 'CmdOrCtrl+P', click: () => targetState()?.win.webContents.print({ printBackground: true }) },
@@ -698,10 +714,12 @@ function rebuildMenu() {
     {
       label: '&View',
       submenu: [
-        { label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast')] },
+        { label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast'),
+          ...addonThemeItems(s)] },
         { label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif')] },
         { label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] },
         cmd('customize-theme', 'Customize Theme…'),
+        cmd('addons', 'Add-ons…'),
         { label: 'Language', submenu: [
           { id: 'language-system', label: 'System Default', type: 'radio', checked: !i18n.CODES.has(s.language), click: () => setSetting({ language: 'system' }) },
           { type: 'separator' },
@@ -1042,6 +1060,91 @@ async function openDailyNote(st) {
     }
     sendDoc(st, 'tab:open', await loadDoc(file));
   } catch (err) { st.win.webContents.send('doc:error', { message: errorMessage(err, file) }); }
+}
+
+// ---------------------------------------------------------------- add-ons (3.0)
+/** What the page needs to know about installed add-ons. */
+function addonInfo() {
+  if (!addonStore) return [];
+  return addonStore.list().map(({ manifest: m, error }) => ({
+    id: m.id, name: m.name, version: m.version, author: m.author || '', description: m.description || '', error: error || '',
+    enabled: !error && !settings.get().addonsOff.includes(m.id), capabilities: error ? [] : addons.capabilities(m),
+    themes: m.themes.map((th) => ({ key: `${m.id}:${th.id}`, name: th.name, tone: th.tone })),
+    blocks: m.codeBlocks.map((b) => b.language),
+    exports: m.exports.map((e) => ({ id: e.id, name: e.name, extension: e.extension })),
+  }));
+}
+
+function addonThemeItems(s) {
+  const items = [];
+  for (const { manifest: m } of addonStore?.list() || []) {
+    if (!addonOn(m.id)) continue;
+    for (const th of m.themes) items.push({ label: `${th.name} (${m.name})`, type: 'radio', checked: s.theme === `addon:${m.id}:${th.id}`, click: () => setSetting({ theme: `addon:${m.id}:${th.id}` }) });
+  }
+  return items.length ? [{ type: 'separator' }, ...items] : [];
+}
+
+function addonExportItems() {
+  const items = [];
+  for (const { manifest: m } of addonStore?.list() || []) {
+    if (!addonOn(m.id)) continue;
+    for (const e of m.exports) {
+      items.push({ label: `${e.name} (.${e.extension})…`, click: () => targetState()?.win.webContents.send('menu:command', { cmd: 'addon-export', arg: { id: m.id, exportId: e.id } }) });
+    }
+  }
+  return items.length ? [{ type: 'separator' }, ...items] : [];
+}
+
+/** Run one of an add-on's scripts in the sealed sandbox. Resolves to its result, or throws a plain error. */
+async function runAddon(id, rel, input, timeoutMs) {
+  const source = await addonStore.script(id, rel);
+  addonSandbox ??= new CodeSandbox({ dir: path.join(ROOT, 'dist', 'sandbox'), devTools: false });
+  const res = await addonSandbox.run({ lang: 'javascript', code: addons.sandboxProgram(source, input), timeoutMs });
+  if (res.timedOut) throw new Error('The add-on took too long and was stopped.');
+  if (res.error) throw new Error(`The add-on failed: ${String(res.error).slice(0, 300)}`);
+  try { return JSON.parse(res.result ?? 'null'); } catch { throw new Error('The add-on gave an answer the app can’t use.'); }
+}
+
+/** Read an add-on package the reader chose: a .nmraddon / .zip, or an addon.json in a folder. */
+async function readAddonPackage(file) {
+  const stat = await fs.promises.stat(file);
+  if (!stat.isFile() || stat.size > 8 * 1024 * 1024) return { error: 'That file is too large to be an add-on.' };
+  if (path.basename(file).toLowerCase() === 'addon.json') {
+    const base = path.dirname(file);
+    const files = { 'addon.json': await fs.promises.readFile(file) };
+    let m;
+    try { m = JSON.parse(String(files['addon.json'])); } catch { return { error: 'Its addon.json isn’t valid JSON.' }; }
+    for (const s of [...(Array.isArray(m.codeBlocks) ? m.codeBlocks : []), ...(Array.isArray(m.exports) ? m.exports : [])]) {
+      const rel = addons.scriptPath(s?.script);
+      if (!rel || files[rel]) continue;
+      try { files[rel] = await fs.promises.readFile(path.join(base, ...rel.split('/'))); } catch { /* reported as missing */ }
+    }
+    return addons.checkPackage(files);
+  }
+  let entries;
+  try { entries = publish.exportTools(ROOT).unzipAddon(await fs.promises.readFile(file)); } catch (err) { return { error: err.message || 'That isn’t an add-on package.' }; }
+  const pkg = addons.packageFiles(entries);
+  return pkg.error ? pkg : addons.checkPackage(pkg.files);
+}
+
+async function installAddon(st) {
+  const res = await dlg.showOpenDialog(st.win, { title: 'Install Add-on', properties: ['openFile'], filters: [{ name: 'Add-on', extensions: ['nmraddon', 'zip', 'json'] }] });
+  if (res.canceled || !res.filePaths[0]) return { canceled: true };
+  const pkg = await readAddonPackage(res.filePaths[0]);
+  if (pkg.error) return { error: `That add-on can’t be installed: ${t(pkg.error)}` };
+  const m = pkg.manifest;
+  const old = addonStore.get(m.id);
+  const caps = addons.capabilities(m).map((c) => `• ${t(c)}`).join('\n');
+  const { response } = await dlg.showMessageBox(st.win, {
+    type: 'question', title: 'Install add-on?', noLink: true, buttons: [old ? 'Update' : 'Install', 'Cancel'], defaultId: 1, cancelId: 1,
+    message: old && old.manifest.version ? `Update “${m.name}” from ${old.manifest.version} to ${m.version}?` : `Install “${m.name}” ${m.version}?`,
+    detail: `${m.author ? `By ${m.author}. ` : ''}It will:\n${caps}\n\nAdd-on code runs in a sealed sandbox: it can’t use the internet, read your files or change your documents. Only install add-ons from people you trust.`,
+  });
+  if (response !== 0) return { canceled: true };
+  try { await addonStore.install(pkg); } catch (err) { return { error: errorMessage(err, m.id) }; }
+  if (settings.get().addonsOff.includes(m.id)) settings.update({ addonsOff: settings.get().addonsOff.filter((x) => x !== m.id) });
+  broadcastSettings();
+  return { ok: true, id: m.id };
 }
 
 // ---------------------------------------------------------------- IPC
@@ -1690,6 +1793,74 @@ function registerIpc() {
     } finally { aiRuns.delete(req.id); }
   });
 
+  // ---- add-ons
+  ipcMain.handle('addons:list', () => addonInfo());
+  ipcMain.handle('addons:install', async (e) => { const st = stateFor(e); return st ? installAddon(st) : { error: 'invalid' }; });
+  ipcMain.handle('addons:set-enabled', (_e, id, on) => {
+    if (!isStr(id, 40) || !addonStore?.get(id)) return addonInfo();
+    const off = settings.get().addonsOff.filter((x) => x !== id);
+    settings.update({ addonsOff: on ? off : [...off, id] });
+    broadcastSettings();
+    return addonInfo();
+  });
+  ipcMain.handle('addons:remove', async (e, id) => {
+    const st = stateFor(e);
+    const item = isStr(id, 40) && addonStore?.get(id);
+    if (!st || !item) return { error: 'invalid' };
+    const { response } = await dlg.showMessageBox(st.win, {
+      type: 'question', title: 'Remove add-on?', noLink: true, buttons: ['Remove', 'Cancel'], defaultId: 0, cancelId: 1,
+      message: `Remove “${item.manifest.name}”?`, detail: 'Its themes, code-block types and export formats will no longer be available. Your documents aren’t changed.',
+    });
+    if (response !== 0) return { canceled: true };
+    await addonStore.remove(id);
+    settings.update({ addonsOff: settings.get().addonsOff.filter((x) => x !== id), ...(settings.get().theme.startsWith(`addon:${id}:`) ? { theme: 'system' } : {}) });
+    broadcastSettings();
+    return { ok: true };
+  });
+  // Draw a code block with an add-on: its script gets the block's text and returns HTML or SVG (sanitized by the page).
+  ipcMain.handle('addons:render', async (_e, req = {}) => {
+    const item = isStr(req.id, 40) && addonOn(req.id) ? addonStore.get(req.id) : null;
+    const block = item?.manifest.codeBlocks.find((b) => b.language === req.language);
+    if (!block || typeof req.code !== 'string' || req.code.length > 100_000) return { error: 'invalid' };
+    try {
+      const out = await runAddon(req.id, block.script, { code: req.code, language: block.language }, 5000);
+      if (typeof out !== 'string') return { error: 'The add-on gave an answer the app can’t use.' };
+      return out.length > 2_000_000 ? { error: 'The add-on’s drawing is too large.' } : { html: out };
+    } catch (err) { return { error: err.message }; }
+  });
+  // Export with an add-on: its script gets the document and returns the new file's text (or base64 bytes).
+  ipcMain.handle('addons:export', async (e, req = {}) => {
+    const st = stateFor(e);
+    const item = st && isStr(req.id, 40) && addonOn(req.id) ? addonStore.get(req.id) : null;
+    const ex = item?.manifest.exports.find((x) => x.id === req.exportId);
+    const d = req.doc || {};
+    if (!ex || typeof d.markdown !== 'string' || d.markdown.length > 20_000_000) return { error: 'invalid' };
+    const doc = {
+      title: isStr(d.title, 1000) ? d.title : '', name: isStr(d.name, 500) ? d.name : '', markdown: d.markdown,
+      html: typeof d.html === 'string' && d.html.length < 40_000_000 ? d.html : '',
+      headings: Array.isArray(d.headings) ? d.headings.slice(0, 5000).filter((h) => h && isStr(h.text, 1000) && Number.isInteger(h.level)).map((h) => ({ level: h.level, text: h.text, id: isStr(h.id, 500) ? h.id : '' })) : [],
+    };
+    let out;
+    try { out = await runAddon(req.id, ex.script, doc, 20_000); } catch (err) { return { error: err.message }; }
+    let data;
+    if (typeof out === 'string') data = Buffer.from(out, 'utf8');
+    else if (out && typeof out.base64 === 'string') data = Buffer.from(out.base64, 'base64');
+    else return { error: 'The add-on gave an answer the app can’t use.' };
+    if (data.length > 50 * 1024 * 1024) return { error: 'The exported file would be too large.' };
+    const current = st.tabs[st.active]?.path;
+    const base = current ? path.basename(current).replace(/\.[^.]+$/, '') : 'document';
+    const res = await dlg.showSaveDialog(st.win, {
+      title: `Export as ${ex.name}`, defaultPath: path.join(current ? path.dirname(current) : app.getPath('documents'), `${base}.${ex.extension}`),
+      filters: [{ name: ex.name, extensions: [ex.extension] }],
+    });
+    if (res.canceled || !res.filePath) return { canceled: true };
+    let target = res.filePath;
+    if (path.extname(target).toLowerCase() !== `.${ex.extension}`) target += `.${ex.extension}`;
+    try { await fs.promises.writeFile(target, data); } catch (err) { return { error: errorMessage(err, target) }; }
+    if (!process.env.NMR_NO_REVEAL) shell.showItemInFolder(target);
+    return { ok: true, path: target };
+  });
+
   // ---- commands by name (Quick Open ">") and your own shortcuts
   ipcMain.handle('commands:list', () => commandList());
   ipcMain.handle('commands:run', (_e, key) => {
@@ -1734,6 +1905,7 @@ app.whenReady().then(() => {
   history = new HistoryStore(path.join(app.getPath('userData'), 'history'));
   editing = new Editing({ settings, dialog: dlg, backupDir: backupDir(), defaultDir: app.getPath('documents'), sealLocked, history });
   annotations = new AnnotationStore(app.getPath('userData'));
+  addonStore = new addons.AddonStore(path.join(app.getPath('userData'), 'addons')).load();
   // Documents never need camera, mic, notifications, etc.; only clipboard writes for "Copy".
   session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));
   nativeTheme.on('updated', () => { if (settings.get().theme === 'system') broadcastSettings(); });

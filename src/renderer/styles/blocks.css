@@ -32,6 +32,10 @@
   .markdown-body .chart-svg text { fill: CanvasText !important; }
 }
 
+/* ---------- 3.0: code blocks drawn by add-ons */
+.markdown-body figure.addon-block { margin: 0 0 1.2em; overflow-x: auto; }
+.markdown-body figure.addon-block > svg { display: block; max-width: 100%; height: auto; }
+
 /* ---------- slides (presentation mode, and slides exported as PDF) */
 .present-slide.markdown-body { box-sizing: border-box; width: 1280px; height: 720px; padding: 64px 96px; font-size: 30px; line-height: 1.45;
   display: flex; flex-direction: column; justify-content: flex-start; overflow: hidden; }

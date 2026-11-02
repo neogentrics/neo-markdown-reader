@@ -110,7 +110,7 @@ export function blocksOf(el, out = []) {
     inline = null;
   };
   for (const child of el.childNodes) {
-    const isBlock = child.nodeType === 1 && (BLOCK_TAGS.has(child.tagName) || child.classList?.contains('mermaid-diagram') || child.classList?.contains('chart')
+    const isBlock = child.nodeType === 1 && (BLOCK_TAGS.has(child.tagName) || child.classList?.contains('mermaid-diagram') || child.classList?.contains('chart') || child.classList?.contains('addon-block')
       || child.classList?.contains('katex-display'));
     if (!isBlock) {
       if (child.nodeType === 1 && child.matches(SKIP)) continue;
@@ -160,7 +160,7 @@ function tableOf(el) {
 function block(el, out) {
   const tag = el.tagName;
   if (el.matches(SKIP)) return;
-  if (el.classList.contains('mermaid-diagram') || el.classList.contains('chart')) {
+  if (el.classList.contains('mermaid-diagram') || el.classList.contains('chart') || (el.classList.contains('addon-block') && el.querySelector(':scope > svg'))) {
     const svg = el.querySelector('svg');
     if (svg) out.push(graphic(el, 'diagram'));
     else out.push({ t: 'p', runs: [{ text: el.textContent.trim(), i: true }] });

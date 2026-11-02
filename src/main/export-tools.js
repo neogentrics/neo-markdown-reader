@@ -540,7 +540,23 @@ function fixParagraphs(buf) {
   return Buffer.from(zipSync(files, { level: 6 }));
 }
 
+/** Unpack an add-on package (zip) safely: limited size and file count; names are checked by addons.js. */
+function unzipAddon(buf) {
+  const { unzipSync } = require('fflate');
+  let total = 0;
+  let count = 0;
+  const filter = (f) => {
+    count += 1;
+    total += f.originalSize;
+    if (count > 200 || f.originalSize > 1024 * 1024 || total > 4 * 1024 * 1024) throw new Error('It’s too large to be an add-on.');
+    return true;
+  };
+  try { return unzipSync(new Uint8Array(buf), { filter }); } catch (err) {
+    throw new Error(/too large/.test(err.message) ? err.message : 'That isn’t an add-on package (.nmraddon or .zip).');
+  }
+}
+
 // The Anthropic SDK rides in the same bundle (used by AI assist).
 const Anthropic = require('@anthropic-ai/sdk');
 
-module.exports = { Anthropic: Anthropic.default || Anthropic, buildEpub, buildPptx, docxToMarkdown, readOutline, pagesForEntries, finishPdf, collectAssets, buildDocx, bookmarkName, PAPER_IN, MARGIN_IN };
+module.exports = { Anthropic: Anthropic.default || Anthropic, unzipAddon, buildEpub, buildPptx, docxToMarkdown, readOutline, pagesForEntries, finishPdf, collectAssets, buildDocx, bookmarkName, PAPER_IN, MARGIN_IN };

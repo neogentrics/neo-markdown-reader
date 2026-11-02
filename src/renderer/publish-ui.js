@@ -74,7 +74,7 @@ export function epubFor(live, { title = '' } = {}) {
     d.replaceWith(fig);
   });
   // Charts keep their drawing, with plain colours instead of theme variables.
-  clone.querySelectorAll('.chart-svg [style], .chart-svg').forEach((el) => {
+  clone.querySelectorAll('.chart-svg [style], .chart-svg, .addon-block [style]').forEach((el) => {
     const st = el.getAttribute('style');
     if (st) el.setAttribute('style', st.replace(/var\(--[\w-]+,\s*([^)]+)\)/g, '$1'));
   });

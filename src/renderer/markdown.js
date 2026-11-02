@@ -261,7 +261,25 @@ export function createRenderer(window) {
     WHOLE_DOCUMENT: false,
   };
 
-  return function render(markdown, { baseUrl = '', wiki = null } = {}) {
+  /**
+   * Sanitize HTML from an add-on (3.0) like a document, then remove anything that would reach the web
+   * (pictures, links, styles that load from a URL): add-ons can't use the internet, even through the page.
+   */
+  function sanitizeAddon(html) {
+    const clean = purify.sanitize(String(html ?? ''), { ...purifyConfig, RETURN_DOM_FRAGMENT: true, FORBID_TAGS: [...purifyConfig.FORBID_TAGS, 'img', 'video', 'audio', 'source', 'track', 'picture', 'image', 'use', 'a', 'link', 'style'] });
+    for (const el of clean.querySelectorAll('*')) {
+      for (const at of [...el.attributes]) {
+        const v = at.value || '';
+        if (/^(src|srcset|href|xlink:href|poster|background|action)$/i.test(at.name) && !/^#/.test(v)) el.removeAttribute(at.name);
+        else if (at.name === 'style' && /url\s*\(|@import|expression\s*\(/i.test(v)) el.removeAttribute('style');
+      }
+    }
+    const box = window.document.createElement('div');
+    box.appendChild(clean);
+    return box.innerHTML;
+  }
+
+  const render = function render(markdown, { baseUrl = '', wiki = null } = {}) {
     const state = { frontMatterRaw: null };
     const md = buildMarkdownIt(state);
     const src = String(markdown ?? '').replace(/^﻿/, '');
@@ -286,4 +304,6 @@ export function createRenderer(window) {
     const dir = fmDir === 'rtl' || fmDir === 'ltr' ? fmDir : RTL_LANGS.test(fmLang) ? 'rtl' : '';
     return { html, toc, title, frontMatter: fm, dir, lang: /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(fmLang) ? fmLang : '', stats: { words, minutes: Math.max(1, Math.round(words / 230)) } };
   };
+  render.sanitizeAddon = sanitizeAddon;
+  return render;
 }
