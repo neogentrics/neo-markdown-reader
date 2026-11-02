@@ -74,6 +74,28 @@ function messageStrings(src) {
   return [...out].filter(isText);
 }
 
+/** Text inside HTML the page builds in code (innerHTML snippets): each piece between tags is translated on its own. */
+function htmlStrings(src) {
+  const out = new Set();
+  const { document } = new JSDOM('').window;
+  for (const m of src.matchAll(STR)) {
+    if (!/<(?:div|p|span|b|strong|em|li|ul|button|label|small|h\d|a|td|th|section|header|footer|figure|figcaption)\b[^<]*>/i.test(m[0])) continue;
+    const box = document.createElement('div');
+    box.innerHTML = literal(m[0]);
+    const walker = document.createTreeWalker(box, 4);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      if (n.parentElement.closest('code, kbd, [translate="no"]')) continue;
+      const s = n.nodeValue.replace(/\s+/g, ' ').trim();
+      if (isText(s) && !/^\{\d\}$/.test(s) && !/;\s|\('/.test(s)) out.add(s);
+      else if (/^[.,;:!?]\s*[A-Za-z]{2}/.test(s) && !/\('/.test(s)) out.add(s);          // a sentence after a tag (reported so it gets translated too)
+    }
+    for (const el of box.querySelectorAll('[title], [aria-label], [placeholder]')) {
+      for (const a of ['title', 'aria-label', 'placeholder']) { const v = el.getAttribute(a); if (isText(v) && !/^\{\d\}$/.test(v.trim())) out.add(v.trim()); }
+    }
+  }
+  return [...out];
+}
+
 export function collect() {
   const main = read('src/main/main.js');
   const mainSide = ['src/main/main.js', 'src/main/editing.js', 'src/main/updater.js'].map(read).join('\n');
@@ -83,6 +105,7 @@ export function collect() {
     dialogs: dialogStrings(mainSide),
     page: pageStrings(read('src/renderer/index.html')),
     messages: messageStrings(renderer),
+    html: htmlStrings(renderer),
   };
 }
 

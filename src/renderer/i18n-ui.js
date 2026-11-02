@@ -8,7 +8,7 @@ const ATTRS = ['title', 'aria-label', 'placeholder'];
 // Your content, never translated: documents, the editor, and names taken from files and documents.
 const SKIP = [
   '.markdown-body', '.cm-editor', '.cm-tooltip', '[translate="no"]', 'script', 'style', 'kbd', 'code', 'pre', 'textarea',
-  '.tab-label', '.file-name', '.file-sub', '.toc', '.hit-text', '.search-file-head', '.backlink', '.task-text', '.tag-chip',
+  '.tab-label', '.file-name', '.file-sub', '.toc-item', '.hit-text', '.search-file-head', '.backlink', '.task-text', '.tag-chip',
   '.r-name', '.r-path', '.tb-title-name', '.tb-title-meta', '.palette-item', '.hl-item', '.map-svg', '.ask-file', '.check-hit code',
 ].join(', ');
 

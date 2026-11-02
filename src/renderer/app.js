@@ -555,6 +555,7 @@ function buildToc(toc) {
     a.dataset.id = h.id;
     a.style.setProperty('--indent', h.level - min);
     a.className = 'toc-item lvl-' + h.level;
+    a.dir = 'auto';                      // Arabic or Hebrew headings line up on the right
     a.onclick = (e) => { e.preventDefault(); scrollToId(h.id); };
     els.toc.appendChild(a);
   }

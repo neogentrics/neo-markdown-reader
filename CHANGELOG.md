@@ -4,6 +4,26 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.0.0] - 2026-11-02
+
+### Added
+- **The app in your language:** Spanish, French and German, as well as English. It follows your computer's
+  language, or choose one in *View → Language*. Menus, buttons, dialogs and messages are translated;
+  documents, file names and notes are shown as written.
+- **Right-to-left documents:** Arabic, Hebrew, Persian, Urdu and other right-to-left text reads right to
+  left. Each block follows its own text, lists, quotes and tables that start in a right-to-left language
+  turn as a whole, and `lang: ar` or `dir: rtl` in the front matter turns the whole document. The outline
+  and every export keep the direction; e-books read right to left.
+- **Add-ons** (*View → Add-ons…*): install `.nmraddon` packages that add code-block types, export formats
+  and colour themes. You see what each one adds and approve it first; its code runs in the sealed sandbox
+  and what it draws is sanitized. Turn add-ons off or remove them in the same window. A guide for writing
+  them is in `docs/addons.md`, with a sample add-on in `samples/addons/neo-extras`.
+
+### Changed
+- The header card no longer lists `lang`, `language` or `dir` from the front matter: they set how the
+  document is read.
+- E-books take their language from the document (`lang:`), or your computer's language.
+
 ## [2.4.0] - 2026-11-02
 
 ### Added

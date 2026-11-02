@@ -201,8 +201,10 @@ function fmValue(v) {
 }
 
 function renderFrontMatter(data) {
-  const { title, subtitle, description, author, date, tags, logo, ...rest } = data;   // logo: used on PDF cover pages
+  // logo: used on PDF cover pages; lang / language and dir: how the document is read (3.0), not shown.
+  const { title, subtitle, description, author, date, tags, logo, lang, language, dir, ...rest } = data;
   let out = '<header class="doc-meta">';
+  const start = out.length;
   if (title) out += `<div class="doc-meta-title">${escapeHtml(fmValue(title))}</div>`;
   if (subtitle || description) out += `<div class="doc-meta-sub">${escapeHtml(fmValue(subtitle || description))}</div>`;
   const line = [author && fmValue(author), date && fmValue(date instanceof Date ? date.toISOString().slice(0, 10) : date)].filter(Boolean);
@@ -213,7 +215,7 @@ function renderFrontMatter(data) {
   if (keys.length) {
     out += '<dl class="doc-meta-extra">' + keys.map((k) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(fmValue(rest[k]))}</dd>`).join('') + '</dl>';
   }
-  return out + '</header>';
+  return out.length === start ? '' : out + '</header>';
 }
 
 function collectToc(tokens) {

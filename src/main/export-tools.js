@@ -339,7 +339,7 @@ const xmlEsc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;
 
 /**
  * Build an EPUB 3 e-book (with an EPUB 2 table of contents for older readers).
- * book: { title, author, lang, id, chapters: [{ file, title, xhtml }], toc: [{ file, id, text, level }],
+ * book: { title, author, lang, dir, id, chapters: [{ file, title, xhtml }], toc: [{ file, id, text, level }],
  *         css, images: [{ name, data, mime }], props: { [file]: 'svg mathml' } }
  */
 function buildEpub(book) {
@@ -348,7 +348,7 @@ function buildEpub(book) {
   const lang = book.lang || 'en';
   const page = (title, body, file) => `<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${xmlEsc(lang)}" lang="${xmlEsc(lang)}">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${xmlEsc(lang)}" lang="${xmlEsc(lang)}"${book.dir === 'rtl' ? ' dir="rtl"' : ''}>
 <head><meta charset="utf-8"/><title>${xmlEsc(title)}</title><link rel="stylesheet" type="text/css" href="style.css"/></head>
 <body class="${file === 'nav.xhtml' ? 'nav' : 'chapter'}">${body}</body>
 </html>`;
@@ -391,7 +391,7 @@ ${book.author ? `<dc:creator>${xmlEsc(book.author)}</dc:creator>` : ''}
 <meta property="dcterms:modified">${modified}</meta>
 </metadata>
 <manifest>${manifest.join('\n')}</manifest>
-<spine toc="ncx">${book.chapters.map((_, i) => `<itemref idref="c${i + 1}"/>`).join('')}</spine>
+<spine toc="ncx"${book.dir === 'rtl' ? ' page-progression-direction="rtl"' : ''}>${book.chapters.map((_, i) => `<itemref idref="c${i + 1}"/>`).join('')}</spine>
 </package>`;
   const files = {
     mimetype: [strToU8('application/epub+zip'), { level: 0 }],                       // must come first, uncompressed

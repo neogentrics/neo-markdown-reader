@@ -21,9 +21,9 @@ Open the shop in spring.
 ## Outline
 
 \`\`\`timeline
-2026-03 Design
-2026-04 Build
-2026-05 Launch
+2026-03: Design
+2026-04: Build
+2026-05: Launch
 \`\`\`
 
 ## Budget

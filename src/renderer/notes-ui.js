@@ -30,7 +30,7 @@ export function createNotesUi(ctx) {
     bl.box.hidden = false;
     bl.count.textContent = String(list.length);
     bl.list.replaceChildren();
-    if (!list.length) { bl.list.innerHTML = '<div class="side-empty">No other document in this folder links here yet. Link to it with <code>[[' + esc(baseName(tab.doc.path).replace(/\.[^.]+$/, '')) + ']]</code>.</div>'; return; }
+    if (!list.length) { bl.list.innerHTML = '<div class="side-empty">No other document in this folder links here yet. Link to it with <code dir="auto">[[' + esc(baseName(tab.doc.path).replace(/\.[^.]+$/, '')) + ']]</code>.</div>'; return; }
     for (const b of list) {
       const btn = document.createElement('button');
       btn.className = 'backlink';

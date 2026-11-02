@@ -55,7 +55,7 @@ test('every menu, dialog and screen text is translated into Spanish, French and 
   const brand = new Set(['Neo Markdown Reader', 'No window', '{0} — Neo Markdown Reader']);
   for (const code of ['es', 'fr', 'de']) {
     const t = i18n.createTranslator(code);
-    for (const group of ['menus', 'dialogs', 'page']) {
+    for (const group of ['menus', 'dialogs', 'page', 'html']) {
       const missing = all[group].filter((s) => !brand.has(s) && !t.has(s));
       assert.deepEqual(missing, [], `${code} ${group}`);
     }
@@ -76,6 +76,7 @@ test('right-to-left: blocks follow their own text; lists, quotes and tables that
   const { html, dir, lang } = render('---\nlang: ar\n---\n# مرحبا\n\nنص عربي\n\n- أول\n- ثاني\n\n> اقتباس\n\n| عمود |\n|---|\n| ١ |\n\nEnglish paragraph.\n\n- English list');
   assert.equal(dir, 'rtl');
   assert.equal(lang, 'ar');
+  assert.doesNotMatch(html, /doc-meta/, 'lang and dir are settings, not shown in the header card');
   assert.match(html, /<h1 id="[^"]*" dir="auto"/);
   assert.match(html, /<ul dir="rtl"[^>]*>\n<li dir="auto"/);
   assert.match(html, /<blockquote dir="rtl"/);
@@ -158,4 +159,37 @@ test('what an add-on draws is sanitized like a document, and can’t reach the w
   assert.doesNotMatch(out, /evil\.example|<script|onclick|<img|<a |<image|<link/);
   assert.match(out, /<circle r="2">/, 'a style that loads from a URL is dropped');
   assert.match(out, /<div style="color:red">ok<\/div>/);
+});
+
+test('exports carry the document’s language and direction: PDF pages, web page and e-book', async () => {
+  const publish = require('../src/main/publish.js');
+  const options = { paper: 'a4', margins: 'normal', contents: false, cover: false };
+  const meta = { name: 'a.md', title: 'دليل', lang: 'ar', dir: 'rtl' };
+  const body = publish.buildBodyHtml({ content: '<p>مرحبا</p>', meta, options, css: '', cssHref: 'file:///x.css', theme: 'light', font: 'sans' });
+  assert.match(body, /<html lang="ar" dir="rtl" class="publish-root"/);
+  const page = await publish.buildStandaloneHtml({ content: '<p>مرحبا</p>', meta, css: '', exportCss: '', distDir: tmpdir() });
+  assert.match(page, /<html lang="ar" dir="rtl" class="publish-root"/);
+  assert.match(publish.buildBodyHtml({ content: '<p>x</p>', meta: { name: 'a.md', lang: 'x"><script>' }, options, css: '', cssHref: 'file:///x.css' }), /<html lang="en" class/, 'a bad language code is ignored');
+  const { unzipSync, strFromU8 } = await import('fflate');
+  const files = unzipSync(tools.buildEpub({ title: 'دليل', author: '', lang: 'ar', dir: 'rtl', id: 'urn:uuid:1', chapters: [{ file: 'chapter-1.xhtml', title: 'دليل', xhtml: '<p>مرحبا</p>' }], toc: [], css: '', images: [], props: {} }));
+  assert.match(strFromU8(files['OEBPS/content.opf'] || files[Object.keys(files).find((f) => f.endsWith('.opf'))]), /<spine toc="ncx" page-progression-direction="rtl">/);
+  assert.match(strFromU8(files[Object.keys(files).find((f) => f.endsWith('chapter-1.xhtml'))]), /xml:lang="ar" lang="ar" dir="rtl"/);
+});
+
+test('every file the main process loads from outside src/main is packaged into the app', async () => {
+  const { readdirSync } = await import('node:fs');
+  const { resolve, relative, dirname } = await import('node:path');
+  const root = join(import.meta.dirname, '..');
+  const files = require('../package.json').build.files;
+  const globs = files.map((g) => new RegExp(`^${g.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*\*/g, '\u0000').replace(/\*/g, '[^/]*').replace(/\u0000/g, '.*')}$`));
+  const mainDir = join(root, 'src', 'main');
+  const outside = [];
+  for (const f of readdirSync(mainDir).filter((x) => x.endsWith('.js'))) {
+    for (const m of readFileSync(join(mainDir, f), 'utf8').matchAll(/require\((['"])(\.\.?\/[^'"]+)\1\)/g)) {
+      const rel = relative(root, resolve(dirname(join(mainDir, f)), m[2])).split('\\').join('/');
+      if (!rel.startsWith('src/main/')) outside.push(rel);
+    }
+  }
+  assert.ok(outside.includes('src/locales/es.json'), 'the translations are found');
+  for (const rel of outside) assert.ok(globs.some((g) => g.test(rel) || g.test(`${rel}.js`)), `${rel} isn’t in package.json build.files`);
 });

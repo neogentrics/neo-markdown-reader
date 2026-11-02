@@ -1,0 +1,25 @@
+en	es	fr	de
+No documents match.	Ningún documento coincide.	Aucun document ne correspond.	Keine passenden Dokumente.
+Close tab (Ctrl+W)	Cerrar pestaña (Ctrl+W)	Fermer l’onglet (Ctrl+W)	Tab schließen (Strg+W)
+No headings in this document.	Este documento no tiene títulos.	Ce document n’a pas de titres.	Dieses Dokument hat keine Überschriften.
+{0} line{1} added	{0} línea(s) añadida(s)	{0} ligne(s) ajoutée(s)	{0} Zeile(n) hinzugefügt
+{2} removed	{2} eliminada(s)	{2} supprimée(s)	{2} entfernt
+Highlights are saved per file. Open a saved document to see them.	Los resaltados se guardan por archivo. Abra un documento guardado para verlos.	Les surlignages sont enregistrés par fichier. Ouvrez un document enregistré pour les voir.	Markierungen werden pro Datei gespeichert. Öffnen Sie ein gespeichertes Dokument, um sie zu sehen.
+No highlights yet.	Aún no hay resaltados.	Aucun surlignage pour l’instant.	Noch keine Markierungen.
+Select text on the page and choose	Seleccione texto en la página y elija	Sélectionnez du texte sur la page et choisissez	Markieren Sie Text auf der Seite und wählen Sie
+. Highlights are private: they’re stored by the app, never written into the file.	. Los resaltados son privados: los guarda la aplicación y nunca se escriben en el archivo.	. Les surlignages sont privés : l’application les conserve, ils ne sont jamais écrits dans le fichier.	. Markierungen sind privat: Die App speichert sie, sie werden nie in die Datei geschrieben.
+No commands match.	Ningún comando coincide.	Aucune commande ne correspond.	Keine passenden Befehle.
+{0} is already used by	{0} ya está asignado a	{0} est déjà utilisé par	{0} wird bereits verwendet von
+This document is locked	Este documento está bloqueado	Ce document est verrouillé	Dieses Dokument ist gesperrt
+A forgotten password can’t be recovered — not even by Neo Markdown Reader.	Una contraseña olvidada no se puede recuperar, ni siquiera Neo Markdown Reader puede hacerlo.	Un mot de passe oublié ne peut pas être récupéré, pas même par Neo Markdown Reader.	Ein vergessenes Passwort lässt sich nicht wiederherstellen – auch nicht durch Neo Markdown Reader.
+This chart can’t be drawn:	No se puede dibujar este gráfico:	Ce graphique ne peut pas être dessiné :	Dieses Diagramm kann nicht gezeichnet werden:
+No other document in this folder links here yet. Link to it with	Ningún otro documento de esta carpeta enlaza aquí todavía. Enlácelo con	Aucun autre document de ce dossier ne pointe encore ici. Créez un lien avec	Noch kein anderes Dokument in diesem Ordner verlinkt hierher. Verlinken Sie es mit
+Open a folder to see every task (	Abra una carpeta para ver todas las tareas (	Ouvrez un dossier pour voir toutes les tâches (	Öffnen Sie einen Ordner, um alle Aufgaben (
+) in it, sorted by due date.	) que contiene, ordenadas por fecha límite.	) qu’il contient, triées par échéance.	) darin nach Fälligkeit sortiert zu sehen.
+🔒 Locked document	🔒 Documento bloqueado	🔒 Document verrouillé	🔒 Gesperrtes Dokument
+Unlock it to see what’s inside.	Desbloquéelo para ver su contenido.	Déverrouillez-le pour voir son contenu.	Entsperren Sie es, um den Inhalt zu sehen.
+Tagged #{0}	Con la etiqueta #{0}	Avec l’étiquette #{0}	Mit dem Tag #{0}
+Showing the first {0} files.	Se muestran los primeros {0} archivos.	Affichage des {0} premiers fichiers.	Die ersten {0} Dateien werden angezeigt.
+Find in Folder searches every Markdown file in an open folder.	Buscar en la carpeta busca en todos los archivos Markdown de una carpeta abierta.	Rechercher dans le dossier parcourt tous les fichiers Markdown d’un dossier ouvert.	„Im Ordner suchen“ durchsucht jede Markdown-Datei in einem geöffneten Ordner.
+Open a folder	Abrir una carpeta	Ouvrir un dossier	Ordner öffnen
+Accent {3}	Color de acento {3}	Couleur d’accent {3}	Akzentfarbe {3}

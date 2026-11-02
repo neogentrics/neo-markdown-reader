@@ -136,7 +136,7 @@ export function createPublish({ api, activeTab, settings, toast, themeCss }) {
     const root = document.documentElement;
     return {
       content: clone.innerHTML,
-      meta: { name: tab.doc.name, title: tab.result?.title || '', frontMatter: tab.result?.frontMatter || null, toc: tab.result?.toc || [], baseUrl: tab.doc.baseUrl || '' },
+      meta: { name: tab.doc.name, title: tab.result?.title || '', frontMatter: tab.result?.frontMatter || null, toc: tab.result?.toc || [], baseUrl: tab.doc.baseUrl || '', lang: tab.result?.lang || '', dir: tab.result?.dir || '' },
       css: themeCss(),
       theme: root.dataset.theme || 'light',
       font: root.dataset.font || 'sans',
@@ -159,7 +159,7 @@ export function createPublish({ api, activeTab, settings, toast, themeCss }) {
       const payload = { format, ...payloadFor(tab), options };
       if (format === 'docx') payload.model = buildModel(tab.el);
       if (format === 'txt') payload.text = toPlainText(buildModel(tab.el));
-      if (format === 'epub') Object.assign(payload, epubFor(tab.el, { title: tab.result?.title || tab.doc.name }), { lang: document.documentElement.lang || navigator.language || 'en' });
+      if (format === 'epub') Object.assign(payload, epubFor(tab.el, { title: tab.result?.title || tab.doc.name }), { lang: tab.result?.lang || navigator.language || 'en' });   // the document's language, not the app's
       if (format === 'slides' || format === 'pptx') {
         payload.slides = slidesFor(tab.el, format);
         if (!payload.slides.length) { toast('This document is empty'); return null; }

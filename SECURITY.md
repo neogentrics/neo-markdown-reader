@@ -168,6 +168,27 @@ Markdown files are treated as **untrusted input**:
   locked document. The suggestion changes nothing until it's accepted, and only if the selected text is
   still unchanged.
 
+### Make it yours (since 3.0)
+
+- **Add-ons** are installed only after a native dialog (which the page can't fake) shows what each one adds
+  and the reader agrees. Packages are checked before anything is written: at most 4 MB and 200 files, no
+  file names with `..`, backslashes or drive letters, and only `addon.json` and the scripts it names are
+  kept. Each add-on lives in its own folder under the app's data folder and is checked again every time the
+  app starts.
+- **Add-on code** runs in the same sealed sandbox as ▶ Run (a separate hidden window in the sandbox's private
+  session): no internet, no files, no settings. Its input is passed as an escaped JSON string and parsed
+  there, so a document's text can't become code. It has 5 seconds to draw a block and 20 seconds to export,
+  and its answer is size-limited.
+- **What an add-on draws** is sanitized like a document, and more strictly: pictures, links, `<use>`,
+  `<style>` and any style or attribute that refers to a URL are removed, so it can't load anything from the
+  web or track the reader.
+- **Add-on exports** can't produce file types that could be run as programs (`.exe`, `.bat`, `.js`, `.sh`,
+  `.msi`, `.app` and others). The reader chooses where the file is saved, and the extension is forced.
+- **Add-on themes** are colours only (hex values); the app writes the CSS itself, and a theme that would be
+  hard to read (below 4.5:1 contrast) is refused.
+- **Translations** are built into the app; they're plain text looked up by the English original and are
+  never treated as HTML. Documents, file names and notes are never translated.
+
 ### AI assist (since 2.0)
 
 - Off by default. Requests are made only from an explicit menu command, contain only the current
