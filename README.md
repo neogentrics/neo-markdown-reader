@@ -277,6 +277,8 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
 
 ## Across your computers
 
+<img src="docs/screenshots/sync.png" width="860" alt="The Sync between computers window: on, last synced now, a sync folder in OneDrive, this computer named Office Desktop, and a Studio MacBook last seen 4 minutes ago">
+
 Read on one computer, pick up on another. *Edit → Sync Between Computers…* keeps these the same everywhere:
 
 - your **highlights and notes**,
