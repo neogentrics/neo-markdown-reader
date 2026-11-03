@@ -99,6 +99,12 @@ Reader** → tick **Always use this app**.
 background and offers *Restart to update*. The portable `.exe` and the Mac build tell you when a new
 version is out and link to the download. *(Coming from 1.0? Install 1.1 once by hand; after that it's automatic.)*
 
+**Which version do I have?** *Help → About Neo Markdown Reader* shows the version, what's new in it, the app's
+[website](https://recontowers.com/projects/neo-markdown-reader/), where to report a problem, and *Copy Version
+Details* for a bug report.
+
+<img src="docs/screenshots/about.png" width="860" alt="The About window: the Neo Markdown Reader icon, version 3.3.0, a short description, links to the website, what's new in this version, reporting a problem and the source code, the Electron, Chromium, Node and Windows versions, the copyright with License and Open-source notices links, and Copy Version Details and Done buttons">
+
 ## Creating and editing
 
 <img src="docs/screenshots/editor.png" width="860" alt="The editor beside the live preview, in the Night theme">

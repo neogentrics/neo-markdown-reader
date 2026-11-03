@@ -413,6 +413,27 @@
     <div class="grants-actions"><button type="button" class="big-btn sm" id="addons-install">Install Add-on…</button><span class="spacer"></span><button type="button" class="link-btn" id="addons-done">Done</button></div>
   </dialog>
 
+  <dialog class="shortcuts about-dlg" id="about-dlg" aria-labelledby="about-h">
+    <div class="ai-head"><span></span><button type="button" class="tb-btn sm" id="about-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="about-top">
+      <img class="about-logo" src="icon.png" alt="">
+      <div>
+        <h3 id="about-h">Neo Markdown Reader</h3>
+        <p class="about-version" id="about-version"></p>
+      </div>
+    </div>
+    <p class="about-blurb">A beautiful, distraction-free Markdown reader. Open a <code>.md</code> file and read it as a clean, well-laid-out page, then write, organize, publish and listen to it, with AI help from the service you choose.</p>
+    <ul class="about-links">
+      <li><a href="#" id="about-website">Website</a><span>Neo Markdown Reader on Recon Towers</span></li>
+      <li><a href="#" id="about-notes">What’s new in this version</a><span>Release notes on GitHub</span></li>
+      <li><a href="#" id="about-issue">Report a problem or suggest a feature</a><span>GitHub issues</span></li>
+      <li><a href="#" id="about-source">Source code</a><span translate="no">github.com/neogentrics/neo-markdown-reader</span></li>
+    </ul>
+    <p class="about-tech" id="about-tech" translate="no"></p>
+    <p class="about-legal"><span id="about-copyright"></span> · <a href="#" id="about-license">License</a> · <a href="#" id="about-notices">Open-source notices</a></p>
+    <div class="grants-actions"><button type="button" class="link-btn" id="about-copy">Copy Version Details</button><span class="spacer"></span><button type="button" class="big-btn sm" id="about-done">Done</button></div>
+  </dialog>
+
   <dialog class="shortcuts sync-dlg" id="sync-dlg" aria-labelledby="sync-h">
     <div class="ai-head"><h3 id="sync-h">Sync between computers</h3><button type="button" class="tb-btn sm" id="sync-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <p class="grants-intro">Keep your highlights, notes, bookmarks, recent files, reading positions and settings the same on every computer, through a folder you already sync with OneDrive, Dropbox, iCloud Drive or Google Drive. No account is needed: your cloud service moves the files.</p>

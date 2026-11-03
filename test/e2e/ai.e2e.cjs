@@ -177,6 +177,32 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await win.click('#ai-cancel');
   });
 
+  await step('Help → About: what the app is, its version, its website, and details for a bug report', async () => {
+    await app.evaluate(({ shell, clipboard }) => { global.__opened = []; shell.openExternal = async (u) => { global.__opened.push(u); }; clipboard.writeText(''); });
+    await menu('about');
+    await win.waitForSelector('#about-dlg[open]');
+    const version = await app.evaluate(({ app: a }) => a.getVersion());
+    assert.equal(await win.textContent('#about-version'), `Version ${version}`);
+    assert.match(await win.textContent('.about-blurb'), /distraction-free Markdown reader/);
+    assert.match(await win.textContent('#about-copyright'), new RegExp(`© ${new Date().getFullYear()} Neo Gentrics`));
+    await win.click('#about-website');
+    await win.click('#about-notes');
+    await win.click('#about-issue');
+    await win.waitForFunction(() => true);
+    const opened = await app.evaluate(() => global.__opened);
+    assert.deepEqual(opened, [
+      'https://recontowers.com/projects/neo-markdown-reader/',
+      `https://github.com/neogentrics/neo-markdown-reader/releases/tag/v${version}`,
+      'https://github.com/neogentrics/neo-markdown-reader/issues/new',
+    ]);
+    await win.click('#about-copy');
+    await win.waitForFunction(() => /Version details copied/.test(document.getElementById('toast').textContent));
+    const copied = await app.evaluate(({ clipboard }) => clipboard.readText());
+    assert.match(copied, new RegExp(`^Neo Markdown Reader ${version.replace(/\./g, '\\.')}\\nElectron \\d+`));
+    await win.click('#about-done');
+    await win.waitForSelector('#about-dlg', { state: 'hidden' });
+  });
+
   assert.deepEqual(errors, [], 'no page errors');
   await app.close();
   server.close();

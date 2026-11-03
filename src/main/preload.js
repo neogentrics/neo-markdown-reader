@@ -24,6 +24,7 @@ contextBridge.exposeInMainWorld('reader', {
   // shell & clipboard
   reveal: invoke('shell:reveal'),
   openExternal: invoke('shell:open-external'),
+  appAbout: invoke('app:about'),
   copyText: invoke('clipboard:text'),
   copyRich: invoke('clipboard:rich'),
   // output

@@ -14,6 +14,7 @@ const locked = require('./locked');
 const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = require('./sandbox');
 const ai = require('./ai');
 const providers = require('./ai-providers');
+const ABOUT_WEBSITE = 'https://recontowers.com/projects/neo-markdown-reader/';
 const i18n = require('./i18n');
 const addons = require('./addons');
 const { Updater, RELEASES_URL } = require('./updater');
@@ -814,8 +815,13 @@ function rebuildMenu() {
         { label: 'Releases Page', click: () => shell.openExternal(RELEASES_URL) },
         { type: 'separator' },
         {
+          id: 'about',
           label: `About Neo Markdown Reader ${app.getVersion()}`,
-          click: () => dlg.showMessageBox(targetState()?.win, { type: 'info', title: 'About', message: 'Neo Markdown Reader', detail: `Version ${app.getVersion()}\n© ${new Date().getFullYear()} Neo Gentrics. All rights reserved.` }),
+          // The page shows the full About window; with no window open, a short version in a message box.
+          click: () => (targetState() ? command('about') : dlg.showMessageBox({
+            type: 'info', title: 'About', message: 'Neo Markdown Reader',
+            detail: `Version ${app.getVersion()}\nA beautiful, distraction-free Markdown reader.\n${ABOUT_WEBSITE}\n© ${new Date().getFullYear()} Neo Gentrics. All rights reserved.`,
+          })),
         },
       ],
     },
@@ -1290,6 +1296,11 @@ function registerIpc() {
   ipcMain.handle('window:close', (e) => stateFor(e)?.win.close());
 
   ipcMain.handle('shell:reveal', (_e, p) => { if (isStr(p, 4096) && isViewablePath(p)) shell.showItemInFolder(p); });
+  ipcMain.handle('app:about', () => ({
+    version: app.getVersion(), year: new Date().getFullYear(), portable: !!process.env.PORTABLE_EXECUTABLE_DIR,
+    electron: process.versions.electron, chrome: process.versions.chrome, node: process.versions.node,
+    os: `${process.platform === 'win32' ? 'Windows' : process.platform === 'darwin' ? 'macOS' : 'Linux'} ${require('node:os').release()} (${process.arch})`,
+  }));
   ipcMain.handle('shell:open-external', (_e, url) => { if (isStr(url) && isSafeExternal(url)) shell.openExternal(url); });
   ipcMain.handle('clipboard:text', async (_e, text) => {
     if (typeof text === 'string' && text.length < 1e6) await clipboard.writeText(text);

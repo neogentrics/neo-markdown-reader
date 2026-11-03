@@ -22,6 +22,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
     carries over.
   - A server on your own network works over plain `http://`; anywhere else needs `https://`.
 
+- **A proper About window** (*Help → About Neo Markdown Reader*): what the app is, its version, links to its
+  [website](https://recontowers.com/projects/neo-markdown-reader/), this version's release notes, reporting a
+  problem, the source code, the license and the open-source notices, and *Copy Version Details* (app,
+  Electron, Chromium, Node and system versions) for bug reports.
+
 ### Changed
 - The AI panel, the folder question window and writing help name the service that wrote the answer.
 - The roadmap adds v3.7 (n8n and webhooks), v3.8 (Notion), v3.9 (home servers: Nextcloud, WebDAV, wikis)
