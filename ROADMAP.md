@@ -31,7 +31,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v2.4](#v24--read-listen--share) | Read, listen & share | ✅ Released ([2.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.4.0)) |
 | [v3.0](#v30--make-it-yours) | Make it yours | ✅ Released ([3.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.0.0)) |
 | [v3.1](#v31--across-your-computers) | Across your computers | ✅ Released ([3.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.1.0)) |
-| [v3.2](#v32--natural-voices) | Natural voices | 🚧 In progress |
+| [v3.2](#v32--natural-voices) | Natural voices | ✅ Released ([3.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.2.0)) |
 | [Later](#later--only-if-needed) | Only if needed | Ideas |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
 
@@ -180,11 +180,11 @@ updates itself from here on.
 
 ## v3.2 — Natural voices
 
-🚧 **In progress** (decision 9). Read aloud in a voice that sounds like a person, not a machine.
+✅ **Released in [3.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.2.0)** (decision 9). Read aloud in a voice that sounds like a person, not a machine.
 
 | Feature | Size | Details |
 |---|:-:|---|
-| 🙋 Natural voices, offline | M | Natural-sounding voices that run on your computer, with no internet and nothing sent anywhere. Downloaded once, when you first choose one (the app asks first), so the installer stays small. Your computer's own voices stay available, and still read languages the natural voices don't speak yet. |
+| ✅ 🙋 Natural voices, offline | M | Natural-sounding voices that run on your computer, with no internet and nothing sent anywhere. Downloaded once, when you first choose one (the app asks first), so the installer stays small. Your computer's own voices stay available, and still read languages the natural voices don't speak yet. |
 
 ## Later — only if needed
 
