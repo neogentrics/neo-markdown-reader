@@ -17,6 +17,9 @@ your files or runs code is always **opt-in** and asks for permission first.
 
 **Legend:** 🙋 requested by the owner · 🛡️ needs a permission step · Size: **S** ≈ a day, **M** ≈ a few days, **L** ≈ a week or more
 
+**Version numbers:** new features and connections are 3.x releases (3.9 is followed by 3.10, 3.11…). The next
+major version, 4.0, is kept for a change to what the app is: the writing studio.
+
 | Release | Theme | Status |
 |---|---|---|
 | [v1.0](#v10--the-reader) | The reader | ✅ Released |
@@ -32,10 +35,14 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v3.0](#v30--make-it-yours) | Make it yours | ✅ Released ([3.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.0.0)) |
 | [v3.1](#v31--across-your-computers) | Across your computers | ✅ Released ([3.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.1.0)) |
 | [v3.2](#v32--natural-voices) | Natural voices | ✅ Released ([3.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.2.0)) |
-| [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | 🔨 In progress |
-| [v3.4](#v34--claude-connected) | Claude, connected | Planned |
+| [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | ✅ Released ([3.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.3.0)) |
+| [v3.4](#v34--claude-connected) | Claude, connected | 🔨 Next |
 | [v3.5](#v35--listen--speak) | Listen & speak | Planned |
 | [v3.6](#v36--study--research) | Study & research | Planned |
+| [v3.7](#v37--automate-with-n8n) | Automate with n8n | Planned |
+| [v3.8](#v38--notion) | Notion | Planned |
+| [v3.9](#v39--your-home-server) | Your home server | Planned |
+| [v3.10](#v310--publish-anywhere) | Publish anywhere | Planned |
 | [v4.0](#v40--writing-studio) | Writing studio | Planned |
 | [Later](#later--only-if-needed) | Only if needed | Ideas |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
@@ -193,18 +200,17 @@ updates itself from here on.
 
 ## v3.3 — Your AI, your choice
 
-🔨 **In progress.** AI assist works with the service you already pay for, or with none at all (decision 10).
-Today it only works with Claude.
+✅ **Released in [3.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.3.0)** (decision 10). AI assist works with the service you already pay for, or with none at all.
 
 | Feature | Size | Details |
 |---|:-:|---|
-| 🙋 More AI services | M | Choose Claude (Anthropic), ChatGPT (OpenAI), Gemini (Google), Mistral or OpenRouter (hundreds of models with one key), each with your own API key, stored encrypted by the operating system. Every AI feature (summaries, *Ask your folder*, writing help) works with whichever one you pick. |
-| 🙋 Private AI on your computer | M | Use a model running on your own computer through Ollama or LM Studio, or any OpenAI-compatible server. No key, no internet, and nothing leaves your computer. |
-| AI settings per task | S | A quick model for proofreading and a stronger one for reports, with a rough cost estimate before a large request is sent. |
+| ✅ 🙋 More AI services | M | Choose Claude (Anthropic), ChatGPT (OpenAI), Gemini (Google), Mistral or OpenRouter (hundreds of models with one key), each with your own API key, stored encrypted by the operating system. Every AI feature (summaries, *Ask your folder*, writing help) works with whichever one you pick. |
+| ✅ 🙋 Private AI on your computer | M | Use a model running on your own computer through Ollama or LM Studio, or any OpenAI-compatible server. No key, no internet, and nothing leaves your computer. |
+| ✅ AI settings per task | S | A quicker model for proofreading, rewriting and translating, and the main one for summaries, reports and folder questions. Before more than about 50,000 tokens go to a paid service, the app asks, with the request's size and its price when the service publishes one (OpenRouter does). |
 
 ## v3.4 — Claude, connected
 
-🙋 Work with Claude through the Claude apps you already sign in to, with no API key needed (decision 11).
+🔨 **Next.** 🙋 Work with Claude through the Claude apps you already sign in to, with no API key needed (decision 11).
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -231,6 +237,47 @@ For coursework, research and reference notes.
 | Smart search | M | Find documents by what they mean, not only by their exact words, with an index built and kept on your computer. *Related documents* appear under the outline. |
 | Citations & bibliography | M | Insert citations from a BibTeX file or a Zotero library. The bibliography is formatted (APA, MLA, Chicago and more) on the page and in PDF and Word exports. |
 | Flashcards & quizzes | M | Turn definitions, or `Q:` / `A:` lines, into flashcards with spaced repetition. AI (optional) can draft questions from a chapter. |
+
+## v3.7 — Automate with n8n
+
+🙋 Your own automations, run on your documents. n8n and similar tools will never know about this app, so the
+app learns to talk to them (decision 12).
+
+| Feature | Size | Details |
+|---|:-:|---|
+| 🙋🛡️ Run n8n workflows | M | Pick a workflow and send it the open document, the selection, or documents from the open folder. What it answers opens as a new document or appears as a change you accept or reject. With your n8n API key, the list shows your workflows by name; the app always shows what will be sent before it goes. |
+| 🛡️ Your own actions | S | Any webhook (n8n, Make, Zapier, Home Assistant, or your own script) becomes a command in the menu and in `Ctrl+K`, with its own name and what it receives. |
+| 🛡️ Let workflows open documents | M | Off until you turn it on: an address on this computer that your workflows can call to open, create or add to a document, protected by a key only you have. Every change still goes through the edit-permission prompt. |
+
+## v3.8 — Notion
+
+🙋 Notion and your Markdown files, working together (decision 13).
+
+| Feature | Size | Details |
+|---|:-:|---|
+| 🙋 Bring Notion pages in | M | Open a Notion page as Markdown, with its headings, lists, to-dos, tables, code, callouts and pictures; a database opens as a table. Save it as a `.md` file, or keep it linked. |
+| 🙋🛡️ Send documents to Notion | M | Send a document to a Notion page you choose: as a new page, or to update the linked one. Shows what will change before anything is replaced. |
+| Keep them in step | M | A linked document shows when its Notion page has changed, and *Compare* shows the differences before you bring them in. |
+
+## v3.9 — Your home server
+
+🙋 Documents and publishing on servers you run yourself.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| 🙋 Nextcloud & WebDAV folders | M | Open a folder on Nextcloud, ownCloud or any WebDAV server like a folder on your computer: browse, search, read, and (with permission) edit and save back. |
+| 🙋🛡️ Publish to your wiki | M | Send a document, or a whole folder, to BookStack, Wiki.js or Outline as pages, with pictures, and update them later. |
+| Home server presets | S | One place for your servers' addresses and keys (encrypted like AI keys), shared by n8n, wikis, WebDAV and local AI models, with a *Test connection* button. |
+
+## v3.10 — Publish anywhere
+
+Send finished writing where people will read it.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| 🛡️ WordPress & Ghost drafts | M | Send a document as a draft post, with its title, tags, featured picture and pictures, to WordPress (including a self-hosted site) or Ghost. You publish it from there. |
+| 🛡️ Share to Discord | S | Post a document, or a summary of it, to a Discord channel through its webhook. |
+| Publishing history | S | Each document remembers where it was sent and when, with links back to it. |
 
 ## v4.0 — Writing studio
 
@@ -275,3 +322,5 @@ From a folder of chapters to a finished book or website.
 9. **Natural voices: on the computer, or a cloud service?** The voices Microsoft Edge reads with come from an online service only Edge can use. The choices were neural voices that run offline on your computer, Microsoft's Azure voices with your own key, or reaching Edge's service unofficially. ✅ *Decided:* offline voices that run on your computer — free, private, and working without internet (3.2).
 10. **Which AI services come first?** ✅ *Decided:* all of them in 3.3: Claude, OpenAI, Gemini, Mistral, OpenRouter, and local models (Ollama, LM Studio, or any OpenAI-compatible server). The model lists come from each service, so new models appear without an app update.
 11. **Signing in with a Claude account.** Anthropic doesn't currently offer a "Sign in with Claude" that lets other apps use a Claude plan. *Proposed:* 3.4 goes through the Claude apps instead: the connector lets Claude use the reader, and Claude Code lets the reader use Claude. If Anthropic adds a sign-in for apps, it can replace the Claude Code step.
+12. **How should the app talk to n8n?** *Proposed:* through workflow webhooks, which every n8n setup has (self-hosted or n8n Cloud); an n8n API key is optional, only to list workflows by name. The app never runs a workflow without showing what it will send.
+13. **How should the app sign in to Notion?** *Proposed:* with a Notion *internal integration* token that you create in Notion and share with the pages you choose. Notion's full sign-in (OAuth) needs a web server in the middle, which this app doesn't have.

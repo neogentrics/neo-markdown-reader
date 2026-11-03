@@ -1,6 +1,7 @@
 'use strict';
 // AI assist (optional): summarize a document, explain a passage, or turn notes into a report, with
-// Claude, using the reader's own Anthropic API key.
+// the reader's own key for Claude or another service (src/main/ai-providers.js, 3.3). The prompts are
+// the same for every service; this file also makes the requests to Claude.
 //
 //  - Off until the reader turns it on and enters a key. Nothing is ever sent automatically: each
 //    request is a menu command, and only that document (or selection) is sent.
@@ -111,14 +112,6 @@ function cleanEditResult(original, answer) {
   return lead + t.trim() + trail;
 }
 
-function cleanAiSettings(a) {
-  const out = { enabled: false, model: DEFAULT_MODEL };
-  if (!a || typeof a !== 'object') return out;
-  if (typeof a.enabled === 'boolean') out.enabled = a.enabled;
-  if (MODELS.some((m) => m.id === a.model)) out.model = a.model;
-  return out;
-}
-
 /** Request parameters for the Messages API (beta surface, for server-side refusal fallbacks). */
 function requestParams(model, content) {
   const m = MODELS.find((x) => x.id === model) || MODELS[0];
@@ -170,4 +163,4 @@ async function runAi({ Anthropic, apiKey, model, content, onText, signal, baseUR
   return { text, stopReason: message.stop_reason, model: message.model, note };
 }
 
-module.exports = { MODELS, DEFAULT_MODEL, MAX_CHARS, KEY_RE, SYSTEM, buildPrompt, buildFolderPrompt, buildEditPrompt, cleanEditResult, EDIT_TASKS, cleanAiSettings, requestParams, friendlyError, runAi };
+module.exports = { MODELS, DEFAULT_MODEL, MAX_CHARS, KEY_RE, SYSTEM, buildPrompt, buildFolderPrompt, buildEditPrompt, cleanEditResult, EDIT_TASKS, requestParams, friendlyError, runAi };

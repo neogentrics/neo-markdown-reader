@@ -20,6 +20,7 @@ import { createReadUi, cleanCopy } from './read-ui.js';
 import { createUiTranslator } from './i18n-ui.js';
 import { createAddonsUi } from './addons-ui.js';
 import { createSyncUi } from './sync-ui.js';
+import { createAboutUi } from './about-ui.js';
 import { resolveWiki, relative, dirOf, slugify as wikiSlug } from '../main/notes-core.js';
 import './styles/app.css';
 
@@ -63,6 +64,7 @@ let notesUi = null;
 let readUi = null;
 let addonsUi = null;
 let syncUi = null;
+let aboutUi = null;
 const uiText = createUiTranslator();
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
@@ -948,6 +950,7 @@ api.onCommand(({ cmd, arg }) => {
     case 'export-pptx': publish.exportAs('pptx'); break;
     case 'addons': addonsUi.open(); break;
     case 'sync': syncUi.open(); break;
+    case 'about': aboutUi.open(); break;
     case 'addon-export': if (arg) addonsUi.exportWith(arg); break;
     case 'present': if (presenter.active()) presenter.stop(); else presenter.start(); break;
     case 'customize-theme': themeUi.open(); break;
@@ -1244,6 +1247,7 @@ addonsUi = createAddonsUi({
   cleanHtml: (t) => publish.payloadFor(t).content,
   rerenderAll: () => { for (const t of tabs) if (t.result && !t.doc.compare && !t.doc.needsPassword) rerender(t); },
 });
+aboutUi = createAboutUi({ api, toast });
 syncUi = createSyncUi({
   api, toast,
   settings: () => settings,

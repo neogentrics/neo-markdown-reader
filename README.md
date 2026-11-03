@@ -10,7 +10,7 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
-**[Features](#features)** · **[Install](#install-windows)** · **[Across computers](#across-your-computers)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Natural voices](#natural-voices)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+**[Features](#features)** · **[Install](#install-windows)** · **[Your AI](#your-ai-your-choice)** · **[Across computers](#across-your-computers)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Natural voices](#natural-voices)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
 
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
@@ -43,7 +43,8 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
-| **Natural voices** *(new in 3.2)* | Read aloud in ten natural-sounding voices that run on your computer, offline, in 31 languages; downloaded once, only when you ask ([details](#natural-voices)) |
+| **Your AI, your choice** *(new in 3.3)* | AI assist with Claude, ChatGPT, Gemini, Mistral or OpenRouter, each with your own key, or with a private model on your own computer (Ollama, LM Studio) that needs no key and no internet; a quicker model for writing help, and a check before anything large is sent ([details](#your-ai-your-choice)) |
+| **Natural voices** *(3.2)* | Read aloud in ten natural-sounding voices that run on your computer, offline, in 31 languages; downloaded once, only when you ask ([details](#natural-voices)) |
 | **Across your computers** *(3.1)* | Highlights, notes, bookmarks, recent files, reading positions and settings kept the same on every computer through a folder you already sync (OneDrive, Dropbox, iCloud Drive, Google Drive), with no account ([details](#across-your-computers)) |
 | **Make it yours** *(3.0)* | The app in English, Spanish, French or German (it follows your computer, or choose in *View → Language*); Arabic, Hebrew and other right-to-left documents read right to left; add-ons for new code-block types, export formats and colour themes, each approved by you and run in a sealed sandbox ([details](#make-it-yours)) |
 | **Read, listen & share** *(2.4)* | Read aloud with your computer's voices; focus mode, folding sections and hover previews; open CSV, JSON, YAML and Jupyter notebooks; charts from a table or a `chart` block; export e-books (EPUB) and slides (PDF or PowerPoint); and (optionally) proofread, rewrite, shorten or translate a selection with Claude ([details](#read-listen--share)) |
@@ -97,6 +98,12 @@ Reader** → tick **Always use this app**.
 **Updates:** from version 1.1 on, the installed app checks for new versions by itself, downloads them in the
 background and offers *Restart to update*. The portable `.exe` and the Mac build tell you when a new
 version is out and link to the download. *(Coming from 1.0? Install 1.1 once by hand; after that it's automatic.)*
+
+**Which version do I have?** *Help → About Neo Markdown Reader* shows the version, what's new in it, the app's
+[website](https://recontowers.com/projects/neo-markdown-reader/), where to report a problem, and *Copy Version
+Details* for a bug report.
+
+<img src="docs/screenshots/about.png" width="860" alt="The About window: the Neo Markdown Reader icon, version 3.3.0, a short description, links to the website, what's new in this version, reporting a problem and the source code, the Electron, Chromium, Node and Windows versions, the copyright with License and Open-source notices links, and Copy Version Details and Done buttons">
 
 ## Creating and editing
 
@@ -277,6 +284,38 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
 
 <img src="docs/screenshots/ai-writing.png" width="860" alt="A suggested rewrite of a paragraph shown as a change, with Reject, Try again and Accept buttons">
 
+## Your AI, your choice
+
+<img src="docs/screenshots/ai-services.png" width="860" alt="AI assist settings with the service set to On this computer (Ollama, LM Studio…), the server address http://localhost:11434/v1, no API key needed, the model qwen3:8b, a quicker model llama3.2:3b for writing help, and 4 models available">
+
+AI assist (summaries, explanations, reports, *Ask About This Folder…* and writing help) now works with the
+service you already use. Choose it in *Edit → AI Assist → AI Assist Settings…*:
+
+| Service | What you need |
+|---|---|
+| **Claude** (Anthropic) | An Anthropic API key. Opus 5.5 by default, or Sonnet 5.5 or Haiku 5.5. |
+| **ChatGPT** (OpenAI) | An OpenAI API key. |
+| **Gemini** (Google) | A Gemini API key from Google AI Studio. |
+| **Mistral** | A Mistral API key. |
+| **OpenRouter** | One OpenRouter key for hundreds of models from many companies. The model list shows each one's price. |
+| **On this computer** | [Ollama](https://ollama.com) or [LM Studio](https://lmstudio.ai) running on your computer, or any server that speaks the OpenAI format. No key, and **nothing leaves your computer**. |
+
+- **Models come from the service itself.** *Refresh list* asks the service which models your key can use, so
+  new models show up without an app update. You can also type a model's name.
+- **A quicker model for writing help.** Proofread, rewrite, shorten and translate can use a faster, cheaper
+  model, while summaries, reports and questions about a folder use the main one.
+- **Big requests ask first.** Before sending more than about 50,000 tokens (roughly 200,000 characters) to a
+  paid service, the app says how big it is, with the price when the service publishes one (OpenRouter does).
+- **Each service keeps its own key.** Keys are encrypted by your operating system and never stored in the
+  settings file. Switching services doesn't lose a key, and *Remove saved key* removes only that one. Your
+  Claude key from an earlier version carries over.
+- **A server on your own network:** plain `http://` addresses work only for this computer or your own network
+  (such as `http://192.168.1.20:11434/v1`); anywhere else needs `https://`, so your documents never cross the
+  internet unencrypted.
+
+To use a model on your computer with Ollama: install it, run `ollama pull llama3.2` (or any model), then choose
+*On this computer* and *Refresh list*.
+
 ## Across your computers
 
 <img src="docs/screenshots/sync.png" width="860" alt="The Sync between computers window: on, last synced now, a sync folder in OneDrive, this computer named Office Desktop, and a Studio MacBook last seen 4 minutes ago">
@@ -301,7 +340,7 @@ choose, and your cloud service carries them between computers.
   is recognised by where it sits inside your cloud folder, even though its full path is different on each
   computer. A highlight for a document that hasn't finished downloading waits for it.
 - A computer that joins later takes on the settings already in use instead of overwriting them.
-- **Never synced:** your AI key, editing permissions, version history, the *Allow Running Code Blocks*
+- **Never synced:** your AI keys, editing permissions, version history, the *Allow Running Code Blocks*
   setting, and anything about password-locked documents (a highlight quotes the text it marks).
 
 ## Natural voices
@@ -474,14 +513,15 @@ checksum before it's used.
   - **Turn Notes into a Report**, which opens the draft as a new document.
   - **Ask About This Folder…** (2.3) and **Proofread, Rewrite, Shorten** or **Translate** a selection in
     the editor (2.4; see [AI writing help](#read-listen--share)).
-- It uses Claude, with **your own Anthropic API key**, and is off until you turn it on in
-  *AI Assist Settings…*. Requests are billed to your Anthropic account.
-- Choose Claude Opus 5.5 (the default), Sonnet 5.5 or Haiku 5.5. Answers stream in as they're written.
+- It uses the service you choose (since 3.3): Claude, ChatGPT, Gemini, Mistral, OpenRouter, or a model on
+  your own computer ([details](#your-ai-your-choice)), with **your own key**. It's off until you turn it on in
+  *AI Assist Settings…*, and requests are billed to your account with that service.
+- With Claude, choose Opus 5.5 (the default), Sonnet 5.5 or Haiku 5.5. Answers stream in as they're written.
 - **Privacy:**
   - Nothing is sent until you pick a command.
   - Only that document, or that selection, is sent.
   - Locked documents are never sent.
-- Your key is encrypted by your operating system and never stored in the settings file.
+- Your keys are encrypted by your operating system and never stored in the settings file.
 
 ### More colour themes
 
@@ -592,14 +632,20 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help �
   and settings, through a folder you already sync, with no account.
 - **v3.2** added natural voices for Read aloud: ten natural-sounding voices in 31 languages that run on your
   computer, offline, downloaded once when you ask.
+- **v3.3** added more AI services: ChatGPT, Gemini, Mistral and OpenRouter as well as Claude, each with your own
+  key, or a private model on your own computer (Ollama, LM Studio), plus a quicker model for writing help.
 
 Coming next:
-- **v3.3 — Your AI, your choice:** AI assist with ChatGPT, Gemini, Mistral or OpenRouter as well as Claude,
-  each with your own key, or with a private model on your own computer (Ollama, LM Studio).
 - **v3.4 — Claude, connected:** a connector that lets Claude Desktop and Claude Code read your documents
   (and suggest edits you approve), and AI assist through your Claude Code sign-in, with no API key.
 - **v3.5 — Listen & speak:** documents exported as MP3s or audiobooks, a pronunciation list, and offline dictation.
 - **v3.6 — Study & research:** search by meaning, citations and bibliographies, and flashcards.
+- **v3.7 — Automate with n8n:** send a document, a selection or a folder to your n8n workflows (or any webhook)
+  and get the result back as a document or a suggested change.
+- **v3.8 — Notion:** bring Notion pages in as Markdown, send documents to Notion, and keep the two in step.
+- **v3.9 — Your home server:** open and save documents on Nextcloud or any WebDAV server, and publish to
+  self-hosted wikis (BookStack, Wiki.js, Outline).
+- **v3.10 — Publish anywhere:** send a document as a WordPress or Ghost draft, or share it to Discord.
 - **v4.0 — Writing studio:** book projects exported as EPUB, print-ready PDF and Word, Git built in,
   a folder published as a website, and an add-on gallery.
 - **Later, if needed:** shared review, a phone companion, writing together live.
@@ -644,6 +690,7 @@ src/
 │   ├── locked.js         password-locked documents: AES-256-GCM with a scrypt key
 │   ├── sandbox.js        the sealed code sandbox (own session, private scheme, every other request refused)
 │   ├── ai.js             AI assist prompts and the Claude request (official Anthropic SDK)
+│   ├── ai-providers.js   other AI services and local models: settings, model lists, streaming requests
 │   ├── notes-core.js     wiki links, backlinks, tags, tasks, link checking and rename rewrites (pure functions, shared with the page)
 │   ├── folder-index.js   the open folder's links, tags and tasks, re-reading only files that changed
 │   ├── data-docs.js      CSV / TSV, JSON, YAML and Jupyter notebooks as read-only Markdown

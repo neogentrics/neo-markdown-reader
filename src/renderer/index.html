@@ -276,12 +276,20 @@
   <dialog class="shortcuts ai-settings" id="ai-dlg" aria-labelledby="ai-dlg-h">
     <form id="ai-form">
       <h3 id="ai-dlg-h">AI assist</h3>
-      <p class="grants-intro">Summarize a document, explain a passage, or turn notes into a report with Claude, using your own Anthropic API key. Nothing is sent until you choose an <em>AI Assist</em> command, only that document is sent, and locked documents are never sent. Requests are billed to your Anthropic account.</p>
+      <p class="grants-intro">Summarize a document, explain a passage, or turn notes into a report with the AI service you choose, using your own key, or with a model running on your own computer. Nothing is sent until you choose an <em>AI Assist</em> command, only that document is sent, and locked documents are never sent. Requests are billed to your account with that service.</p>
       <label class="check"><input type="checkbox" id="ai-enabled"> Turn on AI assist</label>
-      <label class="field">Anthropic API key<input type="password" id="ai-key" autocomplete="off" spellcheck="false"></label>
-      <p class="hint-text"><a href="#" id="ai-get-key">Get an API key</a> · stored encrypted by your operating system, never in the settings file · <button type="button" class="link-btn danger" id="ai-key-remove" hidden>Remove saved key</button></p>
+      <label class="field">Service<select id="ai-provider"></select></label>
+      <div class="ai-local" id="ai-local" hidden>
+        <label class="field">Server address<input type="text" id="ai-local-url" autocomplete="off" spellcheck="false" placeholder="http://localhost:11434/v1"></label>
+        <p class="hint-text">Ollama: <code>http://localhost:11434/v1</code> · LM Studio: <code>http://localhost:1234/v1</code> · your documents stay on your computer or your own network</p>
+      </div>
+      <label class="field"><span id="ai-key-label">Anthropic API key</span><input type="password" id="ai-key" autocomplete="off" spellcheck="false"></label>
+      <p class="hint-text" id="ai-key-hints"><a href="#" id="ai-get-key">Get an API key</a><span id="ai-key-note"> · stored encrypted by your operating system, never in the settings file</span><span id="ai-key-sep" hidden> · </span><button type="button" class="link-btn danger" id="ai-key-remove" hidden>Remove saved key</button></p>
       <p class="hint-text warn" id="ai-insecure" hidden>This computer has no secure key store, so the key is kept only until you quit.</p>
-      <label class="field">Model<select id="ai-model"></select></label>
+      <label class="field">Model<span class="ai-model-row"><input type="text" id="ai-model" list="ai-model-list" autocomplete="off" spellcheck="false"><button type="button" class="link-btn" id="ai-models-refresh">Refresh list</button></span></label>
+      <label class="field">Quicker model for writing help (optional)<input type="text" id="ai-quick" list="ai-model-list" autocomplete="off" spellcheck="false" placeholder="Same as the main model"></label>
+      <datalist id="ai-model-list"></datalist>
+      <p class="hint-text" id="ai-models-msg" aria-live="polite"></p>
       <p class="lock-msg" id="ai-msg" role="alert"></p>
       <div class="grants-actions">
         <button type="button" class="link-btn" id="ai-cancel">Cancel</button>
@@ -374,7 +382,7 @@
   <dialog class="shortcuts ask-dlg" id="ask-dlg" aria-labelledby="ask-dlg-h">
     <form id="ask-form">
       <h3 id="ask-dlg-h">Ask about this folder</h3>
-      <p class="grants-intro">Claude answers from the documents you tick, with links to the lines it used. Only those documents are sent, with your own API key; locked documents are never included.</p>
+      <p class="grants-intro">The AI answers from the documents you tick, with links to the lines it used. Only those documents are sent, to the service you chose in AI assist settings; locked documents are never included.</p>
       <label class="field">Your question<textarea id="ask-question" rows="3" placeholder="e.g. What did we decide about the budget, and what’s still open?"></textarea></label>
       <div class="ask-files-head"><input class="side-filter" id="ask-filter" type="search" placeholder="Filter documents…" spellcheck="false" aria-label="Filter documents"><button type="button" class="link-btn" id="ask-all">All</button><button type="button" class="link-btn" id="ask-none">None</button></div>
       <div class="ask-files" id="ask-files"></div>
@@ -403,6 +411,27 @@
     <p class="grants-intro">Add-ons add code-block types, export formats and colour themes. Their code runs in a sealed sandbox: it can’t use the internet, read your files or change your documents. You approve what each one does before it’s installed.</p>
     <div class="addons-list" id="addons-list"></div>
     <div class="grants-actions"><button type="button" class="big-btn sm" id="addons-install">Install Add-on…</button><span class="spacer"></span><button type="button" class="link-btn" id="addons-done">Done</button></div>
+  </dialog>
+
+  <dialog class="shortcuts about-dlg" id="about-dlg" aria-labelledby="about-h">
+    <div class="ai-head"><span></span><button type="button" class="tb-btn sm" id="about-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="about-top">
+      <img class="about-logo" src="icon.png" alt="">
+      <div>
+        <h3 id="about-h">Neo Markdown Reader</h3>
+        <p class="about-version" id="about-version"></p>
+      </div>
+    </div>
+    <p class="about-blurb">A beautiful, distraction-free Markdown reader. Open a <code>.md</code> file and read it as a clean, well-laid-out page, then write, organize, publish and listen to it, with AI help from the service you choose.</p>
+    <ul class="about-links">
+      <li><a href="#" id="about-website">Website</a><span>Neo Markdown Reader on Recon Towers</span></li>
+      <li><a href="#" id="about-notes">What’s new in this version</a><span>Release notes on GitHub</span></li>
+      <li><a href="#" id="about-issue">Report a problem or suggest a feature</a><span>GitHub issues</span></li>
+      <li><a href="#" id="about-source">Source code</a><span translate="no">github.com/neogentrics/neo-markdown-reader</span></li>
+    </ul>
+    <p class="about-tech" id="about-tech" translate="no"></p>
+    <p class="about-legal"><span id="about-copyright"></span> · <a href="#" id="about-license">License</a> · <a href="#" id="about-notices">Open-source notices</a></p>
+    <div class="grants-actions"><button type="button" class="link-btn" id="about-copy">Copy Version Details</button><span class="spacer"></span><button type="button" class="big-btn sm" id="about-done">Done</button></div>
   </dialog>
 
   <dialog class="shortcuts sync-dlg" id="sync-dlg" aria-labelledby="sync-h">

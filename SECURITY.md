@@ -226,12 +226,25 @@ Markdown files are treated as **untrusted input**:
 - **Locked documents** can be read aloud like any open document; their text goes only to the voice process
   on this computer, never anywhere else.
 
-### AI assist (since 2.0)
+### AI assist (since 2.0; more services since 3.3)
 
-- Off by default. Requests are made only from an explicit menu command, contain only the current
-  document (and selection), and go only to `https://api.anthropic.com`. The address is fixed, so an
-  `ANTHROPIC_BASE_URL` set on the computer can't redirect them.
-- The API key is encrypted with the operating system's key store (Electron `safeStorage`) in its own
-  file and never written to the settings file. Where no secure store exists (some Linux setups) it is
-  kept in memory for the session only.
+- Off by default. Requests are made only from an explicit menu command and contain only the current
+  document (and selection), or the folder documents the reader ticked.
+- They go only to the service the reader chose, at a fixed address: `https://api.anthropic.com`,
+  `https://api.openai.com/v1`, `https://generativelanguage.googleapis.com/v1beta/openai`,
+  `https://api.mistral.ai/v1` or `https://openrouter.ai/api/v1`. Environment variables such as
+  `ANTHROPIC_BASE_URL` or `OPENAI_BASE_URL` set on the computer can't redirect them.
+- **A model on this computer** (3.3) uses the server address the reader enters. `https://` may point
+  anywhere; plain `http://` is accepted only for this computer (`localhost`, `127.x`, `::1`) or a private
+  network address (`10.x`, `172.16–31.x`, `192.168.x`, link-local, `.local`, `.lan` and single-word names),
+  so document text never crosses the internet unencrypted. Addresses with a user name, password, query
+  or fragment are refused.
+- Each service's API key is encrypted with the operating system's key store (Electron `safeStorage`) in
+  one file (`ai-keys.bin`), never written to the settings file and never synced. Where no secure store
+  exists (some Linux setups) keys are kept in memory for the session only. A key must be one printable
+  word, so it can't add a line to a request's headers. The 2.x file `ai-key.bin` is read once and removed
+  when keys are next saved.
+- Before a request of more than about 50,000 tokens goes to a paid service, the reader is asked, with
+  its size and (where the service publishes it) its price.
+- Model lists are fetched only when the settings window is open for that service, with that service's key.
 - Answers are shown as sanitized Markdown, and links in them open in the browser.
