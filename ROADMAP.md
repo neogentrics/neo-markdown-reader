@@ -30,7 +30,8 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v2.3](#v23--connected-notes) | Connected notes | ✅ Released ([2.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.3.0)) |
 | [v2.4](#v24--read-listen--share) | Read, listen & share | ✅ Released ([2.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.4.0)) |
 | [v3.0](#v30--make-it-yours) | Make it yours | ✅ Released ([3.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.0.0)) |
-| [v3.1](#v31--across-your-computers) | Across your computers | Planned |
+| [v3.1](#v31--across-your-computers) | Across your computers | 🚧 In progress |
+| [v3.2](#v32--natural-voices) | Natural voices | Planned |
 | [Later](#later--only-if-needed) | Only if needed | Ideas |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
 
@@ -171,11 +172,19 @@ updates itself from here on.
 
 ## v3.1 — Across your computers
 
-Planned. Your reading life, the same on every computer, without an account.
+🚧 **In progress.** Your reading life, the same on every computer, without an account.
 
 | Feature | Size | Details |
 |---|:-:|---|
-| Sync between your computers | M | Highlights, notes, bookmarks, history and settings kept in step through a folder you already sync (OneDrive, Dropbox, iCloud). No account needed. |
+| Sync between your computers | M | Highlights, notes, bookmarks, recent files, reading positions and settings kept in step through a folder you already sync (OneDrive, Dropbox, iCloud Drive, Google Drive). No account needed. Version history stays on each computer: it can be up to 1 GB. |
+
+## v3.2 — Natural voices
+
+Planned (decision 9). Read aloud in a voice that sounds like a person, not a machine.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| 🙋 Natural voices, offline | M | Natural-sounding voices that run on your computer, with no internet and nothing sent anywhere. Downloaded once, when you first choose one (the app asks first), so the installer stays small. Your computer's own voices stay available, and still read languages the natural voices don't speak yet. |
 
 ## Later — only if needed
 
@@ -205,3 +214,4 @@ Planned. Your reading life, the same on every computer, without an account.
 6. **Wiki links aren't standard Markdown.** ✅ *Decided:* `[[Name]]` by default (the same as Obsidian), with *Edit → Insert Standard Markdown Links* to write `[Name](path.md)` instead (shipped in 2.3.0).
 7. **How much version history to keep?** ✅ *Decided:* every save for 30 days, then one a day, up to 1 GB in total (shipped in 2.2.0).
 8. **What should 3.0 focus on?** ✅ *Decided:* add-ons and the app in your language (3.0), then sync (3.1); Git and shared review only if they're needed.
+9. **Natural voices: on the computer, or a cloud service?** The voices Microsoft Edge reads with come from an online service only Edge can use. The choices were neural voices that run offline on your computer, Microsoft's Azure voices with your own key, or reaching Edge's service unofficially. ✅ *Decided:* offline voices that run on your computer — free, private, and working without internet (3.2).
