@@ -189,6 +189,25 @@ Markdown files are treated as **untrusted input**:
 - **Translations** are built into the app; they're plain text looked up by the English original and are
   never treated as HTML. Documents, file names and notes are never translated.
 
+### Sync between computers (since 3.1)
+
+- **Off until the reader turns it on** and chooses the folder in a native dialog (or one of the cloud folders
+  the app found). The app writes only inside a *Neo Markdown Reader* folder in it: a README and one file per
+  computer. No server and no account are involved; what leaves the computer is whatever the reader's own
+  cloud service carries.
+- **What's in the files:** highlight quotes and notes, bookmarked and recent documents (as places inside a
+  cloud folder, e.g. `onedrive:Notes/plan.md`), reading positions and display settings. They are not
+  encrypted beyond what the cloud service does, which is why these never go in them: the AI key, editing
+  permissions, version history, the *Allow Running Code Blocks* setting, and anything about
+  password-locked documents (a highlight quotes the text it marks).
+- **Files from other computers are treated as untrusted.** Each is size-limited (20 MB), read only if it is
+  in this format and version, and every item is checked: only the settings that are meant to sync, and
+  each value through the same validation as the settings and highlights stores. Document places can't
+  climb out of their cloud folder (`..` is refused), and a place that doesn't exist on this computer is
+  left alone rather than created. Nothing in a sync file can run code, open a file or change a document.
+- Each computer writes only its own file (written to a temporary name, then renamed), so a half-synced
+  file is skipped and read next time rather than merged.
+
 ### AI assist (since 2.0)
 
 - Off by default. Requests are made only from an explicit menu command, contain only the current
