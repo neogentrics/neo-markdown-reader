@@ -516,7 +516,9 @@ with your own accent colour and in exports.
 - **More ways to install:**
   - A Linux `.deb` package.
   - A Mac build for Intel Macs as well as Apple silicon.
-  - Manifests for the Windows Package Manager (`winget`), ready to submit. Once they're accepted:
+  - The Windows Package Manager (`winget`): 3.2.0 has been submitted
+    ([microsoft/winget-pkgs#469811](https://github.com/microsoft/winget-pkgs/pull/469811)) and is
+    waiting for Microsoft's review. Once it's accepted:
 
     ```bash
     winget install NeoGentrics.NeoMarkdownReader
@@ -592,7 +594,15 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help �
   computer, offline, downloaded once when you ask.
 
 Coming next:
-- **Later, if needed:** Git built in, shared review.
+- **v3.3 — Your AI, your choice:** AI assist with ChatGPT, Gemini, Mistral or OpenRouter as well as Claude,
+  each with your own key, or with a private model on your own computer (Ollama, LM Studio).
+- **v3.4 — Claude, connected:** a connector that lets Claude Desktop and Claude Code read your documents
+  (and suggest edits you approve), and AI assist through your Claude Code sign-in, with no API key.
+- **v3.5 — Listen & speak:** documents exported as MP3s or audiobooks, a pronunciation list, and offline dictation.
+- **v3.6 — Study & research:** search by meaning, citations and bibliographies, and flashcards.
+- **v4.0 — Writing studio:** book projects exported as EPUB, print-ready PDF and Word, Git built in,
+  a folder published as a website, and an add-on gallery.
+- **Later, if needed:** shared review, a phone companion, writing together live.
 
 Signed installers follow as soon as a code-signing certificate is bought.
 
@@ -722,9 +732,11 @@ that same sandbox, and what they draw is sanitized like a document. See [SECURIT
    `v<version>` from `package.json`.
 3. The **Release** workflow builds Windows, macOS and Linux apps and publishes them to GitHub Releases.
 4. Optional, after it's published:
-   - **winget:** run `node scripts/winget-manifest.mjs`, then submit the folder it writes to
-     [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs), for example with
-     `wingetcreate submit`.
+   - **winget:** run `node scripts/winget-manifest.mjs`, check the folder it writes with
+     `winget validate --manifest <folder>`, then submit it to
+     [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) as
+     `manifests/n/NeoGentrics/NeoMarkdownReader/<version>/`, for example with `wingetcreate submit`.
+     The manifests use the 1.12 schema.
    - **Code signing:** add `WINDOWS_CSC_LINK` (the `.pfx` certificate, base64-encoded) and
      `WINDOWS_CSC_KEY_PASSWORD` as repository secrets. Every later release is then signed automatically,
      and the Release log reports the signature status.

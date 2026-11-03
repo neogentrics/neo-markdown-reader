@@ -4,6 +4,15 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+- The `winget` manifests use the current 1.12 schema, with schema headers, and the package description
+  mentions highlights, natural voices and sync. 3.2.0 has been submitted to the Windows Package Manager
+  ([microsoft/winget-pkgs#469811](https://github.com/microsoft/winget-pkgs/pull/469811)).
+- The roadmap now runs to 4.0: more AI services and private local models (3.3), a Claude connector and
+  Claude Code sign-in (3.4), audio export and dictation (3.5), study tools (3.6) and a writing studio (4.0).
+
 ## [3.2.0] - 2026-11-03
 
 ### Added

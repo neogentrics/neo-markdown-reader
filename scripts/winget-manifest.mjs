@@ -16,10 +16,15 @@ const ID = 'NeoGentrics.NeoMarkdownReader';
 const REPO = 'https://github.com/neogentrics/neo-markdown-reader';
 
 export function manifests({ version, sha256, url }) {
-  const head = `# Created with scripts/winget-manifest.mjs\nPackageIdentifier: ${ID}\nPackageVersion: ${version}\n`;
+  const head = (kind) => `# Created with scripts/winget-manifest.mjs
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.${kind}.1.12.0.schema.json
+
+PackageIdentifier: ${ID}
+PackageVersion: ${version}
+`;
   return {
-    [`${ID}.yaml`]: `${head}DefaultLocale: en-US\nManifestType: version\nManifestVersion: 1.6.0\n`,
-    [`${ID}.installer.yaml`]: `${head}InstallerLocale: en-US
+    [`${ID}.yaml`]: `${head('version')}DefaultLocale: en-US\nManifestType: version\nManifestVersion: 1.12.0\n`,
+    [`${ID}.installer.yaml`]: `${head('installer')}InstallerLocale: en-US
 InstallerType: nullsoft
 Scope: user
 InstallModes:
@@ -39,9 +44,9 @@ Installers:
   InstallerUrl: ${url}
   InstallerSha256: ${sha256.toUpperCase()}
 ManifestType: installer
-ManifestVersion: 1.6.0
+ManifestVersion: 1.12.0
 `,
-    [`${ID}.locale.en-US.yaml`]: `${head}PackageLocale: en-US
+    [`${ID}.locale.en-US.yaml`]: `${head('defaultLocale')}PackageLocale: en-US
 Publisher: Neo Gentrics
 PublisherUrl: https://github.com/neogentrics
 PublisherSupportUrl: ${REPO}/issues
@@ -51,7 +56,7 @@ License: Proprietary
 LicenseUrl: ${REPO}/blob/main/LICENSE
 Copyright: Copyright (c) 2026 Neo Gentrics. All rights reserved.
 ShortDescription: A beautiful, distraction-free Markdown reader.
-Description: Opens .md files as clean, well-laid-out pages, with tabs, folders, search, editing with permission, PDF and Word export, presentation mode, password-locked documents and a File Explorer preview.
+Description: Opens .md files as clean, well-laid-out pages, with tabs, folders, search, highlights and notes, read-aloud with natural offline voices, sync between computers, editing with permission, PDF and Word export, presentation mode, password-locked documents and a File Explorer preview.
 Tags:
 - markdown
 - md
@@ -60,7 +65,7 @@ Tags:
 - editor
 ReleaseNotesUrl: ${REPO}/releases/tag/v${version}
 ManifestType: defaultLocale
-ManifestVersion: 1.6.0
+ManifestVersion: 1.12.0
 `,
   };
 }

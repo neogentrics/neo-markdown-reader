@@ -141,7 +141,8 @@ test('winget manifests: id, version, installer URL and checksum line up', async 
   for (const text of Object.values(m)) {
     assert.match(text, /^PackageIdentifier: NeoGentrics\.NeoMarkdownReader$/m);
     assert.match(text, /^PackageVersion: 2\.1\.0$/m);
-    assert.match(text, /^ManifestVersion: 1\.6\.0$/m);
+    assert.match(text, /^ManifestVersion: 1\.12\.0$/m);
+    assert.match(text, /^# yaml-language-server: \$schema=https:\/\/aka\.ms\/winget-manifest\.\w+\.1\.12\.0\.schema\.json$/m);
   }
   const inst = m['NeoGentrics.NeoMarkdownReader.installer.yaml'];
   assert.match(inst, /InstallerSha256: (AB){32}\n/);

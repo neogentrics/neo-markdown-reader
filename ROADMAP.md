@@ -2,7 +2,7 @@
 title: Neo Markdown Reader Roadmap
 subtitle: From reader to Markdown workspace
 author: Neo Gentrics
-date: 2026-11-02
+date: 2026-11-03
 tags: [roadmap, planning]
 ---
 
@@ -32,6 +32,11 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v3.0](#v30--make-it-yours) | Make it yours | ✅ Released ([3.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.0.0)) |
 | [v3.1](#v31--across-your-computers) | Across your computers | ✅ Released ([3.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.1.0)) |
 | [v3.2](#v32--natural-voices) | Natural voices | ✅ Released ([3.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.2.0)) |
+| [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | 🔨 Next |
+| [v3.4](#v34--claude-connected) | Claude, connected | Planned |
+| [v3.5](#v35--listen--speak) | Listen & speak | Planned |
+| [v3.6](#v36--study--research) | Study & research | Planned |
+| [v4.0](#v40--writing-studio) | Writing studio | Planned |
 | [Later](#later--only-if-needed) | Only if needed | Ideas |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
 
@@ -186,14 +191,67 @@ updates itself from here on.
 |---|:-:|---|
 | ✅ 🙋 Natural voices, offline | M | Natural-sounding voices that run on your computer, with no internet and nothing sent anywhere. Downloaded once, when you first choose one (the app asks first), so the installer stays small. Your computer's own voices stay available, and still read languages the natural voices don't speak yet. |
 
+## v3.3 — Your AI, your choice
+
+🔨 **Next.** AI assist works with the service you already pay for, or with none at all (decision 10).
+Today it only works with Claude.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| 🙋 More AI services | M | Choose Claude (Anthropic), ChatGPT (OpenAI), Gemini (Google), Mistral or OpenRouter (hundreds of models with one key), each with your own API key, stored encrypted by the operating system. Every AI feature (summaries, *Ask your folder*, writing help) works with whichever one you pick. |
+| 🙋 Private AI on your computer | M | Use a model running on your own computer through Ollama or LM Studio, or any OpenAI-compatible server. No key, no internet, and nothing leaves your computer. |
+| AI settings per task | S | A quick model for proofreading and a stronger one for reports, with a rough cost estimate before a large request is sent. |
+
+## v3.4 — Claude, connected
+
+🙋 Work with Claude through the Claude apps you already sign in to, with no API key needed (decision 11).
+
+| Feature | Size | Details |
+|---|:-:|---|
+| 🙋🛡️ Connect Claude to your documents | L | A built-in connector (an MCP server) lets Claude Desktop and Claude Code list your open documents, read them, search your folder, and see your highlights and notes. Edits Claude suggests go through the same permission prompt as yours and appear as changes you accept or reject. Locked documents are never shared. It stays off until you turn it on; one click adds it to Claude Desktop or Claude Code. |
+| 🙋 Use your Claude Code sign-in | M | If Claude Code is installed and signed in, AI assist can run through it instead of an API key, using your Claude plan. |
+| Open in Claude Code | S | *File → Open Folder in Claude Code* starts a Claude Code session in the document's folder. |
+
+## v3.5 — Listen & speak
+
+More out of the natural voices, and a voice of your own for writing.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| Export as audio | M | Turn a document into an MP3, or an audiobook (`.m4b`) with a chapter for each heading, read by the natural voices. Offline. |
+| Pronunciation list | S | Teach the voices how to say names and invented words, with a list kept per folder. It's used for reading aloud and for audio exports. |
+| Dictation | M | Speak and the editor types, using an offline speech-recognition model (Whisper) that's downloaded once, when you ask. Nothing is sent anywhere. |
+
+## v3.6 — Study & research
+
+For coursework, research and reference notes.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| Smart search | M | Find documents by what they mean, not only by their exact words, with an index built and kept on your computer. *Related documents* appear under the outline. |
+| Citations & bibliography | M | Insert citations from a BibTeX file or a Zotero library. The bibliography is formatted (APA, MLA, Chicago and more) on the page and in PDF and Word exports. |
+| Flashcards & quizzes | M | Turn definitions, or `Q:` / `A:` lines, into flashcards with spaced repetition. AI (optional) can draft questions from a chapter. |
+
+## v4.0 — Writing studio
+
+From a folder of chapters to a finished book or website.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| 🙋 Book projects | L | A project that puts a folder of chapters in order, with front and back matter and word-count goals per chapter and per day. One click exports the whole book as an EPUB, a print-ready PDF (trim sizes such as 6×9 with mirrored margins) and a Word file. |
+| Git built in | M | Moved from *Later*. Changed files are marked in the Files panel; compare with the last commit, and commit, from the app. |
+| Publish a folder as a website | M | A static site with navigation, search and your theme, ready for GitHub Pages or any web host. |
+| Add-on gallery | M | Browse add-ons and install them from inside the app, each one still approved by you. |
+
 ## Later — only if needed
 
 💡 Ideas kept for later, if people ask for them.
 
 | Feature | Size | Details |
 |---|:-:|---|
-| Git built in | M | Changed files marked in the Files panel, compare with the last commit, and commit from the app. |
 | Shared review | L | Comments that other people can see and answer. It needs a sharing service, so it's an open question whether it's worth it. |
+| Phone companion | L | Read, highlight and listen on a phone, kept in step through the same sync folder. |
+| Writing together live | L | Several people editing one document at the same time. Like shared review, it needs a service in the middle. |
 
 ## Ongoing — Polish & distribution
 
@@ -201,7 +259,7 @@ updates itself from here on.
 |---|:-:|---|
 | Code signing (Windows) | S | Removes the *Windows protected your PC* warning. Needs a paid code-signing certificate; 2.1 makes the builds ready to use one. |
 | Signed & notarized Mac app | S | Removes macOS's *cannot be opened because the developer cannot be verified* warning. Needs an Apple Developer membership (yearly fee). |
-| Store listings | S | `winget` (submitted after each release), the Microsoft Store, and Flathub for Linux. |
+| 🔨 Store listings | S | `winget`: 3.2.0 was submitted on 3 November 2026 ([microsoft/winget-pkgs#469811](https://github.com/microsoft/winget-pkgs/pull/469811)) and is waiting for Microsoft's review; each later release is submitted the same way. Then the Microsoft Store and Flathub for Linux. |
 | Keeping dependencies up to date | S | Regular updates and security fixes, starting with the open Dependabot alert. |
 
 ## Open decisions
@@ -215,3 +273,5 @@ updates itself from here on.
 7. **How much version history to keep?** ✅ *Decided:* every save for 30 days, then one a day, up to 1 GB in total (shipped in 2.2.0).
 8. **What should 3.0 focus on?** ✅ *Decided:* add-ons and the app in your language (3.0), then sync (3.1); Git and shared review only if they're needed.
 9. **Natural voices: on the computer, or a cloud service?** The voices Microsoft Edge reads with come from an online service only Edge can use. The choices were neural voices that run offline on your computer, Microsoft's Azure voices with your own key, or reaching Edge's service unofficially. ✅ *Decided:* offline voices that run on your computer — free, private, and working without internet (3.2).
+10. **Which AI services come first?** *Proposed:* Claude, OpenAI, Gemini and local models (Ollama, LM Studio, or any OpenAI-compatible server) in 3.3. Mistral and OpenRouter come almost for free, because they accept the same kind of request as OpenAI.
+11. **Signing in with a Claude account.** Anthropic doesn't currently offer a "Sign in with Claude" that lets other apps use a Claude plan. *Proposed:* 3.4 goes through the Claude apps instead: the connector lets Claude use the reader, and Claude Code lets the reader use Claude. If Anthropic adds a sign-in for apps, it can replace the Claude Code step.

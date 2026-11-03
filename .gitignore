@@ -7,3 +7,4 @@ Thumbs.db
 preview-dist/
 preview/**/bin/
 preview/**/obj/
+packaging/winget/manifests/
