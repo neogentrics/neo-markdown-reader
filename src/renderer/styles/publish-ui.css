@@ -104,6 +104,8 @@ body.presenting { overflow: hidden; }
 .ai-model-row { display: flex; gap: 8px; align-items: center; }
 .ai-model-row input { flex: 1; min-width: 0; }
 .ai-settings .hint-text code { font-size: 11.5px; }
+/* Room for two lines, so a model list starting to load can't move the Save button under the pointer. */
+#ai-models-msg { min-height: 2.9em; margin-bottom: 0; }
 .ai-settings .hint-text a { color: var(--link); }
 .hint-text.warn { color: #c2410c; }
 .ai-panel { width: min(760px, 94vw); max-height: 86vh; padding: 18px 22px 14px; display: flex; flex-direction: column; }

@@ -262,6 +262,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     for (const theme of ['light', 'dark']) {
       await win.evaluate((t) => window.reader.setSettings({ theme: t }), theme);
       await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);
+      await win.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));   // let the new colours paint
       await menu('panel-tasks');
       await win.check('#tasks-done');
       await win.waitForSelector('#tasks-list .task.done');
