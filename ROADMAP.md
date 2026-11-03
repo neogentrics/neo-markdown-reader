@@ -32,7 +32,7 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v3.0](#v30--make-it-yours) | Make it yours | ✅ Released ([3.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.0.0)) |
 | [v3.1](#v31--across-your-computers) | Across your computers | ✅ Released ([3.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.1.0)) |
 | [v3.2](#v32--natural-voices) | Natural voices | ✅ Released ([3.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.2.0)) |
-| [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | 🔨 Next |
+| [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | 🔨 In progress |
 | [v3.4](#v34--claude-connected) | Claude, connected | Planned |
 | [v3.5](#v35--listen--speak) | Listen & speak | Planned |
 | [v3.6](#v36--study--research) | Study & research | Planned |
@@ -193,7 +193,7 @@ updates itself from here on.
 
 ## v3.3 — Your AI, your choice
 
-🔨 **Next.** AI assist works with the service you already pay for, or with none at all (decision 10).
+🔨 **In progress.** AI assist works with the service you already pay for, or with none at all (decision 10).
 Today it only works with Claude.
 
 | Feature | Size | Details |
@@ -273,5 +273,5 @@ From a folder of chapters to a finished book or website.
 7. **How much version history to keep?** ✅ *Decided:* every save for 30 days, then one a day, up to 1 GB in total (shipped in 2.2.0).
 8. **What should 3.0 focus on?** ✅ *Decided:* add-ons and the app in your language (3.0), then sync (3.1); Git and shared review only if they're needed.
 9. **Natural voices: on the computer, or a cloud service?** The voices Microsoft Edge reads with come from an online service only Edge can use. The choices were neural voices that run offline on your computer, Microsoft's Azure voices with your own key, or reaching Edge's service unofficially. ✅ *Decided:* offline voices that run on your computer — free, private, and working without internet (3.2).
-10. **Which AI services come first?** *Proposed:* Claude, OpenAI, Gemini and local models (Ollama, LM Studio, or any OpenAI-compatible server) in 3.3. Mistral and OpenRouter come almost for free, because they accept the same kind of request as OpenAI.
+10. **Which AI services come first?** ✅ *Decided:* all of them in 3.3: Claude, OpenAI, Gemini, Mistral, OpenRouter, and local models (Ollama, LM Studio, or any OpenAI-compatible server). The model lists come from each service, so new models appear without an app update.
 11. **Signing in with a Claude account.** Anthropic doesn't currently offer a "Sign in with Claude" that lets other apps use a Claude plan. *Proposed:* 3.4 goes through the Claude apps instead: the connector lets Claude use the reader, and Claude Code lets the reader use Claude. If Anthropic adds a sign-in for apps, it can replace the Claude Code step.
