@@ -244,5 +244,8 @@ export function createHighlights(ctx) {
     }
   }
 
-  return { apply, create, renderPanel, onPageClick, hideSelBar, count: async (tab) => (tab?.doc?.path ? (await list(tab.doc.path)).length : 0) };
+  /** Changed elsewhere (sync, 3.1): read these documents' highlights afresh next time. */
+  function forget(paths) { for (const p of paths) cache.delete(key(p)); }
+
+  return { apply, create, renderPanel, onPageClick, hideSelBar, forget, count: async (tab) => (tab?.doc?.path ? (await list(tab.doc.path)).length : 0) };
 }

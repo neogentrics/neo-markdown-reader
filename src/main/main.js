@@ -19,6 +19,7 @@ const { Updater, RELEASES_URL } = require('./updater');
 const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
 const { AnnotationStore } = require('./annotations');
+const { SyncEngine } = require('./sync');
 const publish = require('./publish');
 
 const isMac = process.platform === 'darwin';
@@ -43,6 +44,8 @@ let updater;
 let editing;
 let annotations;
 let history;
+/** Sync between your computers (3.1), see sync.js. */
+let sync;
 /** Every menu command, for running by name from Quick Open (">") and for changing shortcuts. */
 let commandRegistry = new Map();
 let quitting = false;
@@ -709,6 +712,8 @@ function rebuildMenu() {
         },
         { id: 'allow-run', label: 'Allow Running Code Blocks', type: 'checkbox', checked: s.runCode !== 'off', click: () => setSetting({ runCode: settings.get().runCode === 'off' ? 'ask' : 'off' }) },
         { id: 'open-backups', label: 'Open Backups Folder', click: () => openBackups() },
+        { type: 'separator' },
+        cmd('sync', 'Sync Between Computers…'),
       ],
     },
     {
@@ -1794,6 +1799,22 @@ function registerIpc() {
   });
 
   // ---- add-ons
+  // ---- sync between your computers (3.1): the main process reads and writes the sync folder
+  ipcMain.handle('sync:status', () => sync.status());
+  ipcMain.handle('sync:choose-folder', async (e) => {
+    const st = stateFor(e);
+    const opts = { title: 'Choose a folder you already sync', properties: ['openDirectory', 'createDirectory'] };
+    const res = await (st ? dlg.showOpenDialog(st.win, opts) : dialog.showOpenDialog(opts));
+    return res.canceled || !res.filePaths[0] ? null : res.filePaths[0];
+  });
+  ipcMain.handle('sync:configure', (_e, o = {}) => {
+    const patch = {};
+    if (isStr(o.folder, 4096) && path.isAbsolute(o.folder)) patch.folder = o.folder;
+    if (typeof o.enabled === 'boolean') patch.enabled = o.enabled;
+    if (isStr(o.name, 80)) patch.name = o.name;
+    return sync.configure(patch);
+  });
+  ipcMain.handle('sync:now', () => sync.sync());
   ipcMain.handle('addons:list', () => addonInfo());
   ipcMain.handle('addons:install', async (e) => { const st = stateFor(e); return st ? installAddon(st) : { error: 'invalid' }; });
   ipcMain.handle('addons:set-enabled', (_e, id, on) => {
@@ -1906,6 +1927,20 @@ app.whenReady().then(() => {
   editing = new Editing({ settings, dialog: dlg, backupDir: backupDir(), defaultDir: app.getPath('documents'), sealLocked, history });
   annotations = new AnnotationStore(app.getPath('userData'));
   addonStore = new addons.AddonStore(path.join(app.getPath('userData'), 'addons')).load();
+  sync = new SyncEngine({
+    dir: app.getPath('userData'),
+    settings,
+    annotations,
+    // Another computer's changes have just been applied here: show them in every open window.
+    onApplied: ({ settings: changed, annotationPaths }) => {
+      if (changed) broadcastSettings();
+      if (annotationPaths.length) for (const { win } of liveStates()) win.webContents.send('annotations:changed', annotationPaths);
+    },
+    onStatus: (status) => { for (const { win } of liveStates()) win.webContents.send('sync:status', status); },
+  });
+  settings.onChange = () => sync.soon();
+  annotations.onChange = () => sync.soon();
+  sync.start();
   // Documents never need camera, mic, notifications, etc.; only clipboard writes for "Copy".
   session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));
   nativeTheme.on('updated', () => { if (settings.get().theme === 'system') broadcastSettings(); });
@@ -1926,10 +1961,19 @@ app.whenReady().then(() => {
   app.on('activate', () => { if (!liveStates().length) createWindow(); });
 });
 
-app.on('before-quit', () => {
+let syncFlushed = false;
+app.on('before-quit', (e) => {
   quitting = true;
   persistSession();
   settings?.flush();
+  // One last sync, so the other computers see what was done here just before quitting. Bounded:
+  // a slow or missing cloud folder never holds the app open for more than a few seconds.
+  if (sync?.status().enabled && !syncFlushed) {
+    e.preventDefault();
+    syncFlushed = true;
+    annotations?.flush();
+    Promise.race([sync.flush(), new Promise((r) => setTimeout(r, 4000))]).finally(() => app.quit());
+  }
 });
 // Windows send their final tab state as they close, which can arrive after before-quit.
 app.on('will-quit', () => {
