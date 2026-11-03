@@ -1849,7 +1849,7 @@ function registerIpc() {
     return response === 0 ? voices.remove() : voices.status();
   });
   ipcMain.handle('voice:speak', async (_e, job = {}) => {
-    if (!isStr(job.text, 2000) || !VOICES.includes(job.voice) || !VOICE_LANGS.includes(job.lang)) return { error: 'invalid' };
+    if (!isStr(job.text, 20000) || !VOICES.includes(job.voice) || !VOICE_LANGS.includes(job.lang)) return { error: 'invalid' };
     const speed = Math.min(2, Math.max(0.5, Number(job.speed) || 1.05));
     const steps = Math.min(12, Math.max(2, Math.round(Number(job.steps) || 8)));
     try { return await voices.speak({ text: job.text, lang: job.lang, voice: job.voice, speed, steps }); } catch (err) { return { error: err.message }; }

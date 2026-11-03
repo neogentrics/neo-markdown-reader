@@ -118,3 +118,33 @@ test('voices: a stopped download carries on, keeping files already checked; Remo
   assert.equal(gone.installed, false);
   assert.equal(fs.existsSync(path.join(root, 'supertonic-3')), false);
 });
+
+test('voices: a sentence longer than the model reads well is spoken in pieces and joined with a short breath', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nmr-voices-'));
+  const asked = [];
+  // A stand-in for the voice process: answers each piece at once with one sample per character.
+  const fork = () => {
+    const handlers = {};
+    return {
+      on: (ev, fn) => { handlers[ev] = fn; },
+      postMessage: (m) => setImmediate(() => {
+        if (m.type === 'init') handlers.message({ type: 'ready' });
+        if (m.type === 'speak') { asked.push(m.text); handlers.message({ type: 'audio', id: m.id, sampleRate: 1000, samples: new Float32Array(m.text.length).fill(1), ms: 5 }); }
+      }),
+      kill: () => {},
+    };
+  };
+  const s = new VoiceStore({ root, fetch: null, fork, worker: '', fake: true, files: [{ path: 'x.bin', size: 4, sha256: '0'.repeat(64) }] });
+  await s.install();
+  const long = `${'word '.repeat(150)}end.`;                       // 754 characters
+  const res = await s.speak({ text: long, lang: 'en', voice: 'F1', speed: 1, steps: 8 });
+  assert.equal(asked.length, 3, 'three pieces of at most 300 characters');
+  assert.ok(asked.every((t) => t.length <= 300));
+  assert.equal(asked.join(' '), long.trim());
+  const voiced = asked.reduce((n, t) => n + t.length, 0);
+  assert.equal(res.samples.length, voiced + 2 * 150, 'the pieces, with 0.15 s between them');
+  assert.equal(res.samples[asked[0].length], 0, 'the breath is silent');
+  const short = await s.speak({ text: 'Short one.', lang: 'en', voice: 'F1', speed: 1, steps: 8 });
+  assert.equal(short.samples.length, 'Short one.'.length);
+  s.stop();
+});

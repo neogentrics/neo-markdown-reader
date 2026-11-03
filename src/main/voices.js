@@ -10,6 +10,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { chunks } = require('./voice-text');
 
 const MODEL = 'supertonic-3';
 const REVISION = 'aafc6e32416a594460b32413efc49d7fe4ce6d46';
@@ -202,13 +203,30 @@ class VoiceStore {
     return this.ready;
   }
 
-  /** Speak one sentence: { text, lang, voice, speed, steps } → { sampleRate, samples (Float32Array), ms }. */
+  /**
+   * Speak one sentence: { text, lang, voice, speed, steps } → { sampleRate, samples (Float32Array), ms }.
+   * The model reads best in pieces of up to ~300 characters (120 in Japanese and Korean), so a longer
+   * sentence is read piece by piece, at word boundaries, and the pieces joined with a short breath.
+   */
   async speak(job) {
     if (!this.installed()) throw new Error('The natural voices aren’t downloaded');
     await this.start();
     clearTimeout(this.idle);
     this.idle = setTimeout(() => this.stop(), IDLE_MS);
     this.idle.unref?.();
+    const pieces = chunks(job.text, job.lang === 'ja' || job.lang === 'ko' ? 120 : 300);
+    const parts = [];
+    for (const text of pieces.length ? pieces : [job.text]) parts.push(await this.speakPiece({ ...job, text }));
+    if (parts.length === 1) return parts[0];
+    const { sampleRate } = parts[0];
+    const gap = Math.round(sampleRate * 0.15);
+    const out = new Float32Array(parts.reduce((n, p) => n + p.samples.length, 0) + gap * (parts.length - 1));
+    let at = 0;
+    for (const p of parts) { out.set(p.samples, at); at += p.samples.length + gap; }
+    return { sampleRate, samples: out, ms: parts.reduce((n, p) => n + p.ms, 0) };
+  }
+
+  speakPiece(job) {
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
       this.pending.set(id, { resolve, reject });
