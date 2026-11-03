@@ -91,7 +91,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await win.check('#ai-enabled');
     await win.fill('#ai-model', 'llama3.2:3b');
     await win.click('#ai-form button[type=submit]');
-    assert.match(await win.textContent('#ai-msg'), /Plain http works only for this computer or your own network/);
+    await win.waitForFunction((re) => new RegExp(re).test(document.getElementById('ai-msg').textContent), 'Plain http works only for this computer or your own network');   // the check is made by the main process
     await win.fill('#ai-local-url', `${base}/v1`);
     await win.click('#ai-models-refresh');
     await win.waitForFunction(() => /4 models available/.test(document.getElementById('ai-models-msg').textContent));
@@ -122,7 +122,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     assert.equal(await win.isVisible('#ai-local'), false);
     await win.fill('#ai-key', 'sk not a key at all');
     await win.click('#ai-form button[type=submit]');
-    assert.match(await win.textContent('#ai-msg'), /one word, without spaces/);
+    await win.waitForFunction((re) => new RegExp(re).test(document.getElementById('ai-msg').textContent), 'one word, without spaces');   // the check is made by the main process
     await win.fill('#ai-key', 'sk-wrong-key-0123456789');
     await win.click('#ai-models-refresh');
     await win.waitForFunction(() => /ChatGPT didn’t accept the API key/.test(document.getElementById('ai-models-msg').textContent));
