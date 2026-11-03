@@ -1,6 +1,10 @@
 // Read, listen (2.4): read aloud with the computer's own voices, focus mode, folding sections under their
 // headings, and hover previews of footnotes and of links to other documents.
+// Natural voices (3.2): read aloud with the Supertonic voices, made on this computer (src/main/voices.js).
+import { modelLang, guessLang } from '../main/voice-text.js';
+
 const $ = (id) => document.getElementById(id);
+const NATURAL = 'natural:';
 
 // Text that isn't read aloud: code, maths, diagrams, charts and the app's own buttons.
 const SKIP = 'pre, script, style, button, svg, .katex, .mermaid-diagram, .mermaid-src, .chart, .chart-error, .copy-btn, .run-output, .footnote-ref, .footnote-backref, .fold-btn, .data-note, .nb-in, .nb-out, .img-missing';
@@ -104,13 +108,97 @@ export function createReadUi(ctx) {
   };
   const localVoices = () => (synth()?.getVoices?.() || []).filter((v) => v.localService !== false);
 
+  // ---------------------------------------------------------------- natural voices (3.2)
+  let natural = { installed: false, downloading: false, done: 0, total: 0, voices: [] };
+  let naturalLang = null;               // the model's language code for the document being read, or null
+  let steps = 8;                        // fewer on a slower computer (see speakNatural)
+  const audio = new Map();              // sentence index -> Promise<{ samples, sampleRate } | { error }>
+  let player = null;                    // the sentence playing now: { stop }
+  const isNatural = () => els.voice.value.startsWith(NATURAL) && natural.installed;
+  const voiceName = (id) => `${id[0] === 'F' ? 'Female' : 'Male'} voice ${id[1]}`;
+
   function fillVoices() {
     const want = ctx.settings().readAloud?.voice || '';
     const list = localVoices();
-    els.voice.replaceChildren(new Option('System default', ''), ...list.map((v) => new Option(`${v.name}${v.lang ? ` (${v.lang})` : ''}`, v.name)));
-    els.voice.value = list.some((v) => v.name === want) ? want : '';
+    const own = document.createElement('optgroup');
+    own.label = 'This computer’s voices';
+    own.append(new Option('System default', ''), ...list.map((v) => new Option(`${v.name}${v.lang ? ` (${v.lang})` : ''}`, v.name)));
+    const nat = document.createElement('optgroup');
+    nat.label = 'Natural voices (offline)';
+    if (natural.installed) {
+      nat.append(...natural.voices.map((id) => new Option(voiceName(id), NATURAL + id)), new Option('Remove natural voices…', `${NATURAL}remove`));
+    } else if (natural.downloading) {
+      const o = new Option(`Downloading natural voices… ${Math.floor((100 * natural.done) / (natural.total || 1))}%`, `${NATURAL}get`);
+      o.disabled = true;
+      nat.append(o);
+    } else nat.append(new Option(natural.error ? 'Try downloading natural voices again…' : 'Get natural voices…', `${NATURAL}get`));
+    els.voice.replaceChildren(nat, own);
+    const ok = [...els.voice.options].some((o) => o.value === want && !o.value.endsWith(':get') && !o.value.endsWith(':remove'));
+    els.voice.value = ok ? want : '';
   }
   window.speechSynthesis?.addEventListener?.('voiceschanged', fillVoices);
+  api.voiceStatus?.().then((s) => { natural = s; fillVoices(); });
+  api.onVoiceProgress?.((s) => { natural = s; fillVoices(); });
+
+  /** Ask for (and remember) the audio of sentence i. Two sentences ahead are made while one plays. */
+  function synthesize(i) {
+    if (i >= items.length || audio.has(i)) return audio.get(i);
+    const rate = Number(els.rate.value) || 1;
+    const p = api.voiceSpeak({ text: items[i].text, lang: naturalLang, voice: els.voice.value.slice(NATURAL.length), speed: 1.05 * rate, steps: i === index ? Math.min(steps, 5) : steps });
+    audio.set(i, p);
+    return p;
+  }
+
+  /** Play samples; resolves when they've finished (or were stopped). Tests replace this with window.__nmrAudio. */
+  let actx = null;
+  function play(samples, sampleRate) {
+    if (window.__nmrAudio) return window.__nmrAudio.play(samples, sampleRate);
+    actx ??= new AudioContext();
+    if (actx.state === 'suspended') actx.resume();
+    const buf = actx.createBuffer(1, samples.length, sampleRate);
+    buf.copyToChannel(samples instanceof Float32Array ? samples : Float32Array.from(samples), 0);
+    const src = actx.createBufferSource();
+    src.buffer = buf;
+    src.connect(actx.destination);
+    let done;
+    const ended = new Promise((r) => { done = r; });
+    src.onended = () => done();
+    src.start();
+    return { ended, stop: () => { try { src.stop(); } catch { /* not started */ } done(); } };
+  }
+
+  /** Stop the sentence playing and drop the ones made ahead (they're cancelled in the worker too). */
+  function stopAudio() {
+    player?.stop();
+    player = null;
+    audio.clear();
+    api.voiceCancel?.();
+  }
+
+  async function speakNatural(mine) {
+    const item = items[index];
+    const t0 = performance.now();
+    const res = await synthesize(index);
+    if (mine !== gen || !playing) return;
+    if (res?.error === 'cancelled') { audio.delete(index); speakNatural(mine); return; }   // made ahead, then dropped: make it again
+    if (!res || res.error) {
+      // The natural voice failed: carry on with the computer's own voice rather than stopping.
+      if (res?.error && res.error !== 'cancelled') toast(`The natural voice stopped (${res.error}) — reading on with your computer’s voice`);
+      els.voice.value = '';
+      speakAt(index);
+      return;
+    }
+    // A computer that makes speech slower than about 0.7× real time gets fewer refinement steps.
+    const secs = res.samples.length / res.sampleRate;
+    if (res.ms / 1000 > secs * 0.7 && steps > 5) steps = 5;
+    for (let k = 1; k <= 2; k++) synthesize(index + k);
+    window.__lastNatural = { index, text: item.text, secs, waited: performance.now() - t0 };     // read by the end-to-end tests
+    player = play(res.samples, res.sampleRate);
+    const p = player;
+    await p.ended;
+    audio.delete(index);
+    if (mine === gen && playing && player === p) speakAt(index + 1);
+  }
 
   function setPlaying(on) {
     playing = on;
@@ -122,7 +210,9 @@ export function createReadUi(ctx) {
   function speakAt(i) {
     const s = synth();
     const mine = ++gen;
-    s.cancel();
+    s?.cancel();
+    player?.stop();
+    player = null;
     if (i >= items.length) { finish(); return; }
     index = Math.max(0, i);
     const item = items[index];
@@ -133,6 +223,8 @@ export function createReadUi(ctx) {
     const box = desk.getBoundingClientRect();
     if (rect.top < box.top + 60 || rect.bottom > box.bottom - 90) desk.scrollBy({ top: rect.top - box.top - box.height * 0.3, behavior: 'smooth' });
     els.status.textContent = `${index + 1} of ${items.length}`;
+    if (isNatural() && naturalLang) { speakNatural(mine); return; }
+    if (!s) { stop(); toast('Read aloud isn’t available on this computer'); return; }
     const u = new SpeechSynthesisUtterance(item.text);
     const conf = ctx.settings().readAloud || {};
     u.rate = Number(els.rate.value) || conf.rate || 1;
@@ -154,12 +246,17 @@ export function createReadUi(ctx) {
   function start() {
     const tab = ctx.activeTab();
     if (!tab || tab.doc.compare || tab.doc.needsPassword) { toast('Open a document to read aloud'); return; }
-    if (!synth() || typeof SpeechSynthesisUtterance === 'undefined') { toast('Read aloud isn’t available on this computer'); return; }
+    const wantsNatural = (ctx.settings().readAloud?.voice || '').startsWith(NATURAL) && natural.installed;
+    if (!wantsNatural && (!synth() || typeof SpeechSynthesisUtterance === 'undefined')) { toast('Read aloud isn’t available on this computer'); return; }
     if (bar.hidden || tabId !== tab.id) {
       items = collectSentences(tab.el);
       if (!items.length) { toast('There’s no text to read here'); return; }
       tabId = tab.id;
+      audio.clear();
       fillVoices();
+      // The document's own language if it says (front matter), else a guess from its words.
+      naturalLang = modelLang(tab.el.lang || guessLang(items.slice(0, 80).map((it) => it.text).join(' ')) || 'en');
+      if (isNatural() && !naturalLang) toast('The natural voices don’t read this language yet — using your computer’s voice');
       els.rate.value = String(ctx.settings().readAloud?.rate || 1);
       if (![...els.rate.options].some((o) => o.value === els.rate.value)) els.rate.value = '1';
       // Start at the selection, or at the first sentence on screen.
@@ -177,12 +274,14 @@ export function createReadUi(ctx) {
       speakAt(at);
       return;
     }
-    if (playing) { setPlaying(false); gen++; synth().cancel(); els.status.textContent = 'Paused'; } else { setPlaying(true); speakAt(index); }
+    if (playing) { setPlaying(false); gen++; synth()?.cancel(); stopAudio(); els.status.textContent = 'Paused'; } else { setPlaying(true); speakAt(index); }
   }
 
   function stop() {
     gen++;
     synth()?.cancel();
+    stopAudio();
+    audio.clear();
     setPlaying(false);
     highlight(null);
     bar.hidden = true;
@@ -211,8 +310,35 @@ export function createReadUi(ctx) {
   $('speak-prev').onclick = () => jumpSection(-1);
   $('speak-next').onclick = () => jumpSection(1);
   const saveConf = () => api.setSettings({ readAloud: { rate: Number(els.rate.value) || 1, voice: els.voice.value } });
-  els.rate.onchange = () => { saveConf(); if (playing) speakAt(index); };
-  els.voice.onchange = () => { saveConf(); if (playing) speakAt(index); };
+  const restart = () => { audio.clear(); api.voiceCancel?.(); if (playing) speakAt(index); };
+  els.rate.onchange = () => { saveConf(); restart(); };
+  let chosen = els.voice.value;
+  els.voice.onfocus = () => { chosen = els.voice.value; };
+  els.voice.onchange = async () => {
+    const v = els.voice.value;
+    if (v === `${NATURAL}get` || v === `${NATURAL}remove`) {
+      els.voice.value = chosen;                       // these are actions, not voices
+      if (v.endsWith('get')) {
+        natural = await api.voiceInstall();
+        fillVoices();
+        if (natural.installed) {
+          els.voice.value = `${NATURAL}${natural.voices[0]}`;
+          saveConf();
+          toast('Natural voices are ready');
+          restart();
+        } else if (natural.error) toast(natural.error);
+      } else {
+        natural = await api.voiceRemove();
+        if (!natural.installed && chosen.startsWith(NATURAL)) { els.voice.value = ''; saveConf(); restart(); }
+        fillVoices();
+      }
+      chosen = els.voice.value;
+      return;
+    }
+    chosen = v;
+    saveConf();
+    restart();
+  };
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !bar.hidden && !document.querySelector('dialog[open]') && !e.target.closest?.('.cm-editor')) stop();
   });

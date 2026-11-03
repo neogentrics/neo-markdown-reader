@@ -42,8 +42,13 @@ for (const f of ['pyodide.mjs', 'pyodide.asm.mjs', 'pyodide.asm.wasm', 'python_s
 
 // PDF finishing and Word export run in the main process; bundle them so the packaged app
 // ships one small file instead of the libraries' full source trees.
+// Natural voices (3.2): ONNX Runtime's WebAssembly engine, loaded by dist/voice-worker.cjs from dist/voice.
+for (const f of ['ort-wasm-simd-threaded.wasm', 'ort-wasm-simd-threaded.mjs']) {
+  cpSync(join(root, 'node_modules/onnxruntime-web/dist', f), join(out, 'voice', f));
+}
+
 const mainTools = {
-  entryPoints: { 'export-tools': join(root, 'src/main/export-tools.js') },
+  entryPoints: { 'export-tools': join(root, 'src/main/export-tools.js'), 'voice-worker': join(root, 'src/main/voice-worker.js') },
   outdir: out,
   outExtension: { '.js': '.cjs' },
   bundle: true,

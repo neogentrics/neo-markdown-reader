@@ -1,5 +1,5 @@
 'use strict';
-const { app, BrowserWindow, ClipboardItem, Menu, clipboard, dialog, ipcMain, nativeTheme, protocol, safeStorage, screen, session, shell } = require('electron');
+const { app, BrowserWindow, ClipboardItem, Menu, clipboard, dialog, ipcMain, nativeTheme, net, protocol, safeStorage, screen, session, shell, utilityProcess } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
@@ -20,6 +20,8 @@ const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
 const { AnnotationStore } = require('./annotations');
 const { SyncEngine } = require('./sync');
+const { VoiceStore, VOICES, LICENSE_URL } = require('./voices');
+const { LANGS: VOICE_LANGS } = require('./voice-text');
 const publish = require('./publish');
 
 const isMac = process.platform === 'darwin';
@@ -46,6 +48,8 @@ let annotations;
 let history;
 /** Sync between your computers (3.1), see sync.js. */
 let sync;
+/** Natural voices (3.2), see voices.js. */
+let voices;
 /** Every menu command, for running by name from Quick Open (">") and for changing shortcuts. */
 let commandRegistry = new Map();
 let quitting = false;
@@ -1815,6 +1819,42 @@ function registerIpc() {
     return sync.configure(patch);
   });
   ipcMain.handle('sync:now', () => sync.sync());
+
+  // ---- natural voices (3.2): downloaded only after the reader agrees; spoken in a separate process
+  ipcMain.handle('voice:status', () => voices.status());
+  ipcMain.handle('voice:install', async (e) => {
+    const st = stateFor(e);
+    if (voices.status().installed) return voices.status();
+    const mb = Math.round(voices.status().total / 1e6 / 10) * 10;
+    for (;;) {
+      const { response } = await dlg.showMessageBox(st?.win, {
+        type: 'question', title: 'Natural voices', noLink: true, buttons: ['Download', 'Read the License', 'Cancel'], defaultId: 0, cancelId: 2,
+        message: 'Download the natural voices?',
+        detail: `About ${mb} MB, downloaded once. After that they work offline: nothing you read is ever sent anywhere.\n\nThe voices are Supertonic 3 by Supertone, under the OpenRAIL-M license, which forbids using them to impersonate people, to deceive, or to harm anyone.`,
+      });
+      if (response === 1) { shell.openExternal(LICENSE_URL); continue; }
+      if (response !== 0) return { ...voices.status(), canceled: true };
+      break;
+    }
+    return voices.install((status) => { for (const { win } of liveStates()) win.webContents.send('voice:progress', status); });
+  });
+  ipcMain.handle('voice:cancel-download', () => { voices.cancel(); return voices.status(); });
+  ipcMain.handle('voice:remove', async (e) => {
+    const st = stateFor(e);
+    const { response } = await dlg.showMessageBox(st?.win, {
+      type: 'question', title: 'Natural voices', noLink: true, buttons: ['Remove', 'Cancel'], defaultId: 1, cancelId: 1,
+      message: 'Remove the natural voices?',
+      detail: 'This frees the space they use. Your computer’s own voices stay, and you can download the natural ones again at any time.',
+    });
+    return response === 0 ? voices.remove() : voices.status();
+  });
+  ipcMain.handle('voice:speak', async (_e, job = {}) => {
+    if (!isStr(job.text, 2000) || !VOICES.includes(job.voice) || !VOICE_LANGS.includes(job.lang)) return { error: 'invalid' };
+    const speed = Math.min(2, Math.max(0.5, Number(job.speed) || 1.05));
+    const steps = Math.min(12, Math.max(2, Math.round(Number(job.steps) || 8)));
+    try { return await voices.speak({ text: job.text, lang: job.lang, voice: job.voice, speed, steps }); } catch (err) { return { error: err.message }; }
+  });
+  ipcMain.handle('voice:cancel', () => voices.cancelSpeech());
   ipcMain.handle('addons:list', () => addonInfo());
   ipcMain.handle('addons:install', async (e) => { const st = stateFor(e); return st ? installAddon(st) : { error: 'invalid' }; });
   ipcMain.handle('addons:set-enabled', (_e, id, on) => {
@@ -1941,6 +1981,13 @@ app.whenReady().then(() => {
   settings.onChange = () => sync.soon();
   annotations.onChange = () => sync.soon();
   sync.start();
+  voices = new VoiceStore({
+    root: path.join(app.getPath('userData'), 'voices'),
+    fetch: (url, opts) => net.fetch(url, opts),
+    fork: (script) => utilityProcess.fork(script, [], { serviceName: 'Neo Markdown Reader voices', stdio: 'ignore' }),
+    worker: path.join(ROOT, 'dist', 'voice-worker.cjs'),
+    fake: !!process.env.NMR_FAKE_TTS,             // tests: no download, and a tone instead of a voice
+  });
   // Documents never need camera, mic, notifications, etc.; only clipboard writes for "Copy".
   session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));
   nativeTheme.on('updated', () => { if (settings.get().theme === 'system') broadcastSettings(); });
@@ -1980,6 +2027,7 @@ app.on('will-quit', () => {
   persistSession();
   settings?.flush();
   annotations?.flush();
+  voices?.stop();
 });
 app.on('window-all-closed', () => {
   if (isMac) return;
