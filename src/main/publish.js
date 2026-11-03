@@ -56,12 +56,15 @@ function docInfo(meta = {}) {
     version: str(fm.version),
     tags,
     logo: str(fm.logo),
+    // How the document reads (3.0): its language and, for Arabic, Hebrew…, right to left.
+    lang: /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(String(meta.lang || '')) ? meta.lang : '',
+    dir: meta.dir === 'rtl' ? 'rtl' : '',
   };
 }
 
-function head({ title, cssHref, css, theme, font, pageCss = '' }) {
+function head({ title, cssHref, css, theme, font, pageCss = '', lang = '', dir = '' }) {
   return `<!doctype html>
-<html lang="en" class="publish-root" data-theme="${esc(theme || 'light')}" data-tone="${tone(theme)}" data-font="${esc(font || 'sans')}">
+<html lang="${esc(lang || 'en')}"${dir ? ' dir="rtl"' : ''} class="publish-root" data-theme="${esc(theme || 'light')}" data-tone="${tone(theme)}" data-font="${esc(font || 'sans')}">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' file:; img-src file: data: https: http:; font-src file: data:; media-src file: data: https:">
@@ -83,7 +86,7 @@ function buildBodyHtml({ content, meta, options, css, cssHref, theme, font, numb
       `<li class="lvl-${Math.min(2, e.depth)}"><a href="#${esc(e.id)}"><span class="t">${esc(e.text)}</span><span class="dots"></span><span class="n">${numbers ? (numbers[i] || '') : ''}</span></a></li>`).join('')}</ol></nav>`
     : '';
   const classes = ['publish', 'print', options.cover ? 'has-cover' : '', options.chapterBreaks ? 'h1-breaks' : ''].filter(Boolean).join(' ');
-  return `${head({ title: info.title, cssHref, css, theme, font, pageCss: `@page { size: ${paper.css}; margin: ${m.top}in ${m.side}in ${m.bottom}in; }` })}
+  return `${head({ title: info.title, lang: info.lang, dir: info.dir, cssHref, css, theme, font, pageCss: `@page { size: ${paper.css}; margin: ${m.top}in ${m.side}in ${m.bottom}in; }` })}
 <body class="${classes}">
 ${toc}<article class="markdown-body pub-body">${content}</article>
 </body>
@@ -104,7 +107,7 @@ function buildCoverHtml({ meta, options, css, cssHref, theme, font, baseUrl = ''
   const kicker = info.organization || info.tags.slice(0, 3).join(' · ');
   const left = [info.author && `<strong>${esc(info.author)}</strong>`, info.organization && info.author ? esc(info.organization) : ''].filter(Boolean).join('<br>');
   const right = [info.date && esc(info.date), info.version && `Version ${esc(info.version)}`].filter(Boolean).join('<br>');
-  return `${head({ title: info.title, cssHref, css, theme, font, pageCss: `@page { size: ${paper.css}; margin: 0; } .pub-cover { width: ${paper.w}in; height: ${(paper.h - 0.02).toFixed(2)}in; }` })}
+  return `${head({ title: info.title, lang: info.lang, dir: info.dir, cssHref, css, theme, font, pageCss: `@page { size: ${paper.css}; margin: 0; } .pub-cover { width: ${paper.w}in; height: ${(paper.h - 0.02).toFixed(2)}in; }` })}
 <body class="publish cover">
 <section class="pub-cover">
 <div class="pub-cover-band"></div>
@@ -175,7 +178,7 @@ async function buildStandaloneHtml({ content, meta, css, theme, font, exportCss,
   const description = info.subtitle ? `<meta name="description" content="${esc(info.subtitle)}">\n` : '';
   const author = info.author ? `<meta name="author" content="${esc(info.author)}">\n` : '';
   return `<!doctype html>
-<html lang="en" class="publish-root" data-theme="${esc(theme || 'light')}" data-tone="${tone(theme)}" data-font="${esc(font || 'sans')}">
+<html lang="${esc(info.lang || 'en')}"${info.dir ? ' dir="rtl"' : ''} class="publish-root" data-theme="${esc(theme || 'light')}" data-tone="${tone(theme)}" data-font="${esc(font || 'sans')}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -321,11 +324,10 @@ async function loadImageBytes(src) {
   return null;
 }
 
-/** Build the Word document: images are read here, diagrams and equations are drawn to pictures. */
-async function renderDocx({ root, payload, options }) {
-  const { collectAssets, buildDocx } = exportTools(root);
+/** Pictures and drawn graphics for a document model (Word and PowerPoint): { images, graphics }. */
+async function loadAssets(root, model, css) {
+  const { collectAssets } = exportTools(root);
   const { nativeImage } = require('electron');
-  const model = payload.model;
   const { images: srcs, graphics } = collectAssets(model);
   const images = {};
   const sizes = new Map();
@@ -353,15 +355,114 @@ async function renderDocx({ root, payload, options }) {
       toDraw.push({ src, html: `<img src="${esc(src)}" style="display:block;width:${run.width || 400}px;height:${run.height || 300}px">`, width: run.width || 400, height: run.height || 300 });
     }
   }
-  const drawn = await rasterize(root, [...graphics.map((g) => ({ html: g.html, width: g.width, height: g.height })), ...toDraw], { css: payload.css });
+  const drawn = await rasterize(root, [...graphics.map((g) => ({ html: g.html, width: g.width, height: g.height })), ...toDraw], { css });
   const graphicAssets = drawn.slice(0, graphics.length);
   toDraw.forEach((t, i) => { const d = drawn[graphics.length + i]; if (d) images[t.src] = { data: d.data, type: 'png', width: d.width, height: d.height }; });
+  return { images, graphics: graphicAssets };
+}
+
+/** Build the Word document: images are read here, diagrams and equations are drawn to pictures. */
+async function renderDocx({ root, payload, options }) {
+  const { buildDocx } = exportTools(root);
+  const assets = await loadAssets(root, payload.model, payload.css);
   const info = docInfo(payload.meta);
-  return buildDocx(model, { images, graphics: graphicAssets }, { ...options, title: info.title, author: info.author, subject: info.subtitle });
+  return buildDocx(payload.model, assets, { ...options, title: info.title, author: info.author, subject: info.subtitle });
+}
+
+// ---------------------------------------------------------------- 2.4: slides and e-books
+/** Slides (split as in presentation mode) as a PowerPoint file with editable text. */
+async function renderPptx({ root, payload, options }) {
+  const { buildPptx } = exportTools(root);
+  const all = payload.slides.flat();                 // one model, so graphics are numbered across slides
+  const assets = await loadAssets(root, all, payload.css);
+  const info = docInfo(payload.meta);
+  return buildPptx(payload.slides, assets, { ...options, title: info.title, author: info.author });
+}
+
+/** Slides as a PDF, one 16:9 page each, laid out exactly as in presentation mode. */
+async function renderSlidesPdf({ root, payload }) {
+  const cssHref = pathToFileURL(path.join(root, 'dist', 'export.css')).href;
+  const info = docInfo(payload.meta);
+  const pages = payload.slides.map((sl) => `<section class="present-slide markdown-body${sl.cls ? ` ${esc(sl.cls)}` : ''}" style="font-size:${Number(sl.fontSize) || 30}px">${sl.html}</section>`).join('\n');
+  const html = `${head({ title: info.title, lang: info.lang, dir: info.dir, cssHref, css: payload.css, theme: payload.theme, font: payload.font,
+    pageCss: '@page { size: 1280px 720px; margin: 0; } html, body { margin: 0; background: var(--page); } .present-slide { break-after: page; break-inside: avoid; }' })}<body class="publish slides">${pages}</body></html>`;
+  const { finishPdf } = exportTools(root);
+  const pdf = await printHtml(html, { generateDocumentOutline: false, displayHeaderFooter: false });
+  return finishPdf(pdf, null, { title: info.title, author: info.author, subject: info.subtitle, keywords: info.tags });
+}
+
+/** A stylesheet for e-readers: plain, readable, and kind to the reader's own settings. */
+const EPUB_CSS = `body { font-family: serif; line-height: 1.5; margin: 0 4%; }
+h1, h2, h3, h4 { font-family: sans-serif; line-height: 1.2; page-break-after: avoid; }
+h1 { font-size: 1.8em; margin: 1em 0 .6em; } h2 { font-size: 1.4em; margin: 1.4em 0 .5em; } h3 { font-size: 1.15em; }
+p { margin: 0 0 .8em; } img, svg { max-width: 100%; height: auto; } figure { margin: 1em 0; text-align: center; }
+pre { font-family: monospace; font-size: .85em; white-space: pre-wrap; background: #f4f5f7; padding: .7em; border-radius: 4px; }
+code { font-family: monospace; font-size: .9em; } blockquote { margin: 1em 1.5em; font-style: italic; }
+table { border-collapse: collapse; margin: 1em 0; font-size: .9em; } th, td { border: 1px solid #bbb; padding: .3em .5em; text-align: left; }
+.markdown-alert { border-left: 4px solid #888; padding: .3em .8em; margin: 1em 0; } .markdown-alert-title { font-weight: bold; }
+.doc-meta { margin: 2em 0; text-align: center; } .doc-meta-title { font-size: 2em; font-weight: bold; font-family: sans-serif; }
+.doc-meta-sub { font-size: 1.2em; } .doc-meta-tags .tag { margin: 0 .3em; color: #555; }
+.footnotes { font-size: .85em; } .chart-svg { width: 100%; height: auto; } nav ol { list-style: none; padding-left: 1.2em; }
+.hljs-keyword, .hljs-built_in { color: #a626a4; } .hljs-string { color: #50a14f; } .hljs-comment { color: #888; font-style: italic; } .hljs-number { color: #986801; }`;
+
+/**
+ * Build an EPUB from chapters of XHTML made by the page. Pictures are read here and stored in the book;
+ * diagrams (whose drawings e-readers can't show reliably) are drawn to pictures.
+ * payload: { chapters: [{ title, html }], toc: [{ chapter, id, text, level }], graphics: [{ html, width, height }], meta, css, lang }
+ */
+async function renderEpub({ root, payload }) {
+  const { buildEpub } = exportTools(root);
+  const { nativeImage } = require('electron');
+  const info = docInfo(payload.meta);
+  const drawn = await rasterize(root, (payload.graphics || []).map((g) => ({ html: g.html, width: g.width, height: g.height })), { css: payload.css });
+  const images = [];
+  const byKey = new Map();
+  const add = (data, type) => {
+    const name = `img${images.length + 1}.${type === 'jpg' ? 'jpg' : type}`;
+    images.push({ name, data, mime: IMAGE_MIME[type] || 'image/png' });
+    return `images/${name}`;
+  };
+  const files = payload.chapters.map((_, i) => `chapter-${i + 1}.xhtml`);
+  const chapters = [];
+  const props = {};
+  for (const [i, ch] of payload.chapters.entries()) {
+    let xhtml = String(ch.html);
+    // Diagrams drawn as pictures.
+    xhtml = xhtml.replace(/<img[^>]*data-graphic="(\d+)"[^>]*\/?>/g, (all, n) => {
+      const d = drawn[Number(n)];
+      if (!d) return '';
+      return `<img src="${add(d.data, 'png')}" alt="${esc(payload.graphics[Number(n)]?.alt || 'Diagram')}" width="${d.width}" height="${d.height}"/>`;
+    });
+    // Pictures: copied into the book (PNG, JPEG and GIF as they are; anything else drawn to PNG).
+    const srcs = [...new Set([...xhtml.matchAll(/<img[^>]*?\ssrc="([^"]+)"/g)].map((m) => m[1]).filter((s) => !s.startsWith('images/')))];
+    for (const raw of srcs) {
+      const src = raw.replace(/&amp;/g, '&');
+      if (!byKey.has(src)) {
+        let data = null;
+        try { data = await loadImageBytes(src); } catch { data = null; }
+        let type = sniffImage(data);
+        if (data && !['png', 'jpg', 'gif'].includes(type)) {
+          try { const img = nativeImage.createFromBuffer(data); if (!img.isEmpty()) { data = img.toPNG(); type = 'png'; } else data = null; } catch { data = null; }
+        }
+        byKey.set(src, data && type ? add(data, type) : null);
+      }
+      const local = byKey.get(src);
+      xhtml = xhtml.split(`src="${raw}"`).join(local ? `src="${local}"` : 'src="" data-missing="true"');
+    }
+    xhtml = xhtml.replace(/<img[^>]*data-missing="true"[^>]*\/?>/g, '');
+    const p = [/<svg[\s>]/.test(xhtml) ? 'svg' : '', /<math[\s>]/.test(xhtml) ? 'mathml' : ''].filter(Boolean).join(' ');
+    if (p) props[files[i]] = p;
+    chapters.push({ file: files[i], title: ch.title || info.title, xhtml });
+  }
+  const toc = (payload.toc || []).filter((e) => files[e.chapter]).map((e) => ({ file: files[e.chapter], id: e.id, text: e.text, level: e.level }));
+  return buildEpub({
+    title: info.title || 'Untitled', author: info.author, lang: info.lang || payload.lang || 'en', dir: info.dir, id: `urn:uuid:${require('node:crypto').randomUUID()}`,
+    chapters, toc, css: EPUB_CSS, images, props,
+  });
 }
 
 module.exports = {
   PAPERS, MARGINS, resolvePaper, pageMargins, contentsEntries, docInfo,
   buildBodyHtml, buildCoverHtml, headerFooter, buildStandaloneHtml, inlineExportCss, inlineLocalImages, sniffImage,
-  renderPdf, renderDocx, rasterize, exportTools,
+  renderPdf, renderDocx, renderPptx, renderSlidesPdf, renderEpub, rasterize, exportTools, EPUB_CSS,
 };

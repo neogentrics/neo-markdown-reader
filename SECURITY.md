@@ -110,6 +110,85 @@ Markdown files are treated as **untrusted input**:
   context menu or browser shortcuts, and opens no new windows.
 - Files over 8 MB aren't previewed.
 
+### Writing faster (since 2.2)
+
+- **Pictures** pasted or dropped into the editor are written by the main process, only for a document
+  you're currently allowed to edit, and only into the `images` folder next to it. The bytes must really be a
+  PNG, JPEG, GIF, WebP, BMP or AVIF picture (checked by content, not by name), the name is cleaned of any
+  path, an existing file is never overwritten, and the limit is 25 MB. Pictures can't be added to locked
+  documents, because they would be stored unencrypted.
+- **Pasted formatting** is converted to Markdown text; scripts, styles, frames, forms and embedded
+  (`data:`) pictures are dropped, and links other than web, mail, in-page and relative ones keep only their
+  text. The result is then rendered like any other document (sanitized, no scripts).
+- **Word import** reads only the `.docx` you chose and writes only the Markdown file you chose and its
+  pictures (in an `images` folder next to it). Replacing an existing Markdown file backs it up first.
+- **Version history** is stored in the app's data folder (`history/` next to `settings.json`), never in your
+  folders, and only for documents open in the window asking. Each version is the file's exact bytes,
+  compressed, so locked documents' versions stay encrypted. Restoring asks first (or asks for edit
+  permission) and keeps the current version before replacing it.
+- **Replace in Folder** only touches Markdown files in the folder you opened, never locked documents or
+  files with unsaved edits in a tab. Matching runs in a separate worker with a time limit, so a slow pattern
+  is stopped rather than freezing the app. Nothing changes until you confirm; each file must be unchanged
+  since the preview, is backed up and has its old version kept in History first. *Undo last replace* only
+  puts back files that haven't changed again since.
+- **Shortcuts** you choose are checked against a fixed list of keys and modifiers before they're saved or
+  used, and menu shortcuts are paused while you press keys for a new one.
+
+### Connected notes (since 2.3)
+
+- The folder's links, tags and tasks are worked out by the main process from the Markdown files in the folder
+  you opened. Locked documents are never read for this, and files over 2 MB are skipped.
+- **Ticking a task off** changes one line of one file, and only after the usual edit permission. The line
+  must still say exactly what the Tasks panel showed; otherwise nothing is written. The file is backed up
+  and its old version kept in History first, and its line endings are kept.
+- **Creating a document from a missing link** asks first, never overwrites an existing file, and only creates
+  it next to the linking document (or, for `[[folder/Name]]`, inside the open folder). `..` is refused.
+- **Rename** needs edit permission for the document, refuses names with path separators and never replaces
+  another file. Updating links to it asks first, and each document changed is backed up and kept in History.
+- **Today's note** is only ever created inside the open folder's `Daily` folder.
+- **Ask About This Folder** sends only the documents you tick, and the main process checks each one is a
+  Markdown file in the open folder and not a locked document before reading it. Citations in the answer only
+  link to documents that were sent.
+
+### Read, listen & share (since 2.4)
+
+- **Read aloud** only offers voices installed on the computer (`localService`), so the text isn't sent to an
+  online speech service.
+- **CSV, JSON, YAML and notebooks** are converted to Markdown by the main process and shown read-only through
+  the same sanitizer as any document; they can't be edited or saved from the app. Notebook outputs are what
+  was saved in the file: nothing is run, notebook code gets no *Run* button, and HTML outputs are sanitized
+  like HTML in a document.
+- **Charts** are drawn as SVG from the numbers and labels in the document; all text in them is escaped,
+  and the result is sanitized with the rest of the page.
+- **Hover previews** read only Markdown and data files, never locked documents, and don't remember or
+  watch what they read.
+- **E-books** keep only links within the book and to the web; links to files on the computer are removed.
+  Pictures are copied in; diagrams are drawn to pictures in a hidden window that runs no scripts.
+- **AI writing help** sends only the selected text and up to 2,000 characters either side, never from a
+  locked document. The suggestion changes nothing until it's accepted, and only if the selected text is
+  still unchanged.
+
+### Make it yours (since 3.0)
+
+- **Add-ons** are installed only after a native dialog (which the page can't fake) shows what each one adds
+  and the reader agrees. Packages are checked before anything is written: at most 4 MB and 200 files, no
+  file names with `..`, backslashes or drive letters, and only `addon.json` and the scripts it names are
+  kept. Each add-on lives in its own folder under the app's data folder and is checked again every time the
+  app starts.
+- **Add-on code** runs in the same sealed sandbox as ▶ Run (a separate hidden window in the sandbox's private
+  session): no internet, no files, no settings. Its input is passed as an escaped JSON string and parsed
+  there, so a document's text can't become code. It has 5 seconds to draw a block and 20 seconds to export,
+  and its answer is size-limited.
+- **What an add-on draws** is sanitized like a document, and more strictly: pictures, links, `<use>`,
+  `<style>` and any style or attribute that refers to a URL are removed, so it can't load anything from the
+  web or track the reader.
+- **Add-on exports** can't produce file types that could be run as programs (`.exe`, `.bat`, `.js`, `.sh`,
+  `.msi`, `.app` and others). The reader chooses where the file is saved, and the extension is forced.
+- **Add-on themes** are colours only (hex values); the app writes the CSS itself, and a theme that would be
+  hard to read (below 4.5:1 contrast) is refused.
+- **Translations** are built into the app; they're plain text looked up by the English original and are
+  never treated as HTML. Documents, file names and notes are never translated.
+
 ### AI assist (since 2.0)
 
 - Off by default. Requests are made only from an explicit menu command, contain only the current

@@ -7,7 +7,10 @@ import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { yamlFrontmatter } from '@codemirror/lang-yaml';
 import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching } from '@codemirror/language';
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
+import { autocompletion, completionKeymap } from '@codemirror/autocomplete';
 import { tags as t } from '@lezer/highlight';
+import { findTable } from './tables.js';
+import { convertPaste } from './paste.js';
 
 const highlight = HighlightStyle.define([
   { tag: t.heading1, fontSize: '1.35em', fontWeight: '700', color: 'var(--heading)' },
@@ -131,12 +134,70 @@ const COMMANDS = {
   redo: (v) => redo(v),
 };
 
+// ---------------------------------------------------------------- pasting & dropping
+const imageFiles = (list) => [...(list || [])].filter((f) => /^image\/(png|jpe?g|gif|webp|bmp|avif)$/i.test(f.type));
+
+function insertAt(view, from, to, text, { block = false } = {}) {
+  const doc = view.state.doc;
+  let insert = text;
+  if (block) {
+    const before = doc.sliceString(Math.max(0, from - 2), from);
+    const after = doc.sliceString(to, Math.min(doc.length, to + 2));
+    if (from > 0 && !before.endsWith('\n\n')) insert = (before.endsWith('\n') ? '\n' : '\n\n') + insert;
+    if (to < doc.length && !after.startsWith('\n\n')) insert += after.startsWith('\n') ? '\n' : '\n\n';
+    else if (to >= doc.length) insert += '\n';
+  }
+  view.dispatch({ changes: { from, to, insert }, selection: { anchor: from + insert.length }, scrollIntoView: true });
+  view.focus();
+}
+
+const stemOf = (p) => p.split(/[\\/]/).pop().replace(/\.[^.]+$/, '');
+/** Relative path from the folder of `from` to `to`, with forward slashes (for standard links). */
+function relPath(from, to) {
+  const a = from.replace(/\\/g, '/').split('/').slice(0, -1);
+  const b = to.replace(/\\/g, '/').split('/');
+  let i = 0;
+  while (i < a.length && i < b.length - 1 && a[i].toLowerCase() === b[i].toLowerCase()) i++;
+  return [...a.slice(i).map(() => '..'), ...b.slice(i)].map((s) => encodeURIComponent(s).replace(/%2E/g, '.')).join('/');
+}
+
+/** After [[ : documents in the open folder. Picking one finishes the link, as [[Name]] or [Name](path.md). */
+function wikiCompletions(linkTargets) {
+  return (context) => {
+    const m = context.matchBefore(/\[\[[^\]\n|#]*$/);
+    if (!m || !linkTargets) return null;
+    const { files, style, from } = linkTargets();
+    if (!files.length) return null;
+    const counts = new Map();
+    for (const f of files) { const s = stemOf(f.path).toLowerCase(); counts.set(s, (counts.get(s) || 0) + 1); }
+    const after = context.state.sliceDoc(context.pos, context.pos + 2);
+    const options = files.filter((f) => f.path !== from && !/\.mdlock$/i.test(f.path)).slice(0, 2000).map((f) => {
+      const stem = stemOf(f.path);
+      const name = counts.get(stem.toLowerCase()) > 1 ? f.rel.replace(/\\/g, '/').replace(/\.[^.]+$/, '') : stem;
+      return {
+        label: stem,
+        detail: f.rel.replace(/\\/g, '/').split('/').slice(0, -1).join('/') || undefined,
+        apply(view, _c, start, end) {
+          const close = after === ']]' ? 2 : 0;
+          const text = style === 'markdown' ? `[${stem}](${relPath(from, f.path)})` : `[[${name}]]`;
+          const s = start - 2;
+          view.dispatch({ changes: { from: s, to: end + close, insert: text }, selection: { anchor: s + text.length } });
+        },
+      };
+    });
+    return { from: m.from + 2, options, validFor: /^[^\]\n|#]*$/ };
+  };
+}
+
 /**
  * Create an editor in `parent`.
  * @param {HTMLElement} parent
- * @param {{ doc: string, onChange: (text: string) => void, onTopLine: (line: number) => void }} opts
+ * @param {{ doc: string, onChange: (text: string) => void, onTopLine: (line: number) => void,
+ *           onImages?: (files: File[], pos: number) => void, onPasted?: (kind: string) => void,
+ *           linkTargets?: () => { files: { path: string, rel: string, name: string }[], style: 'wiki'|'markdown', from: string } }} opts
  */
-function create(parent, { doc, onChange, onTopLine }) {
+function create(parent, { doc, onChange, onTopLine, onImages, onPasted, linkTargets }) {
+  let plainNext = 0;                 // Ctrl+Shift+V: paste as plain text
   const view = new EditorView({
     parent,
     state: EditorState.create({
@@ -156,6 +217,7 @@ function create(parent, { doc, onChange, onTopLine }) {
         syntaxHighlighting(highlight),
         theme,
         placeholder('Start writing in Markdown…'),
+        autocompletion({ override: [wikiCompletions(linkTargets)], activateOnTyping: true, icons: false }),
         EditorView.contentAttributes.of({ spellcheck: 'true', autocorrect: 'on', autocapitalize: 'sentences', 'aria-label': 'Markdown editor' }),
         keymap.of([
           { key: 'Mod-b', run: COMMANDS.bold },
@@ -163,12 +225,43 @@ function create(parent, { doc, onChange, onTopLine }) {
           { key: 'Mod-k', run: COMMANDS.link },
           { key: 'Mod-Shift-x', run: COMMANDS.strike },
           { key: 'Mod-`', run: COMMANDS.code },
+          ...completionKeymap,
           ...defaultKeymap,
           ...historyKeymap,
           ...searchKeymap,
           indentWithTab,
         ]),
         EditorView.updateListener.of((u) => { if (u.docChanged) onChange?.(u.state.doc.toString()); }),
+        EditorView.domEventHandlers({
+          keydown(e) { if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'v') plainNext = Date.now(); return false; },
+          paste(e, view) {
+            const cd = e.clipboardData;
+            if (!cd) return false;
+            const text = cd.getData('text/plain');
+            const pics = imageFiles(cd.files);
+            if (pics.length && !text.trim()) {
+              e.preventDefault();
+              onImages?.(pics, view.state.selection.main.head);
+              return true;
+            }
+            if (Date.now() - plainNext < 1500) return false;
+            const out = convertPaste({ text, html: cd.getData('text/html') });
+            if (!out) return false;
+            e.preventDefault();
+            const { from, to } = view.state.selection.main;
+            insertAt(view, from, to, out.text, { block: out.block });
+            onPasted?.(out.kind);
+            return true;
+          },
+          drop(e, view) {
+            const pics = imageFiles(e.dataTransfer?.files);
+            if (!pics.length) return false;
+            e.preventDefault();
+            const pos = view.posAtCoords({ x: e.clientX, y: e.clientY }) ?? view.state.selection.main.head;
+            onImages?.(pics, pos);
+            return true;
+          },
+        }),
       ],
     }),
   });
@@ -191,10 +284,31 @@ function create(parent, { doc, onChange, onTopLine }) {
       view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text }, selection: { anchor: head } });
     },
     run(name) { const fn = COMMANDS[name]; return fn ? fn(view) : false; },
+    /** Insert text at `pos` (or replace the selection), as its own paragraph if `block`. */
+    insert(text, { pos = null, block = false } = {}) {
+      const sel = view.state.selection.main;
+      const at = pos == null ? sel : { from: Math.min(pos, view.state.doc.length), to: Math.min(pos, view.state.doc.length) };
+      insertAt(view, at.from, at.to, text, { block });
+    },
+    /** The Markdown table the cursor is in: { from, to, text }, or null. */
+    tableAtCursor() {
+      const { state } = view;
+      const lineNo = state.doc.lineAt(state.selection.main.head).number - 1;
+      const lines = state.doc.toString().split('\n');
+      const found = findTable(lines, lineNo);
+      if (!found) return null;
+      const from = state.doc.line(found.start + 1).from;
+      const to = state.doc.line(found.end + 1).to;
+      return { from, to, text: state.sliceDoc(from, to) };
+    },
+    replaceRange(from, to, text) {
+      view.dispatch({ changes: { from, to, insert: text }, selection: { anchor: from + text.length }, scrollIntoView: true });
+      view.focus();
+    },
     focus: () => view.focus(),
     hasFocus: () => view.hasFocus,
     destroy: () => view.destroy(),
   };
 }
 
-window.__editorKit = { create, commands: Object.keys(COMMANDS) };
+window.__editorKit = { create, convertPaste, commands: Object.keys(COMMANDS), findView: (dom) => EditorView.findFromDOM(dom) };

@@ -2,6 +2,8 @@
 // Permission, saving, backups and conflict checks all happen in the main process (src/main/editing.js);
 // this module only asks for them and keeps the editor, preview and tab state in step.
 import { TEMPLATES } from './templates.js';
+import { parseTable, formatTable, blankTable } from './tables.js';
+import { createTableUi } from './table-ui.js';
 
 /**
  * @param {object} ctx  hooks into the tab system in app.js
@@ -25,6 +27,7 @@ export function createEditMode(ctx) {
     banner: $('disk-banner'), grants: $('grants'), grantsBody: $('grants-body'),
   };
   let untitledCount = 0;
+  const tableUi = createTableUi();
 
   // ---------------------------------------------------------------- loading the editor bundle
   let kitLoading = null;
@@ -66,6 +69,7 @@ export function createEditMode(ctx) {
     if (!tab || tab.editing) { tab?.editor?.focus(); return; }
     if (tab.doc.compare) { ctx.toast('A comparison can’t be edited — open the document itself to edit it'); return; }
     if (tab.doc.needsPassword) { ctx.toast('Unlock the document first'); return; }
+    if (tab.doc.data) { ctx.toast('Data files and notebooks open read-only here — edit them in their own app'); return; }
     ctx.beforeEdit?.();                      // e.g. close split view to make room for the editor
     if (!tab.untitled) {
       const res = await api.requestEdit(tab.doc.path);
@@ -94,6 +98,9 @@ export function createEditMode(ctx) {
         schedulePreview(tab);
       },
       onTopLine: (line) => syncPreviewTo(tab, line),
+      onImages: (files, pos) => addImages(tab, files, pos),
+      onPasted: (kind) => ctx.toast(kind === 'table' ? 'Pasted as a table' : 'Pasted as Markdown — Ctrl+Shift+V pastes plain text'),
+      linkTargets: () => ctx.linkTargets(tab),
     });
     show(tab);
     tab.editor.focus();
@@ -151,6 +158,7 @@ export function createEditMode(ctx) {
     els.banner.hidden = true;
     ctx.updateTabButton(tab);
     refresh();
+    ctx.onSaved?.(tab);
     ctx.toast(res.backup ? 'Saved — the original was backed up first' : 'Saved');
     return true;
   }
@@ -176,6 +184,50 @@ export function createEditMode(ctx) {
     ctx.syncSoon();
     ctx.toast(`Saved as ${doc.name}`);
     return true;
+  }
+
+  // ---------------------------------------------------------------- pictures & tables
+  const IMAGE_WHY = {
+    'not-allowed': 'Pictures can only be added while you’re allowed to edit this file',
+    'too-large': 'That picture is larger than 25 MB',
+    'not-image': 'That isn’t a picture the app can use (PNG, JPEG, GIF, WebP, BMP or AVIF)',
+    locked: 'Pictures can’t be added to a locked document — they would be saved unencrypted',
+  };
+  const altText = (name) => {
+    const base = String(name || '').replace(/\.[^.]*$/, '');
+    return !base || /^image$/i.test(base) ? 'Pasted image' : base.replace(/[-_]+/g, ' ').replace(/[[\]]/g, '').trim();
+  };
+
+  /** Save pasted or dropped pictures next to the document and link them at `pos` (or the cursor). */
+  async function addImages(tab, files, pos = null) {
+    if (!tab?.editing || !files?.length) return;
+    if (tab.doc.locked) { ctx.toast(IMAGE_WHY.locked); return; }
+    if (tab.untitled || !tab.doc.path) {
+      ctx.toast('Save the document first, so its pictures can be kept next to it');
+      if (!(await saveAs(tab))) return;
+      pos = null;
+    }
+    const links = [];
+    for (const f of files) {
+      const res = await api.saveImage({ path: tab.doc.path, name: f.name, data: new Uint8Array(await f.arrayBuffer()) });
+      if (!res.ok) { ctx.toast(IMAGE_WHY[res.reason] || res.message || 'Couldn’t save that picture'); continue; }
+      links.push(`![${altText(f.name)}](${res.rel})`);
+    }
+    if (!links.length) return;
+    tab.editor.insert(links.join('\n\n'), { pos, block: true });
+    ctx.toast(links.length === 1 ? 'Picture saved in the images folder next to this document' : `${links.length} pictures saved in the images folder`);
+  }
+
+  /** Edit the table the cursor is in, or insert a new one. */
+  async function editTable(tab = ctx.activeTab()) {
+    if (!tab?.editing) { ctx.toast('Click Edit first, then put the cursor in a table'); return; }
+    const found = tab.editor.tableAtCursor();
+    let model = blankTable(3, 2);
+    if (found) { try { model = parseTable(found.text); } catch { /* not a well-formed table: start a new one */ } }
+    const out = await tableUi.open(model, { isNew: !found });
+    if (!out) { tab.editor.focus(); return; }
+    const md = formatTable(out);
+    if (found) tab.editor.replaceRange(found.from, found.to, md); else tab.editor.insert(md, { block: true });
   }
 
   // ---------------------------------------------------------------- new documents
@@ -250,7 +302,7 @@ export function createEditMode(ctx) {
 
   function refresh() {
     const tab = ctx.activeTab();
-    els.edit.hidden = !tab || !!tab.doc.compare;           // comparisons are read-only views
+    els.edit.hidden = !tab || !!tab.doc.compare || !!tab.doc.data;           // comparisons and data files are read-only views
     els.save.hidden = !tab?.editing;
     if (!tab) return;
     const locked = !tab.untitled && tab.doc.writable === false && !tab.editing;
@@ -271,7 +323,8 @@ export function createEditMode(ctx) {
   els.fmt.addEventListener('click', (e) => {
     const b = e.target.closest('button[data-cmd]');
     const tab = ctx.activeTab();
-    if (b && tab?.editing) tab.editor.run(b.dataset.cmd);
+    if (!b || !tab?.editing) return;
+    if (b.dataset.cmd === 'table') editTable(tab); else tab.editor.run(b.dataset.cmd);
   });
 
   // ---------------------------------------------------------------- editing permissions dialog
@@ -304,7 +357,9 @@ export function createEditMode(ctx) {
   $('grants-backups').onclick = () => api.openBackups();
 
   return {
-    enter, exit, toggle, save, saveAs, newDocument, onDiskChange, show, refresh, showGrants,
+    enter, exit, toggle, save, saveAs, newDocument, onDiskChange, show, refresh, showGrants, editTable,
+    /** Pictures dropped on the window while editing go into the active document. */
+    dropImages: (files) => addImages(ctx.activeTab(), files),
     /** Does this tab hold work that would be lost if it closed now? */
     hasUnsaved: (t) => !!t.editing && (t.dirty || (t.untitled && !!t.editor?.getText().trim())),
   };

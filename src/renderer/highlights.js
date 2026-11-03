@@ -144,6 +144,7 @@ export function createHighlights(ctx) {
     if (!tab.doc.path) { ctx.toast('Save the document first to highlight it'); return; }
     if (tab.doc.compare) return;
     if (tab.doc.locked) { ctx.toast('Highlights aren’t available in locked documents — they would be stored without the lock'); return; }
+    if (tab.doc.data) { ctx.toast('Highlights are for Markdown documents'); return; }
     const s = currentSelection(tab);
     if (!s) { ctx.toast('Select some text on the page first'); return; }
     const items = [...(await list(tab.doc.path))];

@@ -28,11 +28,29 @@ export function splitSlides(root) {
     }
   }
   push();
-  return slides.map((list) => list.map((n) => n.cloneNode(true)));
+  // Folded sections and reading aids don't belong on slides.
+  return slides.map((list) => list.map((n) => {
+    const c = n.cloneNode(true);
+    c.querySelectorAll?.('.fold-btn').forEach((b) => b.remove());
+    c.classList?.remove('fold-hidden', 'folded', 'in-focus');
+    return c;
+  }));
 }
 
 const BASE_FONT = 30;
 const MIN_FONT = 13;
+
+/** Shrink a slide's text (down to a limit) until it fits its 1280×720 box. Returns the font size used. */
+export function fitSlide(slideEl) {
+  slideEl.style.fontSize = '';
+  const room = slideEl.clientHeight;
+  let size = BASE_FONT;
+  for (let i = 0; i < 12 && slideEl.scrollHeight > room + 1 && size > MIN_FONT; i++) {
+    size = Math.max(MIN_FONT, Math.floor(size * Math.min(0.95, room / slideEl.scrollHeight)));
+    slideEl.style.fontSize = `${size}px`;
+  }
+  return size;
+}
 
 export function createPresenter({ api, activeTab, toast }) {
   const wrap = document.getElementById('present');
@@ -53,16 +71,10 @@ export function createPresenter({ api, activeTab, toast }) {
   function show(i) {
     index = Math.max(0, Math.min(slides.length - 1, i));
     slideEl.replaceChildren(...slides[index].map((n) => n.cloneNode(true)));
-    slideEl.style.fontSize = '';
     slideEl.classList.toggle('title-slide', slides[index].length === 1 && slides[index][0].classList?.contains('doc-meta'));
     slideEl.classList.toggle('short', slides[index].length <= 2);
     // A slide that holds more than fits gets smaller text (down to a limit), keeping its full width.
-    const room = slideEl.clientHeight;
-    let size = BASE_FONT;
-    for (let i = 0; i < 12 && slideEl.scrollHeight > room + 1 && size > MIN_FONT; i++) {
-      size = Math.max(MIN_FONT, Math.floor(size * Math.min(0.95, room / slideEl.scrollHeight)));
-      slideEl.style.fontSize = `${size}px`;
-    }
+    fitSlide(slideEl);
     counter.textContent = `${index + 1} / ${slides.length}`;
     bar.style.width = `${((index + 1) / slides.length) * 100}%`;
   }

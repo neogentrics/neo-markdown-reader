@@ -13,6 +13,13 @@ import { createThemeUi } from './theme-ui.js';
 import { createLockUi } from './lock-ui.js';
 import { addRunButtons } from './run-ui.js';
 import { createAiUi } from './ai-ui.js';
+import { createHistoryUi } from './history-ui.js';
+import { createKeysUi } from './keys-ui.js';
+import { createNotesUi } from './notes-ui.js';
+import { createReadUi, cleanCopy } from './read-ui.js';
+import { createUiTranslator } from './i18n-ui.js';
+import { createAddonsUi } from './addons-ui.js';
+import { resolveWiki, relative, dirOf, slugify as wikiSlug } from '../main/notes-core.js';
 import './styles/app.css';
 
 const api = window.reader;
@@ -49,6 +56,12 @@ let presenter = null;
 let themeUi = null;
 let lockUi = null;
 let aiUi = null;
+let historyUi = null;
+let keysUi = null;
+let notesUi = null;
+let readUi = null;
+let addonsUi = null;
+const uiText = createUiTranslator();
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
 const tabIndex = (id) => tabs.findIndex((t) => t.id === id);
@@ -112,13 +125,19 @@ function renderInto(tab, doc, { preview = false } = {}) {
     return Promise.resolve();
   }
   tab.el.classList.remove('locked-page');
-  const result = render(doc.content, { baseUrl: doc.baseUrl });
+  const result = render(doc.content, { baseUrl: doc.baseUrl, wiki: wikiResolver(doc) });
   if (!preview) tab.doc = doc;
   tab.result = result;
   tab.el.innerHTML = result.html;
-  enhance(tab.el);
+  // Right-to-left documents (front matter dir: rtl, or lang: ar / he / fa…); otherwise each block decides.
+  if (result.dir) tab.el.dir = result.dir; else tab.el.removeAttribute('dir');
+  if (result.lang) tab.el.lang = result.lang; else tab.el.removeAttribute('lang');
+  tab.el.classList.toggle('data-page', !!doc.data);
+  enhance(tab.el, { run: !doc.data });
+  if (doc.data === 'csv' || doc.data === 'tsv') makeSortable(tab.el);
+  readUi?.afterRender(tab);
   updateTabButton(tab);
-  return renderMermaid(tab.el, false).then(() => highlights?.apply(tab));
+  return renderMermaid(tab.el, false).then(() => addonsUi?.drawBlocks(tab.el)).then(() => highlights?.apply(tab));
 }
 
 /** Re-render a tab in place (e.g. after its highlights changed), keeping its scroll position. */
@@ -210,6 +229,7 @@ function activate(id) {
   next.btn.tabIndex = 0;                       // the active tab is the one Tab key lands on
   next.btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   if (!els.findBar.hidden) closeFind();
+  if (prev !== next) readUi?.tabChanged();
   split?.afterActivate(prev, next);
   showActiveDoc();
   editMode?.show(next);
@@ -295,6 +315,8 @@ function showActiveDoc() {
   if (doc.path) $('reveal').onclick = () => api.reveal(doc.path);
   updateBookmarkButton();
   updateChrome();
+  if (sidebar?.panel() === 'history') historyUi?.render(tab);
+  notesUi?.renderBacklinks(tab);
 }
 
 function isBookmarked(p) { return !!p && (settings.bookmarks || []).some((b) => b.toLowerCase() === p.toLowerCase()); }
@@ -410,8 +432,44 @@ async function refreshTab(tab, doc) {
 }
 
 // ================================================================ rendering helpers
-function enhance(root) {
-  addRunButtons(root, { api, toast, docFor: (pre) => tabs.find((t) => t.el.contains(pre))?.doc });
+/**
+ * A CSV / TSV table: click a column heading (or press Enter on it) to sort by it, again to reverse.
+ * Numbers sort as numbers; the file itself is never changed.
+ */
+function makeSortable(root) {
+  for (const table of root.querySelectorAll('table')) {
+    const body = table.tBodies[0];
+    if (!body) continue;
+    const heads = [...table.querySelectorAll('thead th')];
+    const num = (v) => { const n = Number(v.replace(/[\s,$€£¥%]/g, '')); return v.trim() && Number.isFinite(n) ? n : null; };
+    heads.forEach((th, col) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sort-btn';
+      btn.append(...th.childNodes);
+      th.appendChild(btn);
+      th.setAttribute('aria-sort', 'none');
+      btn.onclick = () => {
+        const dir = th.getAttribute('aria-sort') === 'ascending' ? -1 : 1;
+        for (const h of heads) h.setAttribute('aria-sort', 'none');
+        th.setAttribute('aria-sort', dir === 1 ? 'ascending' : 'descending');
+        const rows = [...body.rows];
+        const key = (r) => r.cells[col]?.textContent ?? '';
+        rows.sort((a, b) => {
+          const x = key(a); const y = key(b);
+          const nx = num(x); const ny = num(y);
+          if (nx !== null && ny !== null) return (nx - ny) * dir;
+          if (nx !== null || ny !== null) return (nx === null ? 1 : -1);      // blanks and text after numbers
+          return x.localeCompare(y, undefined, { numeric: true, sensitivity: 'base' }) * dir;
+        });
+        body.append(...rows);
+      };
+    });
+  }
+}
+
+function enhance(root, { run = true } = {}) {
+  if (run) addRunButtons(root, { api, toast, docFor: (pre) => tabs.find((t) => t.el.contains(pre))?.doc });
   for (const pre of root.querySelectorAll('pre.code-block')) {
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
@@ -497,6 +555,7 @@ function buildToc(toc) {
     a.dataset.id = h.id;
     a.style.setProperty('--indent', h.level - min);
     a.className = 'toc-item lvl-' + h.level;
+    a.dir = 'auto';                      // Arabic or Hebrew headings line up on the right
     a.onclick = (e) => { e.preventDefault(); scrollToId(h.id); };
     els.toc.appendChild(a);
   }
@@ -520,6 +579,7 @@ function scrollToId(id, tab = activeTab()) {
   try { key = decodeURIComponent(key); } catch { /* keep raw */ }
   const target = tab.el.querySelector(`[id="${CSS.escape(key)}"]`);
   if (!target) return;
+  readUi?.reveal(target, tab);
   scrollToElement(target, { desk: deskFor(tab) });
   target.classList.add('flash');
   setTimeout(() => target.classList.remove('flash'), 1200);
@@ -534,6 +594,7 @@ async function openAtLine(path, line, query) {
   for (const el of tab.el.querySelectorAll('[data-line]')) { if (Number(el.dataset.line) <= line) best = el; else break; }
   pendingRestore = null;
   if (best) {
+    readUi?.reveal(best, tab);
     scrollToElement(best, { smooth: false });
     best.classList.add('flash');
     setTimeout(() => best.classList.remove('flash'), 1400);
@@ -564,9 +625,29 @@ els.desk.addEventListener('scroll', () => {
 }, { passive: true });
 
 // ================================================================ links & images in documents
+/** Where [[wiki links]] in `doc` go: documents in the open folder, found by name. */
+function wikiResolver(doc) {
+  const files = sidebar?.allFiles() || [];
+  if (!files.length || !doc.path) return null;
+  return (w) => {
+    const to = w.name ? resolveWiki(w.name, files, doc.path) : doc.path;
+    const hash = w.heading ? `#${wikiSlug(w.heading)}` : '';
+    if (!to) return { href: `${encodeURI(w.name)}.md${hash}`, missing: true };
+    const rel = to === doc.path ? '' : relative(dirOf(doc.path), to).split('/').map(encodeURIComponent).join('/');
+    return { href: rel + hash || '#', missing: false };
+  };
+}
+
 async function followLink(a, { newTab = false, tab = activeTab() } = {}) {
   const href = a.getAttribute('href');
   if (!tab || !href) return;
+  if (a.classList.contains('wikilink-missing')) {
+    // A link to a document that doesn't exist yet: offer to create it next to this one.
+    const res = await api.createLinked(tab.doc.path, a.dataset.wiki || '');
+    if (res?.doc) { await openInTab(res.doc, { activate: true, scroll: 0 }); sidebar.refresh(); }
+    else if (res?.error) toast(res.error);
+    return;
+  }
   if (href.startsWith('#')) { scrollToId(href.slice(1), tab); return; }
   const res = await api.resolveLink(href, tab.doc.path);
   if (res.kind === 'doc') {
@@ -638,6 +719,7 @@ async function copyRich() {
     text = sel.toString();
   } else {
     holder.innerHTML = tab.el.innerHTML;
+    cleanCopy(holder);
     text = tab.el.innerText;
   }
   holder.querySelectorAll('.copy-btn, .footnote-backref').forEach((n) => n.remove());
@@ -787,6 +869,7 @@ for (const seg of document.querySelectorAll('.seg[data-key]')) {
   });
 }
 $('shortcuts-close').onclick = () => els.shortcuts.close();
+$('shortcuts-customize').onclick = () => { els.shortcuts.close(); keysUi.open(); };
 $('update-dismiss').onclick = () => { els.updateBar.hidden = true; };
 
 // Keys the menu doesn't own. (Menu shortcuts such as Alt+Left are handled only by the menu,
@@ -838,6 +921,11 @@ api.onCommand(({ cmd, arg }) => {
     // organizing (v1.3)
     case 'quick-open': palette.open(); break;
     case 'find-in-folder': sidebar.findInFolder(); break;
+    case 'replace-in-folder': sidebar.replaceInFolder(); break;
+    case 'panel-history': showSidebar(); sidebar.show('history'); break;
+    case 'edit-table': editMode.editTable(); break;
+    case 'customize-shortcuts': keysUi.open(); break;
+    case 'command-palette': palette.open('>'); break;
     case 'close-folder': api.closeFolder(); sidebar.setFolder(null); break;
     case 'panel-outline': case 'panel-files': case 'panel-highlights':
       showSidebar(); sidebar.show(cmd.slice(6)); break;
@@ -853,6 +941,11 @@ api.onCommand(({ cmd, arg }) => {
     case 'export-docx': publish.exportAs('docx'); break;
     case 'export-html': publish.exportAs('html'); break;
     case 'export-txt': publish.exportAs('txt'); break;
+    case 'export-epub': publish.exportAs('epub'); break;
+    case 'export-slides': publish.exportAs('slides'); break;
+    case 'export-pptx': publish.exportAs('pptx'); break;
+    case 'addons': addonsUi.open(); break;
+    case 'addon-export': if (arg) addonsUi.exportWith(arg); break;
     case 'present': if (presenter.active()) presenter.stop(); else presenter.start(); break;
     case 'customize-theme': themeUi.open(); break;
     case 'lock-protect': lockUi.protect(); break;
@@ -862,11 +955,43 @@ api.onCommand(({ cmd, arg }) => {
     case 'ai-explain': aiUi.run('explain'); break;
     case 'ai-report': aiUi.run('report'); break;
     case 'ai-settings': aiUi.openSettings(); break;
+    case 'ai-folder': aiUi.askFolder(); break;
+    case 'ai-proofread': case 'ai-rewrite': case 'ai-shorten': case 'ai-translate': aiUi.editSelection(cmd.slice(3)); break;
+    // read, listen & share (v2.4)
+    case 'read-aloud': readUi.toggleSpeak(); break;
+    case 'focus-mode': readUi.toggleFocus(); break;
+    case 'fold-all': readUi.foldAll(); break;
+    case 'unfold-all': readUi.unfoldAll(); break;
+    // connected notes (v2.3)
+    case 'panel-tasks': showSidebar(); sidebar.show('tasks'); break;
+    case 'link-map': notesUi.openMap(); break;
+    case 'check-links': notesUi.checkLinks(); break;
+    case 'rename-doc': notesUi.rename(target || activeTab()); break;
     default: break;
   }
 });
 
 function showSidebar() { if (!settings.showToc) api.setSettings({ showToc: true }); }
+
+// ================================================================ connected notes (v2.3)
+/**
+ * The open folder was opened, changed on disk or closed: [[links]] may now go somewhere else, and
+ * Backlinks, tags and tasks may have changed. Documents are re-rendered only when the list of files
+ * changed (a save alone doesn't move any link).
+ */
+let folderKey = '';
+function folderUpdated(folder) {
+  const key = folder ? `${folder.root}\n${(sidebar?.allFiles() || []).map((f) => f.path).join('\n')}` : '';
+  if (key !== folderKey) {
+    folderKey = key;
+    for (const t of tabs) if (t.result && !t.doc.compare && !t.doc.locked && /\[\[/.test(t.editing ? t.editor.getText() : t.doc.content)) rerender(t);
+  }
+  if (!notesUi) return;
+  if (!folder) notesUi.clearTag();
+  notesUi.renderTags();
+  notesUi.renderBacklinks();
+  if (sidebar.panel() === 'tasks') notesUi.renderTasks();
+}
 
 // ================================================================ compare
 async function openCompare(left, right) {
@@ -910,22 +1035,39 @@ async function closeTabsInOrder(list) {
 // ================================================================ drag & drop files
 let dragDepth = 0;
 const hasFiles = (e) => [...(e.dataTransfer?.types || [])].includes('Files');
-window.addEventListener('dragenter', (e) => { if (!hasFiles(e)) return; e.preventDefault(); dragDepth++; els.drop.hidden = false; });
+// While editing, pictures dragged in go into the document, so the "Drop to open" cover stays away.
+const onlyImages = (e) => { const items = [...(e.dataTransfer?.items || [])]; return items.length > 0 && items.every((i) => i.kind === 'file' && /^image\//.test(i.type)); };
+window.addEventListener('dragenter', (e) => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  if (activeTab()?.editing && onlyImages(e)) return;
+  dragDepth++;
+  els.drop.hidden = false;
+});
 window.addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); });
 window.addEventListener('dragleave', (e) => { if (!hasFiles(e)) return; if (--dragDepth <= 0) { dragDepth = 0; els.drop.hidden = true; } });
 window.addEventListener('drop', async (e) => {
-  if (!hasFiles(e)) return;
+  if (!hasFiles(e) || e.defaultPrevented) return;            // the editor already took dropped pictures
   e.preventDefault();
   dragDepth = 0;
   els.drop.hidden = true;
-  const paths = [...(e.dataTransfer?.files || [])].map((f) => api.pathForFile(f)).filter((p) => /\.(md|markdown|mdown|mkdn?|mdwn|mdx|txt)$/i.test(p));
-  if (!paths.length) { toast('That isn’t a Markdown file (.md)'); return; }
+  const files = [...(e.dataTransfer?.files || [])];
+  const pics = files.filter((f) => /^image\/(png|jpe?g|gif|webp|bmp|avif)$/i.test(f.type));
+  if (pics.length && activeTab()?.editing) { editMode.dropImages(pics); return; }
+  const all = files.map((f) => api.pathForFile(f));
+  const word = all.filter((p) => /\.docx$/i.test(p));
+  const paths = all.filter((p) => /\.(md|markdown|mdown|mkdn?|mdwn|mdx|txt|mdlock|csv|tsv|tab|json|ya?ml|ipynb)$/i.test(p));
+  for (const p of word) { const res = await api.importDocx(p); if (res?.error) toast(res.error); else if (res?.ok) toast(importedNote(res)); }
+  if (!paths.length && !word.length) { toast(pics.length ? 'Click Edit first to add pictures to the document' : 'That isn’t a Markdown file (.md)'); return; }
   for (const p of paths) await openPath(p);
 });
+const importedNote = (res) => `Imported from Word${res.images ? ` with ${res.images} picture${res.images === 1 ? '' : 's'} (in the images folder)` : ''}${res.warnings ? ' — some formatting couldn’t be kept' : ''}`;
 
 // ================================================================ settings, updates, misc
 function applySettings(s) {
   settings = s;
+  uiText.setLanguage(s.lang || 'en');
+  addonsUi?.apply(s);
   const root = document.documentElement;
   const prevTheme = root.dataset.theme;
   const prevTone = root.dataset.tone;
@@ -985,6 +1127,7 @@ api.onDocumentChanged(async (doc) => {
 });
 
 editMode = createEditMode({
+  onSaved: () => { if (sidebar?.panel() === 'history') historyUi.render(); },
   api,
   activeTab,
   openInTab,
@@ -996,6 +1139,7 @@ editMode = createEditMode({
   platform: () => platform,
   desk: els.desk,
   beforeEdit: () => split?.close(),
+  linkTargets: (tab) => ({ files: sidebar?.allFiles() || [], style: settings.wikiLinks === 'markdown' ? 'markdown' : 'wiki', from: tab.doc.path || '' }),
 });
 sidebar = createSidebar({
   api,
@@ -1004,13 +1148,40 @@ sidebar = createSidebar({
   openAtLine,
   showSidebar,
   renderHighlights: () => highlights.renderPanel(activeTab()),
+  renderHistory: () => historyUi.render(activeTab()),
+  unsavedPaths: () => tabs.filter((t) => t.editing && t.dirty && t.doc.path).map((t) => t.doc.path),
+  renderTasks: () => notesUi.renderTasks(),
+  onFolder: folderUpdated,
+  toast,
 });
+notesUi = createNotesUi({
+  api, activeTab, openAtLine, openPath, toast,
+  folder: () => sidebar.folder(),
+  setTagFilter: (t) => sidebar.setTagFilter(t),
+  async retargetTab(tab, doc) {
+    tab.doc = { ...doc, position: 0 };
+    tab.history = [];
+    if (!tab.editing) await refreshTab(tab, tab.doc);
+    else { tab.doc.content = tab.savedText ?? doc.content; updateTabButton(tab); if (tab.id === activeId) showActiveDoc(); }
+    updateTabButton(tab);
+    sidebar.markActive();
+    syncSoon();
+  },
+});
+historyUi = createHistoryUi({
+  api, activeTab, toast, openCompare,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
+});
+keysUi = createKeysUi({ api, platform: () => platform });
 palette = createPalette({
   tabs: () => tabs,
   activeTab,
   bookmarks: () => settings.bookmarks || [],
   recent: () => settings.recent || [],
   folderFiles: () => sidebar.allFiles(),
+  listCommands: () => api.listCommands(),
+  runCommand: (key) => api.runCommand(key),
+  platform: () => platform,
   openPath,
   goToHeading: (id) => scrollToId(id),
 });
@@ -1041,6 +1212,18 @@ aiUi = createAiUi({
     return sel.toString().trim();
   },
   newDocument: (given) => editMode.newDocument('blank', given),
+  openAtLine,
+  folder: () => sidebar.folder(),
+  folderFiles: () => sidebar.allFiles(),
+  /** The editor's selection with a little text either side, or null when not editing. */
+  editorSelection() {
+    const tab = activeTab();
+    const view = tab?.editing && tab.editor?.view;
+    if (!view) return null;
+    const st = view.state;
+    const { from, to } = st.selection.main;
+    return { tab, from, to, text: st.sliceDoc(from, to), before: st.sliceDoc(Math.max(0, from - 2000), from), after: st.sliceDoc(to, Math.min(st.doc.length, to + 2000)) };
+  },
 });
 lockUi = createLockUi({
   api, activeTab, openInTab, closeTab, toast,
@@ -1051,6 +1234,17 @@ lockUi = createLockUi({
     if (tab.id === activeId) { showActiveDoc(); restoreScroll(tab); }
     syncSoon();
   },
+});
+addonsUi = createAddonsUi({
+  api, toast, render, activeTab,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
+  cleanHtml: (t) => publish.payloadFor(t).content,
+  rerenderAll: () => { for (const t of tabs) if (t.result && !t.doc.compare && !t.doc.needsPassword) rerender(t); },
+});
+readUi = createReadUi({
+  api, toast, activeTab, render, desk: els.desk,
+  settings: () => settings,
+  deskFor: (t) => deskFor(t),
 });
 publish = createPublish({ api, activeTab, settings: () => settings, toast, themeCss: () => themeUi.exportCss() });
 presenter = createPresenter({ api, activeTab, toast });

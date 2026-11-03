@@ -4,6 +4,93 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.0.0] - 2026-11-02
+
+### Added
+- **The app in your language:** Spanish, French and German, as well as English. It follows your computer's
+  language, or choose one in *View → Language*. Menus, buttons, dialogs and messages are translated;
+  documents, file names and notes are shown as written.
+- **Right-to-left documents:** Arabic, Hebrew, Persian, Urdu and other right-to-left text reads right to
+  left. Each block follows its own text, lists, quotes and tables that start in a right-to-left language
+  turn as a whole, and `lang: ar` or `dir: rtl` in the front matter turns the whole document. The outline
+  and every export keep the direction; e-books read right to left.
+- **Add-ons** (*View → Add-ons…*): install `.nmraddon` packages that add code-block types, export formats
+  and colour themes. You see what each one adds and approve it first; its code runs in the sealed sandbox
+  and what it draws is sanitized. Turn add-ons off or remove them in the same window. A guide for writing
+  them is in `docs/addons.md`, with a sample add-on in `samples/addons/neo-extras`.
+
+### Changed
+- The header card no longer lists `lang`, `language` or `dir` from the front matter: they set how the
+  document is read.
+- E-books take their language from the document (`lang:`), or your computer's language.
+
+## [2.4.0] - 2026-11-02
+
+### Added
+- **Read aloud** (`Ctrl+Shift+U`): reads the document with your computer's own voices, highlighting each
+  sentence. Pause, skip by section, change the speed and the voice; `Esc` stops. Code, equations and
+  diagrams are skipped, and only voices on your computer are used.
+- **Focus mode** (`F8`): everything but the paragraph you're reading fades back.
+- **Folding sections:** fold a section under its heading, or fold them all (`Ctrl+Shift+[`). Going to a
+  heading opens its section; exports include everything.
+- **Hover previews** of footnotes and of links to other documents (or to a section of one).
+- **CSV, TSV, JSON, YAML and Jupyter notebooks** open read-only: CSV as a table you can sort by any column,
+  JSON and YAML formatted, notebooks with their saved outputs (nothing is run).
+- **Charts from data:** a ```` ```chart ```` block, or a table with `<!-- chart: bar -->` before it, becomes a bar,
+  line or pie chart in the theme's colours, included in every export.
+- **Export an e-book (EPUB)**, and **slides as PDF or PowerPoint (.pptx)** with editable text.
+- **AI writing help** (optional): proofread, rewrite, shorten or translate a selection in the editor. The
+  suggestion is shown as a change to accept or reject, and one undo takes it back.
+
+## [2.3.0] - 2026-11-02
+
+### Added
+- **Wiki links:** `[[Name]]` links to the document called *Name* anywhere in the open folder;
+  `[[Name#Heading]]` goes to a heading and `[[Name|text]]` shows your own text. Links to documents that
+  don't exist yet look faded, and clicking one offers to create it.
+- **Link suggestions while editing:** type `[[` to pick a document. *Edit → Insert Standard Markdown Links*
+  writes `[Name](path.md)` instead.
+- **Rename** (`F2`, *File → Rename…*): renames the document and offers to update every `[[link]]` and
+  `[link](path)` to it in the folder, backing each changed document up and keeping it in History first.
+- **Linked from:** the Outline panel lists the documents that link to the one you're reading.
+- **Link map** (`Ctrl+Shift+M`): the folder's documents and the links between them; click one to open it.
+- **Tags:** `#tags` and front-matter `tags:` show as chips in the Files panel and filter the files.
+- **Tasks** (`Ctrl+Shift+L`): a new sidebar panel with every `- [ ]` item in the folder, overdue first, with
+  due dates (`📅 2026-11-20`, `due: 2026-11-20` or `@due(2026-11-20)`). Ticking one off changes the file,
+  with permission.
+- **Today's note** (`Ctrl+Shift+D`): opens or creates `Daily/YYYY-MM-DD.md` in the folder.
+- **Check Links in Folder:** lists links to missing documents, headings, pictures and files.
+- **Ask About This Folder** (AI assist, optional): Claude answers a question from the documents you tick,
+  with each point linked to the line it came from. Locked documents are never sent.
+
+### Changed
+- The sidebar has a sixth panel, **Tasks**.
+
+## [2.2.0] - 2026-11-01
+
+### Added
+- **Pictures in the editor:** paste a screenshot or drag a picture into the editor; it's saved in an
+  `images` folder next to the document and linked where you dropped it. Existing files are never
+  overwritten, and only real PNG, JPEG, GIF, WebP, BMP and AVIF pictures are accepted.
+- **Table editor:** *Edit → Edit Table…* (or the table button) edits the table under the cursor as a grid
+  (add, move and delete rows and columns, set alignment) or inserts a new one. Tables are written back
+  neatly lined up.
+- **Paste from spreadsheets, web pages and Word:** cells from Excel or Google Sheets become a Markdown table,
+  and formatted text becomes clean Markdown. `Ctrl+Shift+V` pastes plain text.
+- **Import Word documents:** *File → Import Word Document…* (or drop a `.docx` on the window) converts it to
+  Markdown, with its pictures.
+- **Version history:** every save keeps the version it replaces, outside your folder. The **History** panel
+  (`Ctrl+Shift+Y`) compares any of them with the current text and restores them. Kept: every version for 30
+  days, then one a day, up to 1 GB.
+- **Replace in Folder** (`Ctrl+Shift+R`): plain text, whole words or a pattern (regular expression), with a
+  preview of every change to untick, a confirmation, backups and History first, and **Undo last replace**.
+- **Commands by name:** type `>` in Quick Open (`Ctrl+K`), or *Help → Find a Command…* (`Ctrl+Shift+K`).
+- **Your own shortcuts:** *Help → Customize Keyboard Shortcuts…* changes, removes or resets any menu shortcut,
+  and explains clashes.
+
+### Changed
+- The sidebar has a fifth panel, **History**.
+
 ## [2.1.0] - 2026-11-01
 
 ### Added

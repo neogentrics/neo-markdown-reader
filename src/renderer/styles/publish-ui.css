@@ -65,29 +65,12 @@ body.exporting #publish-go { opacity: .7; cursor: progress; }
 .present[hidden] { display: none; }
 body.presenting { overflow: hidden; }
 .present-stage { position: absolute; left: 50%; top: 50%; width: 1280px; height: 720px; transform-origin: center center; }
-.present-slide.markdown-body { box-sizing: border-box; width: 1280px; height: 720px; padding: 64px 96px; font-size: 30px; line-height: 1.45;
-  display: flex; flex-direction: column; justify-content: flex-start; overflow: hidden; }
-.present-slide.short { justify-content: center; }
-.present-slide > * { flex: 0 0 auto; }
-.present-slide h1 { font-size: 2.1em; margin: 0 0 .45em; }
-.present-slide h2 { font-size: 1.6em; margin: 0 0 .5em; border-bottom: 0; padding-bottom: 0; }
-.present-slide h3 { font-size: 1.25em; margin: .2em 0 .4em; }
-.present-slide li + li { margin-top: .25em; }
-.present-slide pre { font-size: .7em; }
-.present-slide .markdown-alert, .present-slide blockquote { font-size: .9em; }
-.present-slide img, .present-slide .mermaid-diagram svg { max-height: 14em; max-width: 100%; object-fit: contain; }
-.present-slide.title-slide { justify-content: center; }
-.present-slide.title-slide .doc-meta { border: 0; padding: 0; margin: 0; background: none; }
-.present-slide.title-slide .doc-meta-title { font-size: 2.4em; line-height: 1.1; }
-.present-slide.title-slide .doc-meta-sub { font-size: 1.1em; margin-top: .5em; }
 .present-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--rule); }
 .present-progress div { height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
 .present-ui { position: absolute; right: 18px; bottom: 14px; display: flex; align-items: center; gap: 12px; font: 13px var(--font-sans); color: var(--muted);
   opacity: 0; transition: opacity .3s; }
 .present:hover .present-ui, .present.hint .present-ui { opacity: 1; }
 .present-hint { opacity: .8; }
-.present-slide .mermaid-diagram { padding: .4em; }
-.present-slide .mermaid-diagram svg { width: 100%; max-width: 100% !important; height: auto; max-height: 11em; }
 
 /* ===================== Locked documents ===================== */
 .page.locked-page { display: grid; place-items: center; min-height: 60vh; }

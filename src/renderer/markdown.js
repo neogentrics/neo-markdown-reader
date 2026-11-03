@@ -16,6 +16,8 @@ import katex from 'katex';
 import hljs from 'highlight.js';
 import { load as yamlLoad, JSON_SCHEMA } from 'js-yaml';
 import createDOMPurify from 'dompurify';
+import { parseWikiTarget } from '../main/notes-core.js';
+import { renderChart, fromRows, chartSvg } from './charts.js';
 
 const MEDIA_ATTRS = { IMG: 'src', VIDEO: 'src', AUDIO: 'src', SOURCE: 'src', TRACK: 'src' };
 const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
@@ -43,6 +45,96 @@ export function resolveMediaUrl(value, baseUrl) {
   if (SCHEME.test(v) || v.startsWith('//')) return v;
   if (!baseUrl) return v;
   try { return new URL(v.replace(/\\/g, '/'), baseUrl).href; } catch { return v; }
+}
+
+/**
+ * [[Name]], [[Name#Heading]] and [[Name|label]] become links. env.wiki(target) says where each one goes
+ * ({ href, missing }); without it (no folder open) a link points to "Name.md" next to the document.
+ */
+/**
+ * Charts (2.4): a ```chart block is drawn as a chart, and so is a table that has
+ * <!-- chart: bar; title: Sales --> on the line just before it (the table stays below the chart).
+ */
+function charts(md) {
+  const fence = md.renderer.rules.fence;
+  md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+    const t = tokens[idx];
+    if (/^chart\b/i.test(t.info.trim())) return `${renderChart(t.content)}\n`;
+    return fence(tokens, idx, options, env, self);
+  };
+  md.core.ruler.push('table_charts', (state) => {
+    const toks = state.tokens;
+    for (let i = 0; i < toks.length - 1; i++) {
+      const m = toks[i].type === 'html_block' && /^<!--\s*chart\s*:?\s*([\s\S]*?)-->\s*$/i.exec(toks[i].content.trim());
+      if (!m || toks[i + 1].type !== 'table_open') continue;
+      const opts = {};
+      m[1].split(';').forEach((part, k) => {
+        const kv = /^\s*([a-z]+)\s*[:=]\s*(.*?)\s*$/i.exec(part);
+        if (kv) opts[kv[1].toLowerCase()] = kv[2];
+        else if (k === 0 && part.trim()) opts.type = part.trim();
+      });
+      const rows = [];
+      let row = null;
+      for (let j = i + 1; j < toks.length && toks[j].type !== 'table_close'; j++) {
+        if (toks[j].type === 'tr_open') row = [];
+        else if (toks[j].type === 'tr_close') { rows.push(row); row = null; }
+        else if (toks[j].type === 'inline' && row) row.push(toks[j].content.replace(/[*_`~]/g, '').trim());
+      }
+      let html;
+      try { html = `<figure class="chart">${chartSvg(fromRows(rows, opts))}</figure>`; } catch (err) {
+        html = `<div class="chart-error"><b>This chart can’t be drawn:</b> ${escapeHtml(err.message)}</div>`;
+      }
+      toks[i].content = `${html}\n`;
+    }
+  });
+}
+
+/**
+ * Right-to-left text (3.0): each paragraph, heading, list, quote and table cell takes its direction from
+ * its own first letters, so Arabic or Hebrew reads right to left and English beside it left to right.
+ */
+const DIR_AUTO = new Set(['paragraph_open', 'heading_open', 'list_item_open', 'th_open', 'td_open', 'dt_open', 'dd_open']);
+// Containers can't use dir="auto" (it skips children that have their own dir), so they take the direction
+// of their first text: a list, quote or table that starts in Arabic or Hebrew lays out right to left.
+const DIR_CONTAINER = new Set(['bullet_list_open', 'ordered_list_open', 'blockquote_open', 'table_open']);
+const RTL_FIRST = (text) => { const m = /\p{L}/u.exec(text || ''); return !!m && /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/.test(m[0]); };
+function directions(md) {
+  md.core.ruler.push('dir_auto', (state) => {
+    const toks = state.tokens;
+    toks.forEach((tok, i) => {
+      if (tok.attrGet('dir')) return;
+      if (DIR_AUTO.has(tok.type)) tok.attrSet('dir', 'auto');
+      else if (DIR_CONTAINER.has(tok.type)) {
+        const first = toks.slice(i + 1).find((x) => x.type === 'inline' && x.content.trim());
+        if (first && RTL_FIRST(first.content)) tok.attrSet('dir', 'rtl');
+      }
+    });
+  });
+}
+const RTL_LANGS = /^(ar|he|iw|fa|ur|ps|yi|dv|ckb|sd|ug)(-|$)/i;
+
+function wikiLinks(md) {
+  md.inline.ruler.before('link', 'wikilink', (state, silent) => {
+    const { src, pos } = state;
+    if (src.charCodeAt(pos) !== 0x5b || src.charCodeAt(pos + 1) !== 0x5b) return false;
+    const end = src.indexOf(']]', pos + 2);
+    if (end < 0) return false;
+    const inner = src.slice(pos + 2, end);
+    if (!inner.trim() || inner.length > 300 || /[[\]\n]/.test(inner)) return false;
+    if (!silent) {
+      const w = parseWikiTarget(inner);
+      const r = state.env?.wiki ? state.env.wiki(w) : null;
+      const href = r?.href ?? `${w.name ? `${encodeURI(w.name)}.md` : ''}${w.heading ? `#${slugify(w.heading)}` : ''}`;
+      const open = state.push('link_open', 'a', 1);
+      open.attrs = [['href', href || '#'], ['class', r?.missing ? 'wikilink wikilink-missing' : 'wikilink'], ['data-wiki', w.name]];
+      if (r?.missing) open.attrs.push(['title', `No document named “${w.name}” yet — click to create it`]);
+      const text = state.push('text', '', 0);
+      text.content = w.label || (w.name && w.heading ? `${w.name} › ${w.heading}` : w.name || w.heading);
+      state.push('link_close', 'a', -1);
+    }
+    state.pos = end + 2;
+    return true;
+  });
 }
 
 function buildMarkdownIt(state) {
@@ -76,6 +168,9 @@ function buildMarkdownIt(state) {
     .use(sub)
     .use(sup)
     .use(alerts)
+    .use(wikiLinks)
+    .use(charts)
+    .use(directions)
     .use(texmath, { engine: katex, delimiters: ['dollars', 'beg_end'], katexOptions: { throwOnError: false, output: 'htmlAndMathml' } });
 
   // Tag block elements with their source line so the editor and preview can scroll together.
@@ -86,7 +181,7 @@ function buildMarkdownIt(state) {
   });
 
   // Tables get a wrapper so wide tables scroll instead of breaking the page layout.
-  md.renderer.rules.table_open = () => '<div class="table-wrap"><table>\n';
+  md.renderer.rules.table_open = (tokens, idx) => `<div class="table-wrap"${tokens[idx].attrGet('dir') === 'rtl' ? ' dir="rtl"' : ''}><table>\n`;
   md.renderer.rules.table_close = () => '</table></div>\n';
   return md;
 }
@@ -106,8 +201,10 @@ function fmValue(v) {
 }
 
 function renderFrontMatter(data) {
-  const { title, subtitle, description, author, date, tags, logo, ...rest } = data;   // logo: used on PDF cover pages
+  // logo: used on PDF cover pages; lang / language and dir: how the document is read (3.0), not shown.
+  const { title, subtitle, description, author, date, tags, logo, lang, language, dir, ...rest } = data;
   let out = '<header class="doc-meta">';
+  const start = out.length;
   if (title) out += `<div class="doc-meta-title">${escapeHtml(fmValue(title))}</div>`;
   if (subtitle || description) out += `<div class="doc-meta-sub">${escapeHtml(fmValue(subtitle || description))}</div>`;
   const line = [author && fmValue(author), date && fmValue(date instanceof Date ? date.toISOString().slice(0, 10) : date)].filter(Boolean);
@@ -118,7 +215,7 @@ function renderFrontMatter(data) {
   if (keys.length) {
     out += '<dl class="doc-meta-extra">' + keys.map((k) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(fmValue(rest[k]))}</dd>`).join('') + '</dl>';
   }
-  return out + '</header>';
+  return out.length === start ? '' : out + '</header>';
 }
 
 function collectToc(tokens) {
@@ -166,11 +263,29 @@ export function createRenderer(window) {
     WHOLE_DOCUMENT: false,
   };
 
-  return function render(markdown, { baseUrl = '' } = {}) {
+  /**
+   * Sanitize HTML from an add-on (3.0) like a document, then remove anything that would reach the web
+   * (pictures, links, styles that load from a URL): add-ons can't use the internet, even through the page.
+   */
+  function sanitizeAddon(html) {
+    const clean = purify.sanitize(String(html ?? ''), { ...purifyConfig, RETURN_DOM_FRAGMENT: true, FORBID_TAGS: [...purifyConfig.FORBID_TAGS, 'img', 'video', 'audio', 'source', 'track', 'picture', 'image', 'use', 'a', 'link', 'style'] });
+    for (const el of clean.querySelectorAll('*')) {
+      for (const at of [...el.attributes]) {
+        const v = at.value || '';
+        if (/^(src|srcset|href|xlink:href|poster|background|action)$/i.test(at.name) && !/^#/.test(v)) el.removeAttribute(at.name);
+        else if (at.name === 'style' && /url\s*\(|@import|expression\s*\(/i.test(v)) el.removeAttribute('style');
+      }
+    }
+    const box = window.document.createElement('div');
+    box.appendChild(clean);
+    return box.innerHTML;
+  }
+
+  const render = function render(markdown, { baseUrl = '', wiki = null } = {}) {
     const state = { frontMatterRaw: null };
     const md = buildMarkdownIt(state);
     const src = String(markdown ?? '').replace(/^﻿/, '');
-    const env = {};
+    const env = wiki ? { wiki } : {};
     const tokens = md.parse(src, env);
     let body = md.renderer.render(tokens, md.options, env);
 
@@ -185,6 +300,12 @@ export function createRenderer(window) {
     const plain = src.replace(/```[\s\S]*?```/g, ' ').replace(/<[^>]+>/g, ' ');
     const words = (plain.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) || []).length;
     const title = (fm && fm.title && fmValue(fm.title)) || toc.find((h) => h.level === 1)?.text || toc[0]?.text || '';
-    return { html, toc, title, frontMatter: fm, stats: { words, minutes: Math.max(1, Math.round(words / 230)) } };
+    // The whole document's direction: front matter `dir: rtl`, or a right-to-left `lang:` (ar, he, fa…).
+    const fmDir = fm && String(fm.dir ?? '').toLowerCase();
+    const fmLang = fm && String(fm.lang ?? fm.language ?? '');
+    const dir = fmDir === 'rtl' || fmDir === 'ltr' ? fmDir : RTL_LANGS.test(fmLang) ? 'rtl' : '';
+    return { html, toc, title, frontMatter: fm, dir, lang: /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(fmLang) ? fmLang : '', stats: { words, minutes: Math.max(1, Math.round(words / 230)) } };
   };
+  render.sanitizeAddon = sanitizeAddon;
+  return render;
 }
