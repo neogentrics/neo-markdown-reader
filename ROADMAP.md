@@ -30,8 +30,8 @@ your files or runs code is always **opt-in** and asks for permission first.
 | [v2.3](#v23--connected-notes) | Connected notes | ✅ Released ([2.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.3.0)) |
 | [v2.4](#v24--read-listen--share) | Read, listen & share | ✅ Released ([2.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.4.0)) |
 | [v3.0](#v30--make-it-yours) | Make it yours | ✅ Released ([3.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.0.0)) |
-| [v3.1](#v31--across-your-computers) | Across your computers | 🚧 In progress |
-| [v3.2](#v32--natural-voices) | Natural voices | Planned |
+| [v3.1](#v31--across-your-computers) | Across your computers | ✅ Released ([3.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.1.0)) |
+| [v3.2](#v32--natural-voices) | Natural voices | 🚧 In progress |
 | [Later](#later--only-if-needed) | Only if needed | Ideas |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
 
@@ -172,15 +172,15 @@ updates itself from here on.
 
 ## v3.1 — Across your computers
 
-🚧 **In progress.** Your reading life, the same on every computer, without an account.
+✅ **Released in [3.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.1.0).** Your reading life, the same on every computer, without an account.
 
 | Feature | Size | Details |
 |---|:-:|---|
-| Sync between your computers | M | Highlights, notes, bookmarks, recent files, reading positions and settings kept in step through a folder you already sync (OneDrive, Dropbox, iCloud Drive, Google Drive). No account needed. Version history stays on each computer: it can be up to 1 GB. |
+| ✅ Sync between your computers | M | Highlights, notes, bookmarks, recent files, reading positions and settings kept in step through a folder you already sync (OneDrive, Dropbox, iCloud Drive, Google Drive). No account needed. Version history stays on each computer: it can be up to 1 GB. |
 
 ## v3.2 — Natural voices
 
-Planned (decision 9). Read aloud in a voice that sounds like a person, not a machine.
+🚧 **In progress** (decision 9). Read aloud in a voice that sounds like a person, not a machine.
 
 | Feature | Size | Details |
 |---|:-:|---|
