@@ -10,7 +10,7 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
-**[Features](#features)** · **[Install](#install-windows)** · **[Across computers](#across-your-computers)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+**[Features](#features)** · **[Install](#install-windows)** · **[Across computers](#across-your-computers)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Natural voices](#natural-voices)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
 
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
@@ -43,7 +43,8 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
-| **Across your computers** *(new in 3.1)* | Highlights, notes, bookmarks, recent files, reading positions and settings kept the same on every computer through a folder you already sync (OneDrive, Dropbox, iCloud Drive, Google Drive), with no account ([details](#across-your-computers)) |
+| **Natural voices** *(new in 3.2)* | Read aloud in ten natural-sounding voices that run on your computer, offline, in 31 languages; downloaded once, only when you ask ([details](#natural-voices)) |
+| **Across your computers** *(3.1)* | Highlights, notes, bookmarks, recent files, reading positions and settings kept the same on every computer through a folder you already sync (OneDrive, Dropbox, iCloud Drive, Google Drive), with no account ([details](#across-your-computers)) |
 | **Make it yours** *(3.0)* | The app in English, Spanish, French or German (it follows your computer, or choose in *View → Language*); Arabic, Hebrew and other right-to-left documents read right to left; add-ons for new code-block types, export formats and colour themes, each approved by you and run in a sealed sandbox ([details](#make-it-yours)) |
 | **Read, listen & share** *(2.4)* | Read aloud with your computer's voices; focus mode, folding sections and hover previews; open CSV, JSON, YAML and Jupyter notebooks; charts from a table or a `chart` block; export e-books (EPUB) and slides (PDF or PowerPoint); and (optionally) proofread, rewrite, shorten or translate a selection with Claude ([details](#read-listen--share)) |
 | **Connected notes** *(2.3)* | Link documents with `[[wiki links]]` (suggested as you type, kept up to date when you rename); see what links here, a map of how a folder fits together, tags and every task in one list, a daily note, a link checker, and (optionally) ask Claude questions about a folder with links to its sources ([details](#connected-notes)) |
@@ -223,6 +224,7 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
   - Pause, skip to the next or previous section, change the speed (0.75× to 2×) or the voice. `Esc` stops.
   - Code, equations and diagrams are skipped. It works offline: only voices on your computer are offered,
     so the text never leaves it. (On Linux, install `speech-dispatcher` and a voice such as `espeak-ng`.)
+  - For a voice that sounds like a person, choose a [natural voice](#natural-voices) in the same list.
 - **Focus mode** (`F8`): everything except the paragraph you're reading fades back.
 - **Folding sections:** point at a heading and click the arrow beside it to fold its section away. Use
   *View → Sections → Fold All* (`Ctrl+Shift+[`) to fold everything and see the document's shape.
@@ -301,6 +303,33 @@ choose, and your cloud service carries them between computers.
 - A computer that joins later takes on the settings already in use instead of overwriting them.
 - **Never synced:** your AI key, editing permissions, version history, the *Allow Running Code Blocks*
   setting, and anything about password-locked documents (a highlight quotes the text it marks).
+
+## Natural voices
+
+<img src="docs/screenshots/natural-voices.png" width="860" alt="A document being read aloud with Female voice 3, a natural voice: the sentence being read is highlighted, and the read-aloud bar shows sentence 11 of 76">
+
+Your computer's built-in voices can sound flat and robotic. Since 3.2, *Read aloud* can use **natural
+voices** instead: ten of them, five female and five male, that sound like someone reading to you.
+
+- **Getting them:** open *Read aloud* (`Ctrl+Shift+U`), open the voice list and choose *Get natural
+  voices…*. The app says how big they are (about 400 MB) and what license they come under, and downloads
+  nothing until you agree. They download once.
+- **Offline and private:** every sentence is made on your computer. Nothing you read is sent anywhere, and
+  they work without an internet connection.
+- **Smooth:** each sentence is made in the background while the one before it is read, so there are no
+  pauses between sentences. A slower computer automatically gets a slightly faster setting.
+- **Languages:** English, Spanish, French and German, and 27 more (Arabic, Dutch, Hindi, Italian, Japanese,
+  Korean, Polish, Portuguese, Russian, Swedish, Turkish, Ukrainian, Vietnamese…). The language comes from
+  the document's front matter (`lang: es`) or is recognised from its words. A language the natural voices
+  don't speak yet is read by your computer's own voice.
+- **Removing them:** *Remove natural voices…* at the end of the same list deletes the download. Your
+  computer's own voices are always there, and are still the default.
+
+The voices are [Supertonic 3](https://github.com/supertone-inc/supertonic) by Supertone, under the
+[OpenRAIL-M license](https://huggingface.co/supertone-oss-archive/supertonic-3/blob/aafc6e32416a594460b32413efc49d7fe4ce6d46/LICENSE),
+which forbids using them to impersonate people, to deceive or to harm anyone. They come from one fixed
+version of Supertone's published model, and each file is checked against its published size and SHA-256
+checksum before it's used.
 
 ## Make it yours
 
@@ -559,9 +588,10 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help �
 
 - **v3.1** added sync between your computers: highlights, notes, bookmarks, recent files, reading positions
   and settings, through a folder you already sync, with no account.
+- **v3.2** added natural voices for Read aloud: ten natural-sounding voices in 31 languages that run on your
+  computer, offline, downloaded once when you ask.
 
 Coming next:
-- **v3.2, Natural voices:** read aloud with natural-sounding voices that run on your computer, offline.
 - **Later, if needed:** Git built in, shared review.
 
 Signed installers follow as soon as a code-signing certificate is bought.
@@ -612,6 +642,10 @@ src/
 │   ├── folders.js        scanning and searching an opened folder
 │   ├── annotations.js    private highlights & notes (stored in app data, never in the file)
 │   ├── sync.js           sync between computers: one file per computer in a synced folder, newest item wins
+│   ├── voices.js         natural voices: the pinned, checksummed download, and the process that speaks
+│   ├── voice-worker.js   that process: Supertonic 3 on ONNX Runtime's WebAssembly engine (bundled into dist/)
+│   ├── supertonic.js     the model's four networks, run sentence by sentence
+│   ├── voice-text.js     text preparation, sentence chunks and language guessing (shared with the page)
 │   ├── updater.js        update checks against GitHub Releases (electron-updater for the installer)
 │   ├── version.js        version comparison
 │   ├── files.js          which files can be opened + reading them safely

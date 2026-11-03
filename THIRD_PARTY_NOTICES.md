@@ -37,9 +37,21 @@ application (`resources/app.asar/dist/app.js.LEGAL.txt` and the Electron `LICENS
 | turndown (with `@joplin/turndown-plugin-gfm` and `@mixmark-io/domino`) | 7.2.4 | MIT (domino: BSD-2-Clause) | https://github.com/mixmark-io/turndown |
 | mammoth (with `jszip`, `bluebird`, `lop`, `option`, `dingbat-to-unicode`, `underscore`, `xmlbuilder`, `@xmldom/xmldom`, `base64-js`) | 1.13.0 | BSD-2-Clause (jszip: MIT, chosen from MIT OR GPL-3.0-or-later; the others MIT or BSD-2-Clause) | https://github.com/mwilliamson/mammoth.js |
 | Markdig (File Explorer preview, with System.Memory, System.Buffers and related .NET packages) | 1.5.1 | BSD-2-Clause (.NET packages: MIT) | https://github.com/xoofx/markdig |
+| ONNX Runtime Web (natural voices, with `onnxruntime-common`, `flatbuffers`, `guid-typescript`, `long`, `protobufjs`) | 1.31.1 | MIT (flatbuffers, long: Apache-2.0; protobufjs: BSD-3-Clause; guid-typescript: ISC) | https://onnxruntime.ai |
+| Supertonic sample code (text preparation and inference, adapted in `src/main/voice-text.js` and `src/main/supertonic.js`) | revision `aafc6e3` | MIT, © Supertone Inc. | https://github.com/supertone-inc/supertonic |
 
 Pyodide is shipped unmodified in `resources/app.asar/dist/sandbox/pyodide/`; its source is available
 from the Pyodide project under the Mozilla Public License 2.0.
 
 The PDF and Word export libraries, the Word import libraries and the Anthropic SDK are bundled into `resources/app.asar/dist/export-tools.cjs`; their
 license texts are in `export-tools.cjs.LEGAL.txt` next to it.
+
+ONNX Runtime Web is bundled into `resources/app.asar/dist/voice-worker.cjs` (license texts in
+`voice-worker.cjs.LEGAL.txt`), with its WebAssembly engine in `dist/voice/`.
+
+**The natural-voice model is not part of the application.** Supertonic 3 by Supertone Inc. is downloaded
+by the reader, from Supertone's published repository
+([supertone-oss-archive/supertonic-3](https://huggingface.co/supertone-oss-archive/supertonic-3), revision
+`aafc6e32416a594460b32413efc49d7fe4ce6d46`), only after they agree, and is used under its own license, the
+[BigScience OpenRAIL-M License](https://huggingface.co/supertone-oss-archive/supertonic-3/blob/aafc6e32416a594460b32413efc49d7fe4ce6d46/LICENSE),
+including its use restrictions (Attachment A). A copy of that license is downloaded with the model.
