@@ -2,7 +2,7 @@
 // JSON settings store kept in the per-user app-data folder
 // (Windows: %APPDATA%\Neo Markdown Reader\settings.json).
 const fs = require('node:fs');
-const { cleanAiSettings } = require('./ai');
+const { cleanAiSettings } = require('./ai-providers');
 const path = require('node:path');
 
 const DEFAULTS = Object.freeze({
@@ -20,7 +20,7 @@ const DEFAULTS = Object.freeze({
   bookmarks: [],          // starred files (shown in the Files panel and Quick Open)
   recentFolders: [],      // most-recent-first folders opened with File > Open Folder
   exportOptions: null,    // last choices in the PDF designer (see EXPORT_DEFAULTS)
-  ai: null,               // AI assist: { enabled, model } — off by default; the API key is stored separately, encrypted
+  ai: null,               // AI assist: { enabled, provider, models, quick, localUrl } — off by default; API keys are stored separately, encrypted
   runCode: 'ask',         // ask | off — running code blocks (always asks before each run)
   brand: null,            // custom theme: accent colour, fonts, brand stylesheet (see BRAND_DEFAULTS)
   shortcuts: {},          // your own keyboard shortcuts: menu command id -> accelerator ('' = none)

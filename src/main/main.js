@@ -13,6 +13,7 @@ const { detectEol } = require('./files');
 const locked = require('./locked');
 const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = require('./sandbox');
 const ai = require('./ai');
+const providers = require('./ai-providers');
 const i18n = require('./i18n');
 const addons = require('./addons');
 const { Updater, RELEASES_URL } = require('./updater');
@@ -277,11 +278,13 @@ async function refreshEverywhere(p) {
   }
 }
 
-// ---------------------------------------------------------------- AI assist key
-// The Anthropic API key is encrypted by the operating system (Windows DPAPI, macOS Keychain, Linux
-// secret service). Where no real secret store exists it is kept for this session only.
-let aiKeyMemory = null;
-const aiKeyFile = () => path.join(app.getPath('userData'), 'ai-key.bin');
+// ---------------------------------------------------------------- AI assist keys
+// API keys, one per service, are encrypted by the operating system (Windows DPAPI, macOS Keychain,
+// Linux secret service). Where no real secret store exists they are kept for this session only.
+// Before 3.3 there was one key, for Claude, in ai-key.bin: it's read from there until keys are saved again.
+let aiKeysMemory = null;
+const aiKeysFile = () => path.join(app.getPath('userData'), 'ai-keys.bin');
+const legacyAiKeyFile = () => path.join(app.getPath('userData'), 'ai-key.bin');
 function secureStorage() {
   if (!safeStorage.isEncryptionAvailable()) return false;
   if (process.platform === 'linux' && typeof safeStorage.getSelectedStorageBackend === 'function') {
@@ -290,17 +293,31 @@ function secureStorage() {
   }
   return true;
 }
-function loadAiKey() {
-  if (aiKeyMemory) return aiKeyMemory;
-  try { if (secureStorage()) return safeStorage.decryptString(fs.readFileSync(aiKeyFile())); } catch { /* none saved */ }
-  return null;
+function loadAiKeys() {
+  if (aiKeysMemory) return { ...aiKeysMemory };
+  if (!secureStorage()) return {};
+  let keys = {};
+  try {
+    const saved = JSON.parse(safeStorage.decryptString(fs.readFileSync(aiKeysFile())));
+    if (saved && typeof saved === 'object') keys = saved;
+  } catch { /* none saved */ }
+  if (!keys.anthropic) {
+    try { keys.anthropic = safeStorage.decryptString(fs.readFileSync(legacyAiKeyFile())); } catch { delete keys.anthropic; }
+  }
+  return Object.fromEntries(Object.entries(keys).filter(([id, k]) => providers.PROVIDER_IDS.includes(id) && typeof k === 'string' && k));
 }
-function saveAiKey(key) {
-  if (secureStorage()) { fs.writeFileSync(aiKeyFile(), safeStorage.encryptString(key)); aiKeyMemory = null; return 'encrypted'; }
-  aiKeyMemory = key;
+function saveAiKeys(keys) {
+  if (secureStorage()) {
+    fs.writeFileSync(aiKeysFile(), safeStorage.encryptString(JSON.stringify(keys)));
+    fs.rmSync(legacyAiKeyFile(), { force: true });
+    aiKeysMemory = null;
+    return 'encrypted';
+  }
+  aiKeysMemory = { ...keys };
   return 'session';
 }
-function clearAiKey() { aiKeyMemory = null; fs.rmSync(aiKeyFile(), { force: true }); }
+const aiPrices = new Map();        // "provider|model" -> $ per million input tokens, from the service's model list
+const AI_CONFIRM_TOKENS = 50_000;  // larger requests to a paid service are confirmed first, with their size
 const aiRuns = new Map();          // request id -> AbortController
 
 // ---------------------------------------------------------------- opening files
@@ -1363,23 +1380,114 @@ function registerIpc() {
   });
   ipcMain.handle('grants:list', () => editing.listGrants());
 
-  // ---- AI assist: off by default, the reader's own key, only what they choose is sent
-  ipcMain.handle('ai:status', () => ({ ...settings.get().ai, hasKey: !!loadAiKey(), secure: secureStorage(), models: ai.MODELS.map(({ id, label }) => ({ id, label })) }));
+  // ---- AI assist: off by default, the reader's own key (or a model on this computer), only what they choose is sent
+  const aiStatus = () => {
+    const conf = settings.get().ai;
+    const keys = loadAiKeys();
+    const problem = providers.setupProblem(conf, keys);
+    return {
+      ...conf, secure: secureStorage(), ready: !problem, problem, name: providers.PROVIDERS[conf.provider].name,
+      providers: providers.PROVIDER_IDS.map((id) => {
+        const p = providers.PROVIDERS[id];
+        return { id, label: p.label, name: p.name, keyName: p.keyName, keyHint: p.keyHint, keyUrl: p.keyUrl, keyOptional: !!p.keyOptional, hasKey: !!keys[id] };
+      }),
+      claudeModels: ai.MODELS.map(({ id, label }) => ({ id, label })),
+    };
+  };
+  const BAD_LOCAL_URL = 'Enter the server’s address, such as http://localhost:11434/v1. Plain http works only for this computer or your own network; use https for anything else.';
+  ipcMain.handle('ai:status', () => aiStatus());
   ipcMain.handle('ai:configure', (_e, cfg = {}) => {
-    let stored = null;
-    if (cfg.clearKey === true) clearAiKey();
+    const conf = { ...settings.get().ai };
+    const provider = providers.PROVIDER_IDS.includes(cfg.provider) ? cfg.provider : conf.provider;
+    const keys = loadAiKeys();
+    let keysChanged = false;
+    if (cfg.clearKey === true) { delete keys[provider]; keysChanged = true; }
     if (typeof cfg.apiKey === 'string' && cfg.apiKey.trim()) {
       const key = cfg.apiKey.trim();
-      if (!ai.KEY_RE.test(key)) return { error: 'That doesn’t look like an Anthropic API key (they start with sk-ant-).' };
-      stored = saveAiKey(key);
+      const problem = providers.keyProblem(provider, key);
+      if (problem) return { error: problem };
+      keys[provider] = key;
+      keysChanged = true;
     }
-    setSetting({ ai: { ...settings.get().ai, ...(typeof cfg.enabled === 'boolean' ? { enabled: cfg.enabled } : {}), ...(isStr(cfg.model, 100) ? { model: cfg.model } : {}) } });
-    return { ok: true, stored, ...settings.get().ai, hasKey: !!loadAiKey(), secure: secureStorage() };
+    if (provider === 'local' && typeof cfg.localUrl === 'string') {
+      const url = providers.cleanLocalUrl(cfg.localUrl);
+      if (!url) return { error: BAD_LOCAL_URL };
+      conf.localUrl = url;
+    }
+    for (const [field, into] of [['model', 'models'], ['quickModel', 'quick']]) {
+      if (typeof cfg[field] !== 'string') continue;
+      const m = cfg[field].trim();
+      if (m && !providers.MODEL_ID_RE.test(m)) return { error: 'That model name has characters a model name can’t have.' };
+      conf[into] = { ...conf[into] };
+      if (m) conf[into][provider] = m;
+      else delete conf[into][provider];
+    }
+    if (typeof cfg.enabled === 'boolean') conf.enabled = cfg.enabled;
+    conf.provider = provider;
+    const stored = keysChanged ? saveAiKeys(keys) : null;
+    setSetting({ ai: conf });
+    return { ok: true, stored, ...aiStatus() };
   });
-  ipcMain.handle('ai:run', async (e, req = {}) => {
+  // The models a service offers, read from the service itself (a key typed but not saved yet may be used).
+  ipcMain.handle('ai:list-models', async (_e, req = {}) => {
     const conf = settings.get().ai;
-    const apiKey = loadAiKey();
-    if (!conf.enabled || !apiKey) return { error: 'AI assist is off.', setup: true };
+    const provider = providers.PROVIDER_IDS.includes(req.provider) ? req.provider : conf.provider;
+    const p = providers.PROVIDERS[provider];
+    let apiKey = loadAiKeys()[provider] || '';
+    if (typeof req.apiKey === 'string' && req.apiKey.trim()) {
+      const problem = providers.keyProblem(provider, req.apiKey.trim());
+      if (problem) return { error: problem };
+      apiKey = req.apiKey.trim();
+    }
+    if (!apiKey && !p.keyOptional) return { error: `Add your ${p.keyName} to see ${p.name}’s models.` };
+    let baseURL;
+    if (provider === 'local') {
+      baseURL = providers.cleanLocalUrl(typeof req.localUrl === 'string' ? req.localUrl : conf.localUrl);
+      if (!baseURL) return { error: BAD_LOCAL_URL };
+    } else baseURL = providers.baseUrlFor({ provider }, process.env.NMR_AI_BASE_URL);
+    try {
+      const models = await providers.listModels({ fetch: net.fetch, provider, baseURL, apiKey, signal: AbortSignal.timeout(20_000) });
+      for (const m of models) if (typeof m.price === 'number') aiPrices.set(`${provider}|${m.id}`, m.price);
+      return { models };
+    } catch (err) {
+      return { error: err?.name === 'TimeoutError' ? `${provider === 'local' ? 'Your local server' : p.name} didn’t answer in time.` : err.message };
+    }
+  });
+
+  /** Send one request to the chosen service, streaming the answer to the page as it arrives. */
+  async function aiRequest(e, id, task, content) {
+    const conf = settings.get().ai;
+    const keys = loadAiKeys();
+    const problem = providers.setupProblem(conf, keys);
+    if (problem) return { error: problem, setup: true };
+    const model = providers.modelFor(conf, task);
+    const name = providers.PROVIDERS[conf.provider].name;
+    const tokens = providers.estimateTokens(content.length);
+    if (tokens >= AI_CONFIRM_TOKENS && conf.provider !== 'local') {
+      const { response } = await dialog.showMessageBox(BrowserWindow.fromWebContents(e.sender), {
+        type: 'question', buttons: ['Send', 'Cancel'], defaultId: 0, cancelId: 1, noLink: true,
+        message: `Send this to ${name}?`,
+        detail: providers.sizeNote(conf.provider, tokens, aiPrices.get(`${conf.provider}|${model}`)),
+      });
+      if (response !== 0) return { error: 'Not sent.' };
+    }
+    const ctl = new AbortController();
+    aiRuns.set(id, ctl);
+    const onText = (text) => { if (!e.sender.isDestroyed()) e.sender.send('ai:delta', { id, text }); };
+    const override = process.env.NMR_AI_BASE_URL || undefined;          // tests point this at a local stand-in
+    let Anthropic;
+    try {
+      if (conf.provider === 'anthropic') {
+        ({ Anthropic } = publish.exportTools(ROOT));
+        return { ...(await ai.runAi({ Anthropic, apiKey: keys.anthropic, model, content, signal: ctl.signal, baseURL: override, onText })), name };
+      }
+      return { ...(await providers.runChat({ fetch: net.fetch, provider: conf.provider, baseURL: providers.baseUrlFor(conf, override), apiKey: keys[conf.provider] || '', model, content, signal: ctl.signal, onText })), name };
+    } catch (err) {
+      return { error: ctl.signal.aborted ? 'Stopped.' : Anthropic ? ai.friendlyError(err, Anthropic) : err.message };
+    } finally { aiRuns.delete(id); }
+  }
+
+  ipcMain.handle('ai:run', async (e, req = {}) => {
     if (isStr(req.path, 4096) && isLockedPath(req.path)) return { error: 'AI assist is off for locked documents, so their text never leaves this computer.' };
     if (!isStr(req.id, 100)) return { error: 'invalid' };
     let content;
@@ -1390,44 +1498,19 @@ function registerIpc() {
         title: isStr(req.title, 500) ? req.title : '',
       });
     } catch (err) { return { error: err.message }; }
-    const { Anthropic } = publish.exportTools(ROOT);
-    const ctl = new AbortController();
-    aiRuns.set(req.id, ctl);
-    try {
-      return await ai.runAi({
-        Anthropic, apiKey, model: conf.model, content, signal: ctl.signal,
-        baseURL: process.env.NMR_AI_BASE_URL || undefined,              // tests point this at a local fake
-        onText: (text) => { if (!e.sender.isDestroyed()) e.sender.send('ai:delta', { id: req.id, text }); },
-      });
-    } catch (err) {
-      return { error: ctl.signal.aborted ? 'Stopped.' : ai.friendlyError(err, Anthropic) };
-    } finally { aiRuns.delete(req.id); }
+    return aiRequest(e, req.id, req.action, content);
   });
   ipcMain.handle('ai:cancel', (_e, id) => { aiRuns.get(id)?.abort(); });
 
   // Writing help: a suggested change to the editor's selection, which the page shows for accepting or rejecting.
   ipcMain.handle('ai:edit', async (e, req = {}) => {
-    const conf = settings.get().ai;
-    const apiKey = loadAiKey();
-    if (!conf.enabled || !apiKey) return { error: 'AI assist is off.', setup: true };
     if (isStr(req.path, 4096) && isLockedPath(req.path)) return { error: 'AI assist is off for locked documents, so their text never leaves this computer.' };
     if (!isStr(req.id, 100)) return { error: 'invalid' };
     const str = (v) => (typeof v === 'string' ? v : '');
     let content;
     try { content = ai.buildEditPrompt(req.action, { text: str(req.text), before: str(req.before), after: str(req.after), language: str(req.language) }); } catch (err) { return { error: err.message }; }
-    const { Anthropic } = publish.exportTools(ROOT);
-    const ctl = new AbortController();
-    aiRuns.set(req.id, ctl);
-    try {
-      const res = await ai.runAi({
-        Anthropic, apiKey, model: conf.model, content, signal: ctl.signal,
-        baseURL: process.env.NMR_AI_BASE_URL || undefined,
-        onText: (text) => { if (!e.sender.isDestroyed()) e.sender.send('ai:delta', { id: req.id, text }); },
-      });
-      return { ...res, text: ai.cleanEditResult(str(req.text), res.text) };
-    } catch (err) {
-      return { error: ctl.signal.aborted ? 'Stopped.' : ai.friendlyError(err, Anthropic) };
-    } finally { aiRuns.delete(req.id); }
+    const res = await aiRequest(e, req.id, req.action, content);
+    return res.error ? res : { ...res, text: ai.cleanEditResult(str(req.text), res.text) };
   });
 
   // ---- running code blocks: always asked, always sandboxed
@@ -1775,31 +1858,19 @@ function registerIpc() {
   // ---- AI: ask a question about documents from the open folder
   ipcMain.handle('ai:ask-folder', async (e, req = {}) => {
     const st = stateFor(e);
-    const conf = settings.get().ai;
-    const apiKey = loadAiKey();
-    if (!conf.enabled || !apiKey) return { error: 'AI assist is off.', setup: true };
+    const problem = providers.setupProblem(settings.get().ai, loadAiKeys());
+    if (problem) return { error: problem, setup: true };
     if (!st?.folder) return { error: 'Open a folder first.' };
     if (!isStr(req.id, 100) || !Array.isArray(req.paths) || req.paths.length > 500) return { error: 'invalid' };
     const allowed = new Set(st.folder.scan.files.filter((f) => !isLockedPath(f)));
     const docs = [];
     for (const p of req.paths) {
       if (!allowed.has(p)) continue;                 // never locked documents, never files outside the folder
-      try { docs.push({ rel: path.relative(st.folder.root, p).replace(/\\/g, '/'), text: (await fs.promises.readFile(p, 'utf8')).replace(/^\ufeff/, '') }); } catch { /* skipped */ }
+      try { docs.push({ rel: path.relative(st.folder.root, p).replace(/\\/g, '/'), text: (await fs.promises.readFile(p, 'utf8')).replace(/^﻿/, '') }); } catch { /* skipped */ }
     }
     let content;
     try { content = ai.buildFolderPrompt(typeof req.question === 'string' ? req.question : '', docs); } catch (err) { return { error: err.message }; }
-    const { Anthropic } = publish.exportTools(ROOT);
-    const ctl = new AbortController();
-    aiRuns.set(req.id, ctl);
-    try {
-      return await ai.runAi({
-        Anthropic, apiKey, model: conf.model, content, signal: ctl.signal,
-        baseURL: process.env.NMR_AI_BASE_URL || undefined,
-        onText: (text) => { if (!e.sender.isDestroyed()) e.sender.send('ai:delta', { id: req.id, text }); },
-      });
-    } catch (err) {
-      return { error: ctl.signal.aborted ? 'Stopped.' : ai.friendlyError(err, Anthropic) };
-    } finally { aiRuns.delete(req.id); }
+    return aiRequest(e, req.id, 'folder', content);
   });
 
   // ---- add-ons

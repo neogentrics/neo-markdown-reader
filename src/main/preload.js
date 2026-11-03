@@ -35,6 +35,7 @@ contextBridge.exposeInMainWorld('reader', {
   // AI assist (requests are made by the main process with the reader's own key)
   aiStatus: invoke('ai:status'),
   aiConfigure: invoke('ai:configure'),
+  aiListModels: invoke('ai:list-models'),
   aiRun: invoke('ai:run'),
   aiCancel: invoke('ai:cancel'),
   onAiDelta: on('ai:delta'),

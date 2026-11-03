@@ -1,4 +1,4 @@
-// AI assist in the page: the settings dialog and the panel that shows Claude's answer as it streams.
+// AI assist in the page: the settings dialog and the panel that shows the answer as it streams.
 // Requests are made by the main process (src/main/ai.js) with the reader's own API key.
 
 import { diffWordsWithSpace } from 'diff';
@@ -17,35 +17,109 @@ export function createAiUi(ctx) {
   let paint = 0;
 
   // ---------------------------------------------------------------- settings
-  async function openSettings(reason = '') {
-    const st = await api.aiStatus();
-    $('ai-enabled').checked = !!st.enabled;
+  // One service at a time: Claude, ChatGPT, Gemini, Mistral, OpenRouter, or a model on this computer.
+  // Each has its own saved key; model names come from the service's own list (3.3).
+  let status = null;                       // the last ai:status
+  const lists = new Map();                 // provider -> [{ id, label, price? }]
+  let listing = 0;
+  const providerOf = (id) => status.providers.find((x) => x.id === id);
+
+  function fillModels(provider) {
+    const list = provider === 'anthropic' ? status.claudeModels : lists.get(provider) || [];
+    $('ai-model-list').replaceChildren(...list.map((m) => {
+      const o = document.createElement('option');
+      o.value = m.id;
+      o.label = typeof m.price === 'number' ? `${m.label} · $${m.price < 0.1 ? m.price.toFixed(3) : m.price.toFixed(2)} per million tokens read` : m.label;
+      return o;
+    }));
+  }
+  async function refreshModels(quiet = false) {
+    const provider = $('ai-provider').value;
+    if (provider === 'anthropic') { fillModels(provider); $('ai-models-msg').textContent = ''; return; }
+    const p = providerOf(provider);
+    if (!p.keyOptional && !p.hasKey && !$('ai-key').value.trim()) {
+      if (!quiet) $('ai-models-msg').textContent = `Add your ${p.keyName} to see ${p.name}’s models.`;
+      return;
+    }
+    const n = ++listing;
+    $('ai-models-msg').textContent = 'Getting the list of models…';
+    const res = await api.aiListModels({ provider, apiKey: $('ai-key').value, localUrl: $('ai-local-url').value });
+    if (n !== listing || $('ai-provider').value !== provider) return;
+    if (res?.error) { $('ai-models-msg').textContent = res.error; return; }
+    lists.set(provider, res.models);
+    fillModels(provider);
+    $('ai-models-msg').textContent = res.models.length
+      ? `${res.models.length} model${res.models.length === 1 ? '' : 's'} available — pick one from the list, or type its name.`
+      : (provider === 'local' ? 'The server has no models yet. In Ollama, download one with: ollama pull llama3.2' : 'No models were listed. Type the model’s name.');
+    if (!$('ai-model').value && res.models.length === 1) $('ai-model').value = res.models[0].id;
+  }
+  function showProvider(provider) {
+    const p = providerOf(provider);
+    $('ai-local').hidden = provider !== 'local';
+    $('ai-local-url').value = status.localUrl;
+    $('ai-key-label').textContent = p.keyName;
     $('ai-key').value = '';
-    $('ai-key').placeholder = st.hasKey ? 'A key is saved — type a new one to replace it' : 'sk-ant-…';
-    $('ai-key-remove').hidden = !st.hasKey;
-    $('ai-insecure').hidden = !!st.secure;
-    const sel = $('ai-model');
-    sel.innerHTML = '';
-    for (const m of st.models) { const o = document.createElement('option'); o.value = m.id; o.textContent = m.label; sel.appendChild(o); }
-    sel.value = st.model;
+    $('ai-key').placeholder = p.hasKey ? 'A key is saved — type a new one to replace it' : p.keyHint || (p.keyOptional ? 'Not needed for Ollama or LM Studio' : '');
+    $('ai-get-key').hidden = !p.keyUrl;
+    $('ai-key-note').hidden = !p.keyUrl;
+    $('ai-key-remove').hidden = !p.hasKey;
+    $('ai-key-sep').hidden = !(p.hasKey && p.keyUrl);
+    $('ai-key-hints').hidden = !p.keyUrl && !p.hasKey;
+    $('ai-model').value = status.models[provider] || '';
+    $('ai-model').placeholder = provider === 'anthropic' ? '' : 'Pick from the list, or type a model’s name';
+    $('ai-quick').value = status.quick[provider] || '';
+    $('ai-models-msg').textContent = '';
+    fillModels(provider);
+    if (provider !== 'anthropic' && !lists.has(provider) && (p.hasKey || p.keyOptional)) refreshModels(true);
+  }
+
+  async function openSettings(reason = '') {
+    status = await api.aiStatus();
+    $('ai-enabled').checked = !!status.enabled;
+    $('ai-insecure').hidden = !!status.secure;
+    const sel = $('ai-provider');
+    sel.replaceChildren(...status.providers.map((p) => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.label; return o; }));
+    sel.value = status.provider;
+    showProvider(status.provider);
     $('ai-msg').textContent = reason;
     if (!dlg.open) dlg.showModal();
   }
+  $('ai-provider').addEventListener('change', () => { showProvider($('ai-provider').value); $('ai-msg').textContent = ''; });
+  $('ai-models-refresh').addEventListener('click', () => refreshModels());
+  $('ai-local-url').addEventListener('change', () => { lists.delete('local'); refreshModels(true); });
+  $('ai-key').addEventListener('change', () => { if ($('ai-key').value.trim() && !lists.has($('ai-provider').value)) refreshModels(true); });
   $('ai-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const res = await api.aiConfigure({ enabled: $('ai-enabled').checked, apiKey: $('ai-key').value, model: $('ai-model').value });
+    const provider = $('ai-provider').value;
+    const model = $('ai-model').value.trim();
+    if (provider === 'anthropic' && !status.claudeModels.some((m) => m.id === model)) { $('ai-msg').textContent = 'Choose one of the Claude models in the list.'; return; }
+    const res = await api.aiConfigure({
+      enabled: $('ai-enabled').checked, provider, apiKey: $('ai-key').value, model, quickModel: $('ai-quick').value,
+      ...(provider === 'local' ? { localUrl: $('ai-local-url').value } : {}),
+    });
     if (res?.error) { $('ai-msg').textContent = res.error; return; }
-    if (res.enabled && !res.hasKey) { $('ai-msg').textContent = 'Enter your API key to turn AI assist on.'; return; }
+    status = res;
+    if (res.enabled && !res.ready) { $('ai-msg').textContent = res.problem; showProvider(provider); return; }
     dlg.close();
-    toast(res.enabled ? (res.stored === 'session' ? 'AI assist is on — the key is kept until you quit' : 'AI assist is on') : 'AI assist is off');
+    toast(res.enabled ? (res.stored === 'session' ? `AI assist is on with ${res.name} — the key is kept until you quit` : `AI assist is on with ${res.name}`) : 'AI assist is off');
   });
   $('ai-cancel').addEventListener('click', () => dlg.close());
   $('ai-key-remove').addEventListener('click', async () => {
-    await api.aiConfigure({ clearKey: true, enabled: false });
-    toast('API key removed — AI assist is off');
-    dlg.close();
+    const provider = $('ai-provider').value;
+    status = await api.aiConfigure({ provider, clearKey: true, ...(provider === status.provider ? { enabled: false } : {}) });
+    toast(`${providerOf(provider).keyName} removed`);
+    showProvider(provider);
   });
-  $('ai-get-key').addEventListener('click', (e) => { e.preventDefault(); api.openExternal('https://console.anthropic.com/settings/keys'); });
+  $('ai-get-key').addEventListener('click', (e) => { e.preventDefault(); const p = providerOf($('ai-provider').value); if (p?.keyUrl) api.openExternal(p.keyUrl); });
+
+  /** The service in use, or null after showing settings with what's missing. */
+  async function ready(why) {
+    const st = await api.aiStatus();
+    if (st.ready) return st;
+    openSettings(st.enabled ? st.problem : why);
+    return null;
+  }
+  const SETUP = 'Turn on AI assist and choose a service to use this.';
 
   // ---------------------------------------------------------------- running
   api.onAiDelta(({ id, text }) => {
@@ -65,15 +139,15 @@ export function createAiUi(ctx) {
     const tab = ctx.activeTab();
     if (!tab || tab.doc.compare) { toast('Open a document first'); return; }
     if (tab.doc.locked) { toast('AI assist is off for locked documents, so their text never leaves this computer'); return; }
-    const st = await api.aiStatus();
-    if (!st.enabled || !st.hasKey) { openSettings('Turn on AI assist and add your Anthropic API key to use this.'); return; }
+    const st = await ready(SETUP);
+    if (!st) return;
     const selection = action === 'explain' ? ctx.selectionIn(tab) : '';
     if (action === 'explain' && !selection) { toast('Select some text on the page first'); return; }
     if (current) api.aiCancel(current.id);
     const id = Math.random().toString(36).slice(2);
-    current = { id, action, text: '', tab };
+    current = { id, action, text: '', tab, name: st.name };
     $('ai-title').textContent = `${TITLES[action]} — ${tab.doc.name}`;
-    $('ai-status').textContent = `Sent to Claude: ${action === 'explain' ? 'the selected passage and the document' : 'this document'}`;
+    $('ai-status').textContent = `Sent to ${st.name}: ${action === 'explain' ? 'the selected passage and the document' : 'this document'}`;
     $('ai-stop').hidden = false;
     $('ai-copy').disabled = $('ai-open').disabled = true;
     $('ai-open').hidden = action !== 'report';
@@ -92,7 +166,7 @@ export function createAiUi(ctx) {
     current.text = res.text || current.text;
     show();
     $('ai-copy').disabled = $('ai-open').disabled = !current.text;
-    $('ai-status').textContent = res.note || 'Written by Claude — check anything important against the document.';
+    $('ai-status').textContent = res.note || `Written by ${current.name} — check anything important against the document.`;
   }
 
   // ---------------------------------------------------------------- ask about this folder (2.3)
@@ -101,6 +175,7 @@ export function createAiUi(ctx) {
   const ask = { dlg: $('ask-dlg'), q: $('ask-question'), filter: $('ask-filter'), files: $('ask-files'), size: $('ask-size') };
   let askFiles = [];
   let askChosen = new Set();
+  let askName = '';
   const LIMIT = 400_000;
 
   function renderAskFiles() {
@@ -124,14 +199,15 @@ export function createAiUi(ctx) {
   }
   function syncAsk() {
     const n = askChosen.size;
-    ask.size.textContent = n ? `${n} document${n === 1 ? '' : 's'} will be sent to Claude.` : 'Tick at least one document.';
+    ask.size.textContent = n ? `${n} document${n === 1 ? '' : 's'} will be sent to ${askName}.` : 'Tick at least one document.';
     $('ask-go').disabled = !n;
   }
   async function askFolder() {
     const folder = ctx.folder();
-    if (!folder) { toast('Open a folder first — Claude answers from the documents in it'); return; }
-    const st = await api.aiStatus();
-    if (!st.enabled || !st.hasKey) { openSettings('Turn on AI assist and add your Anthropic API key to use this.'); return; }
+    if (!folder) { toast('Open a folder first — the AI answers from the documents in it'); return; }
+    const st = await ready(SETUP);
+    if (!st) return;
+    askName = st.name;
     askFiles = ctx.folderFiles().filter((f) => !/\.mdlock$/i.test(f.path));
     if (!askFiles.length) { toast('No documents in this folder'); return; }
     // Start with the current document and the ones it links with, or everything in a small folder.
@@ -157,9 +233,9 @@ export function createAiUi(ctx) {
     if (current) api.aiCancel(current.id);
     const id = Math.random().toString(36).slice(2);
     const root = ctx.folder().root;
-    current = { id, action: 'folder', text: '', tab: ctx.activeTab(), root, files: askFiles };
+    current = { id, action: 'folder', text: '', tab: ctx.activeTab(), root, files: askFiles, name: askName };
     $('ai-title').textContent = question.length > 70 ? `${question.slice(0, 68)}…` : question;
-    $('ai-status').textContent = `Sent to Claude: ${askChosen.size} document${askChosen.size === 1 ? '' : 's'} from ${ctx.folder().name}`;
+    $('ai-status').textContent = `Sent to ${askName}: ${askChosen.size} document${askChosen.size === 1 ? '' : 's'} from ${ctx.folder().name}`;
     $('ai-stop').hidden = false;
     $('ai-copy').disabled = true;
     $('ai-open').hidden = true;
@@ -178,7 +254,7 @@ export function createAiUi(ctx) {
     current.text = res.text || current.text;
     show();
     $('ai-copy').disabled = !current.text;
-    $('ai-status').textContent = res.note || 'Written by Claude from the ticked documents — click a citation to check it.';
+    $('ai-status').textContent = res.note || `Written by ${current.name} from the ticked documents — click a citation to check it.`;
   });
 
   /** [notes/plan.md:12] → a link that opens that line (only for documents that were sent). */
@@ -217,7 +293,7 @@ export function createAiUi(ctx) {
     const id = Math.random().toString(36).slice(2);
     Object.assign(edit, { id, text: '', done: false, started: true });
     ed.accept.disabled = true;
-    ed.status.textContent = `Sent to Claude: the selected text${edit.action === 'translate' ? '' : ' and a little of the text around it'}`;
+    ed.status.textContent = `Sent to ${edit.name}: the selected text${edit.action === 'translate' ? '' : ' and a little of the text around it'}`;
     paintEdit();
     const res = await api.aiEdit({ id, action: edit.action, text: edit.original, before: edit.before, after: edit.after, language: edit.language, path: edit.tab.doc.path || '' });
     if (!edit || edit.id !== id) return;
@@ -233,7 +309,7 @@ export function createAiUi(ctx) {
     paintEdit();
     const same = edit.text.trim() === edit.original.trim();
     ed.accept.disabled = !edit.text.trim() || same;
-    ed.status.textContent = res.note || (same ? 'No changes suggested.' : 'Suggested by Claude — check it before accepting.');
+    ed.status.textContent = res.note || (same ? 'No changes suggested.' : `Suggested by ${edit.name} — check it before accepting.`);
     if (!ed.accept.disabled) ed.accept.focus();
   }
 
@@ -242,10 +318,10 @@ export function createAiUi(ctx) {
     if (!sel) { toast('Click Edit and select some text first'); return; }
     if (!sel.text.trim()) { toast('Select some text in the editor first'); return; }
     if (sel.tab.doc.locked) { toast('AI assist is off for locked documents, so their text never leaves this computer'); return; }
-    const st = await api.aiStatus();
-    if (!st.enabled || !st.hasKey) { openSettings('Turn on AI assist and add your Anthropic API key to use this.'); return; }
+    const st = await ready(SETUP);
+    if (!st) return;
     if (edit) api.aiCancel(edit.id);
-    edit = { id: '', action, tab: sel.tab, from: sel.from, to: sel.to, original: sel.text, before: sel.before, after: sel.after, text: '', done: false, language: '' };
+    edit = { id: '', name: st.name, action, tab: sel.tab, from: sel.from, to: sel.to, original: sel.text, before: sel.before, after: sel.after, text: '', done: false, language: '' };
     $('ai-edit-h').textContent = `${EDIT_TITLES[action]} — suggested change`;
     ed.diff.innerHTML = '';
     ed.status.textContent = '';

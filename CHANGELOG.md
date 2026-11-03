@@ -4,9 +4,29 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [3.3.0] - 2026-11-03
+
+### Added
+- **Your AI, your choice:** AI assist works with **ChatGPT** (OpenAI), **Gemini** (Google), **Mistral** and
+  **OpenRouter** as well as Claude, each with your own API key, or with a **model on your own computer**
+  through Ollama, LM Studio or any server that speaks the OpenAI format: no key, no internet, and nothing
+  leaves your computer. Choose the service in *Edit → AI Assist → AI Assist Settings…*.
+  - Summaries, explanations, reports, *Ask About This Folder…* and writing help all work with every service.
+  - *Refresh list* reads the models your key can use from the service itself, so new models appear without
+    an app update; you can also type a model's name. OpenRouter's list shows each model's price.
+  - An optional **quicker model for writing help** (proofread, rewrite, shorten, translate), while summaries,
+    reports and folder questions use the main model.
+  - Before more than about 50,000 tokens go to a paid service, the app asks first and says how big the
+    request is, with its price when the service publishes one.
+  - Each service keeps its own key, encrypted by your operating system. The Claude key from earlier versions
+    carries over.
+  - A server on your own network works over plain `http://`; anywhere else needs `https://`.
 
 ### Changed
+- The AI panel, the folder question window and writing help name the service that wrote the answer.
+- The roadmap adds v3.7 (n8n and webhooks), v3.8 (Notion), v3.9 (home servers: Nextcloud, WebDAV, wikis)
+  and v3.10 (WordPress, Ghost and Discord) before 4.0. Feature releases stay 3.x; 4.0 is kept for the
+  writing studio.
 - The `winget` manifests use the current 1.12 schema, with schema headers, and the package description
   mentions highlights, natural voices and sync. 3.2.0 has been submitted to the Windows Package Manager
   ([microsoft/winget-pkgs#469811](https://github.com/microsoft/winget-pkgs/pull/469811)).

@@ -128,7 +128,7 @@ test('AI assist: prompts, request parameters and settings', () => {
   const haiku = ai.requestParams('claude-haiku-5-5', 'hi');
   assert.equal(haiku.fallbacks, undefined, 'Haiku has no server-side fallback');
   assert.equal(ai.requestParams('gpt-whatever', 'hi').model, 'claude-opus-5-5');
-  assert.deepEqual(ai.cleanAiSettings({ enabled: 'yes', model: 'nope' }), { enabled: false, model: 'claude-opus-5-5' });
+  assert.deepEqual(require('../src/main/ai-providers.js').cleanAiSettings({ enabled: 'yes', model: 'nope' }).models, { anthropic: 'claude-opus-5-5' });
   assert.equal(ai.KEY_RE.test('sk-ant-api03-abcdefghijklmnopqrstuvwxyz'), true);
   assert.equal(ai.KEY_RE.test('sk-ant-short'), false);
   assert.equal(ai.KEY_RE.test('sk-ant-abcdefghijklmnopqrstuvwxyz\nX-Header: 1'), false);
