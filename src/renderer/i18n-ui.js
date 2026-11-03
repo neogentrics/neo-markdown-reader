@@ -4,7 +4,7 @@
 // from your files (tabs, file lists, headings in the outline…) are never translated.
 import { createTranslator } from '../main/i18n.js';
 
-const ATTRS = ['title', 'aria-label', 'placeholder'];
+const ATTRS = ['title', 'aria-label', 'placeholder', 'label'];          // label: <optgroup> headings (3.2)
 // Your content, never translated: documents, the editor, and names taken from files and documents.
 const SKIP = [
   '.markdown-body', '.cm-editor', '.cm-tooltip', '[translate="no"]', 'script', 'style', 'kbd', 'code', 'pre', 'textarea',

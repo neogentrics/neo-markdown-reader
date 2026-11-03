@@ -4,6 +4,27 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.2.0] - 2026-11-03
+
+### Added
+- **Natural voices for Read aloud:** ten voices (five female, five male) that sound like a person rather
+  than a machine, in English, Spanish, French, German and 27 more languages. Choose *Get natural voices…* in
+  the read-aloud bar's voice list: the app says how big they are (about 400 MB) and asks first, then
+  downloads them once. After that they work offline, and nothing you read is ever sent anywhere.
+  - Each sentence is made on your computer in a separate background process, a sentence or two ahead of
+    the one being read, so reading doesn't pause between sentences. A slower computer gets a slightly
+    faster setting automatically.
+  - The document's language comes from its front matter (`lang:`), or is recognised from its words. A
+    language the natural voices don't speak yet is read by your computer's own voice, as before.
+  - Your computer's own voices are still in the list, and are still the default. *Remove natural voices…*
+    in the same list deletes the download.
+  - The voices are Supertonic 3 by Supertone, used under the OpenRAIL-M license. They come from one fixed
+    version of Supertone's published model, and every file is checked against its size and SHA-256
+    checksum before it's used.
+
+### Changed
+- Group headings in drop-down lists are translated too.
+
 ## [3.1.0] - 2026-11-03
 
 ### Added

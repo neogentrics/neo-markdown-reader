@@ -208,6 +208,24 @@ Markdown files are treated as **untrusted input**:
 - Each computer writes only its own file (written to a temporary name, then renamed), so a half-synced
   file is skipped and read next time rather than merged.
 
+### Natural voices (since 3.2)
+
+- **Nothing is downloaded until the reader agrees** in a native dialog that gives the size and the license.
+  The files come from one fixed revision of Supertone's published model on Hugging Face (the revision is
+  part of every URL), through Electron's network stack (the system's proxy and certificate store).
+- **Every file is checked before use:** its size and SHA-256 are written into the app (`src/main/voices.js`).
+  Bytes are hashed as they arrive; a file larger than expected is stopped at once, and a file that doesn't
+  match is deleted. Files are downloaded under a temporary name and only renamed into place once they
+  match, and the voices count as installed only when every file is in place.
+- **Speech runs in a separate process** (Electron's `utilityProcess`) with ONNX Runtime's WebAssembly engine,
+  bundled into the app; there is no native code. It reads only the model folder in the app's data folder,
+  opens no network connections, and is stopped after five idle minutes.
+- **What reaches it** is the sentence being read, the language code and the voice name, checked by the main
+  process (text length, a known voice, a language the model speaks, speed and quality in range). What comes
+  back is audio samples, played by the page; nothing is written to disk.
+- **Locked documents** can be read aloud like any open document; their text goes only to the voice process
+  on this computer, never anywhere else.
+
 ### AI assist (since 2.0)
 
 - Off by default. Requests are made only from an explicit menu command, contain only the current

@@ -93,6 +93,14 @@ contextBridge.exposeInMainWorld('reader', {
   syncNow: invoke('sync:now'),
   onSyncStatus: on('sync:status'),
   onAnnotationsChanged: on('annotations:changed'),
+  // natural voices (3.2)
+  voiceStatus: invoke('voice:status'),
+  voiceInstall: invoke('voice:install'),
+  voiceCancelDownload: invoke('voice:cancel-download'),
+  voiceRemove: invoke('voice:remove'),
+  voiceSpeak: invoke('voice:speak'),
+  voiceCancel: invoke('voice:cancel'),
+  onVoiceProgress: on('voice:progress'),
   // add-ons (3.0)
   addonsList: invoke('addons:list'),
   addonsInstall: invoke('addons:install'),
