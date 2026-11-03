@@ -180,6 +180,7 @@ class Settings {
   update(patch) {
     this.data = sanitize({ ...this.data, ...patch });
     this.save();
+    this.onChange?.();          // sync (3.1) listens for changes made on this computer
     return this.get();
   }
   addRecent(file) {

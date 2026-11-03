@@ -4,6 +4,24 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.1.0] - 2026-11-03
+
+### Added
+- **Sync between computers** (*Edit → Sync Between Computers…*): your highlights, notes, bookmarks, recent
+  files, reading positions and settings stay the same on every computer, through a folder you already sync
+  with OneDrive, Dropbox, iCloud Drive or Google Drive. No account and no server: your cloud service moves
+  the files. Choose the folder once on each computer (the app suggests the cloud folders it finds), and
+  each computer's changes reach the others within a minute.
+  - Each computer writes only its own file in the sync folder, so the cloud service never makes
+    "conflicted copy" files, and every computer keeps the newest version of each highlight, note and
+    setting. Removing a highlight or bookmark removes it everywhere.
+  - Documents are matched by where they sit inside your cloud folder, so the same file is recognised even
+    though its full path differs on each computer. A highlight for a document that hasn't finished
+    downloading waits for it.
+  - A computer joining a folder that's already in use takes on the settings already there.
+  - Never synced: your AI key, editing permissions, version history, the *Allow Running Code Blocks*
+    setting, and anything about password-locked documents (their highlights quote the text).
+
 ## [3.0.0] - 2026-11-02
 
 ### Added

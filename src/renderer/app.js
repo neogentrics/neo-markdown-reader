@@ -19,6 +19,7 @@ import { createNotesUi } from './notes-ui.js';
 import { createReadUi, cleanCopy } from './read-ui.js';
 import { createUiTranslator } from './i18n-ui.js';
 import { createAddonsUi } from './addons-ui.js';
+import { createSyncUi } from './sync-ui.js';
 import { resolveWiki, relative, dirOf, slugify as wikiSlug } from '../main/notes-core.js';
 import './styles/app.css';
 
@@ -61,6 +62,7 @@ let keysUi = null;
 let notesUi = null;
 let readUi = null;
 let addonsUi = null;
+let syncUi = null;
 const uiText = createUiTranslator();
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
@@ -945,6 +947,7 @@ api.onCommand(({ cmd, arg }) => {
     case 'export-slides': publish.exportAs('slides'); break;
     case 'export-pptx': publish.exportAs('pptx'); break;
     case 'addons': addonsUi.open(); break;
+    case 'sync': syncUi.open(); break;
     case 'addon-export': if (arg) addonsUi.exportWith(arg); break;
     case 'present': if (presenter.active()) presenter.stop(); else presenter.start(); break;
     case 'customize-theme': themeUi.open(); break;
@@ -1240,6 +1243,15 @@ addonsUi = createAddonsUi({
   textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
   cleanHtml: (t) => publish.payloadFor(t).content,
   rerenderAll: () => { for (const t of tabs) if (t.result && !t.doc.compare && !t.doc.needsPassword) rerender(t); },
+});
+syncUi = createSyncUi({
+  api, toast,
+  settings: () => settings,
+  // Highlights and notes from another computer: drop the cached copy and repaint those documents.
+  annotationsChanged: (paths) => {
+    highlights.forget(paths);
+    for (const t of tabs) if (t.result && t.doc.path && paths.some((p) => samePath(p, t.doc.path))) rerender(t);
+  },
 });
 readUi = createReadUi({
   api, toast, activeTab, render, desk: els.desk,

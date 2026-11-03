@@ -86,6 +86,13 @@ contextBridge.exposeInMainWorld('reader', {
   askFolder: invoke('ai:ask-folder'),
   peekDoc: invoke('doc:peek'),
   aiEdit: invoke('ai:edit'),
+  // sync between your computers (3.1)
+  syncStatus: invoke('sync:status'),
+  syncChooseFolder: invoke('sync:choose-folder'),
+  syncConfigure: invoke('sync:configure'),
+  syncNow: invoke('sync:now'),
+  onSyncStatus: on('sync:status'),
+  onAnnotationsChanged: on('annotations:changed'),
   // add-ons (3.0)
   addonsList: invoke('addons:list'),
   addonsInstall: invoke('addons:install'),

@@ -405,6 +405,24 @@
     <div class="grants-actions"><button type="button" class="big-btn sm" id="addons-install">Install Add-on…</button><span class="spacer"></span><button type="button" class="link-btn" id="addons-done">Done</button></div>
   </dialog>
 
+  <dialog class="shortcuts sync-dlg" id="sync-dlg" aria-labelledby="sync-h">
+    <div class="ai-head"><h3 id="sync-h">Sync between computers</h3><button type="button" class="tb-btn sm" id="sync-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="grants-intro">Keep your highlights, notes, bookmarks, recent files, reading positions and settings the same on every computer, through a folder you already sync with OneDrive, Dropbox, iCloud Drive or Google Drive. No account is needed: your cloud service moves the files.</p>
+    <p class="sync-state" id="sync-state" role="status" aria-live="polite"></p>
+    <div class="sync-folder">
+      <span class="sync-folder-label">Sync folder</span>
+      <span class="sync-folder-path" id="sync-folder-path" translate="no"></span>
+      <button type="button" class="link-btn" id="sync-choose">Choose Folder…</button>
+    </div>
+    <div class="sync-suggest" id="sync-suggest"></div>
+    <label class="check"><input type="checkbox" id="sync-enabled"> Keep this computer in step</label>
+    <label class="field sync-name">This computer’s name<input type="text" id="sync-name" maxlength="80" spellcheck="false" autocomplete="off"></label>
+    <div class="sync-devices" id="sync-devices"></div>
+    <p class="hint-text">Never synced: your AI key, editing permissions, version history, and anything about password-locked documents. Your documents themselves aren’t copied: keep them in a synced folder too, and their highlights follow them.</p>
+    <p class="lock-msg" id="sync-msg" role="alert"></p>
+    <div class="grants-actions"><button type="button" class="big-btn sm" id="sync-now">Sync Now</button><span class="spacer"></span><button type="button" class="link-btn" id="sync-done">Done</button></div>
+  </dialog>
+
   <dialog class="shortcuts rename-dlg" id="rename-dlg" aria-labelledby="rename-dlg-h">
     <form id="rename-form">
       <h3 id="rename-dlg-h">Rename</h3>

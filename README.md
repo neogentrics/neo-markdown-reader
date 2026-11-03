@@ -10,7 +10,7 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
-**[Features](#features)** · **[Install](#install-windows)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+**[Features](#features)** · **[Install](#install-windows)** · **[Across computers](#across-your-computers)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
 
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
@@ -43,7 +43,8 @@ symbols, and no browser tab or code editor is needed.
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
-| **Make it yours** *(new in 3.0)* | The app in English, Spanish, French or German (it follows your computer, or choose in *View → Language*); Arabic, Hebrew and other right-to-left documents read right to left; add-ons for new code-block types, export formats and colour themes, each approved by you and run in a sealed sandbox ([details](#make-it-yours)) |
+| **Across your computers** *(new in 3.1)* | Highlights, notes, bookmarks, recent files, reading positions and settings kept the same on every computer through a folder you already sync (OneDrive, Dropbox, iCloud Drive, Google Drive), with no account ([details](#across-your-computers)) |
+| **Make it yours** *(3.0)* | The app in English, Spanish, French or German (it follows your computer, or choose in *View → Language*); Arabic, Hebrew and other right-to-left documents read right to left; add-ons for new code-block types, export formats and colour themes, each approved by you and run in a sealed sandbox ([details](#make-it-yours)) |
 | **Read, listen & share** *(2.4)* | Read aloud with your computer's voices; focus mode, folding sections and hover previews; open CSV, JSON, YAML and Jupyter notebooks; charts from a table or a `chart` block; export e-books (EPUB) and slides (PDF or PowerPoint); and (optionally) proofread, rewrite, shorten or translate a selection with Claude ([details](#read-listen--share)) |
 | **Connected notes** *(2.3)* | Link documents with `[[wiki links]]` (suggested as you type, kept up to date when you rename); see what links here, a map of how a folder fits together, tags and every task in one list, a daily note, a link checker, and (optionally) ask Claude questions about a folder with links to its sources ([details](#connected-notes)) |
 | **Write faster** *(2.2)* | Paste or drop pictures (saved next to the document); edit tables in a grid and paste cells from Excel; paste from Word and web pages as clean Markdown, or import a Word document; version history with compare and restore; replace across a folder with a preview and undo; run any command from `Ctrl+K` and choose your own shortcuts ([details](#writing-faster)) |
@@ -273,6 +274,33 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
 </table>
 
 <img src="docs/screenshots/ai-writing.png" width="860" alt="A suggested rewrite of a paragraph shown as a change, with Reject, Try again and Accept buttons">
+
+## Across your computers
+
+<img src="docs/screenshots/sync.png" width="860" alt="The Sync between computers window: on, last synced now, a sync folder in OneDrive, this computer named Office Desktop, and a Studio MacBook last seen 4 minutes ago">
+
+Read on one computer, pick up on another. *Edit → Sync Between Computers…* keeps these the same everywhere:
+
+- your **highlights and notes**,
+- your **bookmarks**, **recent files** and **where you stopped reading** in each document,
+- your **settings**: theme, typeface, text size, page width, language, read-aloud speed and voice, export
+  choices, your own colours and fonts, and your keyboard shortcuts.
+
+**Setting it up:** on each computer, open *Edit → Sync Between Computers…* and choose the same folder inside
+OneDrive, Dropbox, iCloud Drive or Google Drive (the app offers the cloud folders it finds). That's all: no
+account, no server, no sign-in. The app keeps its files in a *Neo Markdown Reader* folder inside the one you
+choose, and your cloud service carries them between computers.
+
+**How it stays out of trouble:**
+- Each computer writes only its own file, so the cloud service never has two versions of one file to choose
+  between and never makes "conflicted copy" files. Every computer reads all of them and keeps the newest
+  version of each highlight, note and setting; removing something removes it everywhere.
+- Your documents aren't copied. Keep them in a synced folder too, and their highlights follow them: a document
+  is recognised by where it sits inside your cloud folder, even though its full path is different on each
+  computer. A highlight for a document that hasn't finished downloading waits for it.
+- A computer that joins later takes on the settings already in use instead of overwriting them.
+- **Never synced:** your AI key, editing permissions, version history, the *Allow Running Code Blocks*
+  setting, and anything about password-locked documents (a highlight quotes the text it marks).
 
 ## Make it yours
 
@@ -529,9 +557,11 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help �
 - **v3.0** added the app in Spanish, French and German, right-to-left documents, and add-ons (new code-block
   types, export formats and colour themes, each approved by you and run in a sealed sandbox).
 
+- **v3.1** added sync between your computers: highlights, notes, bookmarks, recent files, reading positions
+  and settings, through a folder you already sync, with no account.
+
 Coming next:
-- **v3.1, Across your computers:** highlights, notes, bookmarks, history and settings synced through a folder
-  you already sync. No account needed.
+- **v3.2, Natural voices:** read aloud with natural-sounding voices that run on your computer, offline.
 - **Later, if needed:** Git built in, shared review.
 
 Signed installers follow as soon as a code-signing certificate is bought.
@@ -581,6 +611,7 @@ src/
 │   ├── addons.js         add-ons: checks manifests and packages, installs them, theme CSS, the sandbox program
 │   ├── folders.js        scanning and searching an opened folder
 │   ├── annotations.js    private highlights & notes (stored in app data, never in the file)
+│   ├── sync.js           sync between computers: one file per computer in a synced folder, newest item wins
 │   ├── updater.js        update checks against GitHub Releases (electron-updater for the installer)
 │   ├── version.js        version comparison
 │   ├── files.js          which files can be opened + reading them safely

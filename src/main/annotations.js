@@ -51,6 +51,7 @@ class AnnotationStore {
       for (const old of keys.slice(0, keys.length - MAX_FILES)) delete this.data[old];
     }
     this.save();
+    this.onChange?.();          // sync (3.1) listens for changes made on this computer
     return this.get(p);
   }
 
