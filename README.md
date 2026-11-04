@@ -684,7 +684,8 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Prefere
 
 Coming next:
 - **v3.5 — Listen & speak:** documents exported as MP3s or audiobooks, a pronunciation list, offline dictation,
-  a choice of speakers and microphone, read aloud in presentation mode, and a read-aloud bar you can move.
+  a choice of speakers and microphone, read aloud in presentation mode, a read-aloud bar you can move, blue, red
+  and yellow themes, and more fonts.
 - **v3.6 — Study & research:** search by meaning, citations and bibliographies, and flashcards.
 - **v3.7 — Automate with n8n:** send a document, a selection or a folder to your n8n workflows (or any webhook)
   and get the result back as a document or a suggested change.
