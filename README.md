@@ -109,7 +109,7 @@ version is out and link to the download. *(Coming from 1.0? Install 1.1 once by 
 [website](https://recontowers.com/projects/neo-markdown-reader/), where to report a problem, and *Copy Version
 Details* for a bug report.
 
-<img src="docs/screenshots/about.png" width="860" alt="The About window: the RT Markdown Reader icon, version 3.3.0, a short description, links to the website, what's new in this version, reporting a problem and the source code, the Electron, Chromium, Node and Windows versions, the copyright with License and Open-source notices links, and Copy Version Details and Done buttons">
+<img src="docs/screenshots/about.png" width="860" alt="The About window: the RT Markdown Reader icon, version 3.4.1, a short description, links to the website, what's new in this version, reporting a problem and the source code, the Electron, Chromium, Node and Windows versions, the copyright with License and Open-source notices links, and Copy Version Details and Done buttons">
 
 ## Creating and editing
 
@@ -679,6 +679,8 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Prefere
   computer, offline, downloaded once when you ask.
 - **v3.3** added more AI services: ChatGPT, Gemini, Mistral and OpenRouter as well as Claude, each with your own
   key, or a private model on your own computer (Ollama, LM Studio), plus a quicker model for writing help.
+- **v3.4.1** took the name RT Markdown Reader, connected Claude Desktop and Claude Code to your documents, and added
+  a hands-on tutorial, the Help Center and one Preferences window, with shorter menus.
 
 Coming next:
 - **v3.5 — Listen & speak:** documents exported as MP3s or audiobooks, a pronunciation list, and offline dictation.
