@@ -328,6 +328,36 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     assert.ok(!fs.existsSync(stopped) && !fs.existsSync(`${stopped}.part`), 'nothing is left');
   });
 
+  await step('colour-safe colours replace red and green, and changes are marked without colour', async () => {
+    const token = (n) => win.evaluate((x) => getComputedStyle(document.documentElement).getPropertyValue(x).trim(), n);
+    assert.equal(await token('--del-fill'), '#e03131');
+    await menu('preferences');
+    await win.waitForSelector('#prefs-dlg[open]');
+    await win.click('.prefs-nav [data-pane=appearance]');
+    await win.check('#pref-colorsafe');
+    await win.waitForFunction(() => document.documentElement.dataset.colors === 'safe');
+    assert.equal(await token('--del-fill'), '#d55e00');
+    assert.equal(await token('--add-fill'), '#0072b2');
+    assert.equal(await token('--chart-3'), '#009e73');
+    const line = await win.evaluate(() => {
+      const box = document.createElement('table');
+      box.className = 'diff';
+      box.innerHTML = '<tr><td><ins>a</ins><del>b</del></td></tr>';
+      document.body.append(box);
+      const [ins, del] = [box.querySelector('ins'), box.querySelector('del')].map((n) => getComputedStyle(n).textDecorationLine);
+      box.remove();
+      return { ins, del };
+    });
+    assert.deepEqual(line, { ins: 'underline', del: 'line-through' });
+    await win.evaluate(() => window.reader.setSettings({ theme: 'dark' }));
+    await win.waitForFunction(() => document.documentElement.dataset.tone === 'dark');
+    assert.equal(await token('--del-text'), '#ffa45c');
+    await win.evaluate(() => window.reader.setSettings({ theme: 'light' }));
+    await win.uncheck('#pref-colorsafe');
+    await win.waitForFunction(() => document.documentElement.dataset.colors === 'normal');
+    await win.click('#prefs-done');
+  });
+
   await step('the fonts change the page and its headings', async () => {
     await win.click('#btn-theme');
     const fonts = await win.$$eval('#pop-font option', (o) => o.map((x) => x.value));

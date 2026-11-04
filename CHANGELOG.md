@@ -19,6 +19,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   every document or for one folder and what's inside it. Audio exports use it too.
 - **Blue, Red and Yellow themes,** with panels that run from one colour to another and contrasting buttons.
 - **A Glass look** for any theme: panels and the page frosted over the theme's own colours.
+- **Colour-safe colours** (*Preferences → Appearance*): for colour blindness, in any theme. Compare uses blue and orange
+  with underlines and strikethroughs, and charts and highlights use colours that stay different with protanopia,
+  deuteranopia and tritanopia.
 - **Fifteen fonts,** including Times New Roman, Georgia and Century, for the page and its headings. Word and PowerPoint
   exports use them too.
 

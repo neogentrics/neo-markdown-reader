@@ -16,8 +16,8 @@
 .replace-hit { align-items: flex-start; cursor: default; }
 .replace-hit input { margin-top: 3px; }
 .hit-open { display: flex; gap: 8px; border: 0; background: transparent; padding: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; min-width: 0; }
-.hit-text del { background: color-mix(in srgb, #e03131 20%, transparent); text-decoration: line-through; border-radius: 2px; }
-.hit-text ins { background: color-mix(in srgb, #2f9e44 24%, transparent); text-decoration: none; border-radius: 2px; }
+.hit-text del { background: color-mix(in srgb, var(--del-fill) 20%, transparent); text-decoration: line-through; border-radius: 2px; }
+.hit-text ins { background: color-mix(in srgb, var(--add-fill) 24%, transparent); text-decoration: none; border-radius: 2px; }
 .replace-foot { position: sticky; bottom: 0; padding: 10px 8px 4px; background: linear-gradient(transparent, var(--chrome) 40%); }
 .replace-apply { width: 100%; }
 

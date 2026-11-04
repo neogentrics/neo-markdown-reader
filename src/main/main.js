@@ -798,6 +798,7 @@ function rebuildMenu() {
         },
         moved({ label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), radio('Blue', 'theme', 'blue'), radio('Red', 'theme', 'red'), radio('Yellow', 'theme', 'yellow'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast'),
           ...addonThemeItems(s)] }),
+        moved({ id: 'color-safe', label: 'Colour-Safe Colours', type: 'checkbox', checked: s.colorSafe, click: () => setSetting({ colorSafe: !settings.get().colorSafe }) }),
         moved({ label: 'Look', submenu: [radio('Solid', 'surface', 'solid'), radio('Glass', 'surface', 'glass')] }),
         moved({ label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif'), { type: 'separator' }, radio('Times New Roman', 'font', 'times'), radio('Georgia', 'font', 'georgia'), radio('Century Schoolbook', 'font', 'century'), radio('Garamond', 'font', 'garamond'), radio('Palatino Linotype', 'font', 'palatino'), radio('Cambria', 'font', 'cambria'), radio('Arial', 'font', 'arial'), radio('Calibri', 'font', 'calibri'), radio('Verdana', 'font', 'verdana'), radio('Tahoma', 'font', 'tahoma'), radio('Century Gothic', 'font', 'gothic'), radio('Trebuchet MS', 'font', 'trebuchet'), radio('Courier New', 'font', 'courier')] }),
         moved({ label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] }),
@@ -1431,7 +1432,7 @@ function registerIpc() {
   ipcMain.handle('doc:print', (e) => { stateFor(e)?.win.webContents.print({ printBackground: true }); });
   ipcMain.handle('settings:set', (_e, patch) => {
     if (!patch || typeof patch !== 'object') return rendererSettings();
-    const allowed = ['theme', 'surface', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'audioInput', 'language'];
+    const allowed = ['theme', 'surface', 'colorSafe', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'audioInput', 'language'];
     setSetting(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
     return rendererSettings();
   });

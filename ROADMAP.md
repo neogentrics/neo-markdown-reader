@@ -241,6 +241,7 @@ updates itself from here on.
 | ✅ 🙋 A read-aloud bar you can move | S | Drag the bar anywhere in the window, and it stays where you left it. |
 | ✅ 🙋 Blue, red and yellow themes | S | Three new themes with real contrast: panels that run from one colour to another, gold or navy buttons, and a clean page to read on. |
 | ✅ 🙋 Glass look | S | Any theme can be frosted: its panels and page turn to glass over its own colours. It's left out of High Contrast, and of printing and exports, and it steps aside if your computer is set for less transparency. |
+| ✅ 🙋 Colour-safe colours | S | An option for any theme. Compare, charts and highlights use colours that stay different with protanopia, deuteranopia and tritanopia, and changes get underlines and strikethroughs. |
 | ✅ 🙋 More fonts | S | Fifteen to choose from, including Times New Roman, Georgia and Century, for the page and its headings. The nearest match is used on a computer without one. Word and PowerPoint exports use it too. |
 
 **Fixes in the same release:**

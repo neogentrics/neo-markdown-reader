@@ -10,6 +10,11 @@
   /* The opposite of the page, for controls that sit on top of it. */
   --inverse-bg: var(--text);
   --inverse-fg: var(--page);
+  /* What's added and what's removed, wherever the app shows a change or a problem. */
+  --add-fill: #2f9e44;
+  --del-fill: #e03131;
+  --add-text: #2b8a3e;
+  --del-text: #c92a2a;
   /* A theme can paint these with gradients. */
   --desk-fill: var(--desk);
   --toolbar-fill: var(--chrome);
@@ -432,6 +437,14 @@
 }
 :root[data-theme="contrast"] .markdown-body a { text-decoration: underline; }
 :root[data-theme="contrast"] .markdown-body mark { color: #000; }
+
+:root[data-tone="dark"] { --add-text: #8ce99a; --del-text: #ff8787; }
+
+/* Colour-safe: blue and orange instead of green and red, which stay apart in all three main kinds of colour
+   blindness. Charts and highlights change with them (blocks.css, organize.css), and changes get underlines and
+   strikethroughs, so they don't rest on colour alone. test/colors.test.mjs measures these. */
+:root[data-colors="safe"] { --add-fill: #0072b2; --del-fill: #d55e00; --add-text: #005a8e; --del-text: #a84a00; }
+:root[data-colors="safe"][data-tone="dark"] { --add-text: #6cb6ff; --del-text: #ffa45c; }
 
 /* Glass: any theme, with its panels and page frosted over colour. Never for printing or exports, and not with
    High Contrast, or for people who've asked their computer for less transparency. */

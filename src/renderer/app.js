@@ -1107,6 +1107,8 @@ function applySettings(s) {
   root.dataset.tone = DARK_THEMES.has(root.dataset.theme) ? 'dark' : 'light';
   root.dataset.font = s.font;
   root.dataset.surface = s.surface;
+  root.dataset.colors = s.colorSafe ? 'safe' : 'normal';
+  document.querySelector('.sw.hl-pink').title = s.colorSafe ? 'Orange' : 'Pink';    // it's orange with these colours
   $('pop-font').value = s.font;
   root.dataset.width = s.pageWidth;
   root.style.setProperty('--font-scale', s.fontScale);

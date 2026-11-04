@@ -45,7 +45,7 @@ Part of the Recon Towers suite. Known as Neo Markdown Reader until version 3.4.1
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions; *Restart to update* installs them without any installer screens |
 | **Listen & speak** *(new in 3.5)* | Export a document as an MP3 or an audiobook with chapters, dictate instead of typing, read aloud through your slides, teach the voices how to say names, and choose your speakers and microphone ([details](#listen--speak)) |
-| **Your look** *(new in 3.5)* | Blue, Red and Yellow themes, a Glass look for any theme, and fifteen fonts |
+| **Your look** *(new in 3.5)* | Blue, Red and Yellow themes, a Glass look for any theme, colour-safe colours for colour blindness, and fifteen fonts |
 | **Hands-on tutorial** *(new in 3.4)* | A guided tour with a practice document, offered the first time you open the app, and again from *Help → Tutorial* |
 | **Help Center** *(new in 3.4)* | Press `F1` for guides, common questions and quick links, with buttons that take you straight to the setting |
 | **Preferences** *(new in 3.4)* | Every setting in one window (`Ctrl+,`), so the menus stay short |
@@ -610,6 +610,10 @@ its panels and page to frosted glass over its own colours. It's left out of High
 it steps aside if your computer is set for less transparency.
 
 <img src="docs/screenshots/glass.png" width="860" alt="The Paper theme with the Glass look: frosted panels and page over soft blue and green">
+
+**Colour-safe colours** (*Preferences → Appearance*) work with any theme, for protanopia, deuteranopia and tritanopia.
+Compare shows changes in blue and orange instead of green and red, with underlines and strikethroughs so they don't
+rest on colour alone, and charts and highlights change to colours that stay different. Exported files keep the normal colours.
 
 The same button has fifteen fonts, including Times New Roman, Georgia and Century, for the page and its headings. Word and
 PowerPoint exports use them too. A computer without a font uses the nearest match.

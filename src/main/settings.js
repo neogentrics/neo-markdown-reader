@@ -9,6 +9,7 @@ const DEFAULTS = Object.freeze({
   theme: 'system',        // system | light | dark | sepia | mist | forest | dusk | contrast | blue | red | yellow
   font: 'sans',           // one of FONTS
   surface: 'solid',       // solid | glass
+  colorSafe: false,       // colours that stay apart with colour blindness
   fontScale: 1,           // 0.7 – 1.8
   pageWidth: 'normal',    // narrow | normal | wide | full
   showToc: true,
@@ -152,7 +153,7 @@ function sanitize(input) {
   if (FONTS.includes(input.font)) s.font = input.font;
   if (['solid', 'glass'].includes(input.surface)) s.surface = input.surface;
   if (WIDTHS.includes(input.pageWidth)) s.pageWidth = input.pageWidth;
-  for (const k of ['showToc', 'showMenuBar', 'restoreSession', 'claudeConnector']) if (typeof input[k] === 'boolean') s[k] = input[k];
+  for (const k of ['showToc', 'showMenuBar', 'restoreSession', 'claudeConnector', 'colorSafe']) if (typeof input[k] === 'boolean') s[k] = input[k];
   const scale = Number(input.fontScale);
   if (Number.isFinite(scale)) s.fontScale = Math.min(1.8, Math.max(0.7, Math.round(scale * 100) / 100));
   if (Array.isArray(input.recent)) s.recent = input.recent.filter(isPath).slice(0, MAX_RECENT);

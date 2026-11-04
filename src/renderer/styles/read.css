@@ -100,8 +100,8 @@ body.focus-mode .page > *:hover { opacity: 1 !important; }
   margin: 12px 0; padding: 12px 14px; max-height: 50vh; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere;
   font: 14.5px/1.6 var(--font-sans); color: var(--text); background: var(--code-bg); border: 1px solid var(--rule); border-radius: 10px; min-height: 64px;
 }
-.ai-edit-diff del { background: color-mix(in srgb, #e03131 18%, transparent); text-decoration: line-through; text-decoration-color: color-mix(in srgb, #e03131 70%, transparent); border-radius: 2px; }
-.ai-edit-diff ins { background: color-mix(in srgb, #2f9e44 22%, transparent); text-decoration: none; border-radius: 2px; }
+.ai-edit-diff del { background: color-mix(in srgb, var(--del-fill) 18%, transparent); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--del-fill) 70%, transparent); border-radius: 2px; }
+.ai-edit-diff ins { background: color-mix(in srgb, var(--add-fill) 22%, transparent); text-decoration: none; border-radius: 2px; }
 .ai-edit-diff del + ins { margin-left: .2em; }
 .ai-edit-dlg .ai-foot .spacer { flex: 1; }
 @media (forced-colors: active) { .ai-edit-diff del, .ai-edit-diff ins { border: 1px solid CanvasText; } }
@@ -186,8 +186,8 @@ body.focus-mode .page > *:hover { opacity: 1 !important; }
 .sync-dlg .field input { font: 14px var(--font-sans); padding: 8px 11px; border-radius: 8px; border: 1px solid var(--rule-strong); background: var(--code-bg); color: var(--text); }
 .sync-state { margin: 4px 0 12px; font-size: 13px; color: var(--text-soft); display: flex; align-items: center; gap: 8px; }
 .sync-state::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
-.sync-state[data-state="on"]::before { background: #2f9e44; }
-.sync-state[data-state="error"]::before { background: #e03131; }
+.sync-state[data-state="on"]::before { background: var(--add-fill); }
+.sync-state[data-state="error"]::before { background: var(--del-fill); }
 .sync-folder { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border: 1px solid var(--chrome-border); border-radius: 10px; margin-bottom: 8px; }
 .sync-folder-label { font-size: 12px; font-weight: 600; color: var(--muted); }
 .sync-folder-path { flex: 1; min-width: 0; font-size: 13px; color: var(--heading); overflow-wrap: anywhere; }
