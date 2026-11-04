@@ -905,6 +905,20 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('mouseup', (e) => { if (e.button === 3) goBack(); });
 
 // ================================================================ menu commands
+/** File > Send to Linked App: what's on screen, saved or not. */
+async function sendToLinkedApp() {
+  const tab = activeTab();
+  if (!tab) { toast('Open a document first'); return; }
+  const res = await api.linkSend({ name: tab.doc.name, path: tab.doc.path, text: tab.editing && tab.editor ? tab.editor.getText() : tab.doc.content });
+  if (res?.error) toast(res.error);
+  else if (res?.name) toast(`Sent to ${res.name}`);
+}
+
+api.onLinkDocument(async ({ from, name, content }) => {
+  await editMode.newDocument('blank', { name, content });
+  toast(`Sent from ${from}`);
+});
+
 api.onCommand(({ cmd, arg }) => {
   const target = Number.isInteger(arg) && arg >= 0 ? tabs[arg] : activeTab();
   switch (cmd) {
@@ -965,6 +979,7 @@ api.onCommand(({ cmd, arg }) => {
     case 'export-slides': publish.exportAs('slides'); break;
     case 'export-pptx': publish.exportAs('pptx'); break;
     case 'export-audio': audioUi.open(); break;
+    case 'send-linked': sendToLinkedApp(); break;
     case 'addons': addonsUi.open(); break;
     case 'sync': syncUi.open(); break;
     case 'about': aboutUi.open(); break;

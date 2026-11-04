@@ -19,6 +19,7 @@ const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = requ
 const ai = require('./ai');
 const providers = require('./ai-providers');
 const connector = require('./connector');
+const appLink = require('./app-link');
 const claudeCode = require('./claude-code');
 const ABOUT_WEBSITE = 'https://recontowers.com/projects/neo-markdown-reader/';
 const i18n = require('./i18n');
@@ -697,6 +698,7 @@ function rebuildMenu() {
             ...addonExportItems(),
           ],
         },
+        cmd('send-linked', 'Send to Linked App…'),
         { id: 'print', label: 'Print…', accelerator: 'CmdOrCtrl+P', click: () => targetState()?.win.webContents.print({ printBackground: true }) },
         { type: 'separator' },
         cmd('close-tab', 'Close Tab', 'CmdOrCtrl+W'),
@@ -1149,6 +1151,74 @@ async function applyConnector() {
   await server.start();
   connectorServer = server;
 }
+
+// ---------------------------------------------------------------- App Link (3.6)
+// Other Recon Towers apps on this computer. The rules are in docs/app-link.md.
+let linkServer = null;
+let linksMemory = null;
+const linksFile = () => path.join(app.getPath('userData'), 'links.bin');
+
+function loadLinks() {
+  if (linksMemory) return { ...linksMemory };
+  if (!secureStorage()) return {};
+  try {
+    const saved = JSON.parse(safeStorage.decryptString(fs.readFileSync(linksFile())));
+    return saved && typeof saved === 'object' ? saved : {};
+  } catch { return {}; }
+}
+function saveLinks(links) {
+  if (secureStorage()) fs.writeFileSync(linksFile(), safeStorage.encryptString(JSON.stringify(links)));
+  else linksMemory = { ...links };             // kept until the app closes, never in a plain file
+}
+
+/** Ask the person, in this app, whether another app may link with it. */
+async function askToLink({ name }) {
+  const st = targetState();
+  if (st) focusState(st);
+  const box = {
+    type: 'question',
+    message: `Link ${name} with RT Markdown Reader?`,
+    detail: `${name} will be able to open documents here. It can’t read or change anything on its own.\n\nOnly say yes if you’ve just asked it to link.`,
+    buttons: ['Link', 'Don’t Link'], defaultId: 1, cancelId: 1, noLink: true,
+  };
+  const { response } = await (st ? dlg.showMessageBox(st.win, box) : dlg.showMessageBox(box));
+  return response === 0;
+}
+
+/** A document from a linked app. Text opens unsaved; a path opens like any Markdown file. */
+async function openFromLink({ from, name, text, path: file }) {
+  if (file) {
+    const full = path.resolve(file);
+    if (isLockedPath(full)) throw new appLink.LinkError('not_allowed', 'Password-locked documents can’t be opened this way.');
+    if (!isMarkdownPath(full)) throw new appLink.LinkError('not_allowed', 'RT Markdown Reader opens Markdown files this way.');
+    if (!fs.existsSync(full)) throw new appLink.LinkError('not_found', 'That document isn’t there.');
+    await openFile(full);
+    return;
+  }
+  const st = targetState();
+  if (!st) throw new appLink.LinkError('failed', 'RT Markdown Reader has no window open.');
+  focusState(st);
+  st.win.webContents.send('link:document', { from, name, content: text });
+}
+
+async function applyLink() {
+  if (!settings.get().appLink) { await linkServer?.stop(); linkServer = null; return; }
+  if (linkServer) return;
+  const server = new appLink.AppLink({
+    folder: appLink.sharedFolder({ home: app.getPath('home') }),
+    dataDir: app.getPath('userData'),
+    version: app.getVersion(),
+    load: loadLinks, save: saveLinks, ask: askToLink, open: openFromLink,
+  });
+  await server.start();
+  linkServer = server;
+}
+
+async function linkStatus() {
+  return { enabled: settings.get().appLink, safe: secureStorage(), apps: linkServer ? await linkServer.list() : [] };
+}
+
+const linkMessage = (err) => (err instanceof appLink.LinkError ? err.message : 'That didn’t work.');
 
 // ---------------------------------------------------------------- connected notes (2.3)
 /** The open folder's link / tag / task index, brought up to date. */
@@ -1999,6 +2069,35 @@ function registerIpc() {
       return { error: message };
     }
   });
+  // ---- App Link (3.6)
+  ipcMain.handle('link:status', () => linkStatus());
+  ipcMain.handle('link:set', async (_e, on) => {
+    settings.update({ appLink: on === true });
+    try { await applyLink(); } catch { settings.update({ appLink: false }); return { ...(await linkStatus()), error: 'App Link couldn’t start.' }; }
+    return linkStatus();
+  });
+  ipcMain.handle('link:pair', async (_e, id) => {
+    if (!linkServer || !appLink.validId(id)) return { error: 'Turn on App Link first.' };
+    try { return await linkServer.pairWith(id); } catch (err) { return { error: linkMessage(err) }; }
+  });
+  ipcMain.handle('link:unlink', async (_e, id) => {
+    if (linkServer && appLink.validId(id)) await linkServer.unlink(id);
+    return linkStatus();
+  });
+  ipcMain.handle('link:send', async (e, doc) => {
+    if (!linkServer) return { error: 'Turn on App Link in Preferences first.' };
+    if (typeof doc?.text !== 'string' || (doc.path && isLockedPath(doc.path))) return { error: 'Password-locked documents can’t be sent.' };
+    const ready = (await linkServer.list()).filter((a) => a.linked && a.running);
+    if (!ready.length) return { error: 'No linked app is running.' };
+    let choice = ready[0];
+    if (ready.length > 1) {
+      const buttons = [...ready.map((a) => a.name), 'Cancel'];
+      const { response } = await dlg.showMessageBox(stateFor(e).win, { type: 'question', message: 'Send this document to which app?', buttons, cancelId: ready.length, noLink: true });
+      choice = ready[response];
+      if (!choice) return {};
+    }
+    try { return await linkServer.send(choice.id, { name: doc.name, text: doc.text }); } catch (err) { return { error: linkMessage(err) }; }
+  });
   ipcMain.handle('claude:open-terminal', (e) => {
     const st = stateFor(e);
     const doc = st?.tabs[st.active]?.path;
@@ -2312,6 +2411,7 @@ app.whenReady().then(() => {
   annotations.onChange = () => sync.soon();
   sync.start();
   applyConnector().catch(() => {});
+  applyLink().catch(() => {});
   voices = new VoiceStore({
     root: path.join(app.getPath('userData'), 'voices'),
     fetch: (url, opts) => net.fetch(url, opts),
@@ -2365,6 +2465,7 @@ app.on('before-quit', (e) => {
 // Windows send their final tab state as they close, which can arrive after before-quit.
 app.on('will-quit', () => {
   connectorServer?.stop();
+  linkServer?.stop();
   persistSession();
   settings?.flush();
   annotations?.flush();

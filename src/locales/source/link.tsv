@@ -1,0 +1,26 @@
+en	es	fr	de
+Send to Linked App…	Enviar a una aplicación vinculada…	Envoyer vers une application liée…	An verknüpfte App senden…
+Linked Apps	Aplicaciones vinculadas	Applications liées	Verknüpfte Apps
+Let other Recon Towers apps on this computer link with this app	Permitir que otras aplicaciones de Recon Towers de este equipo se vinculen con esta aplicación	Autoriser les autres applications Recon Towers de cet ordinateur à se lier à cette application	Anderen Recon-Towers-Apps auf diesem Computer die Verknüpfung mit dieser App erlauben
+Linked apps can send each other documents. You approve each app once, and no account is needed.	Las aplicaciones vinculadas pueden enviarse documentos. Usted aprueba cada aplicación una vez y no necesita una cuenta.	Les applications liées peuvent s’envoyer des documents. Vous approuvez chaque application une seule fois, sans compte.	Verknüpfte Apps können einander Dokumente senden. Sie bestätigen jede App einmal, ein Konto ist nicht nötig.
+Link {0} with RT Markdown Reader?	¿Vincular {0} con RT Markdown Reader?	Lier {0} à RT Markdown Reader ?	{0} mit RT Markdown Reader verknüpfen?
+{0} will be able to open documents here. It can’t read or change anything on its own.\n\nOnly say yes if you’ve just asked it to link.	{0} podrá abrir documentos aquí. No puede leer ni cambiar nada por su cuenta.\n\nAcepte solo si acaba de pedirle que se vincule.	{0} pourra ouvrir des documents ici. L’application ne peut rien lire ni modifier d’elle-même.\n\nN’acceptez que si vous venez de lui demander de se lier.	{0} kann hier Dokumente öffnen. Die App kann von sich aus nichts lesen oder ändern.\n\nStimmen Sie nur zu, wenn Sie die Verknüpfung gerade selbst angefordert haben.
+Send this document to which app?	¿A qué aplicación quiere enviar este documento?	À quelle application envoyer ce document ?	An welche App soll dieses Dokument gesendet werden?
+Link	Vincular	Lier	Verknüpfen
+Don’t Link	No vincular	Ne pas lier	Nicht verknüpfen
+Remove	Quitar	Retirer	Entfernen
+Linked	Vinculada	Liée	Verknüpft
+Not linked	No vinculada	Non liée	Nicht verknüpft
+Linked, not running	Vinculada, sin abrir	Liée, non ouverte	Verknüpft, nicht geöffnet
+App Link couldn’t start.	No se pudo iniciar App Link.	App Link n’a pas pu démarrer.	App Link konnte nicht gestartet werden.
+Password-locked documents can’t be sent.	Los documentos protegidos con contraseña no se pueden enviar.	Les documents protégés par mot de passe ne peuvent pas être envoyés.	Passwortgeschützte Dokumente können nicht gesendet werden.
+No linked app is running.	No hay ninguna aplicación vinculada abierta.	Aucune application liée n’est ouverte.	Es ist keine verknüpfte App geöffnet.
+Turn on App Link in Preferences first.	Active primero App Link en Preferencias.	Activez d’abord App Link dans les Préférences.	Schalten Sie zuerst App Link in den Einstellungen ein.
+Turn on App Link first.	Active primero App Link.	Activez d’abord App Link.	Schalten Sie zuerst App Link ein.
+That didn’t work.	Eso no funcionó.	Cela n’a pas fonctionné.	Das hat nicht funktioniert.
+Sent to {0}	Enviado a {0}	Envoyé vers {0}	An {0} gesendet
+Sent from {0}	Enviado desde {0}	Envoyé depuis {0}	Von {0} gesendet
+Answer in {0}	Responda en {0}	Répondez dans {0}	Antworten Sie in {0}
+Open a document first	Abra primero un documento	Ouvrez d’abord un document	Öffnen Sie zuerst ein Dokument
+This computer has no safe place to keep links, so they last until the app closes.	Este equipo no tiene un lugar seguro para guardar los vínculos, así que duran hasta que se cierra la aplicación.	Cet ordinateur n’a pas d’emplacement sûr pour conserver les liens : ils durent jusqu’à la fermeture de l’application.	Dieser Computer hat keinen sicheren Speicherort für Verknüpfungen. Sie gelten daher nur, bis die App geschlossen wird.
+No other Recon Towers apps are running.	No hay otras aplicaciones de Recon Towers abiertas.	Aucune autre application Recon Towers n’est ouverte.	Es sind keine anderen Recon-Towers-Apps geöffnet.

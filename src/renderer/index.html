@@ -525,6 +525,7 @@
         <button type="button" role="tab" data-pane="editing">Editing</button>
         <button type="button" role="tab" data-pane="ai">AI and Claude</button>
         <button type="button" role="tab" data-pane="sync">Sync</button>
+        <button type="button" role="tab" data-pane="link">Linked Apps</button>
         <button type="button" role="tab" data-pane="shortcuts">Shortcuts</button>
       </div>
       <div class="prefs-panes">
@@ -572,6 +573,12 @@
         <section class="prefs-pane" data-pane="sync" hidden>
           <p class="hint-text">Keep highlights, bookmarks, recent files and reading positions in step between your computers, through a folder you already sync. No account is needed.</p>
           <div class="prefs-actions"><button type="button" class="big-btn sm" data-run="sync">Sync Between Computers…</button></div>
+        </section>
+        <section class="prefs-pane" data-pane="link" hidden>
+          <label class="check"><input type="checkbox" id="pref-link"> Let other Recon Towers apps on this computer link with this app</label>
+          <p class="hint-text">Linked apps can send each other documents. You approve each app once, and no account is needed.</p>
+          <ul class="link-list" id="pref-link-list"></ul>
+          <p class="hint-text" id="pref-link-status"></p>
         </section>
         <section class="prefs-pane" data-pane="shortcuts" hidden>
           <p class="hint-text">See the keyboard shortcuts, or change any of them to suit you.</p>

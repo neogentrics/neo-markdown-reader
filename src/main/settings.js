@@ -23,6 +23,7 @@ const DEFAULTS = Object.freeze({
   recentFolders: [],      // most-recent-first folders opened with File > Open Folder
   exportOptions: null,    // last choices in the PDF designer (see EXPORT_DEFAULTS)
   claudeConnector: false, // the Claude connector (3.4): off until you turn it on
+  appLink: false,         // App Link (3.6): off until you turn it on
   tutorial: 'todo',       // todo | done — shown when the app starts until it's finished or declined, including after updating from an older version
   tutorialStep: 0,        // where to resume
   ai: null,               // AI assist: { enabled, provider, models, quick, localUrl } — off by default; API keys are stored separately, encrypted
@@ -153,7 +154,7 @@ function sanitize(input) {
   if (FONTS.includes(input.font)) s.font = input.font;
   if (['solid', 'glass'].includes(input.surface)) s.surface = input.surface;
   if (WIDTHS.includes(input.pageWidth)) s.pageWidth = input.pageWidth;
-  for (const k of ['showToc', 'showMenuBar', 'restoreSession', 'claudeConnector', 'colorSafe']) if (typeof input[k] === 'boolean') s[k] = input[k];
+  for (const k of ['showToc', 'showMenuBar', 'restoreSession', 'claudeConnector', 'appLink', 'colorSafe']) if (typeof input[k] === 'boolean') s[k] = input[k];
   const scale = Number(input.fontScale);
   if (Number.isFinite(scale)) s.fontScale = Math.min(1.8, Math.max(0.7, Math.round(scale * 100) / 100));
   if (Array.isArray(input.recent)) s.recent = input.recent.filter(isPath).slice(0, MAX_RECENT);
