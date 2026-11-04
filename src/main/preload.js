@@ -25,6 +25,8 @@ contextBridge.exposeInMainWorld('reader', {
   reveal: invoke('shell:reveal'),
   openExternal: invoke('shell:open-external'),
   appAbout: invoke('app:about'),
+  prefsInfo: invoke('prefs:info'),
+  helpArticles: invoke('help:articles'),
   connectorStatus: invoke('connector:status'),
   connectorSet: invoke('connector:set'),
   connectorAdd: invoke('connector:add'),

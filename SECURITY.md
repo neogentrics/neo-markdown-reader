@@ -34,7 +34,7 @@ Markdown files are treated as **untrusted input**:
 - The page never writes files. Saving is performed by the main process (`src/main/editing.js`) and only for
   a file the user allowed through a **native** permission dialog, which document content cannot draw or
   answer. "Just this time" permission lives in memory for one window and ends when the tab closes;
-  "Always" permissions are listed and revocable in *Edit → Editing Permissions…*.
+  "Always" permissions are listed and revocable in *Preferences → Editing*.
 - Before the first save of a file in a session, the original is copied to the app's backups folder.
 - A save is refused (after asking) if the file's modification time no longer matches the version that
   editing started from, so changes made by another program aren't silently overwritten.
@@ -80,7 +80,7 @@ Markdown files are treated as **untrusted input**:
   - The window has no preload and no Node.js.
 - Each program runs in a Web Worker. Network APIs are removed before user code runs, the worker is
   terminated when its time is up (10 s; Python 30 s), and output is capped and shown as text, never as HTML.
-- *Edit → Allow Running Code Blocks* switches the feature off.
+- the option in *Preferences → Editing* switches the feature off.
 
 ### Password-locked documents (since 2.0)
 

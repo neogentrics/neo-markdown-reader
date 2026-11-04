@@ -19,12 +19,12 @@ const STEPS = [
   { title: 'Back to reading', target: '#btn-edit', done: (t) => !t?.editing, text: 'Click this button again to go back to reading.' },
   { title: 'Go anywhere', target: '#btn-quick', text: 'This button, or Ctrl+K (Cmd+K on a Mac), jumps to any file or heading. Type > there to run any menu command by name.' },
   { title: 'Folders', text: 'File → Open Folder shows a whole folder in the Files panel, where you can search every document and use links, tags and tasks between them.' },
-  { title: 'Side by side', target: '#btn-split', text: 'Split view shows two documents at once. To compare versions of one document, use Edit → Version History.' },
-  { title: 'Listen', text: 'View → Read Aloud reads the document to you. Natural voices, which work offline, are a free download the first time.' },
+  { title: 'Side by side', target: '#btn-split', text: 'Split view shows two documents at once. To compare versions of one document, use Edit → Compare and History.' },
+  { title: 'Listen', text: 'View → Read Aloud reads the document to you. Choose the voice and speed in Preferences → Reading Aloud, where natural voices that work offline are a free download.' },
   { title: 'Export and share', target: '#btn-pdf', text: 'This button makes a PDF, a Word document or a web page, with choices for paper, cover and contents.' },
-  { title: 'Across your computers', text: 'Edit → Sync Between Computers keeps highlights, bookmarks and reading positions in step through a folder you already sync, with no account.' },
+  { title: 'Your settings', target: '#btn-prefs', text: 'Every setting is here in Preferences: themes, voices, AI, sync and more. Press Ctrl+, (Cmd+, on a Mac) to open it from anywhere.' },
   { title: 'AI assist', guide: true, text: 'AI assist can summarize, explain and rewrite with the service you choose. It needs a key or a model on your computer, so there’s nothing to try here. The guide shows how to connect one.' },
-  { title: 'That’s the tour', text: 'You can take it again at any time from Help → Tutorial. Enjoy your reading.' },
+  { title: 'That’s the tour', text: 'Press F1 at any time for the Help Center, with guides, common questions and this tutorial. Enjoy your reading.' },
 ];
 
 export function createTourUi({ api, activeTab, openGuide }) {

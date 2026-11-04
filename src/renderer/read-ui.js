@@ -135,6 +135,14 @@ export function createReadUi(ctx) {
     els.voice.replaceChildren(nat, own);
     const ok = [...els.voice.options].some((o) => o.value === want && !o.value.endsWith(':get') && !o.value.endsWith(':remove'));
     els.voice.value = ok ? want : '';
+    mirrorVoice();
+  }
+
+  // Preferences shows the same list.
+  function mirrorVoice() {
+    const pref = $('pref-voice');
+    pref.replaceChildren(...[...els.voice.children].map((g) => g.cloneNode(true)));
+    pref.value = els.voice.value;
   }
   window.speechSynthesis?.addEventListener?.('voiceschanged', fillVoices);
   api.voiceStatus?.().then((s) => { natural = s; fillVoices(); });
@@ -312,6 +320,8 @@ export function createReadUi(ctx) {
   const saveConf = () => api.setSettings({ readAloud: { rate: Number(els.rate.value) || 1, voice: els.voice.value } });
   const restart = () => { audio.clear(); api.voiceCancel?.(); if (playing) speakAt(index); };
   els.rate.onchange = () => { saveConf(); restart(); };
+  $('pref-rate').onchange = () => { els.rate.value = $('pref-rate').value; saveConf(); restart(); };
+  $('pref-voice').onchange = () => { const v = $('pref-voice').value; chosen = els.voice.value; els.voice.value = v; els.voice.onchange(); };
   let chosen = els.voice.value;
   els.voice.onfocus = () => { chosen = els.voice.value; };
   els.voice.onchange = async () => {
@@ -333,11 +343,13 @@ export function createReadUi(ctx) {
         fillVoices();
       }
       chosen = els.voice.value;
+      mirrorVoice();
       return;
     }
     chosen = v;
     saveConf();
     restart();
+    mirrorVoice();
   };
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !bar.hidden && !document.querySelector('dialog[open]') && !e.target.closest?.('.cm-editor')) stop();
@@ -538,6 +550,7 @@ export function createReadUi(ctx) {
   api.onDocumentChanged?.((doc) => peekCache.delete(doc.path));
 
   return {
+    refreshVoices: fillVoices,
     toggleSpeak: start, stopSpeak: stop, speaking: () => !bar.hidden,
     toggleFocus, focusMode: () => focusMode,
     afterRender(tab) { addFolds(tab); if (tab.id === tabId) stop(); if (focusMode) updateFocus(); hidePeek(); peekCache.clear(); },

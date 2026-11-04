@@ -8,10 +8,10 @@ param(
 $ErrorActionPreference = 'Stop'
 $keys = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*', 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*'
 
-function Get-Entries { @(Get-ItemProperty $keys -ErrorAction SilentlyContinue | Where-Object DisplayName -like '*Markdown Reader*') }
+function Get-Entries { Get-ItemProperty $keys -ErrorAction SilentlyContinue | Where-Object DisplayName -like '*Markdown Reader*' }
 
 function Get-OneEntry {
-  $entries = Get-Entries
+  $entries = @(Get-Entries)
   if ($entries.Count -ne 1) { throw "Expected one entry in Add/Remove Programs, found: $($entries.DisplayName -join ', ')" }
   $entries[0]
 }
@@ -67,7 +67,7 @@ foreach ($mode in 'one person', 'everyone') {
   if ($entry.UninstallString -match '/allusers') { $args = @('/allusers') + $args }
   if ($entry.UninstallString -notmatch '^"([^"]+)"') { throw 'No uninstaller.' }
   Start-Process -Wait -FilePath $Matches[1] -ArgumentList $args
-  if ((Get-Entries).Count) { throw 'It did not uninstall.' }
+  if (@(Get-Entries).Count) { throw 'It did not uninstall.' }
   Remove-Item $data, $newData -Recurse -Force -ErrorAction SilentlyContinue
   Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
 }

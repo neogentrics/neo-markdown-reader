@@ -41,16 +41,18 @@ Part of the Recon Towers suite. Known as Neo Markdown Reader until version 3.4.1
 | **Links** | Links to other `.md` files open in the reader (with **Back**); web links open in your browser |
 | **Tabs & windows** | Every file opens in a tab. Reorder by dragging; right-click for *Move to New Window*, Duplicate, Close Others; drag a tab out to split it into its own window |
 | **Picks up where you left off** | Reopens your last windows and tabs, each scrolled to where you stopped reading |
-| **Proper menu bar** | File, Edit, View, Tabs and Help are always visible (or auto-hide them: *View → Always Show Menu Bar*) |
+| **Proper menu bar** | File, Edit, View, Tabs and Help are always visible (or auto-hide them: *Preferences → General*) |
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions; *Restart to update* installs them without any installer screens |
 | **Hands-on tutorial** *(new in 3.4)* | A guided tour with a practice document, offered the first time you open the app, and again from *Help → Tutorial* |
+| **Help Center** *(new in 3.4)* | Press `F1` for guides, common questions and quick links, with buttons that take you straight to the setting |
+| **Preferences** *(new in 3.4)* | Every setting in one window (`Ctrl+,`), so the menus stay short |
 | **Work with Claude** *(new in 3.4)* | Claude Desktop and Claude Code can read your documents and suggest changes you approve, and AI assist can use your Claude Code sign-in with no API key |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
 | **Your AI, your choice** *(new in 3.3)* | AI assist with Claude, ChatGPT, Gemini, Mistral or OpenRouter, each with your own key, or with a private model on your own computer (Ollama, LM Studio) that needs no key and no internet; a quicker model for writing help, and a check before anything large is sent ([details](#your-ai-your-choice)) |
 | **Natural voices** *(3.2)* | Read aloud in ten natural-sounding voices that run on your computer, offline, in 31 languages; downloaded once, only when you ask ([details](#natural-voices)) |
 | **Across your computers** *(3.1)* | Highlights, notes, bookmarks, recent files, reading positions and settings kept the same on every computer through a folder you already sync (OneDrive, Dropbox, iCloud Drive, Google Drive), with no account ([details](#across-your-computers)) |
-| **Make it yours** *(3.0)* | The app in English, Spanish, French or German (it follows your computer, or choose in *View → Language*); Arabic, Hebrew and other right-to-left documents read right to left; add-ons for new code-block types, export formats and colour themes, each approved by you and run in a sealed sandbox ([details](#make-it-yours)) |
+| **Make it yours** *(3.0)* | The app in English, Spanish, French or German (it follows your computer, or choose in *Preferences → General*); Arabic, Hebrew and other right-to-left documents read right to left; add-ons for new code-block types, export formats and colour themes, each approved by you and run in a sealed sandbox ([details](#make-it-yours)) |
 | **Read, listen & share** *(2.4)* | Read aloud with your computer's voices; focus mode, folding sections and hover previews; open CSV, JSON, YAML and Jupyter notebooks; charts from a table or a `chart` block; export e-books (EPUB) and slides (PDF or PowerPoint); and (optionally) proofread, rewrite, shorten or translate a selection with Claude ([details](#read-listen--share)) |
 | **Connected notes** *(2.3)* | Link documents with `[[wiki links]]` (suggested as you type, kept up to date when you rename); see what links here, a map of how a folder fits together, tags and every task in one list, a daily note, a link checker, and (optionally) ask Claude questions about a folder with links to its sources ([details](#connected-notes)) |
 | **Write faster** *(2.2)* | Paste or drop pictures (saved next to the document); edit tables in a grid and paste cells from Excel; paste from Word and web pages as clean Markdown, or import a Word document; version history with compare and restore; replace across a folder with a preview and undo; run any command from `Ctrl+K` and choose your own shortcuts ([details](#writing-faster)) |
@@ -117,12 +119,12 @@ Details* for a bug report.
   a title page). New documents open straight in the editor; `Ctrl+S` asks where to save them.
 - **Edit a file:** click **Edit** (or `Ctrl+E`). Files always open read-only, so the first time you edit one
   the app asks: **Just this time** (the default; ends when you close the tab), **Always for this file**, or
-  **Always for this folder**. Review or remove "always" choices under *Edit → Editing Permissions…*.
+  **Always for this folder**. Review or remove "always" choices under *Preferences → Editing*.
 - **While editing:** Markdown on the left, the formatted page on the right, scrolling together. The toolbar
   adds headings, bold, lists, checklists, links, images, tables and code. Spelling mistakes are
   underlined; right-click one for suggestions. Click **Done** (or `Ctrl+E`) when you're finished.
 - **Safe saving:**
-  - Before the first save, the original file is copied to a backups folder (*Edit → Open Backups Folder*).
+  - Before the first save, the original file is copied to a backups folder (*Preferences → Editing*).
   - If another program changed the file while you were editing, the app asks before replacing those changes.
   - Windows-style line endings are kept exactly as they were.
   - Files marked read-only stay locked; use *Save As* to edit a copy.
@@ -147,7 +149,7 @@ Details* for a bug report.
   - Paste from a web page or Word and you get clean Markdown: headings, lists, links, bold, tables.
     Scripts and hidden page parts are dropped, and pictures from the web stay linked.
   - `Ctrl+Shift+V` pastes plain text instead, and code copied from a code editor always pastes as it is.
-  - *File → Import Word Document…* (or drop a `.docx` on the window) converts a Word document to a new
+  - *File → This Document → Import Word Document…* (or drop a `.docx` on the window) converts a Word document to a new
     Markdown file, saving its pictures in an `images` folder.
 - **Version history** (`Ctrl+Shift+Y`, or the **History** panel):
   - Every save keeps the version it replaces. So do *Replace in Folder* and restoring.
@@ -166,7 +168,7 @@ Details* for a bug report.
 - **Commands and shortcuts:**
   - In Quick Open (`Ctrl+K`), type `>` to run any menu command by name (or use *Help → Find a Command…*,
     `Ctrl+Shift+K`).
-  - *Help → Customize Keyboard Shortcuts…* lets you give any command a new shortcut, remove one, or reset
+  - *Preferences → Shortcuts* lets you give any command a new shortcut, remove one, or reset
     them all. If a combination is already taken, it says by what and offers to move it.
 
 <table>
@@ -191,7 +193,7 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
   - If two documents share a name, the one in the same folder wins; write `[[Projects/Budget]]` to choose.
   - A link to a document that doesn't exist yet looks faded. Click it and the app offers to create it.
   - While editing, type `[[` to pick a document from a list. Prefer links every Markdown app understands?
-    Tick *Edit → Insert Standard Markdown Links* and you get `[Budget](Projects/Budget.md)` instead.
+    Tick the option in *Preferences → Editing* and you get `[Budget](Projects/Budget.md)` instead.
 - **Linked from:** the bottom of the **Outline** panel lists every document that links to the one you're
   reading, with the line around each link.
 - **Rename** (`F2`, or *File → Rename…*): renames the file and offers to update every link to it in the folder,
@@ -294,7 +296,7 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
 
 *New in 3.4.* Use the Claude you already sign in to, with no API key:
 
-- **Connect Claude** (*Edit → AI Assist → Connect Claude…*): turn it on, then click **Add to Claude Desktop** or
+- **Connect Claude** (*Preferences → AI and Claude*): turn it on, then click **Add to Claude Desktop** or
   **Add to Claude Code**. Claude can then list your open documents, read them, search your open folder, and see
   your highlights and notes.
 - **Changes stay yours.** Claude can't write to a file. It suggests a change, and you see it marked up in the app
@@ -307,21 +309,32 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
 
 The portable version moves each time it runs, so use the installed app for the connector.
 
-## Learning the app
+## Help and settings
 
 <img src="docs/screenshots/tutorial.png" width="860" alt="The tutorial pointing at the outline button, with a card explaining the step">
 
 *New in 3.4.* The first time you open the app, including after updating from an older version, it offers a
 hands-on tour. Steps move on when you've done what they say, on a practice copy, so your own files aren't touched.
-Stop at any time and pick up where you left off, or take it again from *Help → Tutorial*. AI needs a key or a
-model on your computer, so *Help → Connecting an AI Service* explains that part instead.
+Stop at any time and pick up where you left off, or take it again from the Help Center.
+
+<img src="docs/screenshots/help-center.png" width="860" alt="The Help Center home page, with the tutorial, quick links and common questions">
+
+The **Help Center** (`F1`, or the **?** button) is the app's own guide. Its home page has the tutorial, quick links
+and common questions, and the guides can take you straight to the setting they describe. You can search them all.
+The guides are in English for now.
+
+<img src="docs/screenshots/preferences.png" width="860" alt="Preferences open at Reading Aloud, with the voice list and speed">
+
+**Preferences** (`Ctrl+,`, or the gear button) has every setting in one window: language, appearance, voices,
+editing, AI and Claude, sync and shortcuts. Simple choices are made there, and larger ones open their own window.
+Anything that moved out of the menus keeps its shortcut, and *Find a Command* (`Ctrl+Shift+K`) still finds it.
 
 ## Your AI, your choice
 
 <img src="docs/screenshots/ai-services.png" width="860" alt="AI assist settings with the service set to On this computer (Ollama, LM Studio…), the server address http://localhost:11434/v1, no API key needed, the model qwen3:8b, a quicker model llama3.2:3b for writing help, and 4 models available">
 
 AI assist (summaries, explanations, reports, *Ask About This Folder…* and writing help) now works with the
-service you already use. Choose it in *Edit → AI Assist → AI Assist Settings…*:
+service you already use. Choose it in *Preferences → AI and Claude*:
 
 | Service | What you need |
 |---|---|
@@ -352,14 +365,14 @@ To use a model on your computer with Ollama: install it, run `ollama pull llama3
 
 <img src="docs/screenshots/sync.png" width="860" alt="The Sync between computers window: on, last synced now, a sync folder in OneDrive, this computer named Office Desktop, and a Studio MacBook last seen 4 minutes ago">
 
-Read on one computer, pick up on another. *Edit → Sync Between Computers…* keeps these the same everywhere:
+Read on one computer, pick up on another. *Preferences → Sync* keeps these the same everywhere:
 
 - your **highlights and notes**,
 - your **bookmarks**, **recent files** and **where you stopped reading** in each document,
 - your **settings**: theme, typeface, text size, page width, language, read-aloud speed and voice, export
   choices, your own colours and fonts, and your keyboard shortcuts.
 
-**Setting it up:** on each computer, open *Edit → Sync Between Computers…* and choose the same folder inside
+**Setting it up:** on each computer, open *Preferences → Sync* and choose the same folder inside
 OneDrive, Dropbox, iCloud Drive or Google Drive (the app offers the cloud folders it finds). That's all: no
 account, no server, no sign-in. The app keeps its files in a *RT Markdown Reader* folder inside the one you
 choose, and your cloud service carries them between computers.
@@ -407,7 +420,7 @@ checksum before it's used.
 <img src="docs/screenshots/language.png" width="860" alt="The app in Spanish: the toolbar, sidebar tabs, outline filter and word count are in Spanish; the document is shown as written">
 
 - **The app in your language:** English, Spanish (Español), French (Français) or German (Deutsch).
-  - It follows your computer's language. To choose another, use *View → Language*; the change is immediate.
+  - It follows your computer's language. To choose another, use *Preferences → General*; the change is immediate.
   - Menus, buttons, dialogs, messages and the shortcut list are translated. Your documents, file names and
     notes are always shown exactly as written.
 - **Right-to-left documents:** Arabic, Hebrew, Persian, Urdu and other right-to-left text reads right to left.
@@ -416,10 +429,10 @@ checksum before it's used.
     the first column on the right.
   - To turn a whole document, add `lang: ar` (or `he`, `fa`, `ur`…) or `dir: rtl` to its front matter.
   - The outline, PDF, Word, web page and e-book exports keep the direction.
-- **Add-ons** (*View → Add-ons…*): an add-on is a small package (`.nmraddon`) that can add:
+- **Add-ons** (*Preferences → Appearance*): an add-on is a small package (`.nmraddon`) that can add:
   - **code-block types:** for example, a `timeline` block that's drawn as a picture;
   - **export formats** (in *File → Export*): for example, an outline (OPML) for mind-map apps;
-  - **colour themes** (in *View → Theme*), built on the light or dark theme.
+  - **colour themes** (in *Preferences → Appearance*), built on the light or dark theme.
 
   Before an add-on is installed, the app shows what it will add, and nothing is installed until you agree.
   Its code runs in the same sealed sandbox as ▶ Run: it can't use the internet, read your files or change your
@@ -456,8 +469,8 @@ checksum before it's used.
 - **Compare**: see exactly what changed between two documents: added lines in green, removed lines in red,
   changed words highlighted.
   - *Right-click a tab → Compare with…* compares two open documents.
-  - *Edit → Compare with File…* compares the current document with any other file.
-  - *Edit → Compare with Saved Version* shows your unsaved edits.
+  - *Edit → Compare and History → Compare with File…* compares the current document with any other file.
+  - *Edit → Compare and History → Compare with Saved Version* shows your unsaved edits.
 - **Highlights & notes:** select text and choose **Highlight** or **Add note** (`Ctrl+Shift+H`). Click a highlight
   to change its colour or note. The **Notes** panel lists them all.
   - Highlights are private: they're stored by the app, never written into the file.
@@ -498,7 +511,7 @@ checksum before it's used.
 
 <img src="docs/screenshots/presentation.png" width="860" alt="Presentation mode showing a slide with a diagram and a tip box">
 
-- **Customize theme** (*View → Customize Theme…*, or *Customize colours & fonts…* in the theme menu):
+- **Customize theme** (*Preferences → Appearance*, or *Customize colours & fonts…* in the theme menu):
   - Pick an accent colour and fonts for text, headings and code. They apply to every theme.
   - Optionally choose a **brand stylesheet** (a `.css` file, such as a company house style).
   - Exports use the same look, so a PDF or web page matches what you see.
@@ -517,18 +530,18 @@ checksum before it's used.
   (30 for Python).
 - Python is the real thing ([Pyodide](https://pyodide.org)) with its standard library, built into the app.
 - Shell, PowerShell and batch commands are never run.
-- Turn the feature off entirely with *Edit → Allow Running Code Blocks*.
+- Turn the feature off entirely with the option in *Preferences → Editing*.
 
 ### Password-locked documents
 
 <img src="docs/screenshots/password-lock.png" width="860" alt="The Protect with Password dialog, and a locked document asking for its password">
 
-- **File → Protect with Password…** saves an encrypted copy (`notes.mdlock`) next to the original, using
+- **File → This Document → Protect with Password…** saves an encrypted copy (`notes.mdlock`) next to the original, using
   AES-256 with a key made from your password (scrypt). Only RT Markdown Reader can open it, and only
   with the password.
 - The original stays unless you tick *Move the unlocked original to the Recycle Bin*.
 - Opening a locked document asks for the password. After that it stays open until you quit or choose
-  **File → Lock Now**.
+  **File → This Document → Lock Now**.
 - You can edit a locked document. Saving keeps it encrypted.
 - **File → Save an Unlocked Copy…** writes a normal `.md` where you choose.
 - Locked documents are never searched, highlighted or sent to AI assist, so their text is never stored
@@ -635,7 +648,7 @@ with your own accent colour and in exports.
 | `Ctrl` `Shift` `N` / `Ctrl` `Shift` `W` | New window / close window |
 | `F1` | Keyboard shortcuts |
 
-On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help → Customize Keyboard Shortcuts…*.
+On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Preferences → Shortcuts*.
 
 ## Roadmap
 
@@ -733,6 +746,7 @@ src/
 │   ├── voice-worker.js   that process: Supertonic 3 on ONNX Runtime's WebAssembly engine (bundled into dist/)
 │   ├── supertonic.js     the model's four networks, run sentence by sentence
 │   ├── voice-text.js     text preparation, sentence chunks and language guessing (shared with the page)
+│   ├── (help/*.md at the top of the repo are the Help Center's guides)
 │   ├── connector.js      the Claude connector: what Claude can reach, and adding it to Claude's apps
 │   ├── connector-bridge.js  the program Claude starts: MCP on stdin and stdout
 │   ├── claude-code.js    AI assist and Open Folder through Claude Code
@@ -761,8 +775,8 @@ src/
     ├── export-model.js   the page as a simple document model (for Word and plain text)
     ├── present.js        presentation mode (slides split on ---)
     ├── brand.js          custom accent colour and fonts as CSS
-    ├── theme-ui.js       View → Customize Theme
-    ├── lock-ui.js        the unlock screen and File → Protect with Password
+    ├── theme-ui.js       Customize Theme
+    ├── lock-ui.js        the unlock screen and Protect with Password
     ├── run-ui.js         ▶ Run buttons and output panels
     ├── ai-ui.js          AI assist settings and the answer panel
     ├── index.html        layout + Content-Security-Policy

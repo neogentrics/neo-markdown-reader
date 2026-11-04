@@ -23,6 +23,8 @@ import { createSyncUi } from './sync-ui.js';
 import { createAboutUi } from './about-ui.js';
 import { createConnectorUi } from './connector-ui.js';
 import { createTourUi } from './tour-ui.js';
+import { createPrefsUi } from './prefs-ui.js';
+import { createHelpUi } from './help-ui.js';
 import { resolveWiki, relative, dirOf, slugify as wikiSlug } from '../main/notes-core.js';
 import './styles/app.css';
 
@@ -69,6 +71,8 @@ let syncUi = null;
 let aboutUi = null;
 let connectorUi = null;
 let tourUi = null;
+let prefsUi = null;
+let helpUi = null;
 const uiText = createUiTranslator();
 
 const activeTab = () => tabs.find((t) => t.id === activeId) || null;
@@ -956,7 +960,9 @@ api.onCommand(({ cmd, arg }) => {
     case 'sync': syncUi.open(); break;
     case 'about': aboutUi.open(); break;
     case 'tutorial': tourUi.start(); break;
-    case 'ai-guide': $('ai-guide-dlg').showModal(); break;
+    case 'ai-guide': helpUi.open('ai'); break;
+    case 'help-center': helpUi.open(); break;
+    case 'preferences': prefsUi.open(arg); break;
     case 'connect-claude': connectorUi.open(); break;
     case 'open-claude-code': connectorUi.openClaudeCode(); break;
     case 'addon-export': if (arg) addonsUi.exportWith(arg); break;
@@ -1257,8 +1263,7 @@ addonsUi = createAddonsUi({
 });
 aboutUi = createAboutUi({ api, toast });
 connectorUi = createConnectorUi({ api, toast, isDirty: (p) => tabs.some((t) => t.dirty && t.doc.path && samePath(t.doc.path, p)) });
-tourUi = createTourUi({ api, activeTab, openGuide: () => $('ai-guide-dlg').showModal() });
-for (const id of ['ai-guide-close', 'ai-guide-done']) $(id).onclick = () => $('ai-guide-dlg').close();
+tourUi = createTourUi({ api, activeTab, openGuide: () => helpUi.open('ai') });
 syncUi = createSyncUi({
   api, toast,
   settings: () => settings,
@@ -1275,6 +1280,10 @@ readUi = createReadUi({
 });
 publish = createPublish({ api, activeTab, settings: () => settings, toast, themeCss: () => themeUi.exportCss() });
 presenter = createPresenter({ api, activeTab, toast });
+prefsUi = createPrefsUi({ api, settings: () => settings, toast, refreshVoices: () => readUi.refreshVoices(), openHelp: () => helpUi.open() });
+helpUi = createHelpUi({ api, render, openPrefs: (pane) => prefsUi.open(pane), startTutorial: () => tourUi.start() });
+$('btn-prefs').onclick = () => prefsUi.open();
+$('btn-help').onclick = () => helpUi.open();
 $('btn-bookmark').onclick = () => toggleBookmark();
 $('btn-quick').onclick = () => palette.open();
 $('btn-split').onclick = () => split.toggle();

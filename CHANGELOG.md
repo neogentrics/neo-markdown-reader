@@ -11,6 +11,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   API keys, highlights, voices and sync folder where they are. Installed copies update in place. On a Mac, install
   the new version and remove the old one; your API keys may need entering again.
 - **Recon Towers owns the app,** and its Dev Department publishes it. The About window, license and installer say so.
+- **Shorter menus:** settings moved to Preferences, and document actions moved to *File → This Document*. Everything
+  that moved keeps its shortcut, and *Find a Command* (`Ctrl+Shift+K`) still finds it. `F1` now opens the Help Center.
 
 ### Added
 - **Connect Claude:** Claude Desktop and Claude Code can list and read your open documents, search your open folder
@@ -24,7 +26,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - ***File → Open Folder in Claude Code*** opens a terminal in the folder, running Claude Code.
 - **A hands-on tutorial** with a practice document, offered when the app starts, including after updating from an
   older version. Pick up where you left off, or take it again from *Help → Tutorial*.
-- ***Help → Connecting an AI Service***, a guide to the choices, with a picture of the settings.
+- **The Help Center** (`F1`): guides for the whole app, a home page with the tutorial, quick links and common
+  questions, search, and buttons that take you straight to the setting a guide describes. The guides are in English
+  for now.
+- **Preferences** (`Ctrl+,`): every setting in one window, including the voice list, so natural voices are easy to find.
 
 ### Fixed
 - **Update Links after a rename:** if you took more than a moment to answer the question, links could be left

@@ -218,7 +218,8 @@ updates itself from here on.
 | 🙋 Use your Claude Code sign-in | M | If Claude Code is installed and signed in, AI assist can run through it instead of an API key, using your Claude plan. |
 | Open in Claude Code | S | *File → Open Folder in Claude Code* starts a Claude Code session in the document's folder. |
 | 🙋 First-run tutorial | L | A hands-on tour that walks you through the app with a practice document: reading, themes, editing, folders, links, listening, exporting and sync. It starts the first time the app opens. People updating from an older version get it too, because the app checks whether the tutorial has been finished. It can be skipped, resumed, and replayed from *Help*. |
-| 🙋 AI setup guide | S | The tutorial doesn't try AI live, because that needs a key or a local server. A page to read instead shows how to connect each service, with pictures of the settings. |
+| 🙋 Help Center | M | `F1` opens the app's own guide: a home page with the tutorial, quick links and common questions, plus searchable guides that take you straight to the setting. The tutorial doesn't try AI live, so a guide shows how to connect each service, with a picture of the settings. |
+| 🙋 Preferences and shorter menus | M | Every setting moves to one Preferences window, including the voice list. Anything moved keeps its shortcut and can still be found by name. |
 
 **Fixes going out in the same release:**
 

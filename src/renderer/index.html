@@ -40,6 +40,8 @@
       <button class="tb-btn" id="btn-present" title="Present as slides (Ctrl+Shift+P)" aria-label="Present as slides"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8M10.5 7.8v4.4L14 10z"/></svg></button>
       <button class="tb-btn" id="btn-pdf" title="Export as PDF, Word or web page (Ctrl+Shift+E)" aria-label="Export"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/></svg></button>
       <button class="tb-btn" id="btn-print" title="Print (Ctrl+P)" aria-label="Print"><svg viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M7 14h10v7H7z"/></svg></button>
+      <button class="tb-btn" id="btn-prefs" title="Preferences (Ctrl+,)" aria-label="Preferences"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></button>
+      <button class="tb-btn" id="btn-help" title="Help Center (F1)" aria-label="Help Center"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.8M12 17h.01"/></svg></button>
     </div>
   </header>
 
@@ -468,21 +470,6 @@
     <div class="grants-actions"><button type="button" class="link-btn" id="tour-never">Don’t show this again</button><span class="spacer"></span><button type="button" class="link-btn" id="tour-not-now">Not now</button><button type="button" class="big-btn sm" id="tour-start">Start the tutorial</button></div>
   </dialog>
 
-  <dialog class="shortcuts ai-guide" id="ai-guide-dlg" aria-labelledby="ai-guide-h">
-    <div class="ai-head"><h3 id="ai-guide-h">Connecting an AI service</h3><button type="button" class="tb-btn sm" id="ai-guide-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <p class="about-blurb">AI assist is optional. Nothing is sent anywhere until you choose a service, turn it on and ask for something. Open Edit → AI Assist → AI Assist Settings, then pick one of these.</p>
-    <img class="ai-guide-shot" src="guide/ai-services.png" alt="The AI Assist Settings window, with a list of services, a place for a key, and a list of models.">
-    <h4>With Claude Code</h4>
-    <p>If Claude Code is installed and signed in, choose Claude Code. It uses your Claude plan, and no key is needed.</p>
-    <h4>With an API key</h4>
-    <p>Choose Claude, ChatGPT, Gemini, Mistral or OpenRouter, click Get an API key, and paste the key. Each service bills you directly. Your key is stored encrypted on this computer.</p>
-    <h4>With a model on your own computer</h4>
-    <p>Install Ollama or LM Studio and download a model. Then choose On this computer and click Refresh list. Nothing leaves your computer, and it works without internet.</p>
-    <h4>Letting Claude reach your documents</h4>
-    <p>That’s a separate choice: Edit → AI Assist → Connect Claude lets Claude Desktop and Claude Code read your documents and suggest changes you approve.</p>
-    <div class="grants-actions"><span class="spacer"></span><button type="button" class="big-btn sm" id="ai-guide-done">Done</button></div>
-  </dialog>
-
   <div class="tour-ring" id="tour-ring" hidden></div>
   <section class="tour-card" id="tour-card" aria-live="polite" aria-labelledby="tour-title" hidden>
     <p class="tour-count" id="tour-count"></p>
@@ -491,6 +478,105 @@
     <button type="button" class="link-btn" id="tour-guide" hidden>Open the guide</button>
     <div class="tour-actions"><button type="button" class="link-btn" id="tour-later">Finish later</button><span class="spacer"></span><button type="button" class="link-btn" id="tour-back">Back</button><button type="button" class="big-btn sm" id="tour-next">Next</button></div>
   </section>
+
+  <dialog class="shortcuts prefs-dlg" id="prefs-dlg" aria-labelledby="prefs-h">
+    <div class="ai-head"><h3 id="prefs-h">Preferences</h3><button type="button" class="tb-btn sm" id="prefs-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="prefs-body">
+      <div class="prefs-nav" role="tablist" aria-label="Preferences">
+        <button type="button" role="tab" data-pane="general">General</button>
+        <button type="button" role="tab" data-pane="appearance">Appearance</button>
+        <button type="button" role="tab" data-pane="voices">Reading Aloud</button>
+        <button type="button" role="tab" data-pane="editing">Editing</button>
+        <button type="button" role="tab" data-pane="ai">AI and Claude</button>
+        <button type="button" role="tab" data-pane="sync">Sync</button>
+        <button type="button" role="tab" data-pane="shortcuts">Shortcuts</button>
+      </div>
+      <div class="prefs-panes">
+        <section class="prefs-pane" data-pane="general">
+          <label class="field">Language<select id="pref-language"></select></label>
+          <label class="check"><input type="checkbox" id="pref-restore"> Reopen my windows and tabs when the app starts</label>
+          <label class="check" id="pref-menubar-row"><input type="checkbox" id="pref-menubar"> Always show the menu bar</label>
+          <div class="prefs-actions"><button type="button" class="link-btn" data-run="check-updates">Check for Updates…</button><button type="button" class="link-btn" data-run="releases-page">Releases Page</button></div>
+        </section>
+        <section class="prefs-pane" data-pane="appearance" hidden>
+          <label class="field">Theme<select id="pref-theme">
+            <option value="system">Follow System</option><option value="light">Paper (light)</option><option value="sepia">Sepia</option><option value="mist">Mist</option>
+            <option value="dark">Night (dark)</option><option value="forest">Forest (dark)</option><option value="dusk">Dusk (dark)</option><option value="contrast">High Contrast</option>
+          </select></label>
+          <label class="field">Typeface<select id="pref-font"><option value="sans">Sans-serif (modern)</option><option value="serif">Serif (book)</option></select></label>
+          <label class="field">Page width<select id="pref-width"><option value="narrow">Narrow</option><option value="normal">Normal</option><option value="wide">Wide</option><option value="full">Full Window</option></select></label>
+          <div class="field-row"><span>Text size</span><button type="button" class="link-btn" id="pref-smaller">Smaller Text</button><button type="button" class="link-btn" id="pref-larger">Larger Text</button><button type="button" class="link-btn" id="pref-reset">Reset Text Size</button></div>
+          <div class="prefs-actions"><button type="button" class="link-btn" data-run="customize-theme">Customize Theme…</button><button type="button" class="link-btn" data-run="addons">Add-ons…</button></div>
+        </section>
+        <section class="prefs-pane" data-pane="voices" hidden>
+          <label class="field">Voice<select id="pref-voice"></select></label>
+          <p class="hint-text">Choose <b>Get natural voices…</b> in this list for ten voices that sound like a person, work offline and are a free download of about 400 MB.</p>
+          <label class="field">Speed<select id="pref-rate"><option value="0.75">0.75×</option><option value="1">1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="1.75">1.75×</option><option value="2">2×</option></select></label>
+          <div class="prefs-actions"><button type="button" class="link-btn" data-run="read-aloud">Read Aloud</button></div>
+        </section>
+        <section class="prefs-pane" data-pane="editing" hidden>
+          <label class="check"><input type="checkbox" id="pref-wiki"> Insert standard Markdown links instead of [[wiki links]]</label>
+          <label class="check"><input type="checkbox" id="pref-run"> Allow running code blocks (the app always asks first)</label>
+          <div class="prefs-actions"><button type="button" class="link-btn" data-run="grants">Editing Permissions…</button><button type="button" class="link-btn" data-run="open-backups">Open Backups Folder</button></div>
+        </section>
+        <section class="prefs-pane" data-pane="ai" hidden>
+          <p class="hint-text" id="pref-ai-status"></p>
+          <div class="prefs-actions"><button type="button" class="big-btn sm" data-run="ai-settings">AI Assist Settings…</button></div>
+          <p class="hint-text" id="pref-claude-status"></p>
+          <div class="prefs-actions"><button type="button" class="big-btn sm" data-run="connect-claude">Connect Claude…</button></div>
+        </section>
+        <section class="prefs-pane" data-pane="sync" hidden>
+          <p class="hint-text">Keep highlights, bookmarks, recent files and reading positions in step between your computers, through a folder you already sync. No account is needed.</p>
+          <div class="prefs-actions"><button type="button" class="big-btn sm" data-run="sync">Sync Between Computers…</button></div>
+        </section>
+        <section class="prefs-pane" data-pane="shortcuts" hidden>
+          <p class="hint-text">See the keyboard shortcuts, or change any of them to suit you.</p>
+          <div class="prefs-actions"><button type="button" class="link-btn" data-run="shortcuts">Keyboard Shortcuts</button><button type="button" class="big-btn sm" data-run="customize-shortcuts">Customize Keyboard Shortcuts…</button></div>
+        </section>
+      </div>
+    </div>
+    <div class="grants-actions"><button type="button" class="link-btn" id="prefs-help">Help Center</button><span class="spacer"></span><button type="button" class="big-btn sm" id="prefs-done">Done</button></div>
+  </dialog>
+
+  <dialog class="shortcuts help-dlg" id="help-dlg" aria-labelledby="help-h">
+    <div class="ai-head"><h3 id="help-h">Help Center</h3><button type="button" class="tb-btn sm" id="help-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="help-body">
+      <div class="help-side">
+        <input type="search" id="help-search" placeholder="Search the guides" aria-label="Search the guides" spellcheck="false">
+        <button type="button" id="help-go-home">Home</button>
+        <div class="help-nav" id="help-nav"></div>
+        <p class="hint-text" id="help-none" hidden>No guide mentions that.</p>
+      </div>
+      <div class="help-main">
+        <div id="help-home">
+          <div class="help-hero"><div><h2>New here?</h2><p>The hands-on tutorial shows you around in a few minutes, on a practice document.</p></div><button type="button" class="big-btn sm" data-do="tutorial">Take the tutorial</button></div>
+          <h3>Quick links</h3>
+          <div class="help-cards">
+            <button type="button" data-help="start">Getting started</button>
+            <button type="button" data-help="voices">Voices and reading aloud</button>
+            <button type="button" data-help="editing">Editing a document</button>
+            <button type="button" data-help="folders">Folders, links and tasks</button>
+            <button type="button" data-help="export">Exporting and printing</button>
+            <button type="button" data-help="ai">Connecting an AI service</button>
+            <button type="button" data-help="claude">Working with Claude</button>
+            <button type="button" data-help="sync">Sync between computers</button>
+            <button type="button" data-do="preferences">Preferences</button>
+          </div>
+          <h3>Common questions</h3>
+          <div class="markdown-body help-text" id="help-faq" translate="no"></div>
+          <h3>Resources</h3>
+          <div class="help-cards">
+            <button type="button" data-do="shortcuts">Keyboard Shortcuts</button>
+            <button type="button" data-do="showcase">Feature showcase</button>
+            <button type="button" data-do="command-palette">Find a Command…</button>
+            <button type="button" data-do="releases-page">Releases Page</button>
+            <button type="button" data-do="about">About this app</button>
+          </div>
+        </div>
+        <article class="markdown-body help-text" id="help-article" translate="no" hidden></article>
+      </div>
+    </div>
+  </dialog>
 
   <dialog class="shortcuts sync-dlg" id="sync-dlg" aria-labelledby="sync-h">
     <div class="ai-head"><h3 id="sync-h">Sync between computers</h3><button type="button" class="tb-btn sm" id="sync-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>

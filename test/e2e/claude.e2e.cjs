@@ -155,10 +155,9 @@ function startBridge(entry) {
     for (let i = 0; i < 6; i++) await win.click('#tour-next');
     assert.equal(await win.textContent('#tour-title'), 'AI assist');
     await win.click('#tour-guide');
-    await win.waitForSelector('#ai-guide-dlg[open]');
-    const size = await win.$eval('.ai-guide-shot', (img) => img.naturalWidth);
-    assert.ok(size > 0, 'the guide’s picture loads');
-    await win.click('#ai-guide-done');
+    await win.waitForSelector('#help-dlg[open]');
+    await win.waitForFunction(() => document.querySelector('#help-article img')?.naturalWidth > 0);
+    await win.click('#help-close');
     await win.click('#tour-next');
     assert.equal(await win.textContent('#tour-next'), 'Finish');
     await win.click('#tour-next');
