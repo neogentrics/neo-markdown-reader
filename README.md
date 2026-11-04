@@ -1,26 +1,46 @@
 <div align="center">
 
-<img src="build/icon.png" width="112" alt="RT Markdown Reader logo">
+<a href="https://github.com/neogentrics/neo-markdown-reader/releases/latest"><img src="docs/brand/banner.png" width="100%" alt="RT Markdown Reader by the Recon Towers Dev Department. Read Markdown the way it was meant to look."></a>
 
-# RT Markdown Reader
+<br>
 
-**Read Markdown the way it was meant to look.**
+[![Latest release](https://img.shields.io/github/v/release/neogentrics/neo-markdown-reader?style=for-the-badge&label=latest&color=7c3aed&labelColor=150e22)](https://github.com/neogentrics/neo-markdown-reader/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/neogentrics/neo-markdown-reader/total?style=for-the-badge&color=2e8fe0&labelColor=150e22)](https://github.com/neogentrics/neo-markdown-reader/releases)
+[![Tests](https://img.shields.io/github/actions/workflow/status/neogentrics/neo-markdown-reader/ci.yml?branch=main&style=for-the-badge&label=tests&labelColor=150e22)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
+[![Platforms](https://img.shields.io/badge/windows%20%7C%20macOS%20%7C%20linux-e0433a?style=for-the-badge&labelColor=150e22)](#install-windows)
+[![Price](https://img.shields.io/badge/price-free-f2b417?style=for-the-badge&labelColor=150e22)](LICENSE)
 
-A fast, good-looking desktop reader for `.md` files. Double-click any Markdown file and it opens as a
-clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
-symbols, and no browser tab or code editor is needed.
-
-Part of the Recon Towers suite. Known as Neo Markdown Reader until version 3.4.1.
-
-**[Features](#features)** · **[Install](#install-windows)** · **[Your AI](#your-ai-your-choice)** · **[Claude](#work-with-claude)** · **[Across computers](#across-your-computers)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Natural voices](#natural-voices)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
-
-[![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
-![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
-![License](https://img.shields.io/badge/license-proprietary-lightgrey)
-
-<img src="docs/screenshots/tabs.png" width="860" alt="Several documents open in tabs in RT Markdown Reader">
+**[Download](https://github.com/neogentrics/neo-markdown-reader/releases/latest)** &nbsp;·&nbsp; **[Features](#features)** &nbsp;·&nbsp; **[Listen & speak](#listen--speak)** &nbsp;·&nbsp; **[Your AI](#your-ai-your-choice)** &nbsp;·&nbsp; **[Roadmap](ROADMAP.md)** &nbsp;·&nbsp; **[What's new](CHANGELOG.md)** &nbsp;·&nbsp; **[Get help](SUPPORT.md)**
 
 </div>
+
+<br>
+
+Double-click any `.md` file and it opens as a clean, well-laid-out page, the way a well-designed PDF looks. You see
+formatted text instead of raw symbols, with no browser tab or code editor. From there you can write, organize, publish
+and listen to it, all on your own computer.
+
+RT Markdown Reader is part of the **Recon Towers** suite, built by its Dev Department. It's free. It was called Neo
+Markdown Reader until version 3.4.1.
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/paper-overview.png" alt="A document open in the Paper theme"><br><b>Read.</b> Clean pages, ten themes, a Glass look and fifteen fonts.</td>
+<td width="50%"><img src="docs/screenshots/editor.png" alt="The editor beside its live preview"><br><b>Write.</b> A side-by-side editor, dictation and AI help from the service you choose.</td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/natural-voices.png" alt="A document being read aloud by a natural voice"><br><b>Listen.</b> Natural voices that run offline, and audiobook export with chapters.</td>
+<td><img src="docs/screenshots/pdf-designer.png" alt="The PDF designer"><br><b>Publish.</b> Designed PDFs, Word, web pages, e-books and slides.</td>
+</tr>
+</table>
+
+### Download
+
+| Windows | macOS | Linux |
+|---|---|---|
+| [Installer or portable `.exe`](https://github.com/neogentrics/neo-markdown-reader/releases/latest) | [`.dmg` for Apple silicon or Intel](https://github.com/neogentrics/neo-markdown-reader/releases/latest) | [`AppImage` or `.deb`](https://github.com/neogentrics/neo-markdown-reader/releases/latest) |
+
+The builds aren't code-signed yet, so Windows may show a SmartScreen warning the first time. See [Install](#install-windows).
 
 ## Features
 
@@ -904,3 +924,17 @@ permission. See [LICENSE](LICENSE) for the full terms and [THIRD_PARTY_NOTICES.m
 for the open-source components the app is built on.
 
 For licensing enquiries: **author@neogentrics.com**
+
+---
+
+<div align="center">
+
+<img src="docs/brand/recon-towers.png" width="72" alt="The Recon Towers mark">
+
+**Recon Towers Dev Department**
+
+[recontowers.com](https://recontowers.com) &nbsp;·&nbsp; [This app on the Bench](https://recontowers.com/projects/neo-markdown-reader/) &nbsp;·&nbsp; [Report a problem](https://github.com/neogentrics/neo-markdown-reader/issues/new/choose)
+
+<sub>© 2026 Recon Towers. All rights reserved.</sub>
+
+</div>
