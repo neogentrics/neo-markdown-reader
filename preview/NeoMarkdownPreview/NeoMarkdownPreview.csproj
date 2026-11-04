@@ -13,9 +13,9 @@
     <AssemblyVersion>2.1.0.0</AssemblyVersion>
     <FileVersion>2.1.0.0</FileVersion>
     <Version>2.1.0</Version>
-    <Company>Neo Gentrics</Company>
+    <Company>Recon Towers Dev Department</Company>
     <Product>RT Markdown Reader</Product>
-    <Copyright>Copyright © 2026 Neo Gentrics. All rights reserved.</Copyright>
+    <Copyright>Copyright © 2026 Recon Towers. All rights reserved.</Copyright>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>

@@ -47,14 +47,14 @@ ManifestType: installer
 ManifestVersion: 1.12.0
 `,
     [`${ID}.locale.en-US.yaml`]: `${head('defaultLocale')}PackageLocale: en-US
-Publisher: Neo Gentrics
+Publisher: Recon Towers Dev Department
 PublisherUrl: https://github.com/neogentrics
 PublisherSupportUrl: ${REPO}/issues
 PackageName: RT Markdown Reader
 PackageUrl: ${REPO}
 License: Proprietary
 LicenseUrl: ${REPO}/blob/main/LICENSE
-Copyright: Copyright (c) 2026 Neo Gentrics. All rights reserved.
+Copyright: Copyright (c) 2026 Recon Towers. All rights reserved.
 ShortDescription: A beautiful, distraction-free Markdown reader.
 Description: Opens .md files as clean, well-laid-out pages, with tabs, folders, search, highlights and notes, read-aloud with natural offline voices, sync between computers, editing with permission, PDF and Word export, presentation mode, password-locked documents and a File Explorer preview.
 Tags:

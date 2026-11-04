@@ -10,6 +10,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - **Neo Markdown Reader is now RT Markdown Reader,** part of the Recon Towers suite. Updating keeps your settings,
   API keys, highlights, voices and sync folder where they are. Installed copies update in place. On a Mac, install
   the new version and remove the old one; your API keys may need entering again.
+- **Recon Towers owns the app,** and its Dev Department publishes it. The About window, license and installer say so.
 
 ### Added
 - **Connect Claude:** Claude Desktop and Claude Code can list and read your open documents, search your open folder

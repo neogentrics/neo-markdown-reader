@@ -831,7 +831,7 @@ function rebuildMenu() {
           // The page shows the full About window; with no window open, a short version in a message box.
           click: () => (targetState() ? command('about') : dlg.showMessageBox({
             type: 'info', title: 'About', message: 'RT Markdown Reader',
-            detail: `Version ${app.getVersion()}\nA beautiful, distraction-free Markdown reader.\n${ABOUT_WEBSITE}\n© ${new Date().getFullYear()} Neo Gentrics. All rights reserved.`,
+            detail: `Version ${app.getVersion()}\nA beautiful, distraction-free Markdown reader.\n${ABOUT_WEBSITE}\n© ${new Date().getFullYear()} Recon Towers. All rights reserved.`,
           })),
         },
       ],

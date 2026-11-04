@@ -39,7 +39,7 @@ export function createAboutUi({ api, toast }) {
     info = await api.appAbout();
     $('about-version').textContent = info.portable ? `Version ${info.version} (portable)` : `Version ${info.version}`;
     $('about-tech').textContent = details().split('\n').slice(1).join(' · ');
-    $('about-copyright').textContent = `© ${info.year} Neo Gentrics. All rights reserved.`;
+    $('about-copyright').textContent = `© ${info.year} Recon Towers. All rights reserved.`;
     if (!dlg.open) dlg.showModal();
     $('about-done').focus();
   }

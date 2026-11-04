@@ -1,7 +1,7 @@
 ---
 title: RT Markdown Reader
 subtitle: A tour of everything this reader can display
-author: Neo Gentrics
+author: Recon Towers Dev Department
 date: 2026-10-31
 tags: [showcase, markdown, reference]
 ---
@@ -160,6 +160,6 @@ Footnotes keep the text clean.[^1] You can have as many as you like.[^note]
 
 <div align="center">
 
-Made with :heart: by **Neo Gentrics**
+Made with :heart: by the **Recon Towers Dev Department**
 
 </div>

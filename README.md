@@ -826,7 +826,7 @@ downloadable Windows build under the run's *Artifacts*.
 
 ## License
 
-**Proprietary. All rights reserved.** © 2026 Neo Gentrics.
+**Proprietary. All rights reserved.** © 2026 Recon Towers.
 
 The source code is visible for reference only. You may download and use the official releases. You
 may **not** copy, modify, redistribute or reuse the code, in whole or in part, without written

@@ -184,7 +184,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     const version = await app.evaluate(({ app: a }) => a.getVersion());
     assert.equal(await win.textContent('#about-version'), `Version ${version}`);
     assert.match(await win.textContent('.about-blurb'), /distraction-free Markdown reader/);
-    assert.match(await win.textContent('#about-copyright'), new RegExp(`© ${new Date().getFullYear()} Neo Gentrics`));
+    assert.match(await win.textContent('#about-copyright'), new RegExp(`© ${new Date().getFullYear()} Recon Towers`));
     await win.click('#about-website');
     await win.click('#about-notes');
     await win.click('#about-issue');

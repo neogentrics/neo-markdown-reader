@@ -91,7 +91,7 @@ Explain the most common way to use it.
     content: () => `---
 title: Report title
 subtitle: A one-line summary of what this report covers
-author: Neo Gentrics
+author: Your name
 date: ${today()}
 tags: [report]
 ---

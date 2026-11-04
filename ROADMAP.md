@@ -1,7 +1,7 @@
 ---
 title: RT Markdown Reader Roadmap
 subtitle: From reader to Markdown workspace
-author: Neo Gentrics
+author: Recon Towers Dev Department
 date: 2026-11-03
 tags: [roadmap, planning]
 ---
@@ -102,7 +102,7 @@ updates itself from here on.
 | ✅ PDF designer | M | Letter, A4, Legal or A5, three margin sizes, a cover page from the front matter (with an optional logo), a contents page with real page numbers, title header and page-number footer, chapters on new pages, PDF bookmarks and document properties. |
 | ✅ More export formats | M | Word (`.docx`) with real headings, lists, tables, links, images and pictures of diagrams and equations; a self-contained web page (`.html`) with no scripts; plain text. |
 | ✅ Presentation mode | S | Full-screen slides, using `---` as slide breaks (or the main headings), with the front matter as a title slide. |
-| ✅ Custom themes | S | Your own accent colour and fonts, or a brand stylesheet (e.g. a Neo Gentrics house style). Exports use them too. |
+| ✅ Custom themes | S | Your own accent colour and fonts, or a brand stylesheet (e.g. a Recon Towers house style). Exports use them too. |
 
 ## v2.0 — Power features
 

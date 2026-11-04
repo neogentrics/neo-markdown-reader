@@ -3,7 +3,7 @@
   "productName": "RT Markdown Reader",
   "version": "3.4.1",
   "description": "A beautiful, distraction-free Markdown reader for Windows, macOS and Linux.",
-  "author": "Neo Gentrics <author@neogentrics.com>",
+  "author": "Recon Towers Dev Department <author@neogentrics.com>",
   "license": "SEE LICENSE IN LICENSE",
   "private": true,
   "main": "src/main/main.js",
@@ -105,11 +105,11 @@
         "deb"
       ],
       "artifactName": "RTMarkdownReader-${version}-linux-${arch}.${ext}",
-      "maintainer": "Neo Gentrics <author@neogentrics.com>",
+      "maintainer": "Recon Towers Dev Department <author@neogentrics.com>",
       "synopsis": "A beautiful, distraction-free Markdown reader",
       "syncDesktopName": true
     },
-    "copyright": "Copyright © 2026 Neo Gentrics. All rights reserved.",
+    "copyright": "Copyright © 2026 Recon Towers. All rights reserved.",
     "dmg": {
       "artifactName": "RTMarkdownReader-${version}-mac-${arch}.dmg"
     },

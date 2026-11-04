@@ -41,7 +41,7 @@ Limits:
   "id": "neo-extras",
   "name": "Neo Extras",
   "version": "1.0.0",
-  "author": "Neo Gentrics",
+  "author": "Recon Towers Dev Department",
   "description": "Timeline blocks, an outline export (OPML) and the Solar theme.",
   "themes": [
     { "id": "solar", "name": "Solar", "tone": "light", "colors": { "page": "#fdf6e3", "accent": "#8a4700" } }
