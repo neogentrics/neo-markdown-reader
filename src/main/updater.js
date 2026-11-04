@@ -8,7 +8,7 @@ const { app, net } = require('electron');
 const { compareVersions } = require('./version');
 
 const OWNER = 'neogentrics';
-const REPO = 'neo-markdown-reader';
+const REPO = 'rt-markdown-reader';
 const RELEASES_URL = `https://github.com/${OWNER}/${REPO}/releases/latest`;
 const CHECK_EVERY_MS = 6 * 60 * 60 * 1000;
 

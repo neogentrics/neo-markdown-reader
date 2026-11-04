@@ -103,7 +103,7 @@ function baseUrlFor(conf, override) {
 function headersFor(provider, apiKey) {
   const h = { 'content-type': 'application/json', accept: 'text/event-stream, application/json' };
   if (apiKey) h.authorization = `Bearer ${apiKey}`;
-  if (provider === 'openrouter') { h['http-referer'] = 'https://github.com/neogentrics/neo-markdown-reader'; h['x-title'] = 'RT Markdown Reader'; }
+  if (provider === 'openrouter') { h['http-referer'] = 'https://github.com/neogentrics/rt-markdown-reader'; h['x-title'] = 'RT Markdown Reader'; }
   return h;
 }
 

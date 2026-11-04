@@ -26,4 +26,4 @@ That message comes from Adobe Acrobat or Reader, not this app. Update Acrobat an
 
 ## Something else
 
-Copy your version from [About](#do=about) and [report it](https://github.com/neogentrics/neo-markdown-reader/issues/new).
+Copy your version from [About](#do=about) and [report it](https://github.com/neogentrics/rt-markdown-reader/issues/new).

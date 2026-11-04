@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const ID = 'NeoGentrics.NeoMarkdownReader';
-const REPO = 'https://github.com/neogentrics/neo-markdown-reader';
+const REPO = 'https://github.com/neogentrics/rt-markdown-reader';
 
 export function manifests({ version, sha256, url }) {
   const head = (kind) => `# Created with scripts/winget-manifest.mjs

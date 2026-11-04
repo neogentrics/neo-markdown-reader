@@ -124,7 +124,7 @@
       {
         "provider": "github",
         "owner": "neogentrics",
-        "repo": "neo-markdown-reader",
+        "repo": "rt-markdown-reader",
         "releaseType": "release"
       }
     ],
@@ -179,11 +179,11 @@
     "turndown": "^7.2.4"
   },
   "homepage": "https://recontowers.com/projects/neo-markdown-reader/",
-  "bugs": "https://github.com/neogentrics/neo-markdown-reader/issues",
+  "bugs": "https://github.com/neogentrics/rt-markdown-reader/issues",
   "keywords": ["markdown", "markdown-reader", "markdown-editor", "electron", "text-to-speech", "dictation", "audiobook", "recon-towers"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/neogentrics/neo-markdown-reader.git"
+    "url": "https://github.com/neogentrics/rt-markdown-reader.git"
   },
   "engines": {
     "node": ">=20"
