@@ -268,7 +268,15 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await win.click('#fmt-dictate');
     await win.waitForFunction(() => document.getElementById('fmt-dictate').classList.contains('active'), null, { timeout: 15000 });
     assert.deepEqual(await app.evaluate(() => globalThis.__asked.filter((m) => /dictation/i.test(m))), ['Download dictation?']);
-    await win.waitForFunction(() => /I said \d+ seconds/.test(document.querySelector('.cm-content').textContent), null, { timeout: 20000 });
+    await win.waitForFunction(() => /I said \d+ seconds/.test(document.querySelector('.cm-content').textContent), null, { timeout: 20000 }).catch(async (err) => {
+      const seen = await win.evaluate(async () => ({
+        heard: window.__dictation || 'no sound blocks arrived',
+        status: document.getElementById('dictate-status').textContent,
+        devices: (await navigator.mediaDevices.enumerateDevices()).map((d) => d.kind),
+        toast: document.querySelector('.toast')?.textContent || '',
+      }));
+      throw new Error(`dictation typed nothing: ${JSON.stringify(seen)} (${err.message.split('\n')[0]})`);
+    });
     await win.click('#fmt-dictate');
     await win.waitForFunction(() => !document.getElementById('fmt-dictate').classList.contains('active'));
     await win.keyboard.press('Control+z');

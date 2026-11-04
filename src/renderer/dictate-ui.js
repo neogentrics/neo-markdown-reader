@@ -62,6 +62,7 @@ export function createDictateUi({ api, toast, activeTab, settings }) {
       let sum = 0;
       for (const v of data) sum += v * v;
       const level = Math.sqrt(sum / data.length);
+      window.__dictation = { blocks: (window.__dictation?.blocks || 0) + 1, peak: Math.max(window.__dictation?.peak || 0, level), floor };   // read by the end-to-end tests
       const loud = level > Math.max(0.006, floor * 3);
       if (!loud) floor = floor * 0.95 + level * 0.05;
       blocks.push(Float32Array.from(data));
@@ -93,6 +94,8 @@ export function createDictateUi({ api, toast, activeTab, settings }) {
       return;
     }
     const audio = new AudioContext({ sampleRate: RATE });
+    // The download question can come between the click and here, and a context made without a click can start paused.
+    if (audio.state === 'suspended') await audio.resume().catch(() => {});
     const source = audio.createMediaStreamSource(stream);
     mic = { stream, audio, ...listen(audio, source) };
     target = tab;
