@@ -47,8 +47,7 @@
 .tasks-head { display: flex; align-items: center; gap: 12px; padding: 2px 16px 10px; }
 .tasks-list { flex: 1; min-height: 0; overflow-y: auto; padding: 0 8px 16px; }
 .task-group { margin-bottom: 8px; }
-.task-group.group-overdue .group-head { color: #c92a2a; }
-:root[data-tone="dark"] .task-group.group-overdue .group-head { color: #ff8787; }
+.task-group.group-overdue .group-head { color: var(--del-text); }
 .task { display: flex; align-items: flex-start; gap: 8px; padding: 4px 8px; border-radius: 6px; }
 .task:hover { background: var(--btn-hover); }
 .task input { margin: 3px 0 0; accent-color: var(--accent); flex: none; width: 15px; height: 15px; }
@@ -56,8 +55,7 @@
 .task-text span { overflow-wrap: anywhere; }
 .task-text small { font-size: 11.5px; color: var(--muted); }
 .task-text em { font-style: normal; }
-.task-text em.late { color: #c92a2a; font-weight: 600; }
-:root[data-tone="dark"] .task-text em.late { color: #ff8787; }
+.task-text em.late { color: var(--del-text); font-weight: 600; }
 .task.done .task-text span { text-decoration: line-through; color: var(--muted); }
 
 /* ---------- link map */
@@ -81,9 +79,8 @@
 .check-file { margin-bottom: 6px; }
 .check-hit code { font: 12px var(--font-mono); background: var(--code-bg); padding: 0 4px; border-radius: 4px; }
 .check-hit small { color: var(--muted); }
-.check-kind { font-weight: 600; color: #c92a2a; }
+.check-kind { font-weight: 600; color: var(--del-text); }
 .check-kind.kind-heading { color: #c2410c; }
-:root[data-tone="dark"] .check-kind { color: #ff8787; }
 :root[data-tone="dark"] .check-kind.kind-heading { color: #ffa94d; }
 
 /* ---------- ask about this folder */

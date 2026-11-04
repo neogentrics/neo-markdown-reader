@@ -10,6 +10,7 @@ Mist	Niebla	Brume	Nebel
 Night	Noche	Nuit	Nacht
 Forest	Bosque	Forêt	Wald
 Dusk	Crepúsculo	Crépuscule	Dämmerung
+Red	Rojo	Rouge	Rot
 Contrast	Contraste	Contraste	Kontrast
 Typeface	Tipo de letra	Police	Schrift
 Modern	Moderna	Moderne	Modern
@@ -306,3 +307,55 @@ e.g. Spanish	p. ej., inglés	ex. : anglais	z. B. Englisch
 Find a command	Buscar un comando	Rechercher une commande	Befehl suchen
 Find a command…	Buscar un comando…	Rechercher une commande…	Befehl suchen…
 Read	Leer	Lire	Vorlesen
+Times New Roman	Times New Roman	Times New Roman	Times New Roman
+Georgia	Georgia	Georgia	Georgia
+Century Schoolbook	Century Schoolbook	Century Schoolbook	Century Schoolbook
+Garamond	Garamond	Garamond	Garamond
+Palatino Linotype	Palatino Linotype	Palatino Linotype	Palatino Linotype
+Cambria	Cambria	Cambria	Cambria
+Arial	Arial	Arial	Arial
+Calibri	Calibri	Calibri	Calibri
+Verdana	Verdana	Verdana	Verdana
+Tahoma	Tahoma	Tahoma	Tahoma
+Century Gothic	Century Gothic	Century Gothic	Century Gothic
+Trebuchet MS	Trebuchet MS	Trebuchet MS	Trebuchet MS
+Courier New	Courier New	Courier New	Courier New
+Play through	Reproducir en	Lire sur	Wiedergabe über
+This works with the natural voices. The computer's own voices always use its default device.	Funciona con las voces naturales. Las voces del propio equipo siempre usan su dispositivo predeterminado.	Cela fonctionne avec les voix naturelles. Les voix de l’ordinateur utilisent toujours son périphérique par défaut.	Das funktioniert mit den natürlichen Stimmen. Die Stimmen des Computers verwenden immer sein Standardgerät.
+Drag to move (double-click to put it back)	Arrastre para mover (doble clic para volver a colocarla)	Faites glisser pour déplacer (double-cliquez pour la remettre)	Zum Verschieben ziehen (Doppelklick setzt sie zurück)
+Move the read-aloud bar	Mover la barra de lectura en voz alta	Déplacer la barre de lecture à voix haute	Vorleseleiste verschieben
+← → to move · R to read aloud · Esc to leave	← → para moverse · R para leer en voz alta · Esc para salir	← → pour naviguer · R pour lire à voix haute · Échap pour quitter	← → zum Blättern · R zum Vorlesen · Esc zum Beenden
+Computer’s default	Predeterminado del equipo	Par défaut de l’ordinateur	Standard des Computers
+Pronunciation List…	Lista de pronunciación…	Liste de prononciation…	Aussprache-Liste…
+Pronunciation list	Lista de pronunciación	Liste de prononciation	Aussprache-Liste
+Spell a word the way it sounds, and read aloud says it that way. Press Listen to try it.	Escriba una palabra como suena y la lectura en voz alta la dirá así. Pulse Escuchar para probarla.	Écrivez un mot comme il se prononce et la lecture à voix haute le dira ainsi. Appuyez sur Écouter pour l’essayer.	Schreiben Sie ein Wort so, wie es klingt, dann wird es beim Vorlesen so gesprochen. Mit „Anhören“ können Sie es testen.
+Use this list for	Usar esta lista para	Utiliser cette liste pour	Diese Liste verwenden für
+All documents	Todos los documentos	Tous les documents	Alle Dokumente
+Add a word	Añadir una palabra	Ajouter un mot	Wort hinzufügen
+Word or name	Palabra o nombre	Mot ou nom	Wort oder Name
+Say it as	Decirla como	La dire comme	Sprechen als
+Listen	Escuchar	Écouter	Anhören
+Look	Aspecto	Apparence	Optik
+Solid	Sólido	Uni	Deckend
+Glass	Cristal	Verre	Glas
+Dictation (Ctrl+Alt+D)	Dictado (Ctrl+Alt+D)	Dictée (Ctrl+Alt+D)	Diktat (Strg+Alt+D)
+Dictation	Dictado	Dictée	Diktat
+Microphone for dictation	Micrófono para el dictado	Micro pour la dictée	Mikrofon für das Diktat
+Dictation types what you say while you're editing. It's a free download of about 80 MB the first time you use it, and it works offline.	El dictado escribe lo que dice mientras edita. La primera vez que lo use se descarga gratis (unos 80 MB) y funciona sin conexión.	La dictée écrit ce que vous dites pendant que vous modifiez. C’est un téléchargement gratuit d’environ 80 Mo à la première utilisation, et elle fonctionne hors ligne.	Das Diktat schreibt, was Sie beim Bearbeiten sagen. Beim ersten Mal ist ein kostenloser Download von etwa 80 MB nötig, danach funktioniert es offline.
+Remove Dictation Download…	Quitar la descarga del dictado…	Supprimer le téléchargement de la dictée…	Diktat-Download entfernen…
+Listening…	Escuchando…	Écoute…	Hört zu…
+Writing…	Escribiendo…	Écriture…	Schreibt…
+Downloading…	Descargando…	Téléchargement…	Wird geladen…
+Export as Audio	Exportar como audio	Exporter en audio	Als Audio exportieren
+Audio is read by the natural voices, a free download of about 400 MB.	El audio lo leen las voces naturales, una descarga gratuita de unos 400 MB.	L’audio est lu par les voix naturelles, un téléchargement gratuit d’environ 400 Mo.	Das Audio wird von den natürlichen Stimmen gelesen, einem kostenlosen Download von etwa 400 MB.
+Format	Formato	Format	Format
+MP3	MP3	MP3	MP3
+Audiobook with chapters (.m4b)	Audiolibro con capítulos (.m4b)	Livre audio avec chapitres (.m4b)	Hörbuch mit Kapiteln (.m4b)
+Audiobooks can't be made on this computer, because it has no AAC encoder.	No se pueden crear audiolibros en este equipo porque no tiene un codificador AAC.	Impossible de créer des livres audio sur cet ordinateur, car il n’a pas d’encodeur AAC.	Auf diesem Computer können keine Hörbücher erstellt werden, weil kein AAC-Encoder vorhanden ist.
+Voice	Voz	Voix	Stimme
+It uses your reading speed and pronunciation list, and runs in the background. A long book can take hours.	Usa su velocidad de lectura y su lista de pronunciación, y se ejecuta en segundo plano. Un libro largo puede tardar horas.	Cela utilise votre vitesse de lecture et votre liste de prononciation, en arrière-plan. Un long livre peut prendre des heures.	Es verwendet Ihr Lesetempo und Ihre Aussprache-Liste und läuft im Hintergrund. Ein langes Buch kann Stunden dauern.
+Export	Exportar	Exporter	Exportieren
+Stopping…	Deteniendo…	Arrêt…	Wird beendet…
+Colour-safe colours	Colores seguros	Couleurs adaptées	Farbenblind-Farben
+For colour blindness. Compare, charts and highlights use colours that stay different with all three main kinds, in any theme.	Para el daltonismo. Comparar, los gráficos y los resaltados usan colores que se distinguen con los tres tipos principales, en cualquier tema.	Pour le daltonisme. La comparaison, les graphiques et les surlignages utilisent des couleurs qui restent distinctes avec les trois types principaux, dans tous les thèmes.	Für Farbenblindheit. Vergleich, Diagramme und Markierungen verwenden Farben, die bei allen drei Hauptformen unterscheidbar bleiben, in jedem Design.
+Orange	Naranja	Orange	Orange

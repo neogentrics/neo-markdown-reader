@@ -42,15 +42,30 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
 
   await step('the welcome screen has no accessibility problems', () => problems('the welcome screen'));
 
-  await step('a rich document has none in any of the seven themes', async () => {
+  await step('a rich document has none in any of the ten themes', async () => {
     await win.click('#welcome-showcase');
     await win.waitForSelector('.page:not([hidden]) .mermaid-diagram svg');
-    for (const theme of ['light', 'sepia', 'mist', 'dark', 'forest', 'dusk', 'contrast']) {
+    for (const theme of ['light', 'sepia', 'mist', 'dark', 'forest', 'dusk', 'contrast', 'blue', 'red', 'yellow']) {
       await win.evaluate((t) => window.reader.setSettings({ theme: t }), theme);
       await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);
       await problems(`the showcase in the ${theme} theme`);
     }
-    await win.evaluate(() => window.reader.setSettings({ theme: 'light' }));
+    // Glass steps aside on a computer set for less transparency, so make sure it's really being checked.
+    const cdp = await win.context().newCDPSession(win);
+    await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-transparency', value: 'no-preference' }] });
+    await win.evaluate(() => window.reader.setSettings({ surface: 'glass' }));
+    for (const theme of ['light', 'dark', 'blue', 'yellow']) {
+      await win.evaluate((t) => window.reader.setSettings({ theme: t }), theme);
+      await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);
+      await problems(`the showcase in the ${theme} theme with the Glass look`);
+    }
+    await win.evaluate(() => window.reader.setSettings({ surface: 'solid', colorSafe: true }));
+    for (const theme of ['light', 'dark', 'yellow']) {
+      await win.evaluate((t) => window.reader.setSettings({ theme: t }), theme);
+      await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);
+      await problems(`the showcase in the ${theme} theme with colour-safe colours`);
+    }
+    await win.evaluate(() => window.reader.setSettings({ theme: 'light', colorSafe: false }));
   });
 
   await step('dialogs and Quick Open have none', async () => {

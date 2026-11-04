@@ -2,7 +2,9 @@
 
 ## Themes and text
 
-Click the moon button in the toolbar to change the theme, typeface and page width. Make the text larger or smaller with the **A** buttons, or `Ctrl+=` and `Ctrl+-`. The same choices are in [Preferences → Appearance](#do=preferences:appearance).
+Click the moon button in the toolbar to change the theme, look, typeface and page width. There are ten themes, and **Glass** turns any of them to frosted glass. Choose from fifteen fonts, including Times New Roman, Georgia and Century.
+
+For colour blindness, turn on **Colour-safe colours** in [Preferences → Appearance](#do=preferences:appearance). Compare, charts and highlights change to colours that stay different, in any theme. Make the text larger or smaller with the **A** buttons, or `Ctrl+=` and `Ctrl+-`. The same choices are in [Preferences → Appearance](#do=preferences:appearance).
 
 ## Moving around
 

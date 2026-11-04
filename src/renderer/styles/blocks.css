@@ -22,10 +22,16 @@
   --chart-2: #38d9a9; --chart-3: #ffc078; --chart-4: #f783ac; --chart-5: #b197fc; --chart-6: #66d9e8; --chart-7: #ff8787; --chart-8: #a9e34b;
 }
 :root[data-theme="contrast"] { --chart-ink: var(--text); --chart-grid: var(--text-soft); }
+:root[data-colors="safe"] {
+  --chart-1: #0072b2; --chart-2: #e69f00; --chart-3: #009e73; --chart-4: #cc79a7; --chart-5: #56b4e9; --chart-6: #d55e00; --chart-7: #7a5c00; --chart-8: #000000;
+}
+:root[data-colors="safe"][data-tone="dark"] {
+  --chart-1: #56b4e9; --chart-2: #e69f00; --chart-3: #2fd6a8; --chart-4: #e39ac6; --chart-5: #a8d8f5; --chart-6: #ff8a4d; --chart-7: #f0e442; --chart-8: #ffffff;
+}
 .markdown-body figure.chart { margin: 0 0 1.4em; padding: .6em .4em .2em; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--page); }
 .markdown-body .chart-svg { display: block; width: 100%; height: auto; max-height: 520px; }
 .markdown-body .chart-svg text { font-family: var(--font-sans); }
-.markdown-body .chart-error { border: 1px dashed #e03131; border-radius: var(--radius); padding: .7em 1em; margin: 0 0 1.1em; color: var(--text-soft); font-size: .92em; }
+.markdown-body .chart-error { border: 1px dashed var(--del-fill); border-radius: var(--radius); padding: .7em 1em; margin: 0 0 1.1em; color: var(--text-soft); font-size: .92em; }
 .markdown-body .chart-error pre { margin: .5em 0 0; font-size: .85em; white-space: pre-wrap; background: none; border: 0; padding: 0; }
 @media (forced-colors: active) {
   .markdown-body .chart-svg rect, .markdown-body .chart-svg path, .markdown-body .chart-svg circle { forced-color-adjust: none; }

@@ -1,8 +1,38 @@
 # Changelog
 
-All notable changes to Neo Markdown Reader are documented here.
+All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
+
+## [3.5.0] - 2026-11-04
+
+### Added
+- **Export as audio** (*File → Export → Audio*): a document read by the natural voices into an MP3, or an audiobook
+  (`.m4b`) with a chapter for each heading. It runs in the background, with its progress in the corner of the window.
+- **Dictation** (`Ctrl+Alt+D`, or the microphone button while editing): speak and the editor types, in the language
+  of the document. It works offline with the Whisper model, an 80 MB download the first time you use it.
+- **Choose your microphone and speakers** in *Preferences → Reading Aloud*. The speaker choice works with the natural
+  voices, because the computer plays its own voices itself.
+- **Read aloud in presentation mode:** reading carries on in full-screen slides, marks each sentence and turns the
+  slides by itself. Press `R` to start it. Move to another slide and the reading comes with you.
+- **A pronunciation list** (*Preferences → Reading Aloud*): teach read aloud how to say names and invented words, for
+  every document or for one folder and what's inside it. Audio exports use it too.
+- **Blue, Red and Yellow themes,** with panels that run from one colour to another and contrasting buttons.
+- **A Glass look** for any theme: panels and the page frosted over the theme's own colours.
+- **Colour-safe colours** (*Preferences → Appearance*): for colour blindness, in any theme. Compare uses blue and orange
+  with underlines and strikethroughs, and charts and highlights use colours that stay different with protanopia,
+  deuteranopia and tritanopia.
+- **Fifteen fonts,** including Times New Roman, Georgia and Century, for the page and its headings. Word and PowerPoint
+  exports use them too.
+
+### Changed
+- **The read-aloud bar can be moved:** drag it anywhere in the window, and it stays there. Double-click it to put it back.
+
+### Fixed
+- The read-aloud bar was hard to see, because it used the same colour as the page. It now uses the opposite colours
+  in every theme.
+- Replace in Folder: a search still waiting from your last keystroke could land on top of the preview or wipe the
+  "Replaced" message.
 
 ## [3.4.1] - 2026-11-03
 

@@ -5,7 +5,9 @@ const { spawn } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
-const { Settings, cleanAccelerator } = require('./settings');
+const { Settings, FONTS, FONT_NAMES, cleanAccelerator } = require('./settings');
+const { PronunciationStore } = require('./pronounce');
+const { DictationStore } = require('./dictation');
 const { isMarkdownPath, isLockedPath, isOpenablePath, isViewablePath, isDataPath, fileFromArgv, readMarkdown, readDocument, isWritable, encodeForSave } = require('./files');
 const { HistoryStore } = require('./history');
 const { runJob: runReplaceJob } = require('./folder-replace');
@@ -34,7 +36,7 @@ const isMac = process.platform === 'darwin';
 const ROOT = path.join(__dirname, '..', '..');
 const RENDERER_HTML = path.join(ROOT, 'dist', 'index.html');
 const SHOWCASE = path.join(ROOT, 'samples', 'showcase.md');
-const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb', mist: '#dfe5ec', forest: '#0b120e', dusk: '#110e18', contrast: '#000000' };
+const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb', mist: '#dfe5ec', forest: '#0b120e', dusk: '#110e18', contrast: '#000000', blue: '#1f6fa8', red: '#a8201a', yellow: '#ffb627' };
 
 registerScheme(protocol);                     // the code sandbox's private scheme (must precede app ready)
 let sandbox = null;
@@ -57,6 +59,8 @@ let annotations;
 let history;
 /** Sync between your computers (3.1), see sync.js. */
 let sync;
+/** Dictation (3.5), see dictation.js. */
+let dictation = null;
 /** Natural voices (3.2), see voices.js. */
 let voices;
 /** Every menu command, for running by name from Quick Open (">") and for changing shortcuts. */
@@ -518,7 +522,7 @@ async function runExport(state, payload) {
   if (!EXPORT_FORMATS[format] || !payload.meta || typeof payload.meta !== 'object') return { ok: false, error: 'Nothing to export' };
   const css = typeof payload.css === 'string' && payload.css.length < 2e6 ? payload.css : '';
   const theme = Object.hasOwn(THEME_BG, payload.theme) ? payload.theme : 'light';
-  const font = payload.font === 'serif' ? 'serif' : 'sans';
+  const font = FONTS.includes(payload.font) ? payload.font : 'sans';
   const meta = {
     name: typeof payload.meta.name === 'string' ? payload.meta.name.slice(0, 500) : '',
     title: typeof payload.meta.title === 'string' ? payload.meta.title.slice(0, 1000) : '',
@@ -558,11 +562,11 @@ async function runExport(state, payload) {
     } else if (format === 'pptx') {
       if (!Array.isArray(payload.slides) || !payload.slides.length || payload.slides.length > 1000 || !payload.slides.every(Array.isArray)) return { ok: false, error: 'Nothing to export' };
       const brand = settings.get().brand;
-      data = await publish.renderPptx({ root: ROOT, payload: { slides: payload.slides, meta, css }, options: { accent: brand.accent, bodyFont: brand.bodyFont, headingFont: brand.headingFont, codeFont: brand.codeFont } });
+      data = await publish.renderPptx({ root: ROOT, payload: { slides: payload.slides, meta, css }, options: { accent: brand.accent, bodyFont: brand.bodyFont || FONT_NAMES[font], headingFont: brand.headingFont, codeFont: brand.codeFont } });
     } else if (format === 'docx') {
       if (!Array.isArray(payload.model)) return { ok: false, error: 'Nothing to export' };
       const brand = settings.get().brand;
-      data = await publish.renderDocx({ root: ROOT, payload: { model: payload.model, meta, css }, options: { ...options, accent: brand.accent, bodyFont: brand.bodyFont, headingFont: brand.headingFont, codeFont: brand.codeFont } });
+      data = await publish.renderDocx({ root: ROOT, payload: { model: payload.model, meta, css }, options: { ...options, accent: brand.accent, bodyFont: brand.bodyFont || FONT_NAMES[font], headingFont: brand.headingFont, codeFont: brand.codeFont } });
     } else {
       if (typeof payload.text !== 'string') return { ok: false, error: 'Nothing to export' };
       data = payload.text.replace(/\r?\n/g, process.platform === 'win32' ? '\r\n' : '\n');
@@ -689,6 +693,7 @@ function rebuildMenu() {
             cmd('export-epub', 'E-book (.epub)…'),
             cmd('export-slides', 'Slides as PDF…'),
             cmd('export-pptx', 'Slides as PowerPoint (.pptx)…'),
+            cmd('export-audio', 'Audio (MP3 or Audiobook)…'),
             ...addonExportItems(),
           ],
         },
@@ -724,6 +729,8 @@ function rebuildMenu() {
         cmd('highlight', 'Highlight Selection', 'CmdOrCtrl+Shift+H'),
         cmd('bookmark', 'Bookmark This File', 'CmdOrCtrl+D'),
         cmd('edit-table', 'Edit Table…'),
+        cmd('dictate', 'Dictation', 'CmdOrCtrl+Alt+D'),
+        moved(cmd('dictate-remove', 'Remove Dictation Download…')),
         {
           label: 'Compare and History',
           submenu: [
@@ -789,11 +796,14 @@ function rebuildMenu() {
             { id: 'text-reset', label: 'Reset Text Size', accelerator: 'CmdOrCtrl+0', click: () => setSetting({ fontScale: 1 }) },
           ],
         },
-        moved({ label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast'),
+        moved({ label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), radio('Blue', 'theme', 'blue'), radio('Red', 'theme', 'red'), radio('Yellow', 'theme', 'yellow'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast'),
           ...addonThemeItems(s)] }),
-        moved({ label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif')] }),
+        moved({ id: 'color-safe', label: 'Colour-Safe Colours', type: 'checkbox', checked: s.colorSafe, click: () => setSetting({ colorSafe: !settings.get().colorSafe }) }),
+        moved({ label: 'Look', submenu: [radio('Solid', 'surface', 'solid'), radio('Glass', 'surface', 'glass')] }),
+        moved({ label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif'), { type: 'separator' }, radio('Times New Roman', 'font', 'times'), radio('Georgia', 'font', 'georgia'), radio('Century Schoolbook', 'font', 'century'), radio('Garamond', 'font', 'garamond'), radio('Palatino Linotype', 'font', 'palatino'), radio('Cambria', 'font', 'cambria'), radio('Arial', 'font', 'arial'), radio('Calibri', 'font', 'calibri'), radio('Verdana', 'font', 'verdana'), radio('Tahoma', 'font', 'tahoma'), radio('Century Gothic', 'font', 'gothic'), radio('Trebuchet MS', 'font', 'trebuchet'), radio('Courier New', 'font', 'courier')] }),
         moved({ label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] }),
         moved(cmd('customize-theme', 'Customize Theme…')),
+        moved(cmd('pronunciation', 'Pronunciation List…')),
         moved(cmd('addons', 'Add-ons…')),
         moved({ label: 'Language', submenu: [
           { id: 'language-system', label: 'System Default', type: 'radio', checked: !i18n.CODES.has(s.language), click: () => setSetting({ language: 'system' }) },
@@ -1422,7 +1432,7 @@ function registerIpc() {
   ipcMain.handle('doc:print', (e) => { stateFor(e)?.win.webContents.print({ printBackground: true }); });
   ipcMain.handle('settings:set', (_e, patch) => {
     if (!patch || typeof patch !== 'object') return rendererSettings();
-    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'language'];
+    const allowed = ['theme', 'surface', 'colorSafe', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'audioInput', 'language'];
     setSetting(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
     return rendererSettings();
   });
@@ -2013,6 +2023,11 @@ function registerIpc() {
 
   // ---- the tutorial (3.4)
   let tutorialOffered = !!process.env.NMR_NO_TOUR;   // once per run, not once per window
+  const pronunciation = new PronunciationStore(path.join(app.getPath('userData'), 'pronunciation.json'));
+  ipcMain.handle('say:get', (_e, doc) => pronunciation.lists(typeof doc === 'string' ? doc : null));
+  ipcMain.handle('say:rules', (_e, doc) => pronunciation.rules(typeof doc === 'string' ? doc : null));
+  ipcMain.handle('say:set', (_e, change) => pronunciation.set(typeof change?.folder === 'string' ? change.folder : null, change?.list));
+
   ipcMain.handle('tutorial:get', () => {
     const { tutorial, tutorialStep } = settings.get();
     const offer = !tutorialOffered;
@@ -2066,6 +2081,76 @@ function registerIpc() {
   ipcMain.handle('sync:now', () => sync.sync());
 
   // ---- natural voices (3.2): downloaded only after the reader agrees; spoken in a separate process
+  // Export as audio (3.5): the file grows under a temporary name, and takes its real name when it's finished.
+  const audioJobs = new Map();
+  let nextAudio = 1;
+  const dropAudio = async (job) => {
+    await job.file.close().catch(() => {});
+    await fs.promises.rm(job.part, { force: true }).catch(() => {});
+  };
+  ipcMain.handle('audio:begin', async (e, { format, name } = {}) => {
+    const st = stateFor(e);
+    const kinds = { mp3: { name: 'MP3 audio', extensions: ['mp3'] }, m4b: { name: 'Audiobook', extensions: ['m4b'] } };
+    if (!st || !kinds[format]) return null;
+    const res = await dlg.showSaveDialog(st.win, { title: 'Export as Audio', defaultPath: path.basename(String(name || `Audio.${format}`)), filters: [kinds[format]] });
+    if (res.canceled || !res.filePath) return null;
+    const part = `${res.filePath}.part`;
+    const id = nextAudio++;
+    audioJobs.set(id, { path: res.filePath, part, file: await fs.promises.open(part, 'w+') });
+    return { id };
+  });
+  ipcMain.handle('audio:write', async (_e, id, bytes) => {
+    const job = audioJobs.get(id);
+    if (job && bytes instanceof Uint8Array) await job.file.appendFile(bytes);
+  });
+  ipcMain.handle('audio:finish', async (_e, id, { tail, patches = [] } = {}) => {
+    const job = audioJobs.get(id);
+    if (!job) return { ok: false };
+    audioJobs.delete(id);
+    try {
+      if (tail?.length) await job.file.appendFile(tail);
+      for (const p of patches) await job.file.write(p.bytes, 0, p.bytes.length, p.at);
+      await job.file.close();
+      await fs.promises.rename(job.part, job.path);
+      return { ok: true, name: path.basename(job.path) };
+    } catch {
+      await dropAudio(job);
+      return { ok: false };
+    }
+  });
+  ipcMain.handle('audio:abort', async (_e, id) => {
+    const job = audioJobs.get(id);
+    if (!job) return;
+    audioJobs.delete(id);
+    await dropAudio(job);
+  });
+  app.on('will-quit', () => { for (const job of audioJobs.values()) { job.file.close().catch(() => {}); fs.rmSync(job.part, { force: true }); } });
+
+  ipcMain.handle('dictate:status', () => dictation.status());
+  ipcMain.handle('dictate:install', async (e) => {
+    if (dictation.status().installed) return dictation.status();
+    const { response } = await dlg.showMessageBox(stateFor(e)?.win, {
+      type: 'question', title: 'Dictation', noLink: true, buttons: ['Download', 'Cancel'], defaultId: 0, cancelId: 1,
+      message: 'Download dictation?',
+      detail: `About ${Math.round(dictation.status().total / 1e6 / 10) * 10} MB, downloaded once. After that it works offline: what you say never leaves your computer.\n\nDictation uses the Whisper model by OpenAI, under the MIT license.`,
+    });
+    if (response !== 0) return { ...dictation.status(), canceled: true };
+    return dictation.install((status) => { for (const { win } of liveStates()) win.webContents.send('dictate:progress', status); });
+  });
+  ipcMain.handle('dictate:remove', async (e) => {
+    if (!dictation.status().installed) return dictation.status();
+    const { response } = await dlg.showMessageBox(stateFor(e)?.win, {
+      type: 'question', title: 'Dictation', noLink: true, buttons: ['Remove', 'Cancel'], defaultId: 1, cancelId: 1,
+      message: 'Remove the dictation download?',
+      detail: 'This frees the space it uses. You can download it again at any time.',
+    });
+    return response === 0 ? dictation.remove() : dictation.status();
+  });
+  ipcMain.handle('dictate:hear', async (_e, job = {}) => {
+    if (!(job.samples instanceof Float32Array) || job.samples.length > 16000 * 30) return { error: 'That was too long' };
+    try { return await dictation.hear({ samples: job.samples, lang: /^[a-z]{2}$/.test(job.lang) ? job.lang : '' }); } catch (err) { return { error: err.message }; }
+  });
+
   ipcMain.handle('voice:status', () => voices.status());
   ipcMain.handle('voice:install', async (e) => {
     const st = stateFor(e);
@@ -2234,8 +2319,17 @@ app.whenReady().then(() => {
     worker: path.join(ROOT, 'dist', 'voice-worker.cjs'),
     fake: !!process.env.NMR_FAKE_TTS,             // tests: no download, and a tone instead of a voice
   });
-  // Documents never need camera, mic, notifications, etc.; only clipboard writes for "Copy".
-  session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));
+  dictation = new DictationStore({
+    root: path.join(app.getPath('userData'), 'dictation'),
+    fetch: (url, opts) => net.fetch(url, opts),
+    fork: (script) => utilityProcess.fork(script, [], { serviceName: 'RT Markdown Reader dictation', stdio: 'ignore' }),
+    worker: path.join(ROOT, 'dist', 'dictate-worker.cjs'),
+    fake: !!process.env.NMR_FAKE_TTS,             // tests: no download, and made-up words
+  });
+  // Documents never need camera, notifications, etc.: only clipboard writes for "Copy", and the app's own
+  // windows may use the microphone for dictation, which only starts when you ask for it.
+  session.defaultSession.setPermissionRequestHandler((wc, perm, cb, details) => cb(perm === 'clipboard-sanitized-write'
+    || (perm === 'media' && details.mediaTypes?.length === 1 && details.mediaTypes[0] === 'audio' && liveStates().some(({ win }) => win.webContents === wc))));
   nativeTheme.on('updated', () => { if (settings.get().theme === 'system') broadcastSettings(); });
   registerIpc();
   rebuildMenu();

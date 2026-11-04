@@ -48,8 +48,11 @@ for (const f of ['ort-wasm-simd-threaded.wasm', 'ort-wasm-simd-threaded.mjs']) {
   cpSync(join(root, 'node_modules/onnxruntime-web/dist', f), join(out, 'voice', f));
 }
 
+// Export as audio (3.5): LAME's MP3 encoder stays one unmodified file, so it can be replaced (LGPL).
+cpSync(join(root, 'node_modules/lamejs/lame.min.js'), join(out, 'lame.min.js'));
+
 const mainTools = {
-  entryPoints: { 'export-tools': join(root, 'src/main/export-tools.js'), 'voice-worker': join(root, 'src/main/voice-worker.js') },
+  entryPoints: { 'export-tools': join(root, 'src/main/export-tools.js'), 'voice-worker': join(root, 'src/main/voice-worker.js'), 'dictate-worker': join(root, 'src/main/dictate-worker.js') },
   outdir: out,
   outExtension: { '.js': '.cjs' },
   bundle: true,

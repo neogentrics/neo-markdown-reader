@@ -123,3 +123,11 @@ Plain Text	Texto sin formato	Texte brut	Nur-Text
 EPUB E-book	Libro electrónico EPUB	Livre numérique EPUB	EPUB-E-Book
 PowerPoint Presentation	Presentación de PowerPoint	Présentation PowerPoint	PowerPoint-Präsentation
 Stylesheet	Hoja de estilos	Feuille de style	Stylesheet
+Download dictation?	¿Descargar el dictado?	Télécharger la dictée ?	Diktat herunterladen?
+About {0} MB, downloaded once. After that it works offline: what you say never leaves your computer.\n\nDictation uses the Whisper model by OpenAI, under the MIT license.	Unos {0} MB, se descargan una vez. Después funciona sin conexión: lo que dice nunca sale de su equipo.\n\nEl dictado usa el modelo Whisper de OpenAI, con licencia MIT.	Environ {0} Mo, téléchargés une seule fois. Ensuite, elle fonctionne hors ligne : ce que vous dites ne quitte jamais votre ordinateur.\n\nLa dictée utilise le modèle Whisper d’OpenAI, sous licence MIT.	Etwa {0} MB, einmalig heruntergeladen. Danach funktioniert es offline: Was Sie sagen, verlässt Ihren Computer nie.\n\nDas Diktat verwendet das Whisper-Modell von OpenAI unter der MIT-Lizenz.
+Remove the dictation download?	¿Quitar la descarga del dictado?	Supprimer le téléchargement de la dictée ?	Diktat-Download entfernen?
+This frees the space it uses. You can download it again at any time.	Así se libera el espacio que ocupa. Puede volver a descargarlo en cualquier momento.	Cela libère l’espace utilisé. Vous pouvez le retélécharger à tout moment.	Dadurch wird der Speicherplatz frei. Sie können es jederzeit erneut herunterladen.
+That was too long	Fue demasiado largo	C’était trop long	Das war zu lang
+Export as Audio	Exportar como audio	Exporter en audio	Als Audio exportieren
+MP3 audio	Audio MP3	Audio MP3	MP3-Audio
+Audiobook	Audiolibro	Livre audio	Hörbuch

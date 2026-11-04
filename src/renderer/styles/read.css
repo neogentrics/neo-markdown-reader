@@ -11,13 +11,35 @@
 /* ---------- read aloud */
 .speak-bar {
   position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 55; display: flex; align-items: center; gap: 6px;
-  padding: 6px 8px 6px 10px; border-radius: 14px; background: var(--page); color: var(--text); border: 1px solid var(--chrome-border);
+  padding: 6px 8px 6px 4px; border-radius: 14px; background: var(--inverse-bg); color: var(--inverse-fg);
+  border: 1px solid color-mix(in srgb, var(--inverse-fg) 35%, transparent);
   box-shadow: 0 14px 40px -12px rgba(0, 0, 0, .45); font: 12.5px var(--font-sans); max-width: calc(100vw - 32px);
+  /* It sits on the page, so it takes the page's opposite colours in every theme. */
+  --text: var(--inverse-fg); --text-soft: var(--inverse-fg); --muted: var(--inverse-fg); --heading: var(--inverse-fg);
+  --chrome: var(--inverse-bg); --chrome-border: color-mix(in srgb, var(--inverse-fg) 45%, transparent);
+  --btn-hover: color-mix(in srgb, var(--inverse-fg) 18%, transparent);
 }
+body.presenting .speak-bar { z-index: 1001; }
+.audio-job {
+  position: fixed; right: 20px; bottom: 20px; z-index: 55; display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px;
+  background: var(--inverse-bg); color: var(--inverse-fg); box-shadow: 0 14px 40px -12px rgba(0, 0, 0, .45); font: 12.5px var(--font-sans);
+  --link: var(--inverse-fg); --accent: var(--inverse-fg); --text: var(--inverse-fg); --text-soft: var(--inverse-fg); --heading: var(--inverse-fg);
+}
+.say-dlg { width: min(640px, calc(100vw - 32px)); }
+.say-dlg .field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: var(--muted); margin: 12px 0 0; }
+.say-dlg .field select { font: 14px var(--font-sans); padding: 8px 11px; border-radius: 8px; border: 1px solid var(--rule-strong); color: var(--text); background: var(--page); }
+.say-dlg .ai-foot { margin-top: 14px; }
+.say-dlg .ai-foot .spacer { flex: 1; }
+.say-dlg .ai-head h3 { margin: 0; }
+.say-rows { display: grid; gap: 6px; max-height: 46vh; overflow-y: auto; margin: 10px 0; }
+.say-row { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 6px; align-items: center; }
+.say-row input { min-width: 0; padding: 6px 8px; font: 13px var(--font-sans); color: var(--text); background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 7px; }
+.speak-grip { cursor: grab; touch-action: none; min-width: 26px; }
+.speak-grip svg { stroke-width: 3; }
+.speak-bar.moving, .speak-bar.moving .speak-grip { cursor: grabbing; }
 .speak-bar[hidden] { display: none; }
 body.speaking .toast { bottom: 84px; }
-.speak-play { background: var(--accent); color: #fff; border-radius: 50%; }
-.speak-play:hover { background: color-mix(in srgb, var(--accent) 85%, #000); color: #fff; }
+.speak-play, .speak-play:hover:not(:disabled) { background: var(--inverse-fg); color: var(--inverse-bg); border-radius: 50%; }
 .speak-play .i-play { display: none; }
 .speak-play.paused .i-play { display: inline; fill: currentColor; }
 .speak-play.paused .i-pause { display: none; }
@@ -78,8 +100,8 @@ body.focus-mode .page > *:hover { opacity: 1 !important; }
   margin: 12px 0; padding: 12px 14px; max-height: 50vh; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere;
   font: 14.5px/1.6 var(--font-sans); color: var(--text); background: var(--code-bg); border: 1px solid var(--rule); border-radius: 10px; min-height: 64px;
 }
-.ai-edit-diff del { background: color-mix(in srgb, #e03131 18%, transparent); text-decoration: line-through; text-decoration-color: color-mix(in srgb, #e03131 70%, transparent); border-radius: 2px; }
-.ai-edit-diff ins { background: color-mix(in srgb, #2f9e44 22%, transparent); text-decoration: none; border-radius: 2px; }
+.ai-edit-diff del { background: color-mix(in srgb, var(--del-fill) 18%, transparent); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--del-fill) 70%, transparent); border-radius: 2px; }
+.ai-edit-diff ins { background: color-mix(in srgb, var(--add-fill) 22%, transparent); text-decoration: none; border-radius: 2px; }
 .ai-edit-diff del + ins { margin-left: .2em; }
 .ai-edit-dlg .ai-foot .spacer { flex: 1; }
 @media (forced-colors: active) { .ai-edit-diff del, .ai-edit-diff ins { border: 1px solid CanvasText; } }
@@ -164,8 +186,8 @@ body.focus-mode .page > *:hover { opacity: 1 !important; }
 .sync-dlg .field input { font: 14px var(--font-sans); padding: 8px 11px; border-radius: 8px; border: 1px solid var(--rule-strong); background: var(--code-bg); color: var(--text); }
 .sync-state { margin: 4px 0 12px; font-size: 13px; color: var(--text-soft); display: flex; align-items: center; gap: 8px; }
 .sync-state::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
-.sync-state[data-state="on"]::before { background: #2f9e44; }
-.sync-state[data-state="error"]::before { background: #e03131; }
+.sync-state[data-state="on"]::before { background: var(--add-fill); }
+.sync-state[data-state="error"]::before { background: var(--del-fill); }
 .sync-folder { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border: 1px solid var(--chrome-border); border-radius: 10px; margin-bottom: 8px; }
 .sync-folder-label { font-size: 12px; font-weight: 600; color: var(--muted); }
 .sync-folder-path { flex: 1; min-width: 0; font-size: 13px; color: var(--heading); overflow-wrap: anywhere; }

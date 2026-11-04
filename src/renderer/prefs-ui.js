@@ -24,6 +24,8 @@ export function createPrefsUi({ api, settings, toast, refreshVoices, openHelp })
     $('pref-menubar-row').hidden = info.mac;
     $('pref-theme').value = s.theme;
     $('pref-font').value = s.font;
+    $('pref-surface').value = s.surface;
+    $('pref-colorsafe').checked = !!s.colorSafe;
     $('pref-width').value = s.pageWidth;
     $('pref-rate').value = String(s.readAloud?.rate ?? 1);
     $('pref-wiki').checked = s.wikiLinks === 'markdown';
@@ -54,9 +56,10 @@ export function createPrefsUi({ api, settings, toast, refreshVoices, openHelp })
 
   for (const t of tabs) t.onclick = () => show(t.dataset.pane);
   for (const b of dlg.querySelectorAll('[data-run]')) b.onclick = () => run(b.dataset.run);
-  for (const [id, key] of [['pref-language', 'language'], ['pref-theme', 'theme'], ['pref-font', 'font'], ['pref-width', 'pageWidth']]) {
+  for (const [id, key] of [['pref-language', 'language'], ['pref-theme', 'theme'], ['pref-font', 'font'], ['pref-surface', 'surface'], ['pref-width', 'pageWidth']]) {
     $(id).addEventListener('change', () => api.setSettings({ [key]: $(id).value }));
   }
+  $('pref-colorsafe').addEventListener('change', () => api.setSettings({ colorSafe: $('pref-colorsafe').checked }));
   $('pref-restore').addEventListener('change', () => api.setSettings({ restoreSession: $('pref-restore').checked }));
   $('pref-menubar').addEventListener('change', () => api.setSettings({ showMenuBar: $('pref-menubar').checked }));
   $('pref-wiki').addEventListener('change', () => run('wiki-style'));

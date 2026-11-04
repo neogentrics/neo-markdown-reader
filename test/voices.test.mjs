@@ -12,6 +12,7 @@ const require = createRequire(import.meta.url);
 const text = require('../src/main/voice-text.js');
 const { VoiceStore, FILES, REVISION } = require('../src/main/voices.js');
 const { gaussian } = require('../src/main/supertonic.js');
+const { PronunciationStore } = require('../src/main/pronounce.js');
 
 test('voices: text is normalised, symbols are spoken or dropped, and it is tagged with its language', () => {
   assert.equal(text.prepare('Use the “Run” button — then wait', 'en'), '<en>Use the "Run" button - then wait.</en>');
@@ -147,4 +148,29 @@ test('voices: a sentence longer than the model reads well is spoken in pieces an
   const short = await s.speak({ text: 'Short one.', lang: 'en', voice: 'F1', speed: 1, steps: 8 });
   assert.equal(short.samples.length, 'Short one.'.length);
   s.stop();
+});
+
+test('pronunciation: whole words in any capitals, longest first, and nothing replaced twice', () => {
+  const list = [{ word: 'Zeryl', say: 'Zair-ill' }, { word: 'New', say: 'Knew' }, { word: 'New Orleans', say: 'Nawlins' }, { word: 'Knew', say: 'WRONG' }, { word: 'C++', say: 'C plus plus' }];
+  assert.equal(text.applyPronunciation('zeryl met Zeryls in New Orleans.', list), 'Zair-ill met Zeryls in Nawlins.');
+  assert.equal(text.applyPronunciation('New news, written in C++!', list), 'Knew news, written in C plus plus!');
+  assert.equal(text.applyPronunciation('Nothing here', []), 'Nothing here');
+});
+
+test('pronunciation: a folder nearer the document wins, and folders cover what is inside them', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-say-'));
+  const file = path.join(dir, 'list.json');
+  const store = new PronunciationStore(file);
+  const book = path.join(dir, 'book');
+  const part = path.join(book, 'part one');
+  store.set(null, [{ word: 'Spade', say: 'Spayd' }, { word: 'Neo', say: 'Nee-oh' }, { word: '', say: 'skipped' }]);
+  store.set(book, [{ word: 'neo', say: 'Nay-oh' }]);
+  store.set(part, [{ word: 'Leia', say: 'Lay-uh' }]);
+  const say = (doc) => Object.fromEntries(store.rules(doc).map((r) => [r.word.toLowerCase(), r.say]));
+  assert.deepEqual(say(path.join(part, 'a.md')), { spade: 'Spayd', neo: 'Nay-oh', leia: 'Lay-uh' });
+  assert.deepEqual(say(path.join(dir, 'b.md')), { spade: 'Spayd', neo: 'Nee-oh' });
+  assert.deepEqual(say(null), { spade: 'Spayd', neo: 'Nee-oh' });
+  assert.deepEqual(new PronunciationStore(file).rules(path.join(book, 'c.md')).length, 2, 'kept on disk');
+  store.set(part, []);
+  assert.equal(store.lists(path.join(part, 'a.md')).folder.list.length, 0);
 });

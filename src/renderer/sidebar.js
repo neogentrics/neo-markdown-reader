@@ -131,7 +131,8 @@ export function createSidebar(ctx) {
     $('folder-check').hidden = !folder;
     if (!folder) tagFilter = null;
     renderFiles();
-    if (folder && els.search.value.trim()) runSearch();
+    // After a Replace the folder changes on its own, and "Replaced 2 in 2 files" should stay until you move on.
+    if (folder && els.search.value.trim() && !(replacing && !rep.undo.hidden)) runSearch();
     ctx.onFolder?.(folder);
   }
 
@@ -214,6 +215,9 @@ export function createSidebar(ctx) {
     const find = els.search.value;
     if (!folder) { els.summary.textContent = 'Open a folder first: Replace changes the Markdown files in it.'; return; }
     if (!find.trim()) { els.search.focus(); return; }
+    // A search still waiting from the last keystroke would land on top of the preview, or of its result.
+    clearTimeout(searchTimer);
+    searchSeq++;
     els.summary.textContent = 'Looking for matches…';
     const res = await api.replacePreview({ find, replacement: rep.input.value, opts: { regex: rep.regex.checked, matchCase: rep.matchCase.checked, wholeWord: rep.word.checked } });
     if (!res.ok) { els.summary.textContent = res.error; els.results.replaceChildren(); preview = null; return; }

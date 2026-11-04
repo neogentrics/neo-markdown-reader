@@ -47,7 +47,6 @@ body.run-off .markdown-body pre:has(.run-btn)::before { right: 4.6em; }
 .run-close { border: 0; background: none; color: var(--muted); font-size: 1.4em; line-height: 1; cursor: pointer; padding: 0 .2em; }
 .run-close:hover { color: var(--heading); }
 .markdown-body .run-body { margin: 0; padding: .2em .9em .8em; background: none; border: 0; font: .86em/1.5 var(--font-mono); white-space: pre-wrap; word-break: break-word; max-height: 24em; overflow: auto; }
-.run-err { color: #e03131; }
-:root[data-tone="dark"] .run-err { color: #ff8787; }
+.run-err { color: var(--del-text); }
 .run-result { color: var(--accent-2); }
 .run-empty { color: var(--muted); font-style: italic; }

@@ -37,7 +37,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v3.2](#v32--natural-voices) | Natural voices | ✅ Released ([3.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.2.0)) |
 | [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | ✅ Released ([3.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.3.0)) |
 | [v3.4](#v34--claude-connected) | Claude, connected, and a first-run tutorial | ✅ Released ([3.4.1](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.4.1)) |
-| [v3.5](#v35--listen--speak) | Listen & speak | 🔨 In progress |
+| [v3.5](#v35--listen--speak) | Listen & speak | 🔨 In review |
 | [v3.6](#v36--study--research) | Study & research | Planned |
 | [v3.7](#v37--automate-with-n8n) | Automate with n8n | Planned |
 | [v3.8](#v38--notion) | Notion | Planned |
@@ -228,23 +228,25 @@ updates itself from here on.
 
 ## v3.5 — Listen & speak
 
-🔨 **In progress.** More out of the natural voices, a voice of your own for writing, and more ways to make the app look right for you.
+🔨 **In review.** More out of the natural voices, a voice of your own for writing, and more ways to make the app look right for you.
 
 | Feature | Size | Details |
 |---|:-:|---|
-| Export as audio | M | Turn a document into an MP3, or an audiobook (`.m4b`) with a chapter for each heading, read by the natural voices. Offline. |
-| Pronunciation list | S | Teach the voices how to say names and invented words, with a list kept per folder. It's used for reading aloud and for audio exports. |
-| Dictation | M | Speak and the editor types, using an offline speech-recognition model (Whisper) that's downloaded once, when you ask. Nothing is sent anywhere. |
-| 🙋 Choose your microphone | S | Pick the input device for dictation in *Preferences → Reading Aloud*. |
-| 🙋 Choose where read aloud plays | S | Pick the speakers or headset in *Preferences → Reading Aloud*. This works with the natural voices, which the app plays itself. The computer's own voices are played by the system, so they stay on its default device. |
-| 🙋 Read aloud in presentation mode | M | Reading carries on in full-screen slides, shows the sentence being read, and moves to the next slide when the reading gets there. |
-| 🙋 A read-aloud bar you can move | S | Drag the bar anywhere in the window, and it stays where you left it. |
-| 🙋 Blue, red and yellow themes | S | Three new colour themes alongside the seven already there. |
-| 🙋 More fonts | S | Choose from at least ten, including Times New Roman, Georgia and Century, instead of just Modern or Book. |
+| ✅ Export as audio | M | Turn a document into an MP3, or an audiobook (`.m4b`) with a chapter for each heading, read by the natural voices. Offline. |
+| ✅ Pronunciation list | S | Teach the voices how to say names and invented words, with a list for every document and one for any folder. It's used for reading aloud and for audio exports. |
+| ✅ Dictation | M | Speak and the editor types, using an offline speech-recognition model (Whisper, about 80 MB) that's downloaded once, when you ask. Nothing is sent anywhere. |
+| ✅ 🙋 Choose your microphone | S | Pick the input device for dictation in *Preferences → Reading Aloud*. |
+| ✅ 🙋 Choose where read aloud plays | S | Pick the speakers or headset in *Preferences → Reading Aloud*. This works with the natural voices, which the app plays itself. The computer's own voices are played by the system, so they stay on its default device. |
+| ✅ 🙋 Read aloud in presentation mode | M | Reading carries on in full-screen slides, shows the sentence being read, and moves to the next slide when the reading gets there. |
+| ✅ 🙋 A read-aloud bar you can move | S | Drag the bar anywhere in the window, and it stays where you left it. |
+| ✅ 🙋 Blue, red and yellow themes | S | Three new themes with real contrast: panels that run from one colour to another, gold or navy buttons, and a clean page to read on. |
+| ✅ 🙋 Glass look | S | Any theme can be frosted: its panels and page turn to glass over its own colours. It's left out of High Contrast, and of printing and exports, and it steps aside if your computer is set for less transparency. |
+| ✅ 🙋 Colour-safe colours | S | An option for any theme. Compare, charts and highlights use colours that stay different with protanopia, deuteranopia and tritanopia, and changes get underlines and strikethroughs. |
+| ✅ 🙋 More fonts | S | Fifteen to choose from, including Times New Roman, Georgia and Century, for the page and its headings. The nearest match is used on a computer without one. Word and PowerPoint exports use it too. |
 
 **Fixes in the same release:**
 
-- [ ] 🙋 The read-aloud bar is hard to see, because it uses the same colour as the page. It gets a contrasting colour in every theme.
+- [x] 🙋 The read-aloud bar is hard to see, because it uses the same colour as the page. It gets a contrasting colour in every theme.
 
 ## v3.6 — Study & research
 

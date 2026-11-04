@@ -1,7 +1,7 @@
 {
   "name": "neo-markdown-reader",
   "productName": "RT Markdown Reader",
-  "version": "3.4.1",
+  "version": "3.5.0",
   "description": "A beautiful, distraction-free Markdown reader for Windows, macOS and Linux.",
   "author": "Recon Towers Dev Department <author@neogentrics.com>",
   "license": "SEE LICENSE IN LICENSE",
@@ -16,7 +16,7 @@
     "dist:linux": "npm run build:renderer && electron-builder --linux AppImage deb --publish never",
     "dev": "node scripts/build-renderer.mjs && electron . samples/showcase.md",
     "icons": "node scripts/make-icons.mjs",
-    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs && node test/e2e/power.e2e.cjs && node test/e2e/ai.e2e.cjs && node test/e2e/claude.e2e.cjs && node test/e2e/help.e2e.cjs && node test/e2e/write.e2e.cjs && node test/e2e/notes.e2e.cjs && node test/e2e/read.e2e.cjs && node test/e2e/yours.e2e.cjs && node test/e2e/sync.e2e.cjs && node test/e2e/voices.e2e.cjs && node test/e2e/a11y.e2e.cjs",
+    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs && node test/e2e/power.e2e.cjs && node test/e2e/ai.e2e.cjs && node test/e2e/claude.e2e.cjs && node test/e2e/help.e2e.cjs && node test/e2e/write.e2e.cjs && node test/e2e/notes.e2e.cjs && node test/e2e/read.e2e.cjs && node test/e2e/yours.e2e.cjs && node test/e2e/sync.e2e.cjs && node test/e2e/voices.e2e.cjs && node test/e2e/listen.e2e.cjs && node test/e2e/a11y.e2e.cjs",
     "build:preview": "dotnet build preview/NeoMarkdownPreview -c Release -o preview-dist && powershell -NoProfile -ExecutionPolicy Bypass -File preview/shim/build.ps1 -Out preview-dist",
     "test:preview": "dotnet test preview/NeoMarkdownPreview.Tests"
   },
@@ -27,6 +27,9 @@
       "output": "release",
       "buildResources": "build"
     },
+    "asarUnpack": [
+      "dist/lame.min.js"
+    ],
     "files": [
       "src/main/**",
       "src/locales/*.json",
@@ -94,6 +97,9 @@
     "mac": {
       "icon": "build/icon.png",
       "category": "public.app-category.productivity",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "RT Markdown Reader listens only while you use Dictation. What you say stays on your computer."
+      },
       "target": [
         "dmg"
       ]
@@ -181,7 +187,8 @@
     "node": ">=20"
   },
   "dependencies": {
-    "electron-updater": "^6.8.11"
+    "electron-updater": "^6.8.11",
+    "lamejs": "^1.2.1"
   },
   "desktopName": "neo-markdown-reader.desktop"
 }

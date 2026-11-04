@@ -59,8 +59,11 @@ class VoiceStore {
    * @param {string} o.worker      path of the bundled worker script
    * @param {boolean} o.fake       tests: no download, no model; the worker plays a tone
    */
-  constructor({ root, fetch: fetchImpl, fork, worker, fake = false, files = FILES, base = BASE }) {
-    this.dir = path.join(root, MODEL);
+  constructor({ root, fetch: fetchImpl, fork, worker, fake = false, files = FILES, base = BASE, model = MODEL, revision = REVISION, label = 'natural voices' }) {
+    this.dir = path.join(root, model);
+    this.model = model;
+    this.revision = revision;
+    this.label = label;
     this.fetch = fetchImpl;
     this.fork = fork;
     this.worker = worker;
@@ -81,7 +84,7 @@ class VoiceStore {
   installed() {
     try {
       const m = JSON.parse(fs.readFileSync(this.marker(), 'utf8'));
-      if (m.revision !== REVISION && !this.fake) return false;
+      if (m.revision !== this.revision && !this.fake) return false;
       return this.files.every((f) => fs.statSync(path.join(this.dir, f.path)).size === f.size);
     } catch { return false; }
   }
@@ -131,9 +134,9 @@ class VoiceStore {
         }
         await this.fetchFile(f, target, controller.signal, (n) => { this.download.done += n; tick(false); });
       }
-      await fs.promises.writeFile(this.marker(), JSON.stringify({ model: MODEL, revision: REVISION, installed: Date.now() }));
+      await fs.promises.writeFile(this.marker(), JSON.stringify({ model: this.model, revision: this.revision, installed: Date.now() }));
     } catch (err) {
-      this.error = controller.signal.aborted ? '' : `The natural voices couldn’t be downloaded: ${err.message}`;
+      this.error = controller.signal.aborted ? '' : `The ${this.label} couldn’t be downloaded: ${err.message}`;
     } finally {
       this.download = null;
     }
@@ -187,8 +190,8 @@ class VoiceStore {
         else if (msg.id && this.pending.has(msg.id)) {
           const p = this.pending.get(msg.id);
           this.pending.delete(msg.id);
-          if (msg.type === 'audio') p.resolve({ sampleRate: msg.sampleRate, samples: msg.samples, ms: msg.ms });
-          else p.reject(new Error(msg.error));
+          if (msg.type === 'error') p.reject(new Error(msg.error));
+          else p.resolve(msg);
         }
       });
       child.on('exit', () => {

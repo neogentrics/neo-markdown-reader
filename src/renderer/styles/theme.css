@@ -7,6 +7,25 @@
   --font-mono: "Cascadia Code", "Cascadia Mono", "JetBrains Mono", "SF Mono", Consolas, Menlo, "Liberation Mono", monospace;
   --page-width: 860px;
   --radius: 10px;
+  /* The opposite of the page, for controls that sit on top of it. */
+  --inverse-bg: var(--text);
+  --inverse-fg: var(--page);
+  /* What's added and what's removed, wherever the app shows a change or a problem. */
+  --add-fill: #2f9e44;
+  --del-fill: #e03131;
+  --add-text: #2b8a3e;
+  --del-text: #c92a2a;
+  /* A theme can paint these with gradients. */
+  --desk-fill: var(--desk);
+  --toolbar-fill: var(--chrome);
+  --tabstrip-fill: var(--chrome);
+  --sidebar-fill: var(--chrome);
+  /* What the Glass look is frosted over: the theme's two accent colours. */
+  --glass-desk:
+    radial-gradient(60% 70% at 12% 18%, color-mix(in srgb, var(--accent) 70%, transparent), transparent 70%),
+    radial-gradient(55% 65% at 88% 14%, color-mix(in srgb, var(--accent-2) 65%, transparent), transparent 70%),
+    radial-gradient(70% 80% at 70% 92%, color-mix(in srgb, var(--accent) 50%, var(--accent-2)), transparent 72%),
+    var(--desk);
 }
 :root[data-width="narrow"] { --page-width: 700px; }
 :root[data-width="wide"]   { --page-width: 1080px; }
@@ -210,6 +229,180 @@
   --btn-hover: rgba(255, 255, 255, .07);
 }
 
+/* Blue — navy panels running to teal, gold buttons, an ice-white page */
+:root[data-theme="blue"] {
+  color-scheme: light;
+  --desk: #1f6fa8;
+  --desk-grain: rgba(255, 255, 255, .05);
+  --chrome: #e8f0fa;
+  --chrome-border: #c7d8ea;
+  --page: #f6faff;
+  --page-shadow: 0 1px 2px rgba(8, 30, 60, .2), 0 16px 48px -10px rgba(8, 30, 60, .5);
+  --text: #16253b;
+  --text-soft: #33475f;
+  --muted: #4f6178;
+  --heading: #0c2a52;
+  --on-accent: #ffffff;
+  --accent: #1b5fc1;
+  --accent-2: #e08a00;
+  --accent-soft: #e2edfb;
+  --link: #1557b0;
+  --rule: #dbe6f3;
+  --rule-strong: #bdd0e6;
+  --code-bg: #eef4fb;
+  --code-border: #d6e2f0;
+  --inline-code-bg: #e6eef8;
+  --inline-code-text: #a3261e;
+  --table-head: #dce9f8;
+  --table-stripe: #f1f6fc;
+  --quote-bar: #f0a500;
+  --quote-bg: #fff8e6;
+  --mark: #ffe066;
+  --sel: #bcd7f7;
+  --btn-hover: rgba(20, 60, 110, .08);
+  --desk-fill: linear-gradient(135deg, #123a6b 0%, #1f6fa8 55%, #17a398 100%);
+  --glass-desk: linear-gradient(135deg, #123a6b 0%, #1f6fa8 55%, #17a398 100%);
+  --toolbar-fill: linear-gradient(100deg, #0e2c57, #16528f 60%, #0f6e72);
+  --tabstrip-fill: #0e2c57;
+  --sidebar-fill: linear-gradient(180deg, #123a6b, #0e2c57);
+}
+:root[data-theme="blue"] :is(.toolbar, .tabstrip, .sidebar) {
+  color-scheme: dark;
+  --chrome: #123a6b;
+  --chrome-border: #2c5d94;
+  --page: #123a6b;
+  --text: #f1f6fd;
+  --text-soft: #d6e4f5;
+  --muted: #bdd2ea;
+  --heading: #ffffff;
+  --accent: #ffc94d;
+  --on-accent: #1a1405;
+  --accent-soft: #1d4d85;
+  --link: #ffd67a;
+  --rule: #2c5d94;
+  --rule-strong: #3b70aa;
+  --code-bg: #0c2a52;
+  --code-border: #2c5d94;
+  --btn-hover: rgba(255, 255, 255, .12);
+  --sel: #2a5a96;
+}
+
+/* Red — crimson panels running to burnt orange, gold buttons, a warm cream page */
+:root[data-theme="red"] {
+  color-scheme: light;
+  --desk: #a8201a;
+  --desk-grain: rgba(255, 255, 255, .05);
+  --chrome: #fbeae4;
+  --chrome-border: #ecd0c8;
+  --page: #fff8f3;
+  --page-shadow: 0 1px 2px rgba(50, 8, 12, .22), 0 16px 48px -10px rgba(50, 8, 12, .55);
+  --text: #2b1518;
+  --text-soft: #4f2f33;
+  --muted: #6d4b4f;
+  --heading: #5c0f1e;
+  --on-accent: #ffffff;
+  --accent: #b3122a;
+  --accent-2: #c96a00;
+  --accent-soft: #fde6e4;
+  --link: #a30f26;
+  --rule: #f3dfd9;
+  --rule-strong: #e6c7bf;
+  --code-bg: #fdf0ea;
+  --code-border: #f0dbd2;
+  --inline-code-bg: #fbe8e1;
+  --inline-code-text: #8f1d3f;
+  --table-head: #fbe3dc;
+  --table-stripe: #fff2ec;
+  --quote-bar: #e8751a;
+  --quote-bg: #fff1e3;
+  --mark: #ffe08a;
+  --sel: #f8cbc4;
+  --btn-hover: rgba(110, 20, 30, .08);
+  --desk-fill: linear-gradient(135deg, #5c0f1e 0%, #a8201a 55%, #e8751a 100%);
+  --glass-desk: linear-gradient(135deg, #5c0f1e 0%, #a8201a 55%, #e8751a 100%);
+  --toolbar-fill: linear-gradient(100deg, #4a0c18, #8c1a1f 60%, #a63e16);
+  --tabstrip-fill: #4a0c18;
+  --sidebar-fill: linear-gradient(180deg, #5c0f1e, #3f0a14);
+}
+:root[data-theme="red"] :is(.toolbar, .tabstrip, .sidebar) {
+  color-scheme: dark;
+  --chrome: #5c0f1e;
+  --chrome-border: #84303a;
+  --page: #5c0f1e;
+  --text: #fff1ee;
+  --text-soft: #f7dcd8;
+  --muted: #eec6c1;
+  --heading: #ffffff;
+  --accent: #ffd166;
+  --on-accent: #2a1204;
+  --accent-soft: #7a1f2b;
+  --link: #ffdc8a;
+  --rule: #84303a;
+  --rule-strong: #9c4049;
+  --code-bg: #3f0a14;
+  --code-border: #84303a;
+  --btn-hover: rgba(255, 255, 255, .12);
+  --sel: #8a2c38;
+}
+
+/* Yellow — sunny panels running to orange, navy buttons and headings, a clean cream page */
+:root[data-theme="yellow"] {
+  color-scheme: light;
+  --desk: #ffb627;
+  --desk-grain: rgba(90, 50, 0, .06);
+  --chrome: #fdf3c4;
+  --chrome-border: #e8d68f;
+  --page: #fffdf2;
+  --page-shadow: 0 1px 2px rgba(90, 50, 0, .18), 0 16px 48px -10px rgba(90, 50, 0, .4);
+  --text: #2a2410;
+  --text-soft: #4a4020;
+  --muted: #655827;
+  --heading: #1d2f52;
+  --on-accent: #ffffff;
+  --accent: #1d4e89;
+  --accent-2: #c2410c;
+  --accent-soft: #fdf3c4;
+  --link: #17457a;
+  --rule: #f1e6b8;
+  --rule-strong: #e4d48e;
+  --code-bg: #fbf6d9;
+  --code-border: #ece0a8;
+  --inline-code-bg: #f8f0c8;
+  --inline-code-text: #a02c2c;
+  --table-head: #fcefb0;
+  --table-stripe: #fef9dd;
+  --quote-bar: #1d4e89;
+  --quote-bg: #eef3fa;
+  --mark: #ffd43b;
+  --sel: #ffe58a;
+  --btn-hover: rgba(90, 70, 10, .08);
+  --desk-fill: linear-gradient(135deg, #ffd23f 0%, #ffb627 50%, #ff8c42 100%);
+  --glass-desk: linear-gradient(135deg, #ffd23f 0%, #ffb627 50%, #ff8c42 100%);
+  --toolbar-fill: linear-gradient(100deg, #ffd23f, #ffc02e 60%, #ffa53c);
+  --tabstrip-fill: #ffd23f;
+  --sidebar-fill: linear-gradient(180deg, #fff0b3, #ffe27a);
+}
+:root[data-theme="yellow"] :is(.toolbar, .tabstrip, .sidebar) {
+  color-scheme: light;
+  --chrome: #fff4c2;
+  --chrome-border: #d9a91f;
+  --page: #fff4c2;
+  --text: #2a2208;
+  --text-soft: #3d3212;
+  --muted: #544715;
+  --heading: #1d2f52;
+  --accent: #1d4e89;
+  --on-accent: #ffffff;
+  --accent-soft: #ffe27a;
+  --link: #17457a;
+  --rule: #e4c65c;
+  --rule-strong: #d9b53e;
+  --code-bg: #fff8d6;
+  --code-border: #e0c55c;
+  --btn-hover: rgba(60, 45, 0, .12);
+  --sel: #ffe58a;
+}
+
 /* High Contrast — maximum legibility */
 :root[data-theme="contrast"] {
   color-scheme: dark;
@@ -244,3 +437,37 @@
 }
 :root[data-theme="contrast"] .markdown-body a { text-decoration: underline; }
 :root[data-theme="contrast"] .markdown-body mark { color: #000; }
+
+:root[data-tone="dark"] { --add-text: #8ce99a; --del-text: #ff8787; }
+
+/* Colour-safe: blue and orange instead of green and red, which stay apart in all three main kinds of colour
+   blindness. Charts and highlights change with them (blocks.css, organize.css), and changes get underlines and
+   strikethroughs, so they don't rest on colour alone. test/colors.test.mjs measures these. */
+:root[data-colors="safe"] { --add-fill: #0072b2; --del-fill: #d55e00; --add-text: #005a8e; --del-text: #a84a00; }
+:root[data-colors="safe"][data-tone="dark"] { --add-text: #6cb6ff; --del-text: #ffa45c; }
+
+/* Glass: any theme, with its panels and page frosted over colour. Never for printing or exports, and not with
+   High Contrast, or for people who've asked their computer for less transparency. */
+@media screen and (prefers-reduced-transparency: no-preference) {
+  :root[data-surface="glass"]:not([data-theme="contrast"]) {
+    body { background: var(--glass-desk); }
+    :is(.toolbar, .tabstrip, .sidebar) {
+      background: color-mix(in srgb, var(--page) 46%, transparent);
+      backdrop-filter: blur(22px) saturate(1.6);
+      border-color: color-mix(in srgb, #fff 22%, transparent);
+    }
+    .page {
+      background: color-mix(in srgb, var(--page) 86%, transparent);
+      backdrop-filter: blur(26px) saturate(1.4);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 30%, transparent), 0 16px 48px -12px rgba(0, 0, 0, .35);
+    }
+    :is(dialog, .popover) {
+      background: color-mix(in srgb, var(--page) 88%, transparent);
+      backdrop-filter: blur(26px) saturate(1.5);
+    }
+    .speak-bar {
+      background: color-mix(in srgb, var(--inverse-bg) 82%, transparent);
+      backdrop-filter: blur(18px) saturate(1.5);
+    }
+  }
+}

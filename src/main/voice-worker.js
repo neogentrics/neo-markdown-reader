@@ -21,7 +21,7 @@ let busy = false;
 
 /** Test stand-in: a quiet tone as long as the sentence would take to read, made instantly. */
 function tone(text, speed) {
-  const rate = 24000;
+  const rate = 44100;
   const n = Math.max(rate / 10, Math.round((rate * text.length * 0.06) / speed));
   const out = new Float32Array(n);
   for (let i = 0; i < n; i++) out[i] = 0.05 * Math.sin((2 * Math.PI * 220 * i) / rate);

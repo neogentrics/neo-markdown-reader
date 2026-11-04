@@ -91,8 +91,8 @@ body.presenting { overflow: hidden; }
 .lock-meter span { min-width: 64px; text-align: right; }
 .lock-meter[data-score="1"] i:nth-child(-n+1) { background: #dc2626; }
 .lock-meter[data-score="2"] i:nth-child(-n+2) { background: #e8590c; }
-.lock-meter[data-score="3"] i:nth-child(-n+3) { background: #2b8a3e; }
-.lock-meter[data-score="4"] i:nth-child(-n+4) { background: #2b8a3e; }
+.lock-meter[data-score="3"] i:nth-child(-n+3) { background: var(--add-text); }
+.lock-meter[data-score="4"] i:nth-child(-n+4) { background: var(--add-text); }
 .lock-warn { font-size: 12.5px; color: var(--text-soft); background: var(--quote-bg); border-left: 3px solid #e8590c; padding: 8px 10px; border-radius: 6px; margin: 12px 0 0; }
 .lock-msg { color: #dc2626; font-size: 13px; min-height: 1em; margin: 8px 0 0; }
 .tab.locked .tab-label::before, .file-item.locked .file-name::before { content: "🔒 "; font-size: .85em; }

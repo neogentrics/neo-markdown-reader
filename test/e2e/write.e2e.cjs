@@ -159,7 +159,9 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     assert.equal(await win.$eval('.replace-apply', (n) => n.textContent), 'Replace 2');
     await answer(0);
     await win.click('.replace-apply');
-    await win.waitForFunction(() => /Replaced 2 in 2 files/.test(document.getElementById('search-summary').textContent), null, { timeout: 8000 });
+    await win.waitForFunction(() => /Replaced 2 in 2 files/.test(document.getElementById('search-summary').textContent), null, { timeout: 8000 }).catch(async (err) => {
+      throw new Error(`Replace showed "${await win.textContent('#search-summary')}" (${err.message.split('\n')[0]})`);
+    });
     assert.match((await asked())[0], /Replace 2 matches in 2 files\?/);
     assert.equal(fs.readFileSync(plan, 'utf8'), '# Plan\n\nAsk Globex about the Acme logo.\n');
     assert.equal(fs.readFileSync(other, 'utf8'), '# Other\n\nGlobex again.\n');
