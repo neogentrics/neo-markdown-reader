@@ -79,30 +79,15 @@ jobs:
           Start-Process -Wait -FilePath $un.FullName -ArgumentList '/S', "_?=$dir"
           powershell -NoProfile -File preview/ci-check.ps1 -Uninstalled
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-      - name: Update from the last version with the old name, keeping the install and its data
+      - name: Update from the last version with the old name, for one person and for everyone
         shell: powershell
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $ErrorActionPreference = 'Stop'
           gh release download v3.3.0 -R neogentrics/neo-markdown-reader -p 'NeoMarkdownReader-3.3.0-Setup.exe' -D old-release
-          Start-Process -Wait -FilePath (Resolve-Path old-release/NeoMarkdownReader-3.3.0-Setup.exe) -ArgumentList '/S'
-          $dir = Join-Path $env:LOCALAPPDATA 'Programs\neo-markdown-reader'
-          if (-not (Test-Path (Join-Path $dir 'Neo Markdown Reader.exe'))) { throw 'The old version did not install.' }
-          $data = Join-Path $env:APPDATA 'Neo Markdown Reader'
-          New-Item -ItemType Directory -Force $data | Out-Null
-          Set-Content (Join-Path $data 'settings.json') '{"theme":"sepia"}'
-          $setup = Get-ChildItem release/RTMarkdownReader-*-Setup.exe | Select-Object -First 1
-          Start-Process -Wait -FilePath $setup.FullName -ArgumentList '/S', '--updated'
-          if (-not (Test-Path (Join-Path $dir 'RT Markdown Reader.exe'))) { throw 'The new version is not in the same folder.' }
-          if (Test-Path (Join-Path $dir 'Neo Markdown Reader.exe')) { throw 'The old program was left behind.' }
-          $entries = Get-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object DisplayName -like '*Markdown Reader*'
-          if (@($entries).Count -ne 1 -or $entries.DisplayName -notlike 'RT Markdown Reader*') { throw "Add/Remove Programs shows: $($entries.DisplayName -join ', ')" }
-          $links = Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu\Programs" -Recurse -Filter '*Markdown Reader*.lnk' | Select-Object -ExpandProperty Name
-          if ($links -notcontains 'RT Markdown Reader.lnk' -or $links -contains 'Neo Markdown Reader.lnk') { throw "Start menu shows: $($links -join ', ')" }
-          if ((Get-Content (Join-Path $data 'settings.json') -Raw) -notmatch 'sepia') { throw 'Settings were lost.' }
-          $un = Get-ChildItem $dir -Filter 'Uninstall*.exe' | Select-Object -First 1
-          Start-Process -Wait -FilePath $un.FullName -ArgumentList '/S', "_?=$dir"
+          $new = Get-ChildItem release/RTMarkdownReader-*-Setup.exe | Select-Object -First 1
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ci-update-check.ps1 -OldSetup (Resolve-Path old-release/NeoMarkdownReader-3.3.0-Setup.exe).Path -NewSetup $new.FullName
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Upload installer + portable exe
         uses: actions/upload-artifact@v7
         with:
