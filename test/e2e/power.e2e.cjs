@@ -88,7 +88,7 @@ const launch = (files = []) => electron.launch({
 
   await step('four new colour themes switch the page, with dark ones marked dark', async () => {
     await win.click('#btn-theme');
-    for (const [theme, tone] of [['mist', 'light'], ['forest', 'dark'], ['dusk', 'dark'], ['contrast', 'dark'], ['blue', 'dark'], ['red', 'dark'], ['yellow', 'light'], ['light', 'light']]) {
+    for (const [theme, tone] of [['mist', 'light'], ['forest', 'dark'], ['dusk', 'dark'], ['contrast', 'dark'], ['blue', 'light'], ['red', 'light'], ['yellow', 'light'], ['light', 'light']]) {
       await win.click(`#theme-menu [data-key="theme"] [data-value="${theme}"]`);
       await win.waitForFunction(([t, d]) => document.documentElement.dataset.theme === t && document.documentElement.dataset.tone === d, [theme, tone]);
     }

@@ -50,7 +50,13 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
       await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);
       await problems(`the showcase in the ${theme} theme`);
     }
-    await win.evaluate(() => window.reader.setSettings({ theme: 'light' }));
+    await win.evaluate(() => window.reader.setSettings({ surface: 'glass' }));
+    for (const theme of ['light', 'dark', 'blue', 'yellow']) {
+      await win.evaluate((t) => window.reader.setSettings({ theme: t }), theme);
+      await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);
+      await problems(`the showcase in the ${theme} theme with the Glass look`);
+    }
+    await win.evaluate(() => window.reader.setSettings({ theme: 'light', surface: 'solid' }));
   });
 
   await step('dialogs and Quick Open have none', async () => {

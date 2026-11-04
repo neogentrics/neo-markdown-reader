@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
 const { Settings, FONTS, FONT_NAMES, cleanAccelerator } = require('./settings');
+const { PronunciationStore } = require('./pronounce');
 const { isMarkdownPath, isLockedPath, isOpenablePath, isViewablePath, isDataPath, fileFromArgv, readMarkdown, readDocument, isWritable, encodeForSave } = require('./files');
 const { HistoryStore } = require('./history');
 const { runJob: runReplaceJob } = require('./folder-replace');
@@ -34,7 +35,7 @@ const isMac = process.platform === 'darwin';
 const ROOT = path.join(__dirname, '..', '..');
 const RENDERER_HTML = path.join(ROOT, 'dist', 'index.html');
 const SHOWCASE = path.join(ROOT, 'samples', 'showcase.md');
-const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb', mist: '#dfe5ec', forest: '#0b120e', dusk: '#110e18', contrast: '#000000', blue: '#0a1c36', red: '#1f0a0d', yellow: '#f1e3a8' };
+const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb', mist: '#dfe5ec', forest: '#0b120e', dusk: '#110e18', contrast: '#000000', blue: '#1f6fa8', red: '#a8201a', yellow: '#ffb627' };
 
 registerScheme(protocol);                     // the code sandbox's private scheme (must precede app ready)
 let sandbox = null;
@@ -789,11 +790,13 @@ function rebuildMenu() {
             { id: 'text-reset', label: 'Reset Text Size', accelerator: 'CmdOrCtrl+0', click: () => setSetting({ fontScale: 1 }) },
           ],
         },
-        moved({ label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), radio('Yellow', 'theme', 'yellow'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('Blue (dark)', 'theme', 'blue'), radio('Red (dark)', 'theme', 'red'), radio('High Contrast', 'theme', 'contrast'),
+        moved({ label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), radio('Blue', 'theme', 'blue'), radio('Red', 'theme', 'red'), radio('Yellow', 'theme', 'yellow'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast'),
           ...addonThemeItems(s)] }),
+        moved({ label: 'Look', submenu: [radio('Solid', 'surface', 'solid'), radio('Glass', 'surface', 'glass')] }),
         moved({ label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif'), { type: 'separator' }, radio('Times New Roman', 'font', 'times'), radio('Georgia', 'font', 'georgia'), radio('Century Schoolbook', 'font', 'century'), radio('Garamond', 'font', 'garamond'), radio('Palatino Linotype', 'font', 'palatino'), radio('Cambria', 'font', 'cambria'), radio('Arial', 'font', 'arial'), radio('Calibri', 'font', 'calibri'), radio('Verdana', 'font', 'verdana'), radio('Tahoma', 'font', 'tahoma'), radio('Century Gothic', 'font', 'gothic'), radio('Trebuchet MS', 'font', 'trebuchet'), radio('Courier New', 'font', 'courier')] }),
         moved({ label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] }),
         moved(cmd('customize-theme', 'Customize Theme…')),
+        moved(cmd('pronunciation', 'Pronunciation List…')),
         moved(cmd('addons', 'Add-ons…')),
         moved({ label: 'Language', submenu: [
           { id: 'language-system', label: 'System Default', type: 'radio', checked: !i18n.CODES.has(s.language), click: () => setSetting({ language: 'system' }) },
@@ -1422,7 +1425,7 @@ function registerIpc() {
   ipcMain.handle('doc:print', (e) => { stateFor(e)?.win.webContents.print({ printBackground: true }); });
   ipcMain.handle('settings:set', (_e, patch) => {
     if (!patch || typeof patch !== 'object') return rendererSettings();
-    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'language'];
+    const allowed = ['theme', 'surface', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'language'];
     setSetting(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
     return rendererSettings();
   });
@@ -2013,6 +2016,11 @@ function registerIpc() {
 
   // ---- the tutorial (3.4)
   let tutorialOffered = !!process.env.NMR_NO_TOUR;   // once per run, not once per window
+  const pronunciation = new PronunciationStore(path.join(app.getPath('userData'), 'pronunciation.json'));
+  ipcMain.handle('say:get', (_e, doc) => pronunciation.lists(typeof doc === 'string' ? doc : null));
+  ipcMain.handle('say:rules', (_e, doc) => pronunciation.rules(typeof doc === 'string' ? doc : null));
+  ipcMain.handle('say:set', (_e, change) => pronunciation.set(typeof change?.folder === 'string' ? change.folder : null, change?.list));
+
   ipcMain.handle('tutorial:get', () => {
     const { tutorial, tutorialStep } = settings.get();
     const offer = !tutorialOffered;

@@ -2,7 +2,7 @@
 .tabstrip {
   position: fixed; top: 52px; left: 0; right: 0; height: 38px; z-index: 19;
   display: none; align-items: flex-end; gap: 4px; padding: 0 8px;
-  background: var(--chrome); border-bottom: 1px solid var(--chrome-border);
+  background: var(--tabstrip-fill); border-bottom: 1px solid var(--chrome-border);
 }
 body.has-doc .tabstrip { display: flex; }
 body.has-doc .layout { top: 90px; }

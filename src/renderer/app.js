@@ -22,6 +22,7 @@ import { createAddonsUi } from './addons-ui.js';
 import { createSyncUi } from './sync-ui.js';
 import { createAboutUi } from './about-ui.js';
 import { createConnectorUi } from './connector-ui.js';
+import { createSayUi } from './say-ui.js';
 import { createTourUi } from './tour-ui.js';
 import { createPrefsUi } from './prefs-ui.js';
 import { createHelpUi } from './help-ui.js';
@@ -29,7 +30,7 @@ import { resolveWiki, relative, dirOf, slugify as wikiSlug } from '../main/notes
 import './styles/app.css';
 
 const api = window.reader;
-const DARK_THEMES = new Set(['dark', 'forest', 'dusk', 'contrast', 'blue', 'red']);
+const DARK_THEMES = new Set(['dark', 'forest', 'dusk', 'contrast']);
 const render = createRenderer(window);
 const $ = (id) => document.getElementById(id);
 
@@ -70,6 +71,7 @@ let addonsUi = null;
 let syncUi = null;
 let aboutUi = null;
 let connectorUi = null;
+let sayUi = null;
 let tourUi = null;
 let prefsUi = null;
 let helpUi = null;
@@ -970,6 +972,7 @@ api.onCommand(({ cmd, arg }) => {
     case 'addon-export': if (arg) addonsUi.exportWith(arg); break;
     case 'present': if (presenter.active()) presenter.stop(); else presenter.start(); break;
     case 'customize-theme': themeUi.open(); break;
+    case 'pronunciation': sayUi.open(); break;
     case 'lock-protect': lockUi.protect(); break;
     case 'lock-now': lockUi.lockNow(); break;
     case 'lock-remove': lockUi.saveUnlockedCopy(); break;
@@ -1096,6 +1099,7 @@ function applySettings(s) {
   root.dataset.theme = s.resolvedTheme || 'light';
   root.dataset.tone = DARK_THEMES.has(root.dataset.theme) ? 'dark' : 'light';
   root.dataset.font = s.font;
+  root.dataset.surface = s.surface;
   $('pop-font').value = s.font;
   root.dataset.width = s.pageWidth;
   root.style.setProperty('--font-scale', s.fontScale);
@@ -1284,6 +1288,7 @@ readUi = createReadUi({
 });
 publish = createPublish({ api, activeTab, settings: () => settings, toast, themeCss: () => themeUi.exportCss() });
 presenter = createPresenter({ api, activeTab, toast, reading: () => readUi });
+sayUi = createSayUi({ api, activeTab, reading: () => readUi });
 prefsUi = createPrefsUi({ api, settings: () => settings, toast, refreshVoices: () => readUi.refreshVoices(), openHelp: () => helpUi.open() });
 helpUi = createHelpUi({ api, render, openPrefs: (pane) => prefsUi.open(pane), startTutorial: () => tourUi.start() });
 $('btn-prefs').onclick = () => prefsUi.open();

@@ -5,6 +5,17 @@
 // prepare() and chunks() are adapted from Supertone's MIT-licensed example (github.com/supertone-inc/supertonic,
 // nodejs/helper.js; see THIRD_PARTY_NOTICES.md).
 
+/**
+ * Read aloud says each listed word the way the list spells it. Only whole words match, in any capitals,
+ * and the longest wins, so "New Orleans" comes before "New". What's replaced isn't looked at again.
+ */
+function applyPronunciation(text, list) {
+  if (!list?.length) return text;
+  const words = new Map(list.map((r) => [r.word.toLowerCase(), r.say]));
+  const alternatives = [...words.keys()].sort((a, b) => b.length - a.length).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  return text.replace(new RegExp(`(?<![\\p{L}\\p{N}])(?:${alternatives.join('|')})(?![\\p{L}\\p{N}])`, 'giu'), (m) => words.get(m.toLowerCase()) ?? m);
+}
+
 /** Languages the model speaks. Anything else is read by the computer's own voices. */
 const LANGS = ['en', 'ko', 'ja', 'ar', 'bg', 'cs', 'da', 'de', 'el', 'es', 'et', 'fi', 'fr', 'hi', 'hr', 'hu', 'id', 'it', 'lt', 'lv', 'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sv', 'tr', 'uk', 'vi'];
 
@@ -86,4 +97,4 @@ function guessLang(text) {
   return a >= 0.08 && a >= b * 1.3 ? best : null;
 }
 
-module.exports = { LANGS, modelLang, prepare, chunks, guessLang };
+module.exports = { applyPronunciation, LANGS, modelLang, prepare, chunks, guessLang };

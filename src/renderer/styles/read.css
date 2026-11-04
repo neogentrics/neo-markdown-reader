@@ -20,6 +20,10 @@
   --btn-hover: color-mix(in srgb, var(--inverse-fg) 18%, transparent);
 }
 body.presenting .speak-bar { z-index: 1001; }
+.say-dlg { width: min(640px, calc(100vw - 32px)); }
+.say-rows { display: grid; gap: 6px; max-height: 46vh; overflow-y: auto; margin: 10px 0; }
+.say-row { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 6px; align-items: center; }
+.say-row input { min-width: 0; padding: 6px 8px; font: 13px var(--font-sans); color: var(--text); background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 7px; }
 .speak-grip { cursor: grab; touch-action: none; min-width: 26px; }
 .speak-grip svg { stroke-width: 3; }
 .speak-bar.moving, .speak-bar.moving .speak-grip { cursor: grabbing; }

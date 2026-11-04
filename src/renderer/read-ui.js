@@ -1,7 +1,7 @@
 // Read, listen (2.4): read aloud with the computer's own voices, focus mode, folding sections under their
 // headings, and hover previews of footnotes and of links to other documents.
 // Natural voices (3.2): read aloud with the Supertonic voices, made on this computer (src/main/voices.js).
-import { modelLang, guessLang } from '../main/voice-text.js';
+import { modelLang, guessLang, applyPronunciation } from '../main/voice-text.js';
 
 const $ = (id) => document.getElementById(id);
 const NATURAL = 'natural:';
@@ -102,6 +102,8 @@ export function createReadUi(ctx) {
   let playing = false;
   let tabId = null;
   let gen = 0;
+  let sayList = [];                     // the pronunciation list for the document being read
+  let starting = false;
   const highlight = (range) => {
     if (!window.CSS?.highlights) return;
     if (range) CSS.highlights.set('nmr-speak', new Highlight(range)); else CSS.highlights.delete('nmr-speak');
@@ -152,7 +154,7 @@ export function createReadUi(ctx) {
   function synthesize(i) {
     if (i >= items.length || audio.has(i)) return audio.get(i);
     const rate = Number(els.rate.value) || 1;
-    const p = api.voiceSpeak({ text: items[i].text, lang: naturalLang, voice: els.voice.value.slice(NATURAL.length), speed: 1.05 * rate, steps: i === index ? Math.min(steps, 5) : steps });
+    const p = api.voiceSpeak({ text: applyPronunciation(items[i].text, sayList), lang: naturalLang, voice: els.voice.value.slice(NATURAL.length), speed: 1.05 * rate, steps: i === index ? Math.min(steps, 5) : steps });
     audio.set(i, p);
     return p;
   }
@@ -231,6 +233,15 @@ export function createReadUi(ctx) {
     els.play.setAttribute('aria-label', on ? 'Pause' : 'Read');
   }
 
+  function utterance(text) {
+    const u = new SpeechSynthesisUtterance(text);
+    const conf = ctx.settings().readAloud || {};
+    u.rate = Number(els.rate.value) || conf.rate || 1;
+    const voice = localVoices().find((v) => v.name === els.voice.value);
+    if (voice) { u.voice = voice; u.lang = voice.lang; }
+    return u;
+  }
+
   /** Show the sentence being read: on its slide when presenting, otherwise on the page. */
   function showItem(item) {
     const slides = ctx.presenter();
@@ -263,11 +274,7 @@ export function createReadUi(ctx) {
     els.status.textContent = `${index + 1} of ${items.length}`;
     if (isNatural() && naturalLang) { speakNatural(mine); return; }
     if (!s) { stop(); toast('Read aloud isn’t available on this computer'); return; }
-    const u = new SpeechSynthesisUtterance(item.text);
-    const conf = ctx.settings().readAloud || {};
-    u.rate = Number(els.rate.value) || conf.rate || 1;
-    const voice = localVoices().find((v) => v.name === els.voice.value);
-    if (voice) { u.voice = voice; u.lang = voice.lang; }
+    const u = utterance(applyPronunciation(item.text, sayList));
     u.onend = () => { if (mine === gen && playing) speakAt(index + 1); };
     u.onerror = (e) => {
       if (mine !== gen || e.error === 'interrupted' || e.error === 'canceled') return;
@@ -281,7 +288,8 @@ export function createReadUi(ctx) {
 
   function finish() { setPlaying(false); highlight(null); els.status.textContent = 'Finished'; index = 0; }
 
-  function start() {
+  async function start() {
+    if (starting) return;
     const tab = ctx.activeTab();
     if (!tab || tab.doc.compare || tab.doc.needsPassword) { toast('Open a document to read aloud'); return; }
     const wantsNatural = (ctx.settings().readAloud?.voice || '').startsWith(NATURAL) && natural.installed;
@@ -289,6 +297,9 @@ export function createReadUi(ctx) {
     if (bar.hidden || tabId !== tab.id) {
       items = collectSentences(tab.el);
       if (!items.length) { toast('There’s no text to read here'); return; }
+      starting = true;
+      sayList = await api.sayRules(tab.doc.path || null);
+      starting = false;
       tabId = tab.id;
       audio.clear();
       fillVoices();
@@ -640,6 +651,24 @@ export function createReadUi(ctx) {
   return {
     refreshVoices: fillVoices,
     toggleSpeak: start, stopSpeak: stop, speaking: () => !bar.hidden,
+    /** The pronunciation list changed: use it from the next sentence on. */
+    async sayChanged() {
+      if (bar.hidden) return;
+      sayList = await api.sayRules(ctx.activeTab()?.doc.path || null);
+      audio.clear();
+      api.voiceCancel?.();
+    },
+    /** Try a pronunciation with the voice in use. */
+    async sayAloud(text) {
+      if (!text.trim()) return;
+      if (isNatural()) {
+        const res = await api.voiceSpeak({ text, lang: naturalLang || 'en', voice: els.voice.value.slice(NATURAL.length), speed: 1.05, steps: 5 });
+        if (res?.samples) play(res.samples, res.sampleRate);
+        return;
+      }
+      synth()?.cancel();
+      synth()?.speak(utterance(text));
+    },
     /** Presentation mode started or ended while reading: show the sentence in the right place. */
     presentChanged() { if (items[index]) showItem(items[index]); },
     /** Someone moved to another slide while reading: read from there. */

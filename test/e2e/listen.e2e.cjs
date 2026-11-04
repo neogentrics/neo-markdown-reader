@@ -173,6 +173,65 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await win.click('#prefs-done');
   });
 
+  await step('the pronunciation list changes what is said, not what is shown', async () => {
+    await menu('pronunciation');
+    await win.waitForSelector('#say-dlg[open]');
+    const row = win.locator('.say-row').first();
+    await row.locator('input').nth(0).fill('talk');
+    await row.locator('input').nth(1).fill('tawk');
+    await win.click('#say-add');
+    const folder = await win.$eval('#say-scope-folder', (o) => o.textContent);
+    assert.match(folder, /rt-listen-/);
+    await win.locator('.say-row').nth(1).locator('input').nth(0).fill('');
+    await win.click('#say-done');
+    await win.waitForFunction(() => !document.querySelector('#say-dlg[open]'));
+    await menu('read-aloud');
+    await win.waitForSelector('#speak-bar:not([hidden])');
+    assert.equal(await said(), 'The tawk');
+    assert.equal((await marked()).text, 'The talk');
+    await win.keyboard.press('Escape');
+    await win.waitForSelector('#speak-bar', { state: 'hidden' });
+
+    await menu('pronunciation');
+    await win.waitForSelector('#say-dlg[open]');
+    assert.equal(await win.locator('.say-row input').first().inputValue(), 'talk', 'the list is kept');
+    await win.selectOption('#say-scope', 'folder');
+    await win.locator('.say-row input').nth(0).fill('sentences');
+    await win.locator('.say-row input').nth(1).fill('lines');
+    await win.click('#say-done');
+    await win.waitForFunction(() => !document.querySelector('#say-dlg[open]'));
+    await menu('read-aloud');
+    await win.waitForSelector('#speak-bar:not([hidden])');
+    await next();
+    await next();
+    assert.equal(await said(), 'It has two lines.');
+    await win.keyboard.press('Escape');
+    await win.waitForSelector('#speak-bar', { state: 'hidden' });
+  });
+
+  await step('the Glass look frosts any theme, and never reaches High Contrast', async () => {
+    await win.click('#btn-theme');
+    await win.click('#theme-menu [data-key="surface"] [data-value="glass"]');
+    await win.waitForFunction(() => document.documentElement.dataset.surface === 'glass');
+    const look = () => win.evaluate(() => ({
+      toolbar: getComputedStyle(document.querySelector('.toolbar')).backdropFilter,
+      page: getComputedStyle(document.querySelector('.page:not([hidden])')).backgroundColor,
+    }));
+    for (const theme of ['light', 'dark', 'red']) {
+      await win.evaluate((t) => window.reader.setSettings({ theme: t }), theme);
+      await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);
+      const now = await look();
+      assert.match(now.toolbar, /blur\(22px\)/, theme);
+      assert.match(now.page, /color\(srgb .* \/ 0\.86\)|rgba\(.*0\.86\)/, `${theme}: ${now.page}`);
+    }
+    await win.evaluate(() => window.reader.setSettings({ theme: 'contrast' }));
+    await win.waitForFunction(() => document.documentElement.dataset.theme === 'contrast');
+    assert.equal(await win.evaluate(() => getComputedStyle(document.querySelector('.page:not([hidden])')).backgroundColor), 'rgb(0, 0, 0)');
+    await win.evaluate(() => window.reader.setSettings({ theme: 'light', surface: 'solid' }));
+    await win.waitForFunction(() => document.documentElement.dataset.surface === 'solid');
+    await win.keyboard.press('Escape');
+  });
+
   await step('the fonts change the page and its headings', async () => {
     await win.click('#btn-theme');
     const fonts = await win.$$eval('#pop-font option', (o) => o.map((x) => x.value));
