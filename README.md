@@ -7,7 +7,7 @@
 [![Latest release](https://img.shields.io/github/v/release/neogentrics/rt-markdown-reader?style=for-the-badge&label=latest&color=7c3aed&labelColor=150e22)](https://github.com/neogentrics/rt-markdown-reader/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/neogentrics/rt-markdown-reader/total?style=for-the-badge&color=2e8fe0&labelColor=150e22)](https://github.com/neogentrics/rt-markdown-reader/releases)
 [![Tests](https://img.shields.io/github/actions/workflow/status/neogentrics/rt-markdown-reader/ci.yml?branch=main&style=for-the-badge&label=tests&labelColor=150e22)](https://github.com/neogentrics/rt-markdown-reader/actions/workflows/ci.yml)
-[![Platforms](https://img.shields.io/badge/windows%20%7C%20macOS%20%7C%20linux-e0433a?style=for-the-badge&labelColor=150e22)](#install-windows)
+[![Platforms](https://img.shields.io/badge/windows%20%7C%20macOS%20%7C%20linux-b79cff?style=for-the-badge&labelColor=150e22)](#install-windows)
 [![Price](https://img.shields.io/badge/price-free-f2b417?style=for-the-badge&labelColor=150e22)](LICENSE)
 
 **[Download](https://github.com/neogentrics/rt-markdown-reader/releases/latest)** &nbsp;·&nbsp; **[Features](#features)** &nbsp;·&nbsp; **[Listen & speak](#listen--speak)** &nbsp;·&nbsp; **[Your AI](#your-ai-your-choice)** &nbsp;·&nbsp; **[Roadmap](ROADMAP.md)** &nbsp;·&nbsp; **[What's new](CHANGELOG.md)** &nbsp;·&nbsp; **[Get help](SUPPORT.md)**
