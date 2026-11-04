@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { unzipSync, strFromU8 } = require('fflate');
 
 const root = path.join(__dirname, '..', '..');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-listen-'));
@@ -268,6 +269,65 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await win.evaluate(() => { for (const b of document.querySelectorAll('dialog[open] button')) if (/Discard|Don.t Save/i.test(b.textContent)) b.click(); });
   });
 
+  await step('audio export makes real files, with chapters, and leaves nothing behind when cancelled', async () => {
+    const save = (file) => app.evaluate(({ dialog }, f) => { dialog.showSaveDialog = async () => ({ canceled: false, filePath: f }); }, file);
+    const decode = (file) => win.evaluate(async (bytes) => {
+      const c = new AudioContext();
+      const b = await c.decodeAudioData(Uint8Array.from(bytes).buffer);
+      c.close();
+      return b.duration;
+    }, [...fs.readFileSync(file)]);
+    const exportAs = async (format) => {
+      await menu('export-audio');
+      await win.waitForSelector('#audio-dlg[open]');
+      if (await win.isVisible('#audio-get-voices')) await win.click('#audio-get-voices');
+      await win.waitForFunction(() => !document.getElementById('audio-go').disabled);
+      await win.selectOption('#audio-format', format);
+      await win.click('#audio-go');
+    };
+
+    const mp3 = path.join(tmp, 'talk.mp3');
+    await save(mp3);
+    await exportAs('mp3');
+    await win.waitForFunction(() => /Saved talk\.mp3/.test(document.body.textContent), null, { timeout: 60000 });
+    assert.equal(fs.readFileSync(mp3).subarray(0, 3).toString(), 'ID3');
+    const seconds = await decode(mp3);
+    assert.ok(seconds > 3, `${seconds} seconds of MP3`);
+    assert.ok(!fs.existsSync(`${mp3}.part`));
+
+    const aac = await win.evaluate(() => AudioEncoder.isConfigSupported({ codec: 'mp4a.40.2', sampleRate: 44100, numberOfChannels: 1, bitrate: 96000 }).then((r) => r.supported, () => false));
+    if (aac) {
+      const book = path.join(tmp, 'talk.m4b');
+      await save(book);
+      await exportAs('m4b');
+      await win.waitForFunction(() => /Saved talk\.m4b/.test(document.body.textContent), null, { timeout: 60000 });
+      const bytes = fs.readFileSync(book);
+      assert.equal(bytes.subarray(4, 12).toString('latin1'), 'ftypM4B ');
+      for (const title of ['The talk', 'Second', 'Third']) assert.ok(bytes.includes(Buffer.from(title)), title);
+      assert.ok(bytes.includes(Buffer.from('chpl')));
+      const length = await decode(book);
+      assert.ok(Math.abs(length - seconds) < 1, `the audiobook is ${length} seconds, the MP3 ${seconds}`);
+    } else {
+      console.log('   (no AAC encoder on this computer: audiobook skipped)');
+    }
+
+    const stopped = path.join(tmp, 'stopped.mp3');
+    await save(stopped);
+    // The stand-in voice is quick, so Cancel is pressed the moment the job appears.
+    const pressed = win.evaluate(() => new Promise((done) => {
+      const watch = setInterval(() => {
+        if (document.getElementById('audio-job').hidden) return;
+        clearInterval(watch);
+        document.getElementById('audio-job-cancel').click();
+        done();
+      }, 1);
+    }));
+    await exportAs('mp3');
+    await pressed;
+    await win.waitForFunction(() => /Audio export cancelled/.test(document.body.textContent), null, { timeout: 20000 });
+    assert.ok(!fs.existsSync(stopped) && !fs.existsSync(`${stopped}.part`), 'nothing is left');
+  });
+
   await step('the fonts change the page and its headings', async () => {
     await win.click('#btn-theme');
     const fonts = await win.$$eval('#pop-font option', (o) => o.map((x) => x.value));
@@ -284,6 +344,14 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await win.selectOption('#pop-font', 'courier');
     await win.waitForFunction(() => /Courier/.test(getComputedStyle(document.querySelector('.page:not([hidden]) h1')).fontFamily));
     assert.equal(await setting('font'), 'courier');
+    const word = path.join(tmp, 'talk.docx');
+    await app.evaluate(({ dialog }, f) => { dialog.showSaveDialog = async () => ({ canceled: false, filePath: f }); }, word);
+    await win.keyboard.press('Escape');
+    await menu('export-docx');
+    await win.waitForFunction(() => /Saved|Exported/.test(document.body.textContent), null, { timeout: 30000 });
+    const styles = strFromU8(unzipSync(fs.readFileSync(word))['word/styles.xml']);
+    assert.match(styles, /Courier New/, 'Word uses the font');
+    await win.click('#btn-theme');
     await win.selectOption('#pop-font', 'sans');
     await win.keyboard.press('Escape');
   });

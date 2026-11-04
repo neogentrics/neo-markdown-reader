@@ -693,6 +693,7 @@ function rebuildMenu() {
             cmd('export-epub', 'E-book (.epub)…'),
             cmd('export-slides', 'Slides as PDF…'),
             cmd('export-pptx', 'Slides as PowerPoint (.pptx)…'),
+            cmd('export-audio', 'Audio (MP3 or Audiobook)…'),
             ...addonExportItems(),
           ],
         },
@@ -2079,6 +2080,51 @@ function registerIpc() {
   ipcMain.handle('sync:now', () => sync.sync());
 
   // ---- natural voices (3.2): downloaded only after the reader agrees; spoken in a separate process
+  // Export as audio (3.5): the file grows under a temporary name, and takes its real name when it's finished.
+  const audioJobs = new Map();
+  let nextAudio = 1;
+  const dropAudio = async (job) => {
+    await job.file.close().catch(() => {});
+    await fs.promises.rm(job.part, { force: true }).catch(() => {});
+  };
+  ipcMain.handle('audio:begin', async (e, { format, name } = {}) => {
+    const st = stateFor(e);
+    const kinds = { mp3: { name: 'MP3 audio', extensions: ['mp3'] }, m4b: { name: 'Audiobook', extensions: ['m4b'] } };
+    if (!st || !kinds[format]) return null;
+    const res = await dlg.showSaveDialog(st.win, { title: 'Export as Audio', defaultPath: path.basename(String(name || `Audio.${format}`)), filters: [kinds[format]] });
+    if (res.canceled || !res.filePath) return null;
+    const part = `${res.filePath}.part`;
+    const id = nextAudio++;
+    audioJobs.set(id, { path: res.filePath, part, file: await fs.promises.open(part, 'w+') });
+    return { id };
+  });
+  ipcMain.handle('audio:write', async (_e, id, bytes) => {
+    const job = audioJobs.get(id);
+    if (job && bytes instanceof Uint8Array) await job.file.appendFile(bytes);
+  });
+  ipcMain.handle('audio:finish', async (_e, id, { tail, patches = [] } = {}) => {
+    const job = audioJobs.get(id);
+    if (!job) return { ok: false };
+    audioJobs.delete(id);
+    try {
+      if (tail?.length) await job.file.appendFile(tail);
+      for (const p of patches) await job.file.write(p.bytes, 0, p.bytes.length, p.at);
+      await job.file.close();
+      await fs.promises.rename(job.part, job.path);
+      return { ok: true, name: path.basename(job.path) };
+    } catch {
+      await dropAudio(job);
+      return { ok: false };
+    }
+  });
+  ipcMain.handle('audio:abort', async (_e, id) => {
+    const job = audioJobs.get(id);
+    if (!job) return;
+    audioJobs.delete(id);
+    await dropAudio(job);
+  });
+  app.on('will-quit', () => { for (const job of audioJobs.values()) { job.file.close().catch(() => {}); fs.rmSync(job.part, { force: true }); } });
+
   ipcMain.handle('dictate:status', () => dictation.status());
   ipcMain.handle('dictate:install', async (e) => {
     if (dictation.status().installed) return dictation.status();

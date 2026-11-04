@@ -37,7 +37,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v3.2](#v32--natural-voices) | Natural voices | ✅ Released ([3.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.2.0)) |
 | [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | ✅ Released ([3.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.3.0)) |
 | [v3.4](#v34--claude-connected) | Claude, connected, and a first-run tutorial | ✅ Released ([3.4.1](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.4.1)) |
-| [v3.5](#v35--listen--speak) | Listen & speak | 🔨 In progress |
+| [v3.5](#v35--listen--speak) | Listen & speak | 🔨 In review |
 | [v3.6](#v36--study--research) | Study & research | Planned |
 | [v3.7](#v37--automate-with-n8n) | Automate with n8n | Planned |
 | [v3.8](#v38--notion) | Notion | Planned |
@@ -228,11 +228,11 @@ updates itself from here on.
 
 ## v3.5 — Listen & speak
 
-🔨 **In progress.** More out of the natural voices, a voice of your own for writing, and more ways to make the app look right for you.
+🔨 **In review.** More out of the natural voices, a voice of your own for writing, and more ways to make the app look right for you.
 
 | Feature | Size | Details |
 |---|:-:|---|
-| Export as audio | M | Turn a document into an MP3, or an audiobook (`.m4b`) with a chapter for each heading, read by the natural voices. Offline. |
+| ✅ Export as audio | M | Turn a document into an MP3, or an audiobook (`.m4b`) with a chapter for each heading, read by the natural voices. Offline. |
 | ✅ Pronunciation list | S | Teach the voices how to say names and invented words, with a list for every document and one for any folder. It's used for reading aloud and for audio exports. |
 | ✅ Dictation | M | Speak and the editor types, using an offline speech-recognition model (Whisper, about 80 MB) that's downloaded once, when you ask. Nothing is sent anywhere. |
 | ✅ 🙋 Choose your microphone | S | Pick the input device for dictation in *Preferences → Reading Aloud*. |

@@ -93,7 +93,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await win.click('#speak-play');
     await win.waitForFunction(() => window.__played.length >= 3, null, { timeout: 15000 });
     const played = await win.evaluate(() => window.__played);
-    assert.ok(played.every((p) => p.float && p.n > 0 && p.sampleRate === 24000));
+    assert.ok(played.every((p) => p.float && p.n > 0 && p.sampleRate === 44100));
     assert.equal(await win.evaluate(() => window.__spoken.length), before, 'the computer’s voice is silent');
     const last = await win.evaluate(() => window.__lastNatural);
     assert.ok(last.index >= 2);

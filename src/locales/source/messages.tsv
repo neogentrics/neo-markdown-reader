@@ -174,3 +174,9 @@ Written by Claude — check anything important against the document.	Escrito por
 Click Edit first, then start dictation	Haga clic en Editar y luego inicie el dictado	Cliquez d’abord sur Modifier, puis lancez la dictée	Klicken Sie zuerst auf Bearbeiten und starten Sie dann das Diktat
 The microphone couldn’t be opened. Check that one is plugged in and allowed in your system’s privacy settings	No se pudo abrir el micrófono. Compruebe que esté conectado y permitido en la configuración de privacidad del sistema	Impossible d’ouvrir le micro. Vérifiez qu’il est branché et autorisé dans les réglages de confidentialité du système	Das Mikrofon konnte nicht geöffnet werden. Prüfen Sie, ob eines angeschlossen und in den Datenschutzeinstellungen des Systems erlaubt ist
 Dictation stopped: {0}	El dictado se detuvo: {0}	La dictée s’est arrêtée : {0}	Das Diktat wurde beendet: {0}
+Audio is already being made	Ya se está creando el audio	L’audio est déjà en cours de création	Das Audio wird bereits erstellt
+Audio export cancelled	Exportación de audio cancelada	Exportation audio annulée	Audio-Export abgebrochen
+The audio couldn’t be saved	No se pudo guardar el audio	Impossible d’enregistrer l’audio	Das Audio konnte nicht gespeichert werden
+The audio couldn’t be made: {0}	No se pudo crear el audio: {0}	Impossible de créer l’audio : {0}	Das Audio konnte nicht erstellt werden: {0}
+The natural voices don’t read this language yet	Las voces naturales aún no leen este idioma	Les voix naturelles ne lisent pas encore cette langue	Die natürlichen Stimmen lesen diese Sprache noch nicht
+The MP3 encoder couldn’t be loaded	No se pudo cargar el codificador MP3	Impossible de charger l’encodeur MP3	Der MP3-Encoder konnte nicht geladen werden

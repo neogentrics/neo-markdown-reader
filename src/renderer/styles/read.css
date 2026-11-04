@@ -20,7 +20,17 @@
   --btn-hover: color-mix(in srgb, var(--inverse-fg) 18%, transparent);
 }
 body.presenting .speak-bar { z-index: 1001; }
+.audio-job {
+  position: fixed; right: 20px; bottom: 20px; z-index: 55; display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px;
+  background: var(--inverse-bg); color: var(--inverse-fg); box-shadow: 0 14px 40px -12px rgba(0, 0, 0, .45); font: 12.5px var(--font-sans);
+  --link: var(--inverse-fg); --accent: var(--inverse-fg); --text: var(--inverse-fg); --text-soft: var(--inverse-fg); --heading: var(--inverse-fg);
+}
 .say-dlg { width: min(640px, calc(100vw - 32px)); }
+.say-dlg .field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: var(--muted); margin: 12px 0 0; }
+.say-dlg .field select { font: 14px var(--font-sans); padding: 8px 11px; border-radius: 8px; border: 1px solid var(--rule-strong); color: var(--text); background: var(--page); }
+.say-dlg .ai-foot { margin-top: 14px; }
+.say-dlg .ai-foot .spacer { flex: 1; }
+.say-dlg .ai-head h3 { margin: 0; }
 .say-rows { display: grid; gap: 6px; max-height: 46vh; overflow-y: auto; margin: 10px 0; }
 .say-row { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 6px; align-items: center; }
 .say-row input { min-width: 0; padding: 6px 8px; font: 13px var(--font-sans); color: var(--text); background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 7px; }

@@ -34,7 +34,7 @@ Part of the Recon Towers suite. Known as Neo Markdown Reader until version 3.4.1
 | **Diagrams** | Mermaid flowcharts, sequence diagrams, Gantt charts, pie charts and more |
 | **Document header** | YAML front matter (`title`, `author`, `date`, `tags`) becomes a header card at the top |
 | **Outline sidebar** | Clickable table of contents that follows your scroll position, with a filter box |
-| **Seven themes** | Paper, Sepia and Mist (light); Night, Forest and Dusk (dark); High Contrast; or follow Windows' setting |
+| **Ten themes** | Paper, Sepia and Mist (light); Blue, Red and Yellow; Night, Forest and Dusk (dark); High Contrast; or follow Windows' setting |
 | **Reading comfort** | Modern or book typeface; adjustable text size and page width; reading-progress bar |
 | **Live reload** | Edit the file in VS Code / Notepad++ and the page updates when you save |
 | **Export & print** | Designed PDFs, Word documents, self-contained web pages and plain text, or print it |
@@ -44,6 +44,8 @@ Part of the Recon Towers suite. Known as Neo Markdown Reader until version 3.4.1
 | **Proper menu bar** | File, Edit, View, Tabs and Help are always visible (or auto-hide them: *Preferences → General*) |
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions; *Restart to update* installs them without any installer screens |
+| **Listen & speak** *(new in 3.5)* | Export a document as an MP3 or an audiobook with chapters, dictate instead of typing, read aloud through your slides, teach the voices how to say names, and choose your speakers and microphone ([details](#listen--speak)) |
+| **Your look** *(new in 3.5)* | Blue, Red and Yellow themes, a Glass look for any theme, and fifteen fonts |
 | **Hands-on tutorial** *(new in 3.4)* | A guided tour with a practice document, offered the first time you open the app, and again from *Help → Tutorial* |
 | **Help Center** *(new in 3.4)* | Press `F1` for guides, common questions and quick links, with buttons that take you straight to the setting |
 | **Preferences** *(new in 3.4)* | Every setting in one window (`Ctrl+,`), so the menus stay short |
@@ -415,6 +417,36 @@ which forbids using them to impersonate people, to deceive or to harm anyone. Th
 version of Supertone's published model, and each file is checked against its published size and SHA-256
 checksum before it's used.
 
+## Listen & speak
+
+*New in 3.5.* Everything here runs on your computer, and works offline.
+
+**Export as audio.** *File → Export → Audio (MP3 or Audiobook)…* has the natural voices read the whole document. An
+MP3 is one file; an audiobook (`.m4b`) has a chapter for each main heading. It uses your reading speed and
+pronunciation list, and runs in the background, with its progress in the corner of the window. A long book can take
+hours. Audiobooks need an AAC encoder, which Linux doesn't have, so Linux offers MP3 only.
+
+<img src="docs/screenshots/export-audio.png" width="860" alt="The Export as Audio window, with a choice of MP3 or an audiobook with chapters, and a choice of voice">
+
+**Dictation.** While editing, press `Ctrl+Alt+D` or the microphone button, and speak. Words appear at the cursor at
+each pause. It uses the document's language, or your computer's. The Whisper model is about 80 MB, downloaded once
+when you first use it and checked against its published SHA-256. What you say never leaves your computer.
+
+**Read aloud in slides.** Press `R` in a presentation. Reading marks each sentence and turns the slides by itself. Move
+to another slide and the reading comes with you. Leave the slides and it carries on in the document.
+
+**The pronunciation list.** *Preferences → Reading Aloud → Pronunciation List…* lets you spell a word the way it sounds,
+and read aloud says it that way. Use one list for every document, or one for a folder and the folders inside it. The
+lists are kept in the app's own data, so nothing is added to your folders.
+
+<img src="docs/screenshots/pronunciation.png" width="860" alt="The pronunciation list, with names spelled the way they sound and a Listen button beside each one">
+
+**Speakers and microphone.** Choose them in *Preferences → Reading Aloud*. The speaker choice works with the natural
+voices, because the app plays those itself. The computer plays its own voices, so they always use its default device.
+
+**The bar.** Drag the read-aloud bar anywhere in the window, by its handle or any empty part of it, and it stays there.
+Double-click it to put it back.
+
 ## Make it yours
 
 <img src="docs/screenshots/language.png" width="860" alt="The app in Spanish: the toolbar, sidebar tabs, outline filter and word count are in Spanish; the document is shown as written">
@@ -570,6 +602,18 @@ checksum before it's used.
 
 ### More colour themes
 
+<img src="docs/screenshots/theme-blue.png" width="860" alt="The Blue theme: navy panels running to teal, gold buttons and a pale page">
+
+*New in 3.5:* **Blue**, **Red** and **Yellow** have panels that run from one colour to another, contrasting buttons and a
+clean page to read on. The **Glass** look (the theme button, or *Preferences → Appearance*) works with any theme, turning
+its panels and page to frosted glass over its own colours. It's left out of High Contrast, printing and exports, and
+it steps aside if your computer is set for less transparency.
+
+<img src="docs/screenshots/glass.png" width="860" alt="The Paper theme with the Glass look: frosted panels and page over soft blue and green">
+
+The same button has fifteen fonts, including Times New Roman, Georgia and Century, for the page and its headings. Word and
+PowerPoint exports use them too. A computer without a font uses the nearest match.
+
 <img src="docs/screenshots/themes.png" width="860" alt="The Mist, Forest, Dusk and High Contrast themes">
 
 **Mist**, **Forest**, **Dusk** and **High Contrast** join Paper, Sepia and Night in the theme menu. They work
@@ -589,7 +633,7 @@ with your own accent colour and in exports.
   - Uninstalling the app removes the preview.
 - **Accessibility:**
   - Every screen and dialog is checked automatically with [axe](https://github.com/dequelabs/axe-core) in
-    all seven themes and in Windows high-contrast mode.
+    all ten themes and in Windows high-contrast mode.
   - Text meets WCAG AA contrast.
   - Tabs, the sidebar and Quick Open work from the keyboard and are announced properly by screen readers.
   - Focus is always visible, and animations stop when Windows' *Animation effects* setting is off.
@@ -749,6 +793,10 @@ src/
 │   ├── voices.js         natural voices: the pinned, checksummed download, and the process that speaks
 │   ├── voice-worker.js   that process: Supertonic 3 on ONNX Runtime's WebAssembly engine (bundled into dist/)
 │   ├── supertonic.js     the model's four networks, run sentence by sentence
+│   ├── pronounce.js      the pronunciation lists
+│   ├── dictation.js      dictation: the pinned, checksummed download, and the process that listens
+│   ├── dictate-worker.js that process: Whisper on ONNX Runtime's WebAssembly engine (bundled into dist/)
+│   ├── whisper.js        turning sound into what Whisper reads, and its words back into text
 │   ├── voice-text.js     text preparation, sentence chunks and language guessing (shared with the page)
 │   ├── (help/*.md at the top of the repo are the Help Center's guides)
 │   ├── connector.js      the Claude connector: what Claude can reach, and adding it to Claude's apps

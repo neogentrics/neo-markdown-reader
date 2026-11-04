@@ -459,6 +459,26 @@
     <div class="grants-actions"><span class="spacer"></span><button type="button" class="big-btn sm" id="claude-done">Done</button></div>
   </dialog>
 
+  <dialog class="shortcuts say-dlg" id="audio-dlg" aria-labelledby="audio-h">
+    <div class="ai-head"><h3 id="audio-h">Export as Audio</h3></div>
+    <div id="audio-need-voices" hidden>
+      <p class="hint-text">Audio is read by the natural voices, a free download of about 400 MB.</p>
+      <button type="button" class="link-btn" id="audio-get-voices">Get natural voices…</button>
+    </div>
+    <div id="audio-ready">
+      <label class="field">Format<select id="audio-format"><option value="mp3">MP3</option><option value="m4b">Audiobook with chapters (.m4b)</option></select></label>
+      <p class="hint-text" id="audio-no-m4b" hidden>Audiobooks can't be made on this computer, because it has no AAC encoder.</p>
+      <label class="field">Voice<select id="audio-voice"></select></label>
+      <p class="hint-text">It uses your reading speed and pronunciation list, and runs in the background. A long book can take hours.</p>
+    </div>
+    <div class="ai-foot"><span class="spacer"></span>
+      <button type="button" class="link-btn" id="audio-cancel">Cancel</button>
+      <button type="button" class="big-btn sm" id="audio-go">Export</button>
+    </div>
+  </dialog>
+
+  <div class="audio-job" id="audio-job" role="status" hidden><span id="audio-job-text"></span><button type="button" class="link-btn" id="audio-job-cancel">Cancel</button></div>
+
   <dialog class="shortcuts say-dlg" id="say-dlg" aria-labelledby="say-h">
     <div class="ai-head"><h3 id="say-h">Pronunciation list</h3></div>
     <p class="hint-text">Spell a word the way it sounds, and read aloud says it that way. Press Listen to try it.</p>

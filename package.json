@@ -27,6 +27,9 @@
       "output": "release",
       "buildResources": "build"
     },
+    "asarUnpack": [
+      "dist/lame.min.js"
+    ],
     "files": [
       "src/main/**",
       "src/locales/*.json",
@@ -184,7 +187,8 @@
     "node": ">=20"
   },
   "dependencies": {
-    "electron-updater": "^6.8.11"
+    "electron-updater": "^6.8.11",
+    "lamejs": "^1.2.1"
   },
   "desktopName": "neo-markdown-reader.desktop"
 }

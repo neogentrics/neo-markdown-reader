@@ -49,6 +49,10 @@ license texts are in `export-tools.cjs.LEGAL.txt` next to it.
 ONNX Runtime Web is bundled into `resources/app.asar/dist/voice-worker.cjs` (license texts in
 `voice-worker.cjs.LEGAL.txt`), with its WebAssembly engine in `dist/voice/`.
 
+**The MP3 encoder is covered by the GNU LGPL, version 3.** MP3 export uses [lamejs](https://github.com/zhuker/lamejs),
+a JavaScript port of the LAME encoder. It is kept as one unmodified file, `resources/app.asar.unpacked/dist/lame.min.js`
+in an installed copy, which you may replace with your own build. Its source and license are at the link above.
+
 **The dictation model is not part of the application.** Whisper by OpenAI (MIT license), in the ONNX form
 published by the ONNX Community, is downloaded by the reader when they first use dictation.
 
