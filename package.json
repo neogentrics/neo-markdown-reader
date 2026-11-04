@@ -1,7 +1,7 @@
 {
   "name": "neo-markdown-reader",
   "productName": "RT Markdown Reader",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "description": "Read Markdown the way it was meant to look. A free reader and writing app for Windows, macOS and Linux.",
   "author": "Recon Towers Dev Department <author@neogentrics.com>",
   "license": "SEE LICENSE IN LICENSE",
@@ -180,7 +180,16 @@
   },
   "homepage": "https://recontowers.com/projects/neo-markdown-reader/",
   "bugs": "https://github.com/neogentrics/neo-markdown-reader/issues",
-  "keywords": ["markdown", "markdown-reader", "markdown-editor", "electron", "text-to-speech", "dictation", "audiobook", "recon-towers"],
+  "keywords": [
+    "markdown",
+    "markdown-reader",
+    "markdown-editor",
+    "electron",
+    "text-to-speech",
+    "dictation",
+    "audiobook",
+    "recon-towers"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/neogentrics/neo-markdown-reader.git"

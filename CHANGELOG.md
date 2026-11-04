@@ -4,6 +4,15 @@ All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.6.0] - Unreleased
+
+### Changed
+- **Paper, Sepia, Mist, Night, Forest and Dusk** now have panels that run from one colour to another, with contrasting
+  buttons, like Blue, Red and Yellow. High Contrast stays flat.
+
+### Fixed
+- Blue and Red: small text on the brightest part of the panels was a little too faint.
+
 ## [3.5.0] - 2026-11-04
 
 ### Added
