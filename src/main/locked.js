@@ -22,7 +22,7 @@ class WrongPasswordError extends Error {
   constructor() { super('That password isn’t right.'); this.code = 'WRONG_PASSWORD'; }
 }
 class NotLockedError extends Error {
-  constructor(msg = 'This isn’t a locked Neo Markdown Reader document, or it is damaged.') { super(msg); this.code = 'NOT_LOCKED'; }
+  constructor(msg = 'This isn’t a locked RT Markdown Reader document, or it is damaged.') { super(msg); this.code = 'NOT_LOCKED'; }
 }
 
 const b64 = (buf) => Buffer.from(buf).toString('base64');
@@ -67,7 +67,7 @@ function parseEnvelope(text) {
   try { env = JSON.parse(text); } catch { throw new NotLockedError(); }
   const k = env?.kdf;
   if (!env || env.format !== FORMAT || env.cipher !== 'aes-256-gcm' || !k || k.name !== 'scrypt') throw new NotLockedError();
-  if (env.version !== VERSION) throw new NotLockedError('This locked document was made by a newer version of Neo Markdown Reader. Update the app to open it.');
+  if (env.version !== VERSION) throw new NotLockedError('This locked document was made by a newer version of RT Markdown Reader. Update the app to open it.');
   const pow2 = (n) => Number.isInteger(n) && n > 1 && (n & (n - 1)) === 0;
   if (!pow2(k.N) || k.N > KDF_MAX.N || !Number.isInteger(k.r) || k.r < 1 || k.r > KDF_MAX.r || !Number.isInteger(k.p) || k.p < 1 || k.p > KDF_MAX.p) throw new NotLockedError();
   for (const f of ['iv', 'tag', 'data']) if (typeof env[f] !== 'string') throw new NotLockedError();

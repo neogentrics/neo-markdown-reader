@@ -115,7 +115,7 @@ test('chat: streams the answer piece by piece, with your key, the same instructi
 
   const router = fakeFetch(() => sse([{ choices: [{ delta: { content: 'ok' } }] }]));
   await p.runChat({ fetch: router, provider: 'openrouter', baseURL: 'https://openrouter.ai/api/v1', apiKey: 'sk-or-x', model: 'a/b', content: 'x', onText: () => {} });
-  assert.equal(router.calls[0].init.headers['x-title'], 'Neo Markdown Reader');
+  assert.equal(router.calls[0].init.headers['x-title'], 'RT Markdown Reader');
 });
 
 test('chat: plain answers, refusals and errors in words people understand', async () => {

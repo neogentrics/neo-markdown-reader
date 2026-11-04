@@ -14,7 +14,7 @@
     <FileVersion>2.1.0.0</FileVersion>
     <Version>2.1.0</Version>
     <Company>Neo Gentrics</Company>
-    <Product>Neo Markdown Reader</Product>
+    <Product>RT Markdown Reader</Product>
     <Copyright>Copyright © 2026 Neo Gentrics. All rights reserved.</Copyright>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>

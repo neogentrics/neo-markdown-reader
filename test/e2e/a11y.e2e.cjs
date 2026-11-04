@@ -20,7 +20,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   const app = await electron.launch({
     executablePath: require(path.join(root, 'node_modules/electron')),
     args: [root, ...(process.platform === 'linux' ? ['--no-sandbox'] : [])],
-    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: path.join(tmp, 'profile'), NMR_DISABLE_UPDATES: '1' },
+    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: path.join(tmp, 'profile'), NMR_DISABLE_UPDATES: '1', NMR_NO_TOUR: '1' },
   });
   const win = await app.firstWindow();
   const errors = [];
@@ -54,7 +54,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   });
 
   await step('dialogs and Quick Open have none', async () => {
-    for (const [id, sel] of [['export-pdf', '#publish[open]'], ['customize-theme', '#theme-dlg[open]'], ['ai-settings', '#ai-dlg[open]'], ['shortcuts', '#shortcuts[open]'], ['customize-shortcuts', '#keys-dlg[open] .keys-row'], ['quick-open', '#palette:not([hidden])'], ['sync', '#sync-dlg[open]'], ['about', '#about-dlg[open]']]) {
+    for (const [id, sel] of [['export-pdf', '#publish[open]'], ['customize-theme', '#theme-dlg[open]'], ['ai-settings', '#ai-dlg[open]'], ['shortcuts', '#shortcuts[open]'], ['customize-shortcuts', '#keys-dlg[open] .keys-row'], ['quick-open', '#palette:not([hidden])'], ['sync', '#sync-dlg[open]'], ['about', '#about-dlg[open]'], ['connect-claude', '#claude-dlg[open]'], ['ai-guide', '#ai-guide-dlg[open]']]) {
       await menu(id);
       await win.waitForSelector(sel);
       await problems(sel);

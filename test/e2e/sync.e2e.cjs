@@ -32,7 +32,7 @@ async function launch(c) {
     executablePath: require(path.join(root, 'node_modules/electron')),
     args: [root, c.doc, ...(process.platform === 'linux' ? ['--no-sandbox'] : [])],
     env: {
-      ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: c.profile, NMR_DISABLE_UPDATES: '1', NMR_NO_REVEAL: '1',
+      ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: c.profile, NMR_DISABLE_UPDATES: '1', NMR_NO_TOUR: '1', NMR_NO_REVEAL: '1',
       NMR_SYNC_ROOTS: JSON.stringify([{ id: 'onedrive', path: c.cloud }]),
     },
   });

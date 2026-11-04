@@ -57,7 +57,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
 const launch = (files = []) => electron.launch({
   executablePath: require(path.join(root, 'node_modules/electron')),
   args: [root, ...(process.platform === 'linux' ? ['--no-sandbox'] : []), ...files],
-  env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: profile, NMR_DISABLE_UPDATES: '1', NMR_NO_REVEAL: '1', NMR_AI_BASE_URL: `http://127.0.0.1:${aiServer.address().port}` },
+  env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: profile, NMR_DISABLE_UPDATES: '1', NMR_NO_TOUR: '1', NMR_NO_REVEAL: '1', NMR_AI_BASE_URL: `http://127.0.0.1:${aiServer.address().port}` },
 });
 
 (async () => {

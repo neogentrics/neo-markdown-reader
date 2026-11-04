@@ -1,7 +1,7 @@
 // Draws a ```timeline code block: one event per line, "date: what happened".
 //   2026-01: Kick-off
 //   2026-03: Beta
-// Runs in Neo Markdown Reader's sealed sandbox: it gets the block's text and returns SVG.
+// Runs in RT Markdown Reader's sealed sandbox: it gets the block's text and returns SVG.
 function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

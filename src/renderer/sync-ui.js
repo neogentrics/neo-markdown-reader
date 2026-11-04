@@ -58,7 +58,7 @@ export function createSyncUi(ctx) {
     if (status.enabled) {
       const head = document.createElement('div');
       head.className = 'sync-folder-label';
-      head.textContent = status.devices.length ? 'Other computers in step with this one' : 'No other computers yet: turn sync on in Neo Markdown Reader on another computer, with the same folder.';
+      head.textContent = status.devices.length ? 'Other computers in step with this one' : 'No other computers yet: turn sync on in RT Markdown Reader on another computer, with the same folder.';
       devices.appendChild(head);
       for (const d of status.devices) {
         const row = document.createElement('div');

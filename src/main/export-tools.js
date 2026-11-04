@@ -60,8 +60,8 @@ async function finishPdf(bodyBytes, coverBytes, info = {}) {
   if (info.author) doc.setAuthor(String(info.author));
   if (info.subject) doc.setSubject(String(info.subject));
   if (Array.isArray(info.keywords) && info.keywords.length) doc.setKeywords(info.keywords.map(String));
-  doc.setCreator('Neo Markdown Reader');
-  doc.setProducer('Neo Markdown Reader');
+  doc.setCreator('RT Markdown Reader');
+  doc.setProducer('RT Markdown Reader');
   return Buffer.from(await doc.save());
 }
 
@@ -269,7 +269,7 @@ async function buildDocx(model, assets = {}, options = {}) {
   }));
 
   const doc = new Document({
-    creator: 'Neo Markdown Reader',
+    creator: 'RT Markdown Reader',
     title: options.title || undefined,
     subject: options.subject || undefined,
     description: options.subject || undefined,

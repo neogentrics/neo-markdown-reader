@@ -1,6 +1,6 @@
 # Writing an add-on
 
-An add-on gives Neo Markdown Reader new **code-block types**, **export formats** and **colour themes**.
+An add-on gives RT Markdown Reader new **code-block types**, **export formats** and **colour themes**.
 It's a folder with an `addon.json` and a few JavaScript files, zipped and renamed to `.nmraddon`.
 A complete example is in [samples/addons/neo-extras](../samples/addons/neo-extras): a `timeline` code
 block, an outline export (OPML) and the Solar theme.

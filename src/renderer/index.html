@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' file: data: blob: https: http:; media-src 'self' file: data: blob: https:; font-src 'self' data: file:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Neo Markdown Reader</title>
+  <title>RT Markdown Reader</title>
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
     <button class="tb-btn" id="btn-toc" title="Toggle outline (Ctrl+B)" aria-label="Toggle outline"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/></svg></button>
     <button class="tb-btn" id="btn-back" title="Back (Alt+←)" aria-label="Back" disabled><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
     <button class="tb-btn tb-primary" id="btn-open" title="Open a Markdown file (Ctrl+O)"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7.5a2 2 0 0 0-1.9 1.4L3 19z"/><path d="M3 19l2.6-7.6A2 2 0 0 1 7.5 10H22l-2.7 7.7a2 2 0 0 1-1.9 1.3z"/></svg><span>Open</span></button>
-    <div class="tb-title" id="doc-title" title=""><span class="tb-title-name">Neo Markdown Reader</span><span class="tb-title-meta" id="doc-meta"></span></div>
+    <div class="tb-title" id="doc-title" title=""><span class="tb-title-name">RT Markdown Reader</span><span class="tb-title-meta" id="doc-meta"></span></div>
     <div class="tb-group">
       <button class="tb-btn tb-save" id="btn-save" title="Save (Ctrl+S)" hidden><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7 3v5h8V3M7 21v-7h10v7"/></svg><span>Save</span></button>
       <button class="tb-btn tb-edit" id="btn-edit" title="Edit this document (Ctrl+E)" hidden><svg class="ico-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><svg class="ico-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span class="edit-label">Edit</span></button>
@@ -166,7 +166,7 @@
       <section class="welcome" id="welcome">
         <div class="welcome-card">
           <img class="welcome-logo" src="icon.png" alt="">
-          <h1>Neo Markdown Reader</h1>
+          <h1>RT Markdown Reader</h1>
           <p class="welcome-sub">Read Markdown the way it was meant to look.</p>
           <button class="big-btn" id="welcome-open">
             <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7.5a2 2 0 0 0-1.9 1.4L3 19z"/><path d="M3 19l2.6-7.6A2 2 0 0 1 7.5 10H22l-2.7 7.7a2 2 0 0 1-1.9 1.3z"/></svg>
@@ -283,7 +283,7 @@
         <label class="field">Server address<input type="text" id="ai-local-url" autocomplete="off" spellcheck="false" placeholder="http://localhost:11434/v1"></label>
         <p class="hint-text">Ollama: <code>http://localhost:11434/v1</code> · LM Studio: <code>http://localhost:1234/v1</code> · your documents stay on your computer or your own network</p>
       </div>
-      <label class="field"><span id="ai-key-label">Anthropic API key</span><input type="password" id="ai-key" autocomplete="off" spellcheck="false"></label>
+      <label class="field" id="ai-key-field"><span id="ai-key-label">Anthropic API key</span><input type="password" id="ai-key" autocomplete="off" spellcheck="false"></label>
       <p class="hint-text" id="ai-key-hints"><a href="#" id="ai-get-key">Get an API key</a><span id="ai-key-note"> · stored encrypted by your operating system, never in the settings file</span><span id="ai-key-sep" hidden> · </span><button type="button" class="link-btn danger" id="ai-key-remove" hidden>Remove saved key</button></p>
       <p class="hint-text warn" id="ai-insecure" hidden>This computer has no secure key store, so the key is kept only until you quit.</p>
       <label class="field">Model<span class="ai-model-row"><input type="text" id="ai-model" list="ai-model-list" autocomplete="off" spellcheck="false"><button type="button" class="link-btn" id="ai-models-refresh">Refresh list</button></span></label>
@@ -312,7 +312,7 @@
   <dialog class="shortcuts lock-dlg" id="lock-dlg" aria-labelledby="lock-dlg-h">
     <form id="lock-form">
       <h3 id="lock-dlg-h">Protect “<span id="lock-doc"></span>” with a password</h3>
-      <p class="grants-intro">Saves an encrypted copy, <b id="lock-target"></b>, next to the original. Only Neo Markdown Reader can open it, and only with the password.</p>
+      <p class="grants-intro">Saves an encrypted copy, <b id="lock-target"></b>, next to the original. Only RT Markdown Reader can open it, and only with the password.</p>
       <label class="field">Password<input type="password" id="lock-pw" autocomplete="new-password" spellcheck="false"></label>
       <div class="lock-meter" id="lock-meter" data-score="0"><i></i><i></i><i></i><i></i><span></span></div>
       <label class="field">Type it again<input type="password" id="lock-pw2" autocomplete="new-password" spellcheck="false"></label>
@@ -418,13 +418,13 @@
     <div class="about-top">
       <img class="about-logo" src="icon.png" alt="">
       <div>
-        <h3 id="about-h">Neo Markdown Reader</h3>
+        <h3 id="about-h">RT Markdown Reader</h3>
         <p class="about-version" id="about-version"></p>
       </div>
     </div>
     <p class="about-blurb">A beautiful, distraction-free Markdown reader. Open a <code>.md</code> file and read it as a clean, well-laid-out page, then write, organize, publish and listen to it, with AI help from the service you choose.</p>
     <ul class="about-links">
-      <li><a href="#" id="about-website">Website</a><span>Neo Markdown Reader on Recon Towers</span></li>
+      <li><a href="#" id="about-website">Website</a><span>RT Markdown Reader on Recon Towers</span></li>
       <li><a href="#" id="about-notes">What’s new in this version</a><span>Release notes on GitHub</span></li>
       <li><a href="#" id="about-issue">Report a problem or suggest a feature</a><span>GitHub issues</span></li>
       <li><a href="#" id="about-source">Source code</a><span translate="no">github.com/neogentrics/neo-markdown-reader</span></li>
@@ -433,6 +433,64 @@
     <p class="about-legal"><span id="about-copyright"></span> · <a href="#" id="about-license">License</a> · <a href="#" id="about-notices">Open-source notices</a></p>
     <div class="grants-actions"><button type="button" class="link-btn" id="about-copy">Copy Version Details</button><span class="spacer"></span><button type="button" class="big-btn sm" id="about-done">Done</button></div>
   </dialog>
+
+  <dialog class="shortcuts claude-dlg" id="claude-dlg" aria-labelledby="claude-h">
+    <div class="ai-head"><h3 id="claude-h">Connect Claude</h3><button type="button" class="tb-btn sm" id="claude-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="hint-text">Let Claude Desktop and Claude Code work with your documents, using the Claude you already sign in to. No API key is needed.</p>
+    <label class="check"><input type="checkbox" id="claude-on"> Let Claude work with my documents</label>
+    <ul class="claude-list">
+      <li>Claude can read documents open in a tab or in the open folder, and see your highlights and notes.</li>
+      <li>It can’t change anything: it suggests a change, and you accept or reject it here.</li>
+      <li>Password-locked documents are never shared.</li>
+      <li>It works only while this app is open and this is on.</li>
+    </ul>
+    <div class="claude-add"><button type="button" class="big-btn sm" id="claude-add-desktop">Add to Claude Desktop</button><button type="button" class="big-btn sm" id="claude-add-code">Add to Claude Code</button></div>
+    <p class="hint-text" id="claude-not-found" hidden>Claude Desktop and Claude Code weren’t found on this computer. Install one, then come back here.</p>
+    <p class="hint-text" id="claude-portable" hidden>The portable version moves each time it runs, so Claude can’t start it. Use the installed app for this.</p>
+    <p class="hint-text" id="claude-msg" role="status"></p>
+    <div class="grants-actions"><span class="spacer"></span><button type="button" class="big-btn sm" id="claude-done">Done</button></div>
+  </dialog>
+
+  <dialog class="shortcuts ai-edit-dlg" id="claude-suggest-dlg" aria-labelledby="claude-suggest-h">
+    <div class="ai-head"><h3 id="claude-suggest-h">Claude suggests a change</h3></div>
+    <p class="hint-text"><b id="claude-suggest-file" translate="no"></b></p>
+    <p class="hint-text" id="claude-suggest-note" translate="no"></p>
+    <div class="ai-edit-diff" id="claude-suggest-diff" translate="no"></div>
+    <div class="ai-foot"><span class="ai-status" id="claude-suggest-status"></span><span class="spacer"></span>
+      <button type="button" class="link-btn" id="claude-suggest-reject">Reject</button>
+      <button type="button" class="big-btn sm" id="claude-suggest-accept">Accept</button>
+    </div>
+  </dialog>
+
+  <dialog class="shortcuts tour-welcome" id="tour-welcome" aria-labelledby="tour-welcome-h">
+    <div class="about-top"><img class="about-logo" src="icon.png" alt=""><h3 id="tour-welcome-h">Welcome to RT Markdown Reader</h3></div>
+    <p class="about-blurb">Would you like a hands-on tour? It uses a practice document, so your own files aren’t touched, and you can stop at any time.</p>
+    <div class="grants-actions"><button type="button" class="link-btn" id="tour-never">Don’t show this again</button><span class="spacer"></span><button type="button" class="link-btn" id="tour-not-now">Not now</button><button type="button" class="big-btn sm" id="tour-start">Start the tutorial</button></div>
+  </dialog>
+
+  <dialog class="shortcuts ai-guide" id="ai-guide-dlg" aria-labelledby="ai-guide-h">
+    <div class="ai-head"><h3 id="ai-guide-h">Connecting an AI service</h3><button type="button" class="tb-btn sm" id="ai-guide-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="about-blurb">AI assist is optional. Nothing is sent anywhere until you choose a service, turn it on and ask for something. Open Edit → AI Assist → AI Assist Settings, then pick one of these.</p>
+    <img class="ai-guide-shot" src="guide/ai-services.png" alt="The AI Assist Settings window, with a list of services, a place for a key, and a list of models.">
+    <h4>With Claude Code</h4>
+    <p>If Claude Code is installed and signed in, choose Claude Code. It uses your Claude plan, and no key is needed.</p>
+    <h4>With an API key</h4>
+    <p>Choose Claude, ChatGPT, Gemini, Mistral or OpenRouter, click Get an API key, and paste the key. Each service bills you directly. Your key is stored encrypted on this computer.</p>
+    <h4>With a model on your own computer</h4>
+    <p>Install Ollama or LM Studio and download a model. Then choose On this computer and click Refresh list. Nothing leaves your computer, and it works without internet.</p>
+    <h4>Letting Claude reach your documents</h4>
+    <p>That’s a separate choice: Edit → AI Assist → Connect Claude lets Claude Desktop and Claude Code read your documents and suggest changes you approve.</p>
+    <div class="grants-actions"><span class="spacer"></span><button type="button" class="big-btn sm" id="ai-guide-done">Done</button></div>
+  </dialog>
+
+  <div class="tour-ring" id="tour-ring" hidden></div>
+  <section class="tour-card" id="tour-card" aria-live="polite" aria-labelledby="tour-title" hidden>
+    <p class="tour-count" id="tour-count"></p>
+    <h3 id="tour-title"></h3>
+    <p id="tour-text"></p>
+    <button type="button" class="link-btn" id="tour-guide" hidden>Open the guide</button>
+    <div class="tour-actions"><button type="button" class="link-btn" id="tour-later">Finish later</button><span class="spacer"></span><button type="button" class="link-btn" id="tour-back">Back</button><button type="button" class="big-btn sm" id="tour-next">Next</button></div>
+  </section>
 
   <dialog class="shortcuts sync-dlg" id="sync-dlg" aria-labelledby="sync-h">
     <div class="ai-head"><h3 id="sync-h">Sync between computers</h3><button type="button" class="tb-btn sm" id="sync-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>

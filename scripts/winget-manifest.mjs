@@ -50,7 +50,7 @@ ManifestVersion: 1.12.0
 Publisher: Neo Gentrics
 PublisherUrl: https://github.com/neogentrics
 PublisherSupportUrl: ${REPO}/issues
-PackageName: Neo Markdown Reader
+PackageName: RT Markdown Reader
 PackageUrl: ${REPO}
 License: Proprietary
 LicenseUrl: ${REPO}/blob/main/LICENSE
@@ -74,7 +74,7 @@ async function main() {
   const args = process.argv.slice(2);
   const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
   const version = opt('--version') || pkg.version;
-  const url = `${REPO}/releases/download/v${version}/NeoMarkdownReader-${version}-Setup.exe`;
+  const url = `${REPO}/releases/download/v${version}/RTMarkdownReader-${version}-Setup.exe`;
   let bytes;
   if (opt('--file')) bytes = readFileSync(opt('--file'));
   else {

@@ -1,6 +1,6 @@
 'use strict';
 // JSON settings store kept in the per-user app-data folder
-// (Windows: %APPDATA%\Neo Markdown Reader\settings.json).
+// (Windows: %APPDATA%\RT Markdown Reader\settings.json, or Neo Markdown Reader for anyone who used the app under that name).
 const fs = require('node:fs');
 const { cleanAiSettings } = require('./ai-providers');
 const path = require('node:path');
@@ -20,6 +20,9 @@ const DEFAULTS = Object.freeze({
   bookmarks: [],          // starred files (shown in the Files panel and Quick Open)
   recentFolders: [],      // most-recent-first folders opened with File > Open Folder
   exportOptions: null,    // last choices in the PDF designer (see EXPORT_DEFAULTS)
+  claudeConnector: false, // the Claude connector (3.4): off until you turn it on
+  tutorial: 'todo',       // todo | done — shown when the app starts until it's finished or declined, including after updating from an older version
+  tutorialStep: 0,        // where to resume
   ai: null,               // AI assist: { enabled, provider, models, quick, localUrl } — off by default; API keys are stored separately, encrypted
   runCode: 'ask',         // ask | off — running code blocks (always asks before each run)
   brand: null,            // custom theme: accent colour, fonts, brand stylesheet (see BRAND_DEFAULTS)
@@ -142,7 +145,7 @@ function sanitize(input) {
   if (THEMES.includes(input.theme) || /^addon:[a-z0-9][a-z0-9-]{1,39}:[a-z0-9][a-z0-9-]{1,39}$/.test(input.theme || '')) s.theme = input.theme;
   if (FONTS.includes(input.font)) s.font = input.font;
   if (WIDTHS.includes(input.pageWidth)) s.pageWidth = input.pageWidth;
-  for (const k of ['showToc', 'showMenuBar', 'restoreSession']) if (typeof input[k] === 'boolean') s[k] = input[k];
+  for (const k of ['showToc', 'showMenuBar', 'restoreSession', 'claudeConnector']) if (typeof input[k] === 'boolean') s[k] = input[k];
   const scale = Number(input.fontScale);
   if (Number.isFinite(scale)) s.fontScale = Math.min(1.8, Math.max(0.7, Math.round(scale * 100) / 100));
   if (Array.isArray(input.recent)) s.recent = input.recent.filter(isPath).slice(0, MAX_RECENT);
@@ -152,6 +155,8 @@ function sanitize(input) {
   if (Array.isArray(input.bookmarks)) s.bookmarks = [...new Set(input.bookmarks.filter(isPath))].slice(0, 300);
   if (Array.isArray(input.recentFolders)) s.recentFolders = [...new Set(input.recentFolders.filter(isPath))].slice(0, 10);
   if (['ask', 'off'].includes(input.runCode)) s.runCode = input.runCode;
+  if (['todo', 'done'].includes(input.tutorial)) s.tutorial = input.tutorial;
+  if (Number.isInteger(input.tutorialStep) && input.tutorialStep >= 0 && input.tutorialStep < 100) s.tutorialStep = input.tutorialStep;
   if (['wiki', 'markdown'].includes(input.wikiLinks)) s.wikiLinks = input.wikiLinks;
   if (['system', 'en', 'es', 'fr', 'de'].includes(input.language)) s.language = input.language;
   if (Array.isArray(input.addonsOff)) s.addonsOff = [...new Set(input.addonsOff.filter((x) => typeof x === 'string' && /^[a-z0-9][a-z0-9-]{1,39}$/.test(x)))].slice(0, 200);

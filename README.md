@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="build/icon.png" width="112" alt="Neo Markdown Reader logo">
+<img src="build/icon.png" width="112" alt="RT Markdown Reader logo">
 
-# Neo Markdown Reader
+# RT Markdown Reader
 
 **Read Markdown the way it was meant to look.**
 
@@ -10,13 +10,15 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
-**[Features](#features)** · **[Install](#install-windows)** · **[Your AI](#your-ai-your-choice)** · **[Across computers](#across-your-computers)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Natural voices](#natural-voices)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+Part of the Recon Towers suite. Known as Neo Markdown Reader until version 3.4.1.
+
+**[Features](#features)** · **[Install](#install-windows)** · **[Your AI](#your-ai-your-choice)** · **[Claude](#work-with-claude)** · **[Across computers](#across-your-computers)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Natural voices](#natural-voices)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
 
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
 ![License](https://img.shields.io/badge/license-proprietary-lightgrey)
 
-<img src="docs/screenshots/tabs.png" width="860" alt="Several documents open in tabs in Neo Markdown Reader">
+<img src="docs/screenshots/tabs.png" width="860" alt="Several documents open in tabs in RT Markdown Reader">
 
 </div>
 
@@ -41,7 +43,9 @@ symbols, and no browser tab or code editor is needed.
 | **Picks up where you left off** | Reopens your last windows and tabs, each scrolled to where you stopped reading |
 | **Proper menu bar** | File, Edit, View, Tabs and Help are always visible (or auto-hide them: *View → Always Show Menu Bar*) |
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
-| **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
+| **Automatic updates** | The installed app downloads new versions; *Restart to update* installs them without any installer screens |
+| **Hands-on tutorial** *(new in 3.4)* | A guided tour with a practice document, offered the first time you open the app, and again from *Help → Tutorial* |
+| **Work with Claude** *(new in 3.4)* | Claude Desktop and Claude Code can read your documents and suggest changes you approve, and AI assist can use your Claude Code sign-in with no API key |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
 | **Your AI, your choice** *(new in 3.3)* | AI assist with Claude, ChatGPT, Gemini, Mistral or OpenRouter, each with your own key, or with a private model on your own computer (Ollama, LM Studio) that needs no key and no internet; a quicker model for writing help, and a check before anything large is sent ([details](#your-ai-your-choice)) |
 | **Natural voices** *(3.2)* | Read aloud in ten natural-sounding voices that run on your computer, offline, in 31 languages; downloaded once, only when you ask ([details](#natural-voices)) |
@@ -71,10 +75,10 @@ symbols, and no browser tab or code editor is needed.
 
 1. Go to **[Releases](https://github.com/neogentrics/neo-markdown-reader/releases/latest)**.
 2. Download one of:
-   - **`NeoMarkdownReader-<version>-Setup.exe`** (recommended installer). It adds Start-menu
+   - **`RTMarkdownReader-<version>-Setup.exe`** (recommended installer). It adds Start-menu
      and desktop shortcuts and registers the reader for `.md` files, so double-clicking any Markdown
      file opens it here.
-   - **`NeoMarkdownReader-<version>-Portable.exe`**: a single file that needs no install. Run it from
+   - **`RTMarkdownReader-<version>-Portable.exe`**: a single file that needs no install. Run it from
      anywhere, including a USB stick.
 3. Until the app is code-signed, Windows SmartScreen may say *"Windows protected your PC"*.
    Click **More info → Run anyway**.
@@ -92,18 +96,18 @@ Reader** → tick **Always use this app**.
   Install the `.deb` with:
 
   ```bash
-  sudo apt install ./NeoMarkdownReader-<version>-linux-amd64.deb
+  sudo apt install ./RTMarkdownReader-<version>-linux-amd64.deb
   ```
 
 **Updates:** from version 1.1 on, the installed app checks for new versions by itself, downloads them in the
 background and offers *Restart to update*. The portable `.exe` and the Mac build tell you when a new
 version is out and link to the download. *(Coming from 1.0? Install 1.1 once by hand; after that it's automatic.)*
 
-**Which version do I have?** *Help → About Neo Markdown Reader* shows the version, what's new in it, the app's
+**Which version do I have?** *Help → About RT Markdown Reader* shows the version, what's new in it, the app's
 [website](https://recontowers.com/projects/neo-markdown-reader/), where to report a problem, and *Copy Version
 Details* for a bug report.
 
-<img src="docs/screenshots/about.png" width="860" alt="The About window: the Neo Markdown Reader icon, version 3.3.0, a short description, links to the website, what's new in this version, reporting a problem and the source code, the Electron, Chromium, Node and Windows versions, the copyright with License and Open-source notices links, and Copy Version Details and Done buttons">
+<img src="docs/screenshots/about.png" width="860" alt="The About window: the RT Markdown Reader icon, version 3.3.0, a short description, links to the website, what's new in this version, reporting a problem and the source code, the Electron, Chromium, Node and Windows versions, the copyright with License and Open-source notices links, and Copy Version Details and Done buttons">
 
 ## Creating and editing
 
@@ -284,6 +288,34 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
 
 <img src="docs/screenshots/ai-writing.png" width="860" alt="A suggested rewrite of a paragraph shown as a change, with Reject, Try again and Accept buttons">
 
+## Work with Claude
+
+<img src="docs/screenshots/connect-claude.png" width="860" alt="The Connect Claude window, with the connector turned on and buttons to add it to Claude Desktop and Claude Code">
+
+*New in 3.4.* Use the Claude you already sign in to, with no API key:
+
+- **Connect Claude** (*Edit → AI Assist → Connect Claude…*): turn it on, then click **Add to Claude Desktop** or
+  **Add to Claude Code**. Claude can then list your open documents, read them, search your open folder, and see
+  your highlights and notes.
+- **Changes stay yours.** Claude can't write to a file. It suggests a change, and you see it marked up in the app
+  to accept or reject. Accepting asks for edit permission as usual, and keeps a backup and a History copy.
+- **What Claude can't reach:** password-locked documents, and anything that isn't open in a tab or in the open
+  folder. It works only while the app is open and the connector is on.
+- **AI assist through Claude Code:** in *AI Assist Settings…*, choose *Claude Code (your sign-in, no key)*. Requests
+  use your Claude plan, and Claude Code runs with every tool switched off, so it can only write text back.
+- ***File → Open Folder in Claude Code*** opens a terminal in the document's folder, running Claude Code.
+
+The portable version moves each time it runs, so use the installed app for the connector.
+
+## Learning the app
+
+<img src="docs/screenshots/tutorial.png" width="860" alt="The tutorial pointing at the outline button, with a card explaining the step">
+
+*New in 3.4.* The first time you open the app, including after updating from an older version, it offers a
+hands-on tour. Steps move on when you've done what they say, on a practice copy, so your own files aren't touched.
+Stop at any time and pick up where you left off, or take it again from *Help → Tutorial*. AI needs a key or a
+model on your computer, so *Help → Connecting an AI Service* explains that part instead.
+
 ## Your AI, your choice
 
 <img src="docs/screenshots/ai-services.png" width="860" alt="AI assist settings with the service set to On this computer (Ollama, LM Studio…), the server address http://localhost:11434/v1, no API key needed, the model qwen3:8b, a quicker model llama3.2:3b for writing help, and 4 models available">
@@ -329,7 +361,7 @@ Read on one computer, pick up on another. *Edit → Sync Between Computers…* k
 
 **Setting it up:** on each computer, open *Edit → Sync Between Computers…* and choose the same folder inside
 OneDrive, Dropbox, iCloud Drive or Google Drive (the app offers the cloud folders it finds). That's all: no
-account, no server, no sign-in. The app keeps its files in a *Neo Markdown Reader* folder inside the one you
+account, no server, no sign-in. The app keeps its files in a *RT Markdown Reader* folder inside the one you
 choose, and your cloud service carries them between computers.
 
 **How it stays out of trouble:**
@@ -492,7 +524,7 @@ checksum before it's used.
 <img src="docs/screenshots/password-lock.png" width="860" alt="The Protect with Password dialog, and a locked document asking for its password">
 
 - **File → Protect with Password…** saves an encrypted copy (`notes.mdlock`) next to the original, using
-  AES-256 with a key made from your password (scrypt). Only Neo Markdown Reader can open it, and only
+  AES-256 with a key made from your password (scrypt). Only RT Markdown Reader can open it, and only
   with the password.
 - The original stays unless you tick *Move the unlocked original to the Recycle Bin*.
 - Opening a locked document asks for the password. After that it stays open until you quit or choose
@@ -549,7 +581,7 @@ with your own accent colour and in exports.
   - Tabs, the sidebar and Quick Open work from the keyboard and are announced properly by screen readers.
   - Focus is always visible, and animations stop when Windows' *Animation effects* setting is off.
 
-<img src="docs/screenshots/high-contrast.png" width="860" alt="Neo Markdown Reader in Windows high-contrast mode, using the system colours, with the keyboard focus outlined on the tab bar and sidebar">
+<img src="docs/screenshots/high-contrast.png" width="860" alt="RT Markdown Reader in Windows high-contrast mode, using the system colours, with the keyboard focus outlined on the tab bar and sidebar">
 
 *In Windows high-contrast mode the app uses the system colours, and the keyboard focus is always outlined.*
 
@@ -636,10 +668,6 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help �
   key, or a private model on your own computer (Ollama, LM Studio), plus a quicker model for writing help.
 
 Coming next:
-- **v3.4 — Claude, connected (ships as 3.4.1):** a connector that lets Claude Desktop and Claude Code read your documents
-  (and suggest edits you approve), AI assist through your Claude Code sign-in with no API key, and a hands-on
-  **first-run tutorial** that people updating from older versions get too. The same release fixes *Update Links*
-  after a rename and makes *Restart to update* install without the installer screens.
 - **v3.5 — Listen & speak:** documents exported as MP3s or audiobooks, a pronunciation list, and offline dictation.
 - **v3.6 — Study & research:** search by meaning, citations and bibliographies, and flashcards.
 - **v3.7 — Automate with n8n:** send a document, a selection or a folder to your n8n workflows (or any webhook)
@@ -705,6 +733,9 @@ src/
 │   ├── voice-worker.js   that process: Supertonic 3 on ONNX Runtime's WebAssembly engine (bundled into dist/)
 │   ├── supertonic.js     the model's four networks, run sentence by sentence
 │   ├── voice-text.js     text preparation, sentence chunks and language guessing (shared with the page)
+│   ├── connector.js      the Claude connector: what Claude can reach, and adding it to Claude's apps
+│   ├── connector-bridge.js  the program Claude starts: MCP on stdin and stdout
+│   ├── claude-code.js    AI assist and Open Folder through Claude Code
 │   ├── updater.js        update checks against GitHub Releases (electron-updater for the installer)
 │   ├── version.js        version comparison
 │   ├── files.js          which files can be opened + reading them safely

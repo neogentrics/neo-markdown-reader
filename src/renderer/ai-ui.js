@@ -56,6 +56,7 @@ export function createAiUi(ctx) {
   function showProvider(provider) {
     const p = providerOf(provider);
     $('ai-local').hidden = provider !== 'local';
+    $('ai-key-field').hidden = !!p.noKey;
     $('ai-local-url').value = status.localUrl;
     $('ai-key-label').textContent = p.keyName;
     $('ai-key').value = '';

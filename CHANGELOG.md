@@ -4,7 +4,26 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] (ships as 3.4.1)
+## [3.4.1] - 2026-11-03
+
+### Changed
+- **Neo Markdown Reader is now RT Markdown Reader,** part of the Recon Towers suite. Updating keeps your settings,
+  API keys, highlights, voices and sync folder where they are. Installed copies update in place. On a Mac, install
+  the new version and remove the old one; your API keys may need entering again.
+
+### Added
+- **Connect Claude:** Claude Desktop and Claude Code can list and read your open documents, search your open folder
+  and see your highlights and notes, with no API key. Turn it on in *Edit → AI Assist → Connect Claude…*, where one
+  click adds it to either app. Password-locked documents are never shared, and it works only while the app is open
+  and the connector is on.
+- **Changes from Claude are yours to approve:** a suggestion appears as a marked-up change to accept or reject.
+  Accepting asks for edit permission as usual, with a backup and a History copy.
+- **AI assist through Claude Code:** choose *Claude Code (your sign-in, no key)* in AI Assist Settings to use your
+  Claude plan. It runs with every tool switched off, so it can only write text back.
+- ***File → Open Folder in Claude Code*** opens a terminal in the folder, running Claude Code.
+- **A hands-on tutorial** with a practice document, offered when the app starts, including after updating from an
+  older version. Pick up where you left off, or take it again from *Help → Tutorial*.
+- ***Help → Connecting an AI Service***, a guide to the choices, with a picture of the settings.
 
 ### Fixed
 - **Update Links after a rename:** if you took more than a moment to answer the question, links could be left

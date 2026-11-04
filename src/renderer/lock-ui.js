@@ -47,7 +47,7 @@ export function createLockUi(ctx) {
           <button type="submit" class="big-btn sm">Unlock</button>
         </form>
         <p class="lock-error" role="alert" hidden></p>
-        <p class="lock-hint">A forgotten password can’t be recovered — not even by Neo Markdown Reader.</p>
+        <p class="lock-hint">A forgotten password can’t be recovered — not even by RT Markdown Reader.</p>
       </div>`;
     const form = el.querySelector('.lock-form');
     const input = el.querySelector('.lock-input');

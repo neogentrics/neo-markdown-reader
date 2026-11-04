@@ -105,6 +105,22 @@ body.focus-mode .page > *:hover { opacity: 1 !important; }
 /* ---------- 3.1: sync between computers */
 .sync-dlg { width: min(600px, 94vw); }
 /* Help → About (3.3) */
+.claude-dlg { width: min(540px, 94vw); }
+.claude-list { margin: 8px 0 12px; padding-left: 20px; font-size: 13px; line-height: 1.5; color: var(--text-soft); }
+.claude-add { display: flex; flex-wrap: wrap; gap: 8px; }
+.tour-welcome { width: min(480px, 94vw); }
+.ai-guide { width: min(620px, 94vw); line-height: 1.5; }
+.ai-guide h4 { margin: 14px 0 2px; }
+.ai-guide p { margin: 0 0 6px; }
+.ai-guide-shot { display: block; width: 100%; margin: 10px 0; border: 1px solid var(--rule); border-radius: 8px; }
+.tour-ring { position: fixed; z-index: 900; pointer-events: none; border: 2px solid var(--accent); border-radius: 8px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); transition: left .2s, top .2s, width .2s, height .2s; }
+.tour-card { position: fixed; z-index: 901; right: 20px; bottom: 44px; width: min(360px, calc(100vw - 40px)); padding: 14px 16px; border-radius: 12px; border: 1px solid var(--rule-strong); background: var(--page); color: var(--text); box-shadow: 0 12px 32px rgba(0, 0, 0, .28); font-size: 14px; line-height: 1.5; }
+.tour-card h3 { margin: 0 0 4px; font-size: 16px; }
+.tour-card p { margin: 0 0 8px; }
+.tour-count { color: var(--muted); font-size: 12px; }
+.tour-actions { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+.tour-actions .spacer { flex: 1; }
+@media (prefers-reduced-motion: reduce) { .tour-ring { transition: none; } }
 .about-dlg { width: min(520px, 94vw); }
 .about-dlg .ai-head { margin-bottom: -8px; }
 .about-top { display: flex; align-items: center; gap: 16px; }

@@ -48,14 +48,14 @@
   ${AndIf} ${FileExists} "$INSTDIR\resources\preview\NeoMarkdownPreview.dll"
     StrCpy $R2 "Software\Classes\CLSID\${NMR_PREVIEW_CLSID}"
     DeleteRegKey HKCU "$R2"
-    WriteRegStr HKCU "$R2" "" "Neo Markdown Reader preview"
-    WriteRegStr HKCU "$R2" "DisplayName" "Neo Markdown Reader preview"
+    WriteRegStr HKCU "$R2" "" "RT Markdown Reader preview"
+    WriteRegStr HKCU "$R2" "DisplayName" "RT Markdown Reader preview"
     ; Run in Windows' preview host, at the user's normal integrity level (the browser control needs it).
     WriteRegStr HKCU "$R2" "AppID" "${NMR_PREVHOST_APPID}"
     WriteRegDWORD HKCU "$R2" "DisableLowILProcessIsolation" 1
     WriteRegStr HKCU "$R2\InprocServer32" "" "$INSTDIR\resources\preview\NeoMarkdownPreviewShim.dll"
     WriteRegStr HKCU "$R2\InprocServer32" "ThreadingModel" "Apartment"
-    WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\PreviewHandlers" "${NMR_PREVIEW_CLSID}" "Neo Markdown Reader"
+    WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\PreviewHandlers" "${NMR_PREVIEW_CLSID}" "RT Markdown Reader"
     !insertmacro NmrPreviewLinkExt ".md"
     !insertmacro NmrPreviewLinkExt ".markdown"
     !insertmacro NmrPreviewLinkExt ".mdown"

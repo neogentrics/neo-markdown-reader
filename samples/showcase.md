@@ -1,5 +1,5 @@
 ---
-title: Neo Markdown Reader
+title: RT Markdown Reader
 subtitle: A tour of everything this reader can display
 author: Neo Gentrics
 date: 2026-10-31
@@ -8,7 +8,7 @@ tags: [showcase, markdown, reference]
 
 # Welcome :wave:
 
-This document shows off every kind of formatting **Neo Markdown Reader** understands. Open the
+This document shows off every kind of formatting **RT Markdown Reader** understands. Open the
 *Outline* on the left (<kbd>Ctrl</kbd> + <kbd>B</kbd>) to jump around, or press <kbd>Ctrl</kbd> + <kbd>F</kbd> to search.
 
 > [!TIP]
@@ -121,7 +121,7 @@ $$
 
 ```mermaid
 flowchart LR
-    A[📄 .md file] --> B{Neo Markdown Reader}
+    A[📄 .md file] --> B{RT Markdown Reader}
     B -->|renders| C[Beautiful page]
     B -->|exports| D[PDF]
     B -->|prints| E[Paper]

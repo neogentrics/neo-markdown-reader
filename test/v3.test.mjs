@@ -52,7 +52,7 @@ test('menus: labels translated, built-in items labelled, every top-level menu ke
 
 test('every menu, dialog and screen text is translated into Spanish, French and German', () => {
   const all = collect();
-  const brand = new Set(['Neo Markdown Reader', 'No window', '{0} — Neo Markdown Reader']);
+  const brand = new Set(['RT Markdown Reader', 'No window', '{0} — RT Markdown Reader']);
   for (const code of ['es', 'fr', 'de']) {
     const t = i18n.createTranslator(code);
     for (const group of ['menus', 'dialogs', 'page', 'html']) {

@@ -45,7 +45,7 @@ namespace Neo.MarkdownPreview
             string body;
             if (markdown == null) markdown = string.Empty;
             if (markdown.Length > MaxChars)
-                body = "<p class=\"note\">This document is too large to preview. Open it in Neo Markdown Reader.</p>";
+                body = "<p class=\"note\">This document is too large to preview. Open it in RT Markdown Reader.</p>";
             else
                 body = RenderBody(markdown);
             return "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"

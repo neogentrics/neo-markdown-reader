@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: windows, os: windows-latest, script: dist:win,   files: "release/NeoMarkdownReader-*-Setup.exe\nrelease/NeoMarkdownReader-*-Setup.exe.blockmap\nrelease/NeoMarkdownReader-*-Portable.exe\nrelease/latest.yml" }
+          - { name: windows, os: windows-latest, script: dist:win,   files: "release/RTMarkdownReader-*-Setup.exe\nrelease/RTMarkdownReader-*-Setup.exe.blockmap\nrelease/RTMarkdownReader-*-Portable.exe\nrelease/latest.yml" }
           - { name: macos,   os: macos-latest,   script: dist:mac,   files: 'release/*.dmg' }
           - { name: linux,   os: ubuntu-latest,  script: dist:linux, files: "release/*.AppImage\nrelease/*.deb\nrelease/latest-linux.yml" }
     steps:
@@ -54,7 +54,7 @@ jobs:
         if: matrix.name == 'windows'
         shell: powershell
         run: |
-          $exe = Get-ChildItem release/NeoMarkdownReader-*-Setup.exe | Select-Object -First 1
+          $exe = Get-ChildItem release/RTMarkdownReader-*-Setup.exe | Select-Object -First 1
           $sig = Get-AuthenticodeSignature $exe.FullName
           Write-Host "Signature status of $($exe.Name): $($sig.Status)"
       - uses: actions/upload-artifact@v7
@@ -85,7 +85,7 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.name }}
           target_commitish: ${{ github.sha }}
-          name: Neo Markdown Reader ${{ steps.tag.outputs.name }}
+          name: RT Markdown Reader ${{ steps.tag.outputs.name }}
           files: artifacts/*
           generate_release_notes: true
           fail_on_unmatched_files: true
