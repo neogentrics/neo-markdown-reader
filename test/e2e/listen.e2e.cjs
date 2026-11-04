@@ -29,8 +29,9 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
 (async () => {
   const app = await electron.launch({
     executablePath: require(path.join(root, 'node_modules/electron')),
-    args: [root, doc, '--use-fake-device-for-media-stream', `--use-file-for-fake-audio-capture=${sound}`, ...(process.platform === 'linux' ? ['--no-sandbox'] : [])],
-    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: path.join(tmp, 'p'), NMR_DISABLE_UPDATES: '1', NMR_NO_TOUR: '1', NMR_FAKE_TTS: '1' },
+    // On a Mac the sandbox around the sound process can't read the recording, so the fake microphone only sends silence.
+    args: [root, doc, '--use-fake-device-for-media-stream', `--use-file-for-fake-audio-capture=${sound}`, ...(process.platform === 'win32' ? [] : ['--no-sandbox'])],
+    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: path.join(tmp, 'p'), NMR_DISABLE_UPDATES: '1', NMR_NO_TOUR: '1', NMR_FAKE_TTS: '1', NMR_NO_REVEAL: '1' },
   });
   const win = await app.firstWindow();
   await win.waitForSelector('.tab.active');
