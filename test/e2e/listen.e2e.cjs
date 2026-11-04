@@ -230,6 +230,13 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
       toolbar: getComputedStyle(document.querySelector('.toolbar')).backdropFilter,
       page: getComputedStyle(document.querySelector('.page:not([hidden])')).backgroundColor,
     }));
+    // The computer's own setting decides this, and test machines differ, so the test sets it both ways.
+    console.log(`   (this computer asks for less transparency: ${await win.evaluate(() => matchMedia('(prefers-reduced-transparency: reduce)').matches)})`);
+    const cdp = await win.context().newCDPSession(win);
+    const transparency = (value) => cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-transparency', value }] });
+    await transparency('reduce');
+    assert.doesNotMatch((await look()).toolbar, /blur\(22px\)/, 'Glass steps aside when the computer asks for less transparency');
+    await transparency('no-preference');
     for (const theme of ['light', 'dark', 'red']) {
       await win.evaluate((t) => window.reader.setSettings({ theme: t }), theme);
       await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);

@@ -50,6 +50,9 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
       await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);
       await problems(`the showcase in the ${theme} theme`);
     }
+    // Glass steps aside on a computer set for less transparency, so make sure it's really being checked.
+    const cdp = await win.context().newCDPSession(win);
+    await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-transparency', value: 'no-preference' }] });
     await win.evaluate(() => window.reader.setSettings({ surface: 'glass' }));
     for (const theme of ['light', 'dark', 'blue', 'yellow']) {
       await win.evaluate((t) => window.reader.setSettings({ theme: t }), theme);
