@@ -38,7 +38,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | ✅ Released ([3.3.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.3.0)) |
 | [v3.4](#v34--claude-connected) | Claude, connected, and a first-run tutorial | ✅ Released ([3.4.1](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.4.1)) |
 | [v3.5](#v35--listen--speak) | Listen & speak | ✅ Released ([3.5.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.5.0)) |
-| [v3.6](#v36--study--research) | Study & research | Planned |
+| [v3.6](#v36--study--research) | Study & research | 🔨 In progress |
 | [v3.7](#v37--automate-with-n8n) | Automate with n8n | Planned |
 | [v3.8](#v38--notion) | Notion | Planned |
 | [v3.9](#v39--your-home-server) | Your home server | Planned |
@@ -250,15 +250,16 @@ updates itself from here on.
 
 ## v3.6 — Study & research
 
-For coursework, research and reference notes.
+🔨 **In progress.** For coursework, research and reference notes, with more colour for the themes that came before 3.5.
 
 | Feature | Size | Details |
 |---|:-:|---|
 | Smart search | M | Find documents by what they mean, not only by their exact words, with an index built and kept on your computer. *Related documents* appear under the outline. |
 | Citations & bibliography | M | Insert citations from a BibTeX file or a Zotero library. The bibliography is formatted (APA, MLA, Chicago and more) on the page and in PDF and Word exports. |
 | Flashcards & quizzes | M | Turn definitions, or `Q:` / `A:` lines, into flashcards with spaced repetition. AI (optional) can draft questions from a chapter. |
-| 🙋 Colour for the older themes | S | The seven themes from before 3.5 get what Blue, Red and Yellow have: panels that run from one colour to another, and contrasting buttons. |
+| 🙋 Colour for the older themes | S | The themes from before 3.5 get what Blue, Red and Yellow have: panels that run from one colour to another, and contrasting buttons. High Contrast stays flat, because plain contrast is the point of it. |
 | 🙋 More colours in Customize Theme | S | Pick the panel and background colours as well as the button colour. |
+| 🙋 Link with other Recon Towers apps | M | Apps on the same computer find each other, you approve the link once, and documents can be sent across, with no accounts. The rules are published in `docs/app-link.md`, so StoryTracker can be built to them. Pairing with a copy on another computer, by a one-time code, comes with StoryTracker's sync. |
 
 ## v3.7 — Automate with n8n
 
