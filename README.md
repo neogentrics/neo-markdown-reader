@@ -636,8 +636,10 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help �
   key, or a private model on your own computer (Ollama, LM Studio), plus a quicker model for writing help.
 
 Coming next:
-- **v3.4 — Claude, connected:** a connector that lets Claude Desktop and Claude Code read your documents
-  (and suggest edits you approve), and AI assist through your Claude Code sign-in, with no API key.
+- **v3.4 — Claude, connected (ships as 3.4.1):** a connector that lets Claude Desktop and Claude Code read your documents
+  (and suggest edits you approve), AI assist through your Claude Code sign-in with no API key, and a hands-on
+  **first-run tutorial** that people updating from older versions get too. The same release fixes *Update Links*
+  after a rename and makes *Restart to update* install without the installer screens.
 - **v3.5 — Listen & speak:** documents exported as MP3s or audiobooks, a pronunciation list, and offline dictation.
 - **v3.6 — Study & research:** search by meaning, citations and bibliographies, and flashcards.
 - **v3.7 — Automate with n8n:** send a document, a selection or a folder to your n8n workflows (or any webhook)

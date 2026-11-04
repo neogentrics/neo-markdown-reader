@@ -290,7 +290,8 @@ export function createNotesUi(ctx) {
     if (res.error) { ren.msg.textContent = res.error; return; }
     ren.dlg.close();
     await ctx.retargetTab(tab, res.doc);
-    toast(res.updated ? `Renamed — ${res.updated} link${res.updated === 1 ? '' : 's'} updated` : 'Renamed');
+    if (res.missed) toast(`Renamed — links in ${res.missed} document${res.missed === 1 ? '' : 's'} couldn’t be updated`);
+    else toast(res.updated ? `Renamed — ${res.updated} link${res.updated === 1 ? '' : 's'} updated` : 'Renamed');
   });
 
   return { renderBacklinks, renderTags, renderTasks, openMap, checkLinks, rename, clearTag() { activeTag = null; } };

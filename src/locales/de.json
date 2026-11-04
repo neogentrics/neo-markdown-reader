@@ -623,6 +623,7 @@
  "Rename…": "Umbenennen…",
  "Renamed": "Umbenannt",
  "Renamed — {0} link{1} updated": "Umbenannt – {0} Link(s) aktualisiert",
+ "Renamed — links in {0} document{1} couldn’t be updated": "Umbenannt – Links in {0} Dokument(en) konnten nicht aktualisiert werden",
  "Reopen closed tab": "Geschlossenen Tab wieder öffnen",
  "Reopen Closed Tab": "Geschlossenen Tab wieder öffnen",
  "Replace": "Ersetzen",

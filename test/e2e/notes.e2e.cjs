@@ -60,7 +60,12 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     global.__answers = [];
     global.__asked = [];
     global.__open = null;
-    dialog.showMessageBox = async (_w, o) => { global.__asked.push(o.message); return { response: global.__answers.length ? global.__answers.shift() : (o.cancelId ?? 0) }; };
+    global.__thinkMs = 0;
+    dialog.showMessageBox = async (_w, o) => {
+      global.__asked.push(o.message);
+      await new Promise((r) => setTimeout(r, global.__thinkMs));
+      return { response: global.__answers.length ? global.__answers.shift() : (o.cancelId ?? 0) };
+    };
     dialog.showOpenDialog = async () => (global.__open ? { canceled: false, filePaths: [global.__open] } : { canceled: true, filePaths: [] });
   });
   const answer = (...r) => app.evaluate((_e, list) => { global.__answers.push(...list); global.__asked = []; }, r);
@@ -182,14 +187,37 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     assert.equal(await win.inputValue('#rename-input'), 'plan.md');
     await win.fill('#rename-input', 'Roadmap');
     await answer(0);                                          // Update Links
+    await app.evaluate(() => { global.__thinkMs = 1500; });   // as long as a person takes: the folder watcher fires meanwhile
     await win.click('#rename-form button[type=submit]');
     await waitTab('Roadmap');
+    await app.evaluate(() => { global.__thinkMs = 0; });
     assert.match((await asked()).join('\n'), /Update 2 links to “plan\.md” in 2 other documents\?/);
     assert.equal(fs.existsSync(plan), false);
     assert.match(fs.readFileSync(path.join(docs, 'Roadmap.md'), 'utf8'), /- \[x\] Write the plan/);
     assert.match(fs.readFileSync(home, 'utf8'), /Start with \[\[Roadmap\]\] and/);
     assert.match(fs.readFileSync(ideas, 'utf8'), /See \[\[Roadmap\]\]\./);
     await win.waitForFunction(() => window.__toasts.includes('Renamed — 2 links updated'));
+  });
+
+  await step('a linked document that can’t be changed is reported, not skipped silently', async () => {
+    const rename = async (name) => {
+      await menu('rename-doc');
+      await win.waitForSelector('#rename-dlg[open]');
+      await win.fill('#rename-input', name);
+      await answer(0, 0);                                     // Allow editing, then Update Links
+      await win.click('#rename-form button[type=submit]');
+      await waitTab(name);
+    };
+    fs.chmodSync(ideas, 0o444);
+    await rename('Plan B');
+    await win.waitForFunction(() => window.__toasts.includes('Renamed — links in 1 document couldn’t be updated'));
+    assert.match(fs.readFileSync(home, 'utf8'), /Start with \[\[Plan B\]\] and/);
+    assert.match(fs.readFileSync(ideas, 'utf8'), /See \[\[Roadmap\]\]\./);
+    fs.chmodSync(ideas, 0o644);
+    await rename('Roadmap');                                  // and back, for the steps below
+    await app.evaluate(() => { global.__answers = []; });
+    await win.waitForFunction(() => window.__toasts.includes('Renamed — 1 link updated'));
+    assert.match(fs.readFileSync(home, 'utf8'), /Start with \[\[Roadmap\]\] and/);
   });
 
   await step('typing [[ in the editor suggests documents; the link style can be standard Markdown', async () => {

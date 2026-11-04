@@ -36,7 +36,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v3.1](#v31--across-your-computers) | Across your computers | ✅ Released ([3.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.1.0)) |
 | [v3.2](#v32--natural-voices) | Natural voices | ✅ Released ([3.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.2.0)) |
 | [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | ✅ Released ([3.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.3.0)) |
-| [v3.4](#v34--claude-connected) | Claude, connected | 🔨 Next |
+| [v3.4](#v34--claude-connected) | Claude, connected, and a first-run tutorial | 🔨 Next (ships as 3.4.1) |
 | [v3.5](#v35--listen--speak) | Listen & speak | Planned |
 | [v3.6](#v36--study--research) | Study & research | Planned |
 | [v3.7](#v37--automate-with-n8n) | Automate with n8n | Planned |
@@ -210,13 +210,20 @@ updates itself from here on.
 
 ## v3.4 — Claude, connected
 
-🔨 **Next.** 🙋 Work with Claude through the Claude apps you already sign in to, with no API key needed (decision 11).
+🔨 **Next, shipping as 3.4.1**, because the fixes below go out in the same release. 🙋 Work with Claude through the Claude apps you already sign in to, with no API key needed (decision 11).
 
 | Feature | Size | Details |
 |---|:-:|---|
 | 🙋🛡️ Connect Claude to your documents | L | A built-in connector (an MCP server) lets Claude Desktop and Claude Code list your open documents, read them, search your folder, and see your highlights and notes. Edits Claude suggests go through the same permission prompt as yours and appear as changes you accept or reject. Locked documents are never shared. It stays off until you turn it on; one click adds it to Claude Desktop or Claude Code. |
 | 🙋 Use your Claude Code sign-in | M | If Claude Code is installed and signed in, AI assist can run through it instead of an API key, using your Claude plan. |
 | Open in Claude Code | S | *File → Open Folder in Claude Code* starts a Claude Code session in the document's folder. |
+| 🙋 First-run tutorial | L | A hands-on tour that walks you through the app with a practice document: reading, themes, editing, folders, links, listening, exporting and sync. It starts the first time the app opens. People updating from an older version get it too, because the app checks whether the tutorial has been finished. It can be skipped, resumed, and replayed from *Help*. |
+| 🙋 AI setup guide | S | The tutorial doesn't try AI live, because that needs a key or a local server. A page to read instead shows how to connect each service, with pictures of the settings. |
+
+**Fixes going out in the same release:**
+
+- [x] 🙋 *Update Links* after a rename silently changed nothing if you took more than a moment to answer. It now updates every link, and tells you if a document couldn't be changed.
+- [x] 🙋 *Restart to update* installs without showing the installer. Installs for everyone on the computer still get one Windows permission prompt (decision 14).
 
 ## v3.5 — Listen & speak
 
@@ -324,3 +331,4 @@ From a folder of chapters to a finished book or website.
 11. **Signing in with a Claude account.** Anthropic doesn't currently offer a "Sign in with Claude" that lets other apps use a Claude plan. *Proposed:* 3.4 goes through the Claude apps instead: the connector lets Claude use the reader, and Claude Code lets the reader use Claude. If Anthropic adds a sign-in for apps, it can replace the Claude Code step.
 12. **How should the app talk to n8n?** *Proposed:* through workflow webhooks, which every n8n setup has (self-hosted or n8n Cloud); an n8n API key is optional, only to list workflows by name. The app never runs a workflow without showing what it will send.
 13. **How should the app sign in to Notion?** *Proposed:* with a Notion *internal integration* token that you create in Notion and share with the pages you choose. Notion's full sign-in (OAuth) needs a web server in the middle, which this app doesn't have.
+14. **Updating an install for everyone on the computer.** Those files need administrator rights to replace. Running the whole app as administrator would remove the prompt, but a document viewer shouldn't run with those rights, because every file it opens would be handled with full control of the computer. *Proposed:* keep the single Windows prompt for now; the Recon Towers app store can later bring a small background updater that asks once, at install.

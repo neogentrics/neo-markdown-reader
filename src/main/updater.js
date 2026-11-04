@@ -73,7 +73,7 @@ class Updater {
 
   installNow() {
     if (this.autoUpdater && this.status.state === 'ready') {
-      setImmediate(() => this.autoUpdater.quitAndInstall(false, true));
+      setImmediate(() => this.autoUpdater.quitAndInstall(true, true));   // silent: no installer screens, then reopen
       return true;
     }
     return false;

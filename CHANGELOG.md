@@ -4,6 +4,17 @@ All notable changes to Neo Markdown Reader are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] (ships as 3.4.1)
+
+### Fixed
+- **Update Links after a rename:** if you took more than a moment to answer the question, links could be left
+  unchanged with no warning, because the folder list refreshed while the question was open. Every link is now
+  updated, and a document that can't be changed (a read-only file, for example) is reported instead of skipped silently.
+
+### Changed
+- **Restart to update** now installs without showing the installer, then reopens the app. An install for everyone
+  on the computer still gets one Windows permission prompt.
+
 ## [3.3.0] - 2026-11-03
 
 ### Added
