@@ -1,5 +1,7 @@
 'use strict';
 const { app, BrowserWindow, ClipboardItem, Menu, clipboard, dialog, ipcMain, nativeTheme, net, protocol, safeStorage, screen, session, shell, utilityProcess } = require('electron');
+const crypto = require('node:crypto');
+const { spawn } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
@@ -14,6 +16,8 @@ const locked = require('./locked');
 const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = require('./sandbox');
 const ai = require('./ai');
 const providers = require('./ai-providers');
+const connector = require('./connector');
+const claudeCode = require('./claude-code');
 const ABOUT_WEBSITE = 'https://recontowers.com/projects/neo-markdown-reader/';
 const i18n = require('./i18n');
 const addons = require('./addons');
@@ -38,8 +42,11 @@ let addonSandbox = null;
 /** Installed add-ons (3.0), see addons.js. */
 let addonStore = null;
 
-// Tests point the app at a throwaway profile folder.
+// Tests point the app at a throwaway profile folder. The app was called Neo Markdown Reader until 3.4.1:
+// anyone who used it then keeps their settings, keys, highlights and voices right where they are.
+const FORMER_DATA = path.join(app.getPath('appData'), 'Neo Markdown Reader');
 if (process.env.NMR_USER_DATA) app.setPath('userData', process.env.NMR_USER_DATA);
+else if (fs.existsSync(FORMER_DATA)) app.setPath('userData', FORMER_DATA);
 // Read aloud uses the computer's own voices; on Linux Chromium reaches them through speech-dispatcher.
 if (process.platform === 'linux') app.commandLine.appendSwitch('enable-speech-dispatcher');
 
@@ -176,7 +183,7 @@ function createWindow(opts = {}) {
     minWidth: 560,
     minHeight: 420,
     show: false,
-    title: 'Neo Markdown Reader',
+    title: 'RT Markdown Reader',
     backgroundColor: THEME_BG[resolvedTheme()],
     icon: path.join(ROOT, 'dist', 'icon.png'),
     webPreferences: {
@@ -600,7 +607,7 @@ async function checkForUpdatesInteractive() {
   const res = await updater.check({ silent: false });
   const opts = { type: 'info', title: 'Check for Updates', buttons: ['OK'] };
   if (res.state === 'current') {
-    dlg.showMessageBox(s?.win, { ...opts, message: 'You’re up to date', detail: `Neo Markdown Reader ${app.getVersion()} is the latest version.` });
+    dlg.showMessageBox(s?.win, { ...opts, message: 'You’re up to date', detail: `RT Markdown Reader ${app.getVersion()} is the latest version.` });
   } else if (res.state === 'available') {
     const { response } = await dlg.showMessageBox(s?.win, { ...opts, message: `Version ${res.version} is available`, detail: 'This copy can’t update itself. Download the new version from the Releases page.', buttons: ['Open Download Page', 'Later'] });
     if (response === 0) shell.openExternal(res.url || RELEASES_URL);
@@ -622,6 +629,9 @@ function rebuildMenu() {
     : [{ label: 'No recent files', enabled: false }];
   const radio = (label, key, value) => ({ label, type: 'radio', checked: s[key] === value, click: () => setSetting({ [key]: value }) });
   const cmd = (id, label, accelerator, extra = {}) => ({ id, label, accelerator, click: () => command(id), ...extra });
+  // Moved out of the menus to keep them short, usually to Preferences: still found by Find a Command,
+  // and its shortcut still works.
+  const moved = (item) => ({ ...item, visible: false, acceleratorWorksWhenHidden: true, moved: true });
   const updateReady = updater?.status?.state === 'ready';
 
   const template = [
@@ -648,21 +658,26 @@ function rebuildMenu() {
         },
         cmd('close-folder', 'Close Folder'),
         { id: 'daily-note', label: 'Today’s Note', accelerator: 'CmdOrCtrl+Shift+D', click: () => { const st = targetState(); if (st) openDailyNote(st); } },
-        cmd('rename-doc', 'Rename…', 'F2'),
-        { id: 'import-docx', label: 'Import Word Document…', click: () => { const st = targetState(); if (st) importDocx(st); } },
-        cmd('reopen-closed-tab', 'Reopen Closed Tab', 'CmdOrCtrl+Shift+T'),
         { type: 'separator' },
         cmd('save', 'Save', 'CmdOrCtrl+S'),
         cmd('save-as', 'Save As…', 'CmdOrCtrl+Shift+S'),
+        cmd('rename-doc', 'Rename…', 'F2'),
         { type: 'separator' },
-        cmd('lock-protect', 'Protect with Password…'),
-        cmd('lock-now', 'Lock Now'),
-        cmd('lock-remove', 'Save an Unlocked Copy…'),
-        { type: 'separator' },
-        cmd('reload', 'Reload File', 'F5'),
-        cmd('reveal', 'Show in Folder'),
-        cmd('copy-path', 'Copy File Path'),
-        { type: 'separator' },
+        {
+          label: 'This Document',
+          submenu: [
+            cmd('reload', 'Reload File', 'F5'),
+            cmd('reveal', 'Show in Folder'),
+            cmd('copy-path', 'Copy File Path'),
+            cmd('open-claude-code', 'Open Folder in Claude Code'),
+            { type: 'separator' },
+            cmd('lock-protect', 'Protect with Password…'),
+            cmd('lock-now', 'Lock Now'),
+            cmd('lock-remove', 'Save an Unlocked Copy…'),
+            { type: 'separator' },
+            { id: 'import-docx', label: 'Import Word Document…', click: () => { const st = targetState(); if (st) importDocx(st); } },
+          ],
+        },
         {
           label: 'Export',
           submenu: [
@@ -680,6 +695,7 @@ function rebuildMenu() {
         { id: 'print', label: 'Print…', accelerator: 'CmdOrCtrl+P', click: () => targetState()?.win.webContents.print({ printBackground: true }) },
         { type: 'separator' },
         cmd('close-tab', 'Close Tab', 'CmdOrCtrl+W'),
+        cmd('reopen-closed-tab', 'Reopen Closed Tab', 'CmdOrCtrl+Shift+T'),
         { id: 'close-window', label: 'Close Window', accelerator: 'CmdOrCtrl+Shift+W', click: () => targetState()?.win.close() },
         ...(isMac ? [] : [{ type: 'separator' }, { label: 'Exit', role: 'quit' }]),
       ],
@@ -699,23 +715,25 @@ function rebuildMenu() {
         { role: 'selectAll' },
         { type: 'separator' },
         cmd('find', 'Find…', 'CmdOrCtrl+F'),
-        cmd('find-next', 'Find Next', 'F3'),
-        cmd('find-prev', 'Find Previous', 'Shift+F3'),
+        moved(cmd('find-next', 'Find Next', 'F3')),
+        moved(cmd('find-prev', 'Find Previous', 'Shift+F3')),
         cmd('find-in-folder', 'Find in Folder…', 'CmdOrCtrl+Shift+F'),
         cmd('replace-in-folder', 'Replace in Folder…', 'CmdOrCtrl+Shift+R'),
         cmd('check-links', 'Check Links in Folder…'),
         { type: 'separator' },
-        cmd('compare-saved', 'Compare with Saved Version'),
-        cmd('compare-file', 'Compare with File…'),
-        cmd('panel-history', 'Version History', 'CmdOrCtrl+Shift+Y'),
-        { type: 'separator' },
-        cmd('edit-table', 'Edit Table…'),
-        { id: 'wiki-style', label: 'Insert Standard Markdown Links', type: 'checkbox', checked: s.wikiLinks === 'markdown', click: () => setSetting({ wikiLinks: settings.get().wikiLinks === 'markdown' ? 'wiki' : 'markdown' }) },
-        { type: 'separator' },
         cmd('highlight', 'Highlight Selection', 'CmdOrCtrl+Shift+H'),
         cmd('bookmark', 'Bookmark This File', 'CmdOrCtrl+D'),
-        { type: 'separator' },
-        cmd('grants', 'Editing Permissions…'),
+        cmd('edit-table', 'Edit Table…'),
+        {
+          label: 'Compare and History',
+          submenu: [
+            cmd('compare-saved', 'Compare with Saved Version'),
+            cmd('compare-file', 'Compare with File…'),
+            cmd('panel-history', 'Version History', 'CmdOrCtrl+Shift+Y'),
+          ],
+        },
+        moved({ id: 'wiki-style', label: 'Insert Standard Markdown Links', type: 'checkbox', checked: s.wikiLinks === 'markdown', click: () => setSetting({ wikiLinks: settings.get().wikiLinks === 'markdown' ? 'wiki' : 'markdown' }) }),
+        moved(cmd('grants', 'Editing Permissions…')),
         {
           label: 'AI Assist',
           submenu: [
@@ -730,54 +748,62 @@ function rebuildMenu() {
             cmd('ai-translate', 'Translate Selection…'),
             { type: 'separator' },
             cmd('ai-settings', 'AI Assist Settings…'),
+            moved(cmd('connect-claude', 'Connect Claude…')),
           ],
         },
-        { id: 'allow-run', label: 'Allow Running Code Blocks', type: 'checkbox', checked: s.runCode !== 'off', click: () => setSetting({ runCode: settings.get().runCode === 'off' ? 'ask' : 'off' }) },
-        { id: 'open-backups', label: 'Open Backups Folder', click: () => openBackups() },
+        moved({ id: 'allow-run', label: 'Allow Running Code Blocks', type: 'checkbox', checked: s.runCode !== 'off', click: () => setSetting({ runCode: settings.get().runCode === 'off' ? 'ask' : 'off' }) }),
+        moved({ id: 'open-backups', label: 'Open Backups Folder', click: () => openBackups() }),
         { type: 'separator' },
-        cmd('sync', 'Sync Between Computers…'),
+        cmd('preferences', 'Preferences…', 'CmdOrCtrl+,'),
+        moved(cmd('sync', 'Sync Between Computers…')),
       ],
     },
     {
       label: '&View',
       submenu: [
-        { label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast'),
-          ...addonThemeItems(s)] },
-        { label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif')] },
-        { label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] },
-        cmd('customize-theme', 'Customize Theme…'),
-        cmd('addons', 'Add-ons…'),
-        { label: 'Language', submenu: [
+        cmd('read-aloud', 'Read Aloud', 'CmdOrCtrl+Shift+U'),
+        cmd('present', 'Present as Slides', 'CmdOrCtrl+Shift+P'),
+        cmd('focus-mode', 'Focus Mode', 'F8'),
+        cmd('split-toggle', 'Split View', 'CmdOrCtrl+\\'),
+        { type: 'separator' },
+        { id: 'toggle-outline', label: 'Sidebar', type: 'checkbox', checked: s.showToc, accelerator: 'CmdOrCtrl+B', click: () => setSetting({ showToc: !settings.get().showToc }) },
+        {
+          label: 'Panels',
+          submenu: [
+            cmd('panel-outline', 'Show Outline'),
+            cmd('panel-files', 'Show Files'),
+            cmd('panel-highlights', 'Show Highlights'),
+            cmd('panel-tasks', 'Show Tasks', 'CmdOrCtrl+Shift+L'),
+            cmd('link-map', 'Link Map', 'CmdOrCtrl+Shift+M'),
+          ],
+        },
+        { label: 'Sections', submenu: [cmd('fold-all', 'Fold All Sections', 'CmdOrCtrl+Shift+['), cmd('unfold-all', 'Unfold All Sections', 'CmdOrCtrl+Shift+]')] },
+        cmd('quick-open', 'Go to File or Heading…', 'CmdOrCtrl+K'),
+        { type: 'separator' },
+        {
+          label: 'Text Size',
+          submenu: [
+            { id: 'text-larger', label: 'Larger Text', accelerator: 'CmdOrCtrl+=', click: () => setSetting({ fontScale: settings.get().fontScale + 0.1 }) },
+            { id: 'text-larger-alt', label: 'Larger Text', accelerator: 'CmdOrCtrl+Plus', visible: false, acceleratorWorksWhenHidden: true, click: () => setSetting({ fontScale: settings.get().fontScale + 0.1 }) },
+            { id: 'text-smaller', label: 'Smaller Text', accelerator: 'CmdOrCtrl+-', click: () => setSetting({ fontScale: settings.get().fontScale - 0.1 }) },
+            { id: 'text-reset', label: 'Reset Text Size', accelerator: 'CmdOrCtrl+0', click: () => setSetting({ fontScale: 1 }) },
+          ],
+        },
+        moved({ label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast'),
+          ...addonThemeItems(s)] }),
+        moved({ label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif')] }),
+        moved({ label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] }),
+        moved(cmd('customize-theme', 'Customize Theme…')),
+        moved(cmd('addons', 'Add-ons…')),
+        moved({ label: 'Language', submenu: [
           { id: 'language-system', label: 'System Default', type: 'radio', checked: !i18n.CODES.has(s.language), click: () => setSetting({ language: 'system' }) },
           { type: 'separator' },
           ...i18n.LANGUAGES.map((l) => ({ id: `language-${l.code}`, label: l.name, type: 'radio', checked: s.language === l.code, click: () => setSetting({ language: l.code }) })),
-        ] },
-        { type: 'separator' },
-        cmd('present', 'Present as Slides', 'CmdOrCtrl+Shift+P'),
-        cmd('read-aloud', 'Read Aloud', 'CmdOrCtrl+Shift+U'),
-        cmd('focus-mode', 'Focus Mode', 'F8'),
-        { label: 'Sections', submenu: [cmd('fold-all', 'Fold All Sections', 'CmdOrCtrl+Shift+['), cmd('unfold-all', 'Unfold All Sections', 'CmdOrCtrl+Shift+]')] },
-        { type: 'separator' },
-        cmd('quick-open', 'Go to File or Heading…', 'CmdOrCtrl+K'),
-        { type: 'separator' },
-        { id: 'toggle-outline', label: 'Sidebar', type: 'checkbox', checked: s.showToc, accelerator: 'CmdOrCtrl+B', click: () => setSetting({ showToc: !settings.get().showToc }) },
-        cmd('panel-outline', 'Show Outline'),
-        cmd('panel-files', 'Show Files'),
-        cmd('panel-highlights', 'Show Highlights'),
-        cmd('panel-history', 'Show Version History', undefined, { id: 'panel-history-view' }),
-        cmd('panel-tasks', 'Show Tasks', 'CmdOrCtrl+Shift+L'),
-        cmd('link-map', 'Link Map', 'CmdOrCtrl+Shift+M'),
-        { type: 'separator' },
-        cmd('split-toggle', 'Split View', 'CmdOrCtrl+\\'),
-        cmd('split-link', 'Link Scrolling in Split View'),
-        ...(isMac ? [] : [{ id: 'toggle-menubar', label: 'Always Show Menu Bar', type: 'checkbox', checked: s.showMenuBar, click: () => setSetting({ showMenuBar: !settings.get().showMenuBar }) }]),
-        { type: 'separator' },
-        { id: 'text-larger', label: 'Larger Text', accelerator: 'CmdOrCtrl+=', click: () => setSetting({ fontScale: settings.get().fontScale + 0.1 }) },
-        { id: 'text-larger-alt', label: 'Larger Text', accelerator: 'CmdOrCtrl+Plus', visible: false, acceleratorWorksWhenHidden: true, click: () => setSetting({ fontScale: settings.get().fontScale + 0.1 }) },
-        { id: 'text-smaller', label: 'Smaller Text', accelerator: 'CmdOrCtrl+-', click: () => setSetting({ fontScale: settings.get().fontScale - 0.1 }) },
-        { id: 'text-reset', label: 'Reset Text Size', accelerator: 'CmdOrCtrl+0', click: () => setSetting({ fontScale: 1 }) },
-        { type: 'separator' },
-        cmd('back', 'Back', isMac ? 'Cmd+[' : 'Alt+Left'),
+        ] }),
+        moved(cmd('panel-history', 'Show Version History', undefined, { id: 'panel-history-view' })),
+        moved(cmd('split-link', 'Link Scrolling in Split View')),
+        moved(cmd('back', 'Back', isMac ? 'Cmd+[' : 'Alt+Left')),
+        ...(isMac ? [] : [moved({ id: 'toggle-menubar', label: 'Always Show Menu Bar', type: 'checkbox', checked: s.showMenuBar, click: () => setSetting({ showMenuBar: !settings.get().showMenuBar }) })]),
         { role: 'togglefullscreen' },
         ...(app.isPackaged ? [] : [{ role: 'toggleDevTools' }]),
       ],
@@ -804,23 +830,26 @@ function rebuildMenu() {
     {
       label: '&Help',
       submenu: [
-        { label: 'Open Feature Showcase', click: () => openFile(SHOWCASE) },
-        cmd('shortcuts', 'Keyboard Shortcuts', 'F1'),
-        cmd('customize-shortcuts', 'Customize Keyboard Shortcuts…'),
+        cmd('help-center', 'Help Center', 'F1'),
+        cmd('tutorial', 'Tutorial'),
+        cmd('shortcuts', 'Keyboard Shortcuts'),
         cmd('command-palette', 'Find a Command…', 'CmdOrCtrl+Shift+K'),
+        moved(cmd('ai-guide', 'Connecting an AI Service')),
+        moved({ id: 'showcase', label: 'Open Feature Showcase', click: () => openFile(SHOWCASE) }),
+        moved(cmd('customize-shortcuts', 'Customize Keyboard Shortcuts…')),
         { type: 'separator' },
         updateReady
           ? { id: 'restart-to-update', label: `Restart to Update (${updater.status.version})`, click: () => updater.installNow() }
           : { id: 'check-updates', label: 'Check for Updates…', click: () => checkForUpdatesInteractive() },
-        { label: 'Releases Page', click: () => shell.openExternal(RELEASES_URL) },
+        moved({ id: 'releases-page', label: 'Releases Page', click: () => shell.openExternal(RELEASES_URL) }),
         { type: 'separator' },
         {
           id: 'about',
-          label: `About Neo Markdown Reader ${app.getVersion()}`,
+          label: `About RT Markdown Reader ${app.getVersion()}`,
           // The page shows the full About window; with no window open, a short version in a message box.
           click: () => (targetState() ? command('about') : dlg.showMessageBox({
-            type: 'info', title: 'About', message: 'Neo Markdown Reader',
-            detail: `Version ${app.getVersion()}\nA beautiful, distraction-free Markdown reader.\n${ABOUT_WEBSITE}\n© ${new Date().getFullYear()} Neo Gentrics. All rights reserved.`,
+            type: 'info', title: 'About', message: 'RT Markdown Reader',
+            detail: `Version ${app.getVersion()}\nA beautiful, distraction-free Markdown reader.\n${ABOUT_WEBSITE}\n© ${new Date().getFullYear()} Recon Towers. All rights reserved.`,
           })),
         },
       ],
@@ -850,7 +879,7 @@ function applyShortcuts(items, chosen) {
 /** Every clickable menu command, keyed by its id (or its place in the menus). */
 function collectCommands(items, trail = [], out = new Map()) {
   for (const item of items) {
-    if (item.type === 'separator' || item.role || item.visible === false) continue;
+    if (item.type === 'separator' || item.role || (item.visible === false && !item.moved)) continue;
     const label = String(item.label || '').replace(/&/g, '');
     if (Array.isArray(item.submenu)) {
       if (/^Open Recent/.test(label)) continue;
@@ -1053,6 +1082,62 @@ async function openRecentFolder(state, root) {
   const info = await setFolder(state, root);
   if (info) state.win.webContents.send('folder:opened', info);
   else state.win.webContents.send('doc:error', { message: `Folder not found:\n${root}` });
+}
+
+// ---------------------------------------------------------------- the Claude connector (3.4)
+let connectorServer = null;
+const claudeSuggestions = new Map();                 // id -> { path, oldText, newText, done }
+const CLAUDE_WAIT_MS = 45_000;                       // Claude's side gives up on a call that takes much longer
+
+const connectorEntry = () => connector.serverEntry({ exe: process.execPath, bridge: path.join(ROOT, 'src', 'main', 'connector-bridge.js'), dir: app.getPath('userData') });
+const desktopConfigs = () => connector.desktopConfigPaths({ home: app.getPath('home') });
+
+function connectorStatus() {
+  const files = desktopConfigs();
+  return {
+    enabled: settings.get().claudeConnector,
+    portable: !!process.env.PORTABLE_EXECUTABLE_DIR,
+    desktop: { installed: files.length > 0, added: connector.inDesktop(files) },
+    code: { installed: !!claudeCode.findClaude() },
+  };
+}
+
+function connectorPlaces() {
+  const states = liveStates();
+  return {
+    open: [...new Set(states.flatMap((s) => s.tabs.map((t) => t.path)))],
+    folders: states.filter((s) => s.folder).map((s) => ({ root: s.folder.root, name: s.folder.scan.name, files: s.folder.scan.files, scan: s.folder.scan })),
+  };
+}
+
+/** Show a change from Claude in the app. Answers when the person does, or says it's still waiting. */
+async function suggestFromClaude({ path: p, oldText, newText, note }) {
+  await openFile(p);
+  const st = liveStates().find((s) => s.tabs.some((t) => t.path.toLowerCase() === p.toLowerCase())) || targetState();
+  if (!st) throw new connector.ToolError('RT Markdown Reader has no window open.');
+  focusState(st);
+  const id = crypto.randomUUID();
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve({ outcome: 'waiting', message: 'The person hasn’t answered yet. The suggestion stays open in the app.' }), CLAUDE_WAIT_MS);
+    claudeSuggestions.set(id, { path: p, oldText, newText, done: (r) => { clearTimeout(timer); resolve(r); } });
+    st.win.webContents.send('claude:suggest', { id, path: p, oldText, newText, note });
+  });
+}
+
+async function applyConnector() {
+  const on = settings.get().claudeConnector;
+  if (!on) { await connectorServer?.stop(); connectorServer = null; return; }
+  if (connectorServer) return;
+  const handle = connector.createTools({
+    places: connectorPlaces,
+    read: async (p) => (await fs.promises.readFile(p, 'utf8')).replace(/^\ufeff/, ''),
+    search: (f, query) => searchFolder(f.scan, query),
+    notes: (p) => annotations.get(p),
+    suggest: suggestFromClaude,
+  });
+  const server = new connector.ConnectorServer({ dir: app.getPath('userData'), handle });
+  await server.start();
+  connectorServer = server;
 }
 
 // ---------------------------------------------------------------- connected notes (2.3)
@@ -1272,7 +1357,7 @@ function registerIpc() {
       .slice(0, 100)
       .map((t) => ({ path: t.path, scroll: Number.isFinite(t.scroll) ? Math.min(1, Math.max(0, t.scroll)) : 0 }));
     st.active = Number.isInteger(payload.active) ? Math.max(0, Math.min(payload.active, st.tabs.length - 1)) : 0;
-    const title = isStr(payload.title, 300) ? `${payload.title} — Neo Markdown Reader` : 'Neo Markdown Reader';
+    const title = isStr(payload.title, 300) ? `${payload.title} — RT Markdown Reader` : 'RT Markdown Reader';
     if (st.win.getTitle() !== title) st.win.setTitle(title);
     if (isMac) st.win.setRepresentedFilename(st.tabs[st.active]?.path || '');
     syncWatchers(st);
@@ -1337,7 +1422,7 @@ function registerIpc() {
   ipcMain.handle('doc:print', (e) => { stateFor(e)?.win.webContents.print({ printBackground: true }); });
   ipcMain.handle('settings:set', (_e, patch) => {
     if (!patch || typeof patch !== 'object') return rendererSettings();
-    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'exportOptions', 'brand', 'readAloud', 'language'];
+    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'language'];
     setSetting(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
     return rendererSettings();
   });
@@ -1400,7 +1485,7 @@ function registerIpc() {
       ...conf, secure: secureStorage(), ready: !problem, problem, name: providers.PROVIDERS[conf.provider].name,
       providers: providers.PROVIDER_IDS.map((id) => {
         const p = providers.PROVIDERS[id];
-        return { id, label: p.label, name: p.name, keyName: p.keyName, keyHint: p.keyHint, keyUrl: p.keyUrl, keyOptional: !!p.keyOptional, hasKey: !!keys[id] };
+        return { id, label: p.label, name: p.name, keyName: p.keyName, keyHint: p.keyHint, keyUrl: p.keyUrl, keyOptional: !!p.keyOptional, noKey: !!p.noKey, hasKey: !!keys[id] };
       }),
       claudeModels: ai.MODELS.map(({ id, label }) => ({ id, label })),
     };
@@ -1474,7 +1559,7 @@ function registerIpc() {
     const model = providers.modelFor(conf, task);
     const name = providers.PROVIDERS[conf.provider].name;
     const tokens = providers.estimateTokens(content.length);
-    if (tokens >= AI_CONFIRM_TOKENS && conf.provider !== 'local') {
+    if (tokens >= AI_CONFIRM_TOKENS && conf.provider !== 'local' && conf.provider !== 'claudecode') {
       const { response } = await dialog.showMessageBox(BrowserWindow.fromWebContents(e.sender), {
         type: 'question', buttons: ['Send', 'Cancel'], defaultId: 0, cancelId: 1, noLink: true,
         message: `Send this to ${name}?`,
@@ -1492,6 +1577,7 @@ function registerIpc() {
         ({ Anthropic } = publish.exportTools(ROOT));
         return { ...(await ai.runAi({ Anthropic, apiKey: keys.anthropic, model, content, signal: ctl.signal, baseURL: override, onText })), name };
       }
+      if (conf.provider === 'claudecode') return { ...(await claudeCode.runClaudeCode({ spawn, bin: claudeCode.findClaude(), model, content, signal: ctl.signal, onText })), name };
       return { ...(await providers.runChat({ fetch: net.fetch, provider: conf.provider, baseURL: providers.baseUrlFor(conf, override), apiKey: keys[conf.provider] || '', model, content, signal: ctl.signal, onText })), name };
     } catch (err) {
       return { error: ctl.signal.aborted ? 'Stopped.' : Anthropic ? ai.friendlyError(err, Anthropic) : err.message };
@@ -1869,6 +1955,80 @@ function registerIpc() {
     return { doc: await loadDoc(target), updated, missed };
   });
 
+  // ---- Claude: the connector, and Claude Code in a terminal (3.4)
+  ipcMain.handle('connector:status', () => connectorStatus());
+  ipcMain.handle('connector:set', async (_e, on) => {
+    settings.update({ claudeConnector: on === true });
+    try { await applyConnector(); } catch { settings.update({ claudeConnector: false }); return { ...connectorStatus(), error: 'The connector couldn’t start.' }; }
+    return connectorStatus();
+  });
+  ipcMain.handle('connector:add', async (_e, target) => {
+    if (process.env.PORTABLE_EXECUTABLE_DIR) return { error: 'The portable version moves each time it runs, so Claude can’t start it. Use the installed app for this.' };
+    if (target === 'code') return claudeCode.addConnector({ spawn, bin: claudeCode.findClaude(), name: connector.SERVER_NAME, entry: connectorEntry() });
+    try { connector.addToDesktop(desktopConfigs(), connectorEntry()); return {}; } catch (err) {
+      return { error: err instanceof connector.ToolError ? err.message : 'Claude Desktop’s settings couldn’t be changed.' };
+    }
+  });
+  ipcMain.handle('claude:answer', async (e, id, accept) => {
+    const s = claudeSuggestions.get(id);
+    if (!s) return {};
+    claudeSuggestions.delete(id);
+    if (accept !== true) { s.done({ outcome: 'rejected' }); return {}; }
+    const st = stateFor(e);
+    try {
+      if (!editing.isGranted(st, s.path)) {
+        const grant = await editing.requestEdit(st, s.path);
+        if (!grant.ok) { s.done({ outcome: 'rejected' }); return {}; }
+      }
+      await rewriteFile(s.path, connector.applyEdit(await fs.promises.readFile(s.path, 'utf8'), s.oldText, s.newText));
+      s.done({ outcome: 'accepted' });
+      return {};
+    } catch (err) {
+      const message = err instanceof connector.ToolError ? err.message : errorMessage(err, s.path);
+      s.done({ outcome: 'failed', message });
+      return { error: message };
+    }
+  });
+  ipcMain.handle('claude:open-terminal', (e) => {
+    const st = stateFor(e);
+    const doc = st?.tabs[st.active]?.path;
+    const dir = st?.folder?.root || (doc && path.dirname(doc));
+    if (!dir) return { error: 'Open a document or a folder first.' };
+    const bin = claudeCode.findClaude();
+    if (!bin) return { error: claudeCode.NOT_INSTALLED };
+    claudeCode.openTerminal({ spawn, bin, dir });
+    return {};
+  });
+
+  // ---- Preferences and the Help Center (3.4)
+  ipcMain.handle('prefs:info', () => ({ languages: i18n.LANGUAGES, mac: isMac }));
+  ipcMain.handle('help:articles', async () => {
+    const dir = path.join(ROOT, 'help');
+    const names = (await fs.promises.readdir(dir)).filter((f) => f.endsWith('.md')).sort();
+    return Promise.all(names.map(async (f) => {
+      const text = await fs.promises.readFile(path.join(dir, f), 'utf8');
+      return { slug: f.replace(/^\d+-|\.md$/g, ''), title: text.match(/^# (.+)$/m)?.[1] || f, text };
+    }));
+  });
+
+  // ---- the tutorial (3.4)
+  let tutorialOffered = !!process.env.NMR_NO_TOUR;   // once per run, not once per window
+  ipcMain.handle('tutorial:get', () => {
+    const { tutorial, tutorialStep } = settings.get();
+    const offer = !tutorialOffered;
+    tutorialOffered = true;
+    return { state: tutorial, step: tutorialStep, offer };
+  });
+  ipcMain.handle('tutorial:set', (_e, patch = {}) => { settings.update({ tutorial: patch.state, tutorialStep: patch.step }); });
+  ipcMain.handle('tutorial:practice', async (_e, fresh) => {
+    const dir = path.join(app.getPath('userData'), 'tutorial');
+    const file = path.join(dir, 'Practice.md');
+    await fs.promises.mkdir(dir, { recursive: true });
+    if (fresh || !fs.existsSync(file)) await fs.promises.copyFile(path.join(ROOT, 'samples', 'practice.md'), file);
+    await openFile(file);
+    return file;
+  });
+
   // ---- AI: ask a question about documents from the open folder
   ipcMain.handle('ai:ask-folder', async (e, req = {}) => {
     const st = stateFor(e);
@@ -2066,10 +2226,11 @@ app.whenReady().then(() => {
   settings.onChange = () => sync.soon();
   annotations.onChange = () => sync.soon();
   sync.start();
+  applyConnector().catch(() => {});
   voices = new VoiceStore({
     root: path.join(app.getPath('userData'), 'voices'),
     fetch: (url, opts) => net.fetch(url, opts),
-    fork: (script) => utilityProcess.fork(script, [], { serviceName: 'Neo Markdown Reader voices', stdio: 'ignore' }),
+    fork: (script) => utilityProcess.fork(script, [], { serviceName: 'RT Markdown Reader voices', stdio: 'ignore' }),
     worker: path.join(ROOT, 'dist', 'voice-worker.cjs'),
     fake: !!process.env.NMR_FAKE_TTS,             // tests: no download, and a tone instead of a voice
   });
@@ -2109,6 +2270,7 @@ app.on('before-quit', (e) => {
 });
 // Windows send their final tab state as they close, which can arrive after before-quit.
 app.on('will-quit', () => {
+  connectorServer?.stop();
   persistSession();
   settings?.flush();
   annotations?.flush();

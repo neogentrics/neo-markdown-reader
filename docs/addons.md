@@ -1,6 +1,6 @@
 # Writing an add-on
 
-An add-on gives Neo Markdown Reader new **code-block types**, **export formats** and **colour themes**.
+An add-on gives RT Markdown Reader new **code-block types**, **export formats** and **colour themes**.
 It's a folder with an `addon.json` and a few JavaScript files, zipped and renamed to `.nmraddon`.
 A complete example is in [samples/addons/neo-extras](../samples/addons/neo-extras): a `timeline` code
 block, an outline export (OPML) and the Solar theme.
@@ -41,7 +41,7 @@ Limits:
   "id": "neo-extras",
   "name": "Neo Extras",
   "version": "1.0.0",
-  "author": "Neo Gentrics",
+  "author": "Recon Towers Dev Department",
   "description": "Timeline blocks, an outline export (OPML) and the Solar theme.",
   "themes": [
     { "id": "solar", "name": "Solar", "tone": "light", "colors": { "page": "#fdf6e3", "accent": "#8a4700" } }
@@ -123,7 +123,7 @@ others) can't be exported.
 ```
 
 A theme sits on the light theme (`"tone": "light"`, the default) or the dark one (`"tone": "dark"`), and
-changes the colours you list. It appears in *View → Theme* as “Solar (Neo Extras)”. Colours are written as
+changes the colours you list. It appears in *Preferences → Appearance* as “Solar (Neo Extras)”. Colours are written as
 hex: `#rgb`, `#rrggbb` or `#rrggbbaa`.
 
 | Colour | Used for |
@@ -151,9 +151,9 @@ A colour you leave out comes from the light or dark theme underneath.
 
 ## Trying it out
 
-1. Zip the folder and install it from *View → Add-ons…*.
+1. Zip the folder and install it from *Preferences → Appearance → Add-ons…*.
 2. To change it, edit the files, zip them again and install again: the same id updates the add-on.
 3. If a script fails, the block or the export shows its error message.
 
-The reader can turn an add-on off, or remove it, in *View → Add-ons…*. Their documents are never changed:
+The reader can turn an add-on off, or remove it, in *Preferences → Appearance → Add-ons…*. Their documents are never changed:
 with the add-on off, a `timeline` block is shown as ordinary code again.

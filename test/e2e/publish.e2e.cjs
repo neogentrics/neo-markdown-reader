@@ -73,7 +73,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   const app = await electron.launch({
     executablePath: require(path.join(root, 'node_modules/electron')),
     args: [root, ...(process.platform === 'linux' ? ['--no-sandbox'] : []), doc],
-    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: profile, NMR_DISABLE_UPDATES: '1', NMR_NO_REVEAL: '1' },
+    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: profile, NMR_DISABLE_UPDATES: '1', NMR_NO_TOUR: '1', NMR_NO_REVEAL: '1' },
   });
   const win = await app.firstWindow();
   const errors = [];
@@ -130,7 +130,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     assert.ok(Math.abs(width - 595.3) < 2 && Math.abs(height - 841.9) < 2, `cover is not A4: ${width}×${height}`);
     assert.equal(pdf.getTitle(), 'Quarterly Report');
     assert.equal(pdf.getAuthor(), 'Neo Gentrics');
-    assert.equal(pdf.getCreator(), 'Neo Markdown Reader');
+    assert.equal(pdf.getCreator(), 'RT Markdown Reader');
     const res = await win.evaluate(() => window.__lastExport);
     assert.equal(res.ok, true);
     // Contents: Summary, Numbers, Details, Risks — numbered from the page after the cover.

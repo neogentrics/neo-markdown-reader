@@ -1,4 +1,4 @@
-// Help → About Neo Markdown Reader: what the app is, its version, where it lives on the web, and the
+// Help → About RT Markdown Reader: what the app is, its version, where it lives on the web, and the
 // details a bug report needs (copied in one click).
 
 const $ = (id) => document.getElementById(id);
@@ -22,7 +22,7 @@ export function createAboutUi({ api, toast }) {
   }
 
   const details = () => [
-    `Neo Markdown Reader ${info.version}${info.portable ? ' (portable)' : ''}`,
+    `RT Markdown Reader ${info.version}${info.portable ? ' (portable)' : ''}`,
     `Electron ${info.electron} · Chromium ${info.chrome} · Node ${info.node}`,
     `${info.os}`,
   ].join('\n');
@@ -39,7 +39,7 @@ export function createAboutUi({ api, toast }) {
     info = await api.appAbout();
     $('about-version').textContent = info.portable ? `Version ${info.version} (portable)` : `Version ${info.version}`;
     $('about-tech').textContent = details().split('\n').slice(1).join(' · ');
-    $('about-copyright').textContent = `© ${info.year} Neo Gentrics. All rights reserved.`;
+    $('about-copyright').textContent = `© ${info.year} Recon Towers. All rights reserved.`;
     if (!dlg.open) dlg.showModal();
     $('about-done').focus();
   }

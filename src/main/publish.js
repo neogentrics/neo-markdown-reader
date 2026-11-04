@@ -182,7 +182,7 @@ async function buildStandaloneHtml({ content, meta, css, theme, font, exportCss,
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="generator" content="Neo Markdown Reader">
+<meta name="generator" content="RT Markdown Reader">
 ${description}${author}<title>${esc(info.title)}</title>
 <style>
 ${style}

@@ -26,7 +26,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   const app = await electron.launch({
     executablePath: require(path.join(root, 'node_modules/electron')),
     args: [root, notes, ...(process.platform === 'linux' ? ['--no-sandbox'] : [])],
-    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: profile, NMR_DISABLE_UPDATES: '1', NMR_NO_REVEAL: '1' },
+    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: profile, NMR_DISABLE_UPDATES: '1', NMR_NO_TOUR: '1', NMR_NO_REVEAL: '1' },
   });
   const win = await app.firstWindow();
   const errors = [];

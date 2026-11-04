@@ -13,13 +13,13 @@ Export Slides as PDF	Exportar diapositivas como PDF	Exporter les diapositives en
 Export Slides as PowerPoint	Exportar diapositivas como PowerPoint	Exporter les diapositives en PowerPoint	Folien als PowerPoint exportieren
 Check for Updates	Buscar actualizaciones	Rechercher des mises à jour	Nach Updates suchen
 You’re up to date	Está al día	Vous êtes à jour	Sie sind auf dem neuesten Stand
-Neo Markdown Reader {0} is the latest version.	Neo Markdown Reader {0} es la versión más reciente.	Neo Markdown Reader {0} est la dernière version.	Neo Markdown Reader {0} ist die neueste Version.
+RT Markdown Reader {0} is the latest version.	RT Markdown Reader {0} es la versión más reciente.	RT Markdown Reader {0} est la dernière version.	RT Markdown Reader {0} ist die neueste Version.
 Version {0} is available	La versión {0} está disponible	La version {0} est disponible	Version {0} ist verfügbar
 This copy can’t update itself. Download the new version from the Releases page.	Esta copia no puede actualizarse sola. Descargue la nueva versión desde la página de versiones.	Cette copie ne peut pas se mettre à jour seule. Téléchargez la nouvelle version depuis la page des versions.	Diese Kopie kann sich nicht selbst aktualisieren. Laden Sie die neue Version von der Versionsseite herunter.
 Version {0} is {1}	La versión {0} está {1}	La version {0} est {1}	Version {0} ist {1}
 Couldn’t check for updates	No se pudo buscar actualizaciones	Impossible de rechercher des mises à jour	Updates konnten nicht gesucht werden
 About	Acerca de	À propos	Über
-Version {0}\n© {1} Neo Gentrics. All rights reserved.	Versión {0}\n© {1} Neo Gentrics. Todos los derechos reservados.	Version {0}\n© {1} Neo Gentrics. Tous droits réservés.	Version {0}\n© {1} Neo Gentrics. Alle Rechte vorbehalten.
+Version {0}\n© {1} Recon Towers. All rights reserved.	Versión {0}\n© {1} Recon Towers. Todos los derechos reservados.	Version {0}\n© {1} Recon Towers. Tous droits réservés.	Version {0}\n© {1} Recon Towers. Alle Rechte vorbehalten.
 Import Word Document	Importar documento de Word	Importer un document Word	Word-Dokument importieren
 Save the Markdown version as	Guardar la versión Markdown como	Enregistrer la version Markdown sous	Markdown-Version speichern unter
 Open Folder	Abrir carpeta	Ouvrir un dossier	Ordner öffnen
@@ -55,7 +55,7 @@ File is read-only	El archivo es de solo lectura	Le fichier est en lecture seule	
 “{0}” is read-only.	“{0}” es de solo lectura.	« {0} » est en lecture seule.	„{0}“ ist schreibgeschützt.
 Windows (or the folder’s permissions) won’t let this file be changed, so it stays locked.\n\nTo edit it, save a copy with File → Save As…, or remove the read-only setting in the file’s Properties.	Windows (o los permisos de la carpeta) no permiten cambiar este archivo, así que sigue bloqueado.\n\nPara editarlo, guarde una copia con Archivo → Guardar como… o quite la opción de solo lectura en las propiedades del archivo.	Windows (ou les autorisations du dossier) n’autorise pas la modification de ce fichier ; il reste donc verrouillé.\n\nPour le modifier, enregistrez une copie avec Fichier → Enregistrer sous…, ou retirez l’attribut lecture seule dans les propriétés du fichier.	Windows (oder die Ordnerberechtigungen) erlaubt keine Änderung dieser Datei, daher bleibt sie gesperrt.\n\nUm sie zu bearbeiten, speichern Sie eine Kopie mit Datei → Speichern unter… oder entfernen Sie den Schreibschutz in den Dateieigenschaften.
 Allow editing?	¿Permitir la edición?	Autoriser la modification ?	Bearbeiten erlauben?
-Allow Neo Markdown Reader to edit “{0}”?	¿Permitir que Neo Markdown Reader edite “{0}”?	Autoriser Neo Markdown Reader à modifier « {0} » ?	Neo Markdown Reader erlauben, „{0}“ zu bearbeiten?
+Allow RT Markdown Reader to edit “{0}”?	¿Permitir que RT Markdown Reader edite “{0}”?	Autoriser RT Markdown Reader à modifier « {0} » ?	RT Markdown Reader erlauben, „{0}“ zu bearbeiten?
 Changes will be saved to:\n{0}\n\nThe original is backed up before the first save, and nothing is written until you choose Save.	Los cambios se guardarán en:\n{0}\n\nAntes del primer guardado se hace una copia de seguridad del original, y no se escribe nada hasta que elija Guardar.	Les modifications seront enregistrées dans :\n{0}\n\nL’original est sauvegardé avant le premier enregistrement, et rien n’est écrit tant que vous ne choisissez pas Enregistrer.	Änderungen werden gespeichert in:\n{0}\n\nDas Original wird vor dem ersten Speichern gesichert, und nichts wird geschrieben, bevor Sie „Speichern“ wählen.
 File changed	El archivo ha cambiado	Fichier modifié	Datei geändert
 “{0}” was changed by another program after you started editing.	Otro programa cambió “{0}” después de que empezara a editarlo.	« {0} » a été modifié par un autre programme après le début de votre modification.	„{0}“ wurde von einem anderen Programm geändert, nachdem Sie mit dem Bearbeiten begonnen haben.

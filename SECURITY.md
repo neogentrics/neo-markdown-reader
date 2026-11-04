@@ -34,7 +34,7 @@ Markdown files are treated as **untrusted input**:
 - The page never writes files. Saving is performed by the main process (`src/main/editing.js`) and only for
   a file the user allowed through a **native** permission dialog, which document content cannot draw or
   answer. "Just this time" permission lives in memory for one window and ends when the tab closes;
-  "Always" permissions are listed and revocable in *Edit → Editing Permissions…*.
+  "Always" permissions are listed and revocable in *Preferences → Editing*.
 - Before the first save of a file in a session, the original is copied to the app's backups folder.
 - A save is refused (after asking) if the file's modification time no longer matches the version that
   editing started from, so changes made by another program aren't silently overwritten.
@@ -80,7 +80,7 @@ Markdown files are treated as **untrusted input**:
   - The window has no preload and no Node.js.
 - Each program runs in a Web Worker. Network APIs are removed before user code runs, the worker is
   terminated when its time is up (10 s; Python 30 s), and output is capped and shown as text, never as HTML.
-- *Edit → Allow Running Code Blocks* switches the feature off.
+- the option in *Preferences → Editing* switches the feature off.
 
 ### Password-locked documents (since 2.0)
 
@@ -192,7 +192,7 @@ Markdown files are treated as **untrusted input**:
 ### Sync between computers (since 3.1)
 
 - **Off until the reader turns it on** and chooses the folder in a native dialog (or one of the cloud folders
-  the app found). The app writes only inside a *Neo Markdown Reader* folder in it: a README and one file per
+  the app found). The app writes only inside a *RT Markdown Reader* folder in it: a README and one file per
   computer. No server and no account are involved; what leaves the computer is whatever the reader's own
   cloud service carries.
 - **What's in the files:** highlight quotes and notes, bookmarked and recent documents (as places inside a
@@ -225,6 +225,22 @@ Markdown files are treated as **untrusted input**:
   back is audio samples, played by the page; nothing is written to disk.
 - **Locked documents** can be read aloud like any open document; their text goes only to the voice process
   on this computer, never anywhere else.
+
+### The Claude connector (since 3.4)
+
+- **Off by default.** The app listens only while *Connect Claude* is on, and never on a network port: Claude's side
+  reaches it over a named pipe on Windows, or a socket file only this user can open elsewhere.
+- **A new secret each time.** The connector writes a random token to `connector.json` in the app-data folder when it
+  starts and removes it when it stops. Requests without the token are dropped.
+- **Limited reach.** Only Markdown documents open in a tab or in the open folder. Paths are checked in the app, not
+  by Claude's side. Password-locked documents are refused, and aren't listed.
+- **No writing.** `suggest_edit` shows the change in the app. Nothing is written until the person accepts it, and
+  accepting goes through the normal edit permission, with a backup and a History copy. The text to replace must
+  appear exactly once, so a change can't land in the wrong place.
+- **Claude Desktop's settings** are changed only when you click *Add to Claude Desktop*. Other entries are kept, the
+  earlier file is saved as `.bak`, and a file that can't be read is left alone.
+- **Claude Code** is run with `--tools ""`, without your settings or other connectors, and in a temporary folder. The
+  document goes in on stdin. The app never sees or stores your Claude sign-in.
 
 ### AI assist (since 2.0; more services since 3.3)
 

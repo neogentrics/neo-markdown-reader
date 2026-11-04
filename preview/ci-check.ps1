@@ -149,8 +149,8 @@ try {
     $registered = $true
     # The same values build/installer.nsh writes.
     New-Item -Path "$key\InprocServer32" -Force | Out-Null
-    Set-ItemProperty $key '(default)' 'Neo Markdown Reader preview'
-    Set-ItemProperty $key 'DisplayName' 'Neo Markdown Reader preview'
+    Set-ItemProperty $key '(default)' 'RT Markdown Reader preview'
+    Set-ItemProperty $key 'DisplayName' 'RT Markdown Reader preview'
     Set-ItemProperty $key 'AppID' '{6d2b5079-2f0b-48dd-ab7f-97cec514d30b}'
     New-ItemProperty $key -Name 'DisableLowILProcessIsolation' -Value 1 -PropertyType DWord -Force | Out-Null
     Set-ItemProperty "$key\InprocServer32" '(default)' $shim

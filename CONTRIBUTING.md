@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in Neo Markdown Reader!
+Thanks for your interest in RT Markdown Reader!
 
 This is **proprietary software** (see [LICENSE](LICENSE)). The source is public for transparency, but
 **code contributions are by invitation only**. Please don't open pull requests unless you've been

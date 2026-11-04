@@ -1,7 +1,7 @@
 ---
-title: Neo Markdown Reader Roadmap
+title: RT Markdown Reader Roadmap
 subtitle: From reader to Markdown workspace
-author: Neo Gentrics
+author: Recon Towers Dev Department
 date: 2026-11-03
 tags: [roadmap, planning]
 ---
@@ -13,7 +13,7 @@ planned upgrades, grouped into releases that can each be tested on their own. An
 your files or runs code is always **opt-in** and asks for permission first.
 
 > [!TIP]
-> This file is written in Markdown, so it looks best opened in Neo Markdown Reader itself.
+> This file is written in Markdown, so it looks best opened in RT Markdown Reader itself.
 
 **Legend:** 🙋 requested by the owner · 🛡️ needs a permission step · Size: **S** ≈ a day, **M** ≈ a few days, **L** ≈ a week or more
 
@@ -36,7 +36,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v3.1](#v31--across-your-computers) | Across your computers | ✅ Released ([3.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.1.0)) |
 | [v3.2](#v32--natural-voices) | Natural voices | ✅ Released ([3.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.2.0)) |
 | [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | ✅ Released ([3.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.3.0)) |
-| [v3.4](#v34--claude-connected) | Claude, connected, and a first-run tutorial | 🔨 Next (ships as 3.4.1) |
+| [v3.4](#v34--claude-connected) | Claude, connected, and a first-run tutorial | 🔨 In review (ships as 3.4.1) |
 | [v3.5](#v35--listen--speak) | Listen & speak | Planned |
 | [v3.6](#v36--study--research) | Study & research | Planned |
 | [v3.7](#v37--automate-with-n8n) | Automate with n8n | Planned |
@@ -78,7 +78,7 @@ updates itself from here on.
 | Feature | Size | Details |
 |---|:-:|---|
 | ✅ 🙋 File › New | S | Blank document or a template (meeting notes, README, checklist, report). Plain `.txt` files open too and can be saved as `.md`. |
-| ✅ 🙋🛡️ Edit mode with a permission step | M | Files always open read-only. Clicking *Edit* asks: *Allow Neo Markdown Reader to edit this file?* — **Just this time** (the default), **Always for this file**, or **Always for this folder**. Permissions can be reviewed and revoked in *Edit → Editing Permissions…*. Files marked read-only by Windows show a lock and stay locked. |
+| ✅ 🙋🛡️ Edit mode with a permission step | M | Files always open read-only. Clicking *Edit* asks: *Allow RT Markdown Reader to edit this file?* — **Just this time** (the default), **Always for this file**, or **Always for this folder**. Permissions can be reviewed and revoked in *Edit → Editing Permissions…*. Files marked read-only by Windows show a lock and stay locked. |
 | ✅ Side-by-side editor + live preview | M | Markdown on the left, the formatted page on the right, scrolling together. Formatting toolbar, spell check, undo/redo. |
 | ✅ 🛡️ Safe saving | S | Save / Save As, unsaved-changes prompt, a backup of the original before the first save, and a warning instead of overwriting if another program changed the file. |
 
@@ -102,7 +102,7 @@ updates itself from here on.
 | ✅ PDF designer | M | Letter, A4, Legal or A5, three margin sizes, a cover page from the front matter (with an optional logo), a contents page with real page numbers, title header and page-number footer, chapters on new pages, PDF bookmarks and document properties. |
 | ✅ More export formats | M | Word (`.docx`) with real headings, lists, tables, links, images and pictures of diagrams and equations; a self-contained web page (`.html`) with no scripts; plain text. |
 | ✅ Presentation mode | S | Full-screen slides, using `---` as slide breaks (or the main headings), with the front matter as a title slide. |
-| ✅ Custom themes | S | Your own accent colour and fonts, or a brand stylesheet (e.g. a Neo Gentrics house style). Exports use them too. |
+| ✅ Custom themes | S | Your own accent colour and fonts, or a brand stylesheet (e.g. a Recon Towers house style). Exports use them too. |
 
 ## v2.0 — Power features
 
@@ -210,7 +210,7 @@ updates itself from here on.
 
 ## v3.4 — Claude, connected
 
-🔨 **Next, shipping as 3.4.1**, because the fixes below go out in the same release. 🙋 Work with Claude through the Claude apps you already sign in to, with no API key needed (decision 11).
+🔨 **In review, shipping as 3.4.1**, because the fixes below go out in the same release. The app also takes its Recon Towers name here: RT Markdown Reader. 🙋 Work with Claude through the Claude apps you already sign in to, with no API key needed (decision 11).
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -218,7 +218,8 @@ updates itself from here on.
 | 🙋 Use your Claude Code sign-in | M | If Claude Code is installed and signed in, AI assist can run through it instead of an API key, using your Claude plan. |
 | Open in Claude Code | S | *File → Open Folder in Claude Code* starts a Claude Code session in the document's folder. |
 | 🙋 First-run tutorial | L | A hands-on tour that walks you through the app with a practice document: reading, themes, editing, folders, links, listening, exporting and sync. It starts the first time the app opens. People updating from an older version get it too, because the app checks whether the tutorial has been finished. It can be skipped, resumed, and replayed from *Help*. |
-| 🙋 AI setup guide | S | The tutorial doesn't try AI live, because that needs a key or a local server. A page to read instead shows how to connect each service, with pictures of the settings. |
+| 🙋 Help Center | M | `F1` opens the app's own guide: a home page with the tutorial, quick links and common questions, plus searchable guides that take you straight to the setting. The tutorial doesn't try AI live, so a guide shows how to connect each service, with a picture of the settings. |
+| 🙋 Preferences and shorter menus | M | Every setting moves to one Preferences window, including the voice list. Anything moved keeps its shortcut and can still be found by name. |
 
 **Fixes going out in the same release:**
 
@@ -328,7 +329,7 @@ From a folder of chapters to a finished book or website.
 8. **What should 3.0 focus on?** ✅ *Decided:* add-ons and the app in your language (3.0), then sync (3.1); Git and shared review only if they're needed.
 9. **Natural voices: on the computer, or a cloud service?** The voices Microsoft Edge reads with come from an online service only Edge can use. The choices were neural voices that run offline on your computer, Microsoft's Azure voices with your own key, or reaching Edge's service unofficially. ✅ *Decided:* offline voices that run on your computer — free, private, and working without internet (3.2).
 10. **Which AI services come first?** ✅ *Decided:* all of them in 3.3: Claude, OpenAI, Gemini, Mistral, OpenRouter, and local models (Ollama, LM Studio, or any OpenAI-compatible server). The model lists come from each service, so new models appear without an app update.
-11. **Signing in with a Claude account.** Anthropic doesn't currently offer a "Sign in with Claude" that lets other apps use a Claude plan. *Proposed:* 3.4 goes through the Claude apps instead: the connector lets Claude use the reader, and Claude Code lets the reader use Claude. If Anthropic adds a sign-in for apps, it can replace the Claude Code step.
+11. **Signing in with a Claude account.** Anthropic doesn't currently offer a "Sign in with Claude" that lets other apps use a Claude plan. ✅ *Decided:* 3.4 goes through the Claude apps instead: the connector lets Claude use the reader, and Claude Code lets the reader use Claude. If Anthropic adds a sign-in for apps, it can replace the Claude Code step.
 12. **How should the app talk to n8n?** *Proposed:* through workflow webhooks, which every n8n setup has (self-hosted or n8n Cloud); an n8n API key is optional, only to list workflows by name. The app never runs a workflow without showing what it will send.
 13. **How should the app sign in to Notion?** *Proposed:* with a Notion *internal integration* token that you create in Notion and share with the pages you choose. Notion's full sign-in (OAuth) needs a web server in the middle, which this app doesn't have.
 14. **Updating an install for everyone on the computer.** Those files need administrator rights to replace. Running the whole app as administrator would remove the prompt, but a document viewer shouldn't run with those rights, because every file it opens would be handled with full control of the computer. *Proposed:* keep the single Windows prompt for now; the Recon Towers app store can later bring a small background updater that asks once, at install.

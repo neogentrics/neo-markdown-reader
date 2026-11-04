@@ -1,0 +1,129 @@
+en	es	fr	de
+Open Folder in Claude Code	Abrir carpeta en Claude Code	Ouvrir le dossier dans Claude Code	Ordner in Claude Code öffnen
+Connect Claude…	Conectar Claude…	Connecter Claude…	Claude verbinden…
+Connect Claude	Conectar Claude	Connecter Claude	Claude verbinden
+Tutorial	Tutorial	Tutoriel	Tutorial
+Connecting an AI Service	Conectar un servicio de IA	Connecter un service d’IA	Einen KI-Dienst verbinden
+The person hasn’t answered yet. The suggestion stays open in the app.	La persona aún no ha respondido. La sugerencia sigue abierta en la aplicación.	La personne n’a pas encore répondu. La suggestion reste ouverte dans l’application.	Die Person hat noch nicht geantwortet. Der Vorschlag bleibt in der App geöffnet.
+The connector couldn’t start.	No se pudo iniciar el conector.	Le connecteur n’a pas pu démarrer.	Der Connector konnte nicht gestartet werden.
+The portable version moves each time it runs, so Claude can’t start it. Use the installed app for this.	La versión portátil cambia de lugar cada vez que se ejecuta, así que Claude no puede iniciarla. Use la aplicación instalada.	La version portable change d’emplacement à chaque lancement : Claude ne peut donc pas la démarrer. Utilisez l’application installée.	Die portable Version liegt bei jedem Start woanders, daher kann Claude sie nicht starten. Verwenden Sie dafür die installierte App.
+Open a document or a folder first.	Abra primero un documento o una carpeta.	Ouvrez d’abord un document ou un dossier.	Öffnen Sie zuerst ein Dokument oder einen Ordner.
+Let Claude Desktop and Claude Code work with your documents, using the Claude you already sign in to. No API key is needed.	Deje que Claude Desktop y Claude Code trabajen con sus documentos, con la cuenta de Claude que ya usa. No necesita una clave de API.	Laissez Claude Desktop et Claude Code travailler avec vos documents, avec le compte Claude que vous utilisez déjà. Aucune clé d’API n’est nécessaire.	Lassen Sie Claude Desktop und Claude Code mit Ihren Dokumenten arbeiten, über das Claude-Konto, das Sie bereits nutzen. Ein API-Schlüssel ist nicht nötig.
+Let Claude work with my documents	Dejar que Claude trabaje con mis documentos	Laisser Claude travailler avec mes documents	Claude mit meinen Dokumenten arbeiten lassen
+Claude can read documents open in a tab or in the open folder, and see your highlights and notes.	Claude puede leer los documentos abiertos en una pestaña o en la carpeta abierta, y ver sus resaltados y notas.	Claude peut lire les documents ouverts dans un onglet ou dans le dossier ouvert, et voir vos surlignages et notes.	Claude kann Dokumente lesen, die in einem Tab oder im geöffneten Ordner sind, und Ihre Markierungen und Notizen sehen.
+It can’t change anything: it suggests a change, and you accept or reject it here.	No puede cambiar nada: sugiere un cambio y usted lo acepta o lo rechaza aquí.	Il ne peut rien modifier : il suggère un changement, que vous acceptez ou refusez ici.	Es kann nichts ändern: Es schlägt eine Änderung vor, die Sie hier annehmen oder ablehnen.
+Password-locked documents are never shared.	Los documentos bloqueados con contraseña nunca se comparten.	Les documents verrouillés par mot de passe ne sont jamais partagés.	Passwortgeschützte Dokumente werden nie geteilt.
+It works only while this app is open and this is on.	Solo funciona mientras esta aplicación está abierta y esta opción está activada.	Cela ne fonctionne que si cette application est ouverte et cette option activée.	Es funktioniert nur, solange diese App geöffnet und diese Option aktiv ist.
+Add to Claude Desktop	Añadir a Claude Desktop	Ajouter à Claude Desktop	Zu Claude Desktop hinzufügen
+Add to Claude Desktop again	Añadir de nuevo a Claude Desktop	Ajouter de nouveau à Claude Desktop	Erneut zu Claude Desktop hinzufügen
+Add to Claude Code	Añadir a Claude Code	Ajouter à Claude Code	Zu Claude Code hinzufügen
+Claude Desktop and Claude Code weren’t found on this computer. Install one, then come back here.	No se encontraron Claude Desktop ni Claude Code en este equipo. Instale uno y vuelva aquí.	Claude Desktop et Claude Code sont introuvables sur cet ordinateur. Installez-en un, puis revenez ici.	Claude Desktop und Claude Code wurden auf diesem Computer nicht gefunden. Installieren Sie eines davon und kommen Sie dann hierher zurück.
+Connector on. Claude can reach your documents while this app is open.	Conector activado. Claude puede acceder a sus documentos mientras esta aplicación esté abierta.	Connecteur activé. Claude peut accéder à vos documents tant que cette application est ouverte.	Connector aktiv. Claude kann auf Ihre Dokumente zugreifen, solange diese App geöffnet ist.
+Connector off. Claude can’t reach your documents.	Conector desactivado. Claude no puede acceder a sus documentos.	Connecteur désactivé. Claude ne peut pas accéder à vos documents.	Connector aus. Claude kann nicht auf Ihre Dokumente zugreifen.
+Added. Quit and reopen Claude Desktop to use it.	Añadido. Cierre y vuelva a abrir Claude Desktop para usarlo.	Ajouté. Quittez et rouvrez Claude Desktop pour l’utiliser.	Hinzugefügt. Beenden Sie Claude Desktop und öffnen Sie es erneut, um es zu nutzen.
+Added to Claude Code. Start a new Claude Code session to use it.	Añadido a Claude Code. Inicie una nueva sesión de Claude Code para usarlo.	Ajouté à Claude Code. Démarrez une nouvelle session Claude Code pour l’utiliser.	Zu Claude Code hinzugefügt. Starten Sie eine neue Claude-Code-Sitzung, um es zu nutzen.
+Adding…	Añadiendo…	Ajout en cours…	Wird hinzugefügt…
+Claude Desktop’s settings file couldn’t be read, so it was left alone.	No se pudo leer el archivo de ajustes de Claude Desktop, así que no se modificó.	Le fichier de réglages de Claude Desktop n’a pas pu être lu : il n’a donc pas été modifié.	Die Einstellungsdatei von Claude Desktop konnte nicht gelesen werden und blieb daher unverändert.
+Claude Desktop doesn’t seem to be installed.	Parece que Claude Desktop no está instalado.	Claude Desktop ne semble pas être installé.	Claude Desktop scheint nicht installiert zu sein.
+Claude Desktop’s settings couldn’t be changed.	No se pudieron cambiar los ajustes de Claude Desktop.	Les réglages de Claude Desktop n’ont pas pu être modifiés.	Die Einstellungen von Claude Desktop konnten nicht geändert werden.
+Claude Code couldn’t add the connector: {0}	Claude Code no pudo añadir el conector: {0}	Claude Code n’a pas pu ajouter le connecteur : {0}	Claude Code konnte den Connector nicht hinzufügen: {0}
+Claude suggests a change	Claude sugiere un cambio	Claude suggère un changement	Claude schlägt eine Änderung vor
+Save this document first: it has changes that aren’t saved.	Guarde primero este documento: tiene cambios sin guardar.	Enregistrez d’abord ce document : il contient des modifications non enregistrées.	Speichern Sie dieses Dokument zuerst: Es enthält ungespeicherte Änderungen.
+Claude Code (your sign-in, no key)	Claude Code (su sesión, sin clave)	Claude Code (votre connexion, sans clé)	Claude Code (Ihre Anmeldung, kein Schlüssel)
+Sonnet (a good all-rounder)	Sonnet (buen equilibrio)	Sonnet (polyvalent)	Sonnet (guter Allrounder)
+Opus (the most capable)	Opus (el más capaz)	Opus (le plus performant)	Opus (das leistungsstärkste)
+Haiku (the quickest)	Haiku (el más rápido)	Haiku (le plus rapide)	Haiku (das schnellste)
+Claude Code wasn’t found on this computer. Install it from claude.com/claude-code, or choose another service.	No se encontró Claude Code en este equipo. Instálelo desde claude.com/claude-code o elija otro servicio.	Claude Code est introuvable sur cet ordinateur. Installez-le depuis claude.com/claude-code ou choisissez un autre service.	Claude Code wurde auf diesem Computer nicht gefunden. Installieren Sie es von claude.com/claude-code oder wählen Sie einen anderen Dienst.
+Claude Code isn’t signed in. Run claude in a terminal and sign in, then try again.	Claude Code no ha iniciado sesión. Ejecute claude en una terminal, inicie sesión y vuelva a intentarlo.	Claude Code n’est pas connecté. Lancez claude dans un terminal, connectez-vous, puis réessayez.	Claude Code ist nicht angemeldet. Führen Sie claude in einem Terminal aus, melden Sie sich an und versuchen Sie es erneut.
+Welcome to RT Markdown Reader	Le damos la bienvenida a RT Markdown Reader	Bienvenue dans RT Markdown Reader	Willkommen bei RT Markdown Reader
+Would you like a hands-on tour? It uses a practice document, so your own files aren’t touched, and you can stop at any time.	¿Quiere una visita práctica? Usa un documento de práctica, así que sus archivos no se tocan, y puede parar cuando quiera.	Souhaitez-vous une visite guidée pratique ? Elle utilise un document d’entraînement : vos fichiers restent intacts et vous pouvez arrêter à tout moment.	Möchten Sie eine praktische Einführung? Sie nutzt ein Übungsdokument, Ihre eigenen Dateien bleiben also unberührt, und Sie können jederzeit aufhören.
+Don’t show this again	No volver a mostrar	Ne plus afficher	Nicht mehr anzeigen
+Not now	Ahora no	Pas maintenant	Nicht jetzt
+Start the tutorial	Empezar el tutorial	Commencer le tutoriel	Tutorial starten
+Pick up where I left off	Seguir donde lo dejé	Reprendre où j’en étais	Dort weitermachen, wo ich aufgehört habe
+Open the guide	Abrir la guía	Ouvrir le guide	Anleitung öffnen
+Finish later	Terminar más tarde	Terminer plus tard	Später beenden
+Finish	Terminar	Terminer	Fertig
+Step {0} of {1}	Paso {0} de {1}	Étape {0} sur {1}	Schritt {0} von {1}
+Your practice document	Su documento de práctica	Votre document d’entraînement	Ihr Übungsdokument
+This is a copy made for the tutorial, so you can try anything without touching your own files. Click Next when you’re ready.	Es una copia hecha para el tutorial, así que puede probar lo que quiera sin tocar sus archivos. Haga clic en Siguiente cuando esté listo.	C’est une copie créée pour le tutoriel : vous pouvez tout essayer sans toucher à vos fichiers. Cliquez sur Suivant quand vous êtes prêt.	Das ist eine Kopie für das Tutorial: Sie können alles ausprobieren, ohne Ihre eigenen Dateien anzufassen. Klicken Sie auf Weiter, wenn Sie bereit sind.
+The outline	El esquema	Le plan	Die Gliederung
+Click this button to show or hide the outline, a list of the document’s headings that you can jump to.	Haga clic en este botón para mostrar u ocultar el esquema, una lista de los títulos del documento a los que puede saltar.	Cliquez sur ce bouton pour afficher ou masquer le plan, une liste des titres du document vers lesquels vous pouvez sauter.	Klicken Sie auf diese Schaltfläche, um die Gliederung ein- oder auszublenden, eine Liste der Überschriften, zu denen Sie springen können.
+Themes	Temas	Thèmes	Designs
+Click here to choose a theme and page width. Try a few, then click Next.	Haga clic aquí para elegir un tema y el ancho de la página. Pruebe algunos y haga clic en Siguiente.	Cliquez ici pour choisir un thème et une largeur de page. Essayez-en quelques-uns, puis cliquez sur Suivant.	Klicken Sie hier, um Design und Seitenbreite zu wählen. Probieren Sie einige aus und klicken Sie dann auf Weiter.
+Text size	Tamaño del texto	Taille du texte	Textgröße
+Click this button to make the text larger. The button beside it makes it smaller.	Haga clic en este botón para agrandar el texto. El botón de al lado lo reduce.	Cliquez sur ce bouton pour agrandir le texte. Le bouton à côté le réduit.	Klicken Sie auf diese Schaltfläche, um den Text zu vergrößern. Die daneben verkleinert ihn.
+Find	Buscar	Rechercher	Suchen
+Click here to look for words in the document.	Haga clic aquí para buscar palabras en el documento.	Cliquez ici pour chercher des mots dans le document.	Klicken Sie hier, um im Dokument nach Wörtern zu suchen.
+Highlights	Resaltados	Surlignages	Markierungen
+Select a sentence in the document, then press Ctrl+Shift+H (Cmd+Shift+H on a Mac). Highlights and notes are private: they’re never written into the file.	Seleccione una frase del documento y pulse Ctrl+Mayús+H (Cmd+Mayús+H en Mac). Los resaltados y las notas son privados: nunca se escriben en el archivo.	Sélectionnez une phrase du document, puis appuyez sur Ctrl+Maj+H (Cmd+Maj+H sur Mac). Les surlignages et les notes sont privés : ils ne sont jamais écrits dans le fichier.	Markieren Sie einen Satz im Dokument und drücken Sie Strg+Umschalt+H (Cmd+Umschalt+H auf dem Mac). Markierungen und Notizen sind privat: Sie werden nie in die Datei geschrieben.
+Editing	Edición	Modification	Bearbeiten
+Documents open read-only, so nothing changes by accident. Click Edit. The app asks first: choose Just This Time.	Los documentos se abren en solo lectura, para que nada cambie por accidente. Haga clic en Editar. La aplicación pregunta primero: elija Solo esta vez.	Les documents s’ouvrent en lecture seule, pour que rien ne change par accident. Cliquez sur Modifier. L’application demande d’abord : choisissez Juste cette fois.	Dokumente öffnen schreibgeschützt, damit nichts versehentlich geändert wird. Klicken Sie auf Bearbeiten. Die App fragt zuerst: Wählen Sie „Nur dieses Mal“.
+Write and save	Escribir y guardar	Écrire et enregistrer	Schreiben und speichern
+Type something in the document, then press Ctrl+S (Cmd+S on a Mac) or click Save.	Escriba algo en el documento y pulse Ctrl+S (Cmd+S en Mac) o haga clic en Guardar.	Tapez quelque chose dans le document, puis appuyez sur Ctrl+S (Cmd+S sur Mac) ou cliquez sur Enregistrer.	Schreiben Sie etwas in das Dokument und drücken Sie Strg+S (Cmd+S auf dem Mac) oder klicken Sie auf Speichern.
+Back to reading	Volver a la lectura	Retour à la lecture	Zurück zum Lesen
+Click this button again to go back to reading.	Haga clic de nuevo en este botón para volver a la lectura.	Cliquez de nouveau sur ce bouton pour revenir à la lecture.	Klicken Sie erneut auf diese Schaltfläche, um zum Lesen zurückzukehren.
+Go anywhere	Ir a cualquier sitio	Aller partout	Überallhin springen
+This button, or Ctrl+K (Cmd+K on a Mac), jumps to any file or heading. Type > there to run any menu command by name.	Este botón, o Ctrl+K (Cmd+K en Mac), salta a cualquier archivo o título. Escriba > ahí para ejecutar cualquier comando de menú por su nombre.	Ce bouton, ou Ctrl+K (Cmd+K sur Mac), permet d’aller à n’importe quel fichier ou titre. Tapez > pour lancer une commande de menu par son nom.	Diese Schaltfläche oder Strg+K (Cmd+K auf dem Mac) springt zu jeder Datei oder Überschrift. Geben Sie dort > ein, um einen Menübefehl beim Namen aufzurufen.
+Folders	Carpetas	Dossiers	Ordner
+File → Open Folder shows a whole folder in the Files panel, where you can search every document and use links, tags and tasks between them.	Archivo → Abrir carpeta muestra una carpeta entera en el panel Archivos, donde puede buscar en todos los documentos y usar enlaces, etiquetas y tareas entre ellos.	Fichier → Ouvrir un dossier affiche tout un dossier dans le panneau Fichiers, où vous pouvez chercher dans tous les documents et utiliser des liens, étiquettes et tâches entre eux.	Datei → Ordner öffnen zeigt einen ganzen Ordner im Bereich Dateien, wo Sie alle Dokumente durchsuchen und Links, Tags und Aufgaben zwischen ihnen nutzen können.
+Side by side	Lado a lado	Côte à côte	Nebeneinander
+Listen	Escuchar	Écouter	Anhören
+Export and share	Exportar y compartir	Exporter et partager	Exportieren und teilen
+This button makes a PDF, a Word document or a web page, with choices for paper, cover and contents.	Este botón crea un PDF, un documento de Word o una página web, con opciones de papel, portada y contenido.	Ce bouton crée un PDF, un document Word ou une page web, avec des choix de papier, de couverture et de sommaire.	Diese Schaltfläche erstellt ein PDF, ein Word-Dokument oder eine Webseite, mit Optionen für Papier, Deckblatt und Inhaltsverzeichnis.
+AI assist can summarize, explain and rewrite with the service you choose. It needs a key or a model on your computer, so there’s nothing to try here. The guide shows how to connect one.	La asistencia de IA puede resumir, explicar y reescribir con el servicio que elija. Necesita una clave o un modelo en su equipo, así que aquí no hay nada que probar. La guía muestra cómo conectar uno.	L’assistance IA peut résumer, expliquer et réécrire avec le service de votre choix. Elle nécessite une clé ou un modèle sur votre ordinateur : il n’y a donc rien à essayer ici. Le guide montre comment en connecter un.	Die KI-Hilfe kann mit dem Dienst Ihrer Wahl zusammenfassen, erklären und umschreiben. Sie braucht einen Schlüssel oder ein Modell auf Ihrem Computer, daher gibt es hier nichts auszuprobieren. Die Anleitung zeigt, wie Sie einen verbinden.
+That’s the tour	Fin de la visita	La visite est terminée	Das war die Einführung
+Connecting an AI service	Conectar un servicio de IA	Connecter un service d’IA	Einen KI-Dienst verbinden
+View → Read Aloud reads the document to you. Choose the voice and speed in Preferences → Reading Aloud, where natural voices that work offline are a free download.	Ver → Leer en voz alta le lee el documento. Elija la voz y la velocidad en Preferencias → Lectura en voz alta, donde puede descargar gratis voces naturales que funcionan sin conexión.	Affichage → Lire à voix haute vous lit le document. Choisissez la voix et la vitesse dans Préférences → Lecture à voix haute, où des voix naturelles qui fonctionnent hors ligne se téléchargent gratuitement.	Ansicht → Vorlesen liest Ihnen das Dokument vor. Wählen Sie Stimme und Tempo unter Einstellungen → Vorlesen, wo natürliche Stimmen, die offline funktionieren, kostenlos zum Download bereitstehen.
+Split view shows two documents at once. To compare versions of one document, use Edit → Compare and History.	La vista dividida muestra dos documentos a la vez. Para comparar versiones de un documento, use Editar → Comparar e historial.	La vue partagée affiche deux documents à la fois. Pour comparer des versions d’un document, utilisez Modifier → Comparer et historique.	Die geteilte Ansicht zeigt zwei Dokumente gleichzeitig. Um Versionen eines Dokuments zu vergleichen, nutzen Sie Bearbeiten → Vergleich und Verlauf.
+Your settings	Sus ajustes	Vos réglages	Ihre Einstellungen
+Every setting is here in Preferences: themes, voices, AI, sync and more. Press Ctrl+, (Cmd+, on a Mac) to open it from anywhere.	Todos los ajustes están aquí, en Preferencias: temas, voces, IA, sincronización y más. Pulse Ctrl+, (Cmd+, en Mac) para abrirlo desde cualquier lugar.	Tous les réglages sont ici, dans Préférences : thèmes, voix, IA, synchronisation et plus. Appuyez sur Ctrl+, (Cmd+, sur Mac) pour l’ouvrir de partout.	Alle Einstellungen finden Sie hier: Designs, Stimmen, KI, Synchronisierung und mehr. Drücken Sie Strg+, (Cmd+, auf dem Mac), um sie von überall zu öffnen.
+Press F1 at any time for the Help Center, with guides, common questions and this tutorial. Enjoy your reading.	Pulse F1 en cualquier momento para abrir el Centro de ayuda, con guías, preguntas frecuentes y este tutorial. Disfrute de la lectura.	Appuyez sur F1 à tout moment pour ouvrir le Centre d’aide, avec des guides, les questions fréquentes et ce tutoriel. Bonne lecture.	Drücken Sie jederzeit F1 für das Hilfe-Center mit Anleitungen, häufigen Fragen und diesem Tutorial. Viel Freude beim Lesen.
+Preferences	Preferencias	Préférences	Einstellungen
+Preferences…	Preferencias…	Préférences…	Einstellungen…
+Preferences (Ctrl+,)	Preferencias (Ctrl+,)	Préférences (Ctrl+,)	Einstellungen (Strg+,)
+General	General	Général	Allgemein
+Appearance	Apariencia	Apparence	Darstellung
+Reading Aloud	Lectura en voz alta	Lecture à voix haute	Vorlesen
+AI and Claude	IA y Claude	IA et Claude	KI und Claude
+Sync	Sincronización	Synchronisation	Synchronisierung
+Shortcuts	Atajos	Raccourcis	Tastenkürzel
+Language	Idioma	Langue	Sprache
+Reopen my windows and tabs when the app starts	Reabrir mis ventanas y pestañas al iniciar la aplicación	Rouvrir mes fenêtres et onglets au démarrage de l’application	Meine Fenster und Tabs beim Start wieder öffnen
+Always show the menu bar	Mostrar siempre la barra de menús	Toujours afficher la barre de menus	Menüleiste immer anzeigen
+Theme	Tema	Thème	Design
+Page width	Ancho de página	Largeur de page	Seitenbreite
+Text Size	Tamaño del texto	Taille du texte	Textgröße
+Voice	Voz	Voix	Stimme
+Speed	Velocidad	Vitesse	Tempo
+Choose	Elija	Choisissez	Wählen Sie
+in this list for ten voices that sound like a person, work offline and are a free download of about 400 MB.	en esta lista para obtener diez voces que suenan como una persona, funcionan sin conexión y son una descarga gratuita de unos 400 MB.	dans cette liste pour obtenir dix voix qui sonnent comme une personne, fonctionnent hors ligne et se téléchargent gratuitement (environ 400 Mo).	in dieser Liste für zehn Stimmen, die wie ein Mensch klingen, offline funktionieren und ein kostenloser Download von etwa 400 MB sind.
+Insert standard Markdown links instead of [[wiki links]]	Insertar enlaces Markdown estándar en lugar de [[enlaces wiki]]	Insérer des liens Markdown standard au lieu de [[liens wiki]]	Standard-Markdown-Links statt [[Wiki-Links]] einfügen
+Allow running code blocks (the app always asks first)	Permitir ejecutar bloques de código (la aplicación siempre pregunta antes)	Autoriser l’exécution des blocs de code (l’application demande toujours d’abord)	Ausführen von Codeblöcken erlauben (die App fragt immer zuerst)
+AI assist is on, using {0}.	La asistencia de IA está activada y usa {0}.	L’assistance IA est activée et utilise {0}.	Die KI-Hilfe ist aktiv und nutzt {0}.
+Keep highlights, bookmarks, recent files and reading positions in step between your computers, through a folder you already sync. No account is needed.	Mantenga al día resaltados, marcadores, archivos recientes y posiciones de lectura entre sus equipos mediante una carpeta que ya sincroniza. No necesita una cuenta.	Gardez à jour surlignages, signets, fichiers récents et positions de lecture entre vos ordinateurs via un dossier que vous synchronisez déjà. Aucun compte n’est nécessaire.	Halten Sie Markierungen, Lesezeichen, zuletzt geöffnete Dateien und Lesepositionen zwischen Ihren Computern abgeglichen, über einen bereits synchronisierten Ordner. Ein Konto ist nicht nötig.
+See the keyboard shortcuts, or change any of them to suit you.	Vea los atajos de teclado o cambie los que quiera.	Consultez les raccourcis clavier ou modifiez ceux que vous voulez.	Sehen Sie sich die Tastenkürzel an oder ändern Sie sie nach Wunsch.
+That isn’t available right now	Eso no está disponible ahora	Ce n’est pas disponible pour le moment	Das ist gerade nicht verfügbar
+Help Center	Centro de ayuda	Centre d’aide	Hilfe-Center
+Help Center (F1)	Centro de ayuda (F1)	Centre d’aide (F1)	Hilfe-Center (F1)
+Search the guides	Buscar en las guías	Rechercher dans les guides	Anleitungen durchsuchen
+Home	Inicio	Accueil	Start
+No guide mentions that.	Ninguna guía menciona eso.	Aucun guide n’en parle.	Keine Anleitung erwähnt das.
+New here?	¿Es nuevo aquí?	Vous débutez ?	Neu hier?
+The hands-on tutorial shows you around in a few minutes, on a practice document.	El tutorial práctico le enseña la aplicación en unos minutos, con un documento de práctica.	Le tutoriel pratique vous fait découvrir l’application en quelques minutes, sur un document d’entraînement.	Das praktische Tutorial zeigt Ihnen die App in wenigen Minuten anhand eines Übungsdokuments.
+Take the tutorial	Hacer el tutorial	Suivre le tutoriel	Tutorial starten
+Quick links	Enlaces rápidos	Liens rapides	Schnellzugriff
+Getting started	Primeros pasos	Pour commencer	Erste Schritte
+Voices and reading aloud	Voces y lectura en voz alta	Voix et lecture à voix haute	Stimmen und Vorlesen
+Editing a document	Editar un documento	Modifier un document	Ein Dokument bearbeiten
+Folders, links and tasks	Carpetas, enlaces y tareas	Dossiers, liens et tâches	Ordner, Links und Aufgaben
+Exporting and printing	Exportar e imprimir	Exporter et imprimer	Exportieren und Drucken
+Working with Claude	Trabajar con Claude	Travailler avec Claude	Mit Claude arbeiten
+Sync between computers	Sincronizar entre equipos	Synchroniser entre ordinateurs	Zwischen Computern synchronisieren
+Common questions	Preguntas frecuentes	Questions fréquentes	Häufige Fragen
+Resources	Recursos	Ressources	Ressourcen
+Feature showcase	Muestra de funciones	Vitrine des fonctions	Funktionsübersicht
+About this app	Acerca de esta aplicación	À propos de cette application	Über diese App
+This Document	Este documento	Ce document	Dieses Dokument
+Compare and History	Comparar e historial	Comparer et historique	Vergleich und Verlauf
+Panels	Paneles	Panneaux	Bereiche

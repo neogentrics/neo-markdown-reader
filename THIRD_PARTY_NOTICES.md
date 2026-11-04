@@ -1,6 +1,6 @@
 # Third-party notices
 
-Neo Markdown Reader is proprietary software (see [LICENSE](LICENSE)), but it is built on the following
+RT Markdown Reader is proprietary software (see [LICENSE](LICENSE)), but it is built on the following
 open-source components, each used under its own license. Full license texts ship inside the
 application (`resources/app.asar/dist/app.js.LEGAL.txt` and the Electron `LICENSES.chromium.html`).
 

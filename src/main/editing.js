@@ -82,7 +82,7 @@ class Editing {
     const { response } = await this.dialog.showMessageBox(state.win, {
       type: 'question',
       title: 'Allow editing?',
-      message: `Allow Neo Markdown Reader to edit “${name}”?`,
+      message: `Allow RT Markdown Reader to edit “${name}”?`,
       detail: `Changes will be saved to:\n${p}\n\nThe original is backed up before the first save, and nothing is written until you choose Save.`,
       buttons: ['Just This Time', 'Always for This File', 'Always for This Folder', 'Cancel'],
       defaultId: 0,

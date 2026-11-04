@@ -56,7 +56,7 @@ class Updater {
         return { state: 'current', version: app.getVersion() };
       }
       const res = await net.fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`, {
-        headers: { Accept: 'application/vnd.github+json', 'User-Agent': `NeoMarkdownReader/${app.getVersion()}` },
+        headers: { Accept: 'application/vnd.github+json', 'User-Agent': `RTMarkdownReader/${app.getVersion()}` },
       });
       if (!res.ok) throw new Error(`GitHub answered ${res.status}`);
       const rel = await res.json();

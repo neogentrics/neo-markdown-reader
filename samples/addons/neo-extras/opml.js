@@ -1,5 +1,5 @@
 // Exports the document's headings as an OPML outline (opens in outliners and mind-map apps).
-// Runs in Neo Markdown Reader's sealed sandbox: it gets the document and returns the file's text.
+// Runs in RT Markdown Reader's sealed sandbox: it gets the document and returns the file's text.
 function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

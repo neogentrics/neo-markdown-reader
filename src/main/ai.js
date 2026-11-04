@@ -20,7 +20,7 @@ const MAX_CHARS = 600_000;          // ~150K tokens: well inside the context win
 const KEY_RE = /^sk-ant-[A-Za-z0-9_-]{20,300}$/;
 
 const SYSTEM = [
-  'You help someone reading a Markdown document in Neo Markdown Reader, a desktop Markdown reader.',
+  'You help someone reading a Markdown document in RT Markdown Reader, a desktop Markdown reader.',
   'Answer in Markdown that renders well: short paragraphs, headings and lists where they help.',
   'Stay faithful to the document. Do not invent facts, names, numbers or dates that it does not contain; if something is unclear or missing, say so.',
   'Write in the same language as the document.',

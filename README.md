@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="build/icon.png" width="112" alt="Neo Markdown Reader logo">
+<img src="build/icon.png" width="112" alt="RT Markdown Reader logo">
 
-# Neo Markdown Reader
+# RT Markdown Reader
 
 **Read Markdown the way it was meant to look.**
 
@@ -10,13 +10,15 @@ A fast, good-looking desktop reader for `.md` files. Double-click any Markdown f
 clean, well-laid-out page, the way a well-designed PDF looks. You see formatted text instead of raw
 symbols, and no browser tab or code editor is needed.
 
-**[Features](#features)** · **[Install](#install-windows)** · **[Your AI](#your-ai-your-choice)** · **[Across computers](#across-your-computers)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Natural voices](#natural-voices)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
+Part of the Recon Towers suite. Known as Neo Markdown Reader until version 3.4.1.
+
+**[Features](#features)** · **[Install](#install-windows)** · **[Your AI](#your-ai-your-choice)** · **[Claude](#work-with-claude)** · **[Across computers](#across-your-computers)** · **[Connected notes](#connected-notes)** · **[Read & share](#read-listen--share)** · **[Natural voices](#natural-voices)** · **[Make it yours](#make-it-yours)** · **[Windows](#at-home-on-windows)** · **[Publishing](#publishing-and-presenting)** · **[Power features](#power-features)** · **[Shortcuts](#keyboard-shortcuts)** · **[Roadmap](ROADMAP.md)** · **[Changelog](CHANGELOG.md)** · **[License](#license)**
 
 [![CI](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml/badge.svg)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-3b5bdb)
 ![License](https://img.shields.io/badge/license-proprietary-lightgrey)
 
-<img src="docs/screenshots/tabs.png" width="860" alt="Several documents open in tabs in Neo Markdown Reader">
+<img src="docs/screenshots/tabs.png" width="860" alt="Several documents open in tabs in RT Markdown Reader">
 
 </div>
 
@@ -39,14 +41,18 @@ symbols, and no browser tab or code editor is needed.
 | **Links** | Links to other `.md` files open in the reader (with **Back**); web links open in your browser |
 | **Tabs & windows** | Every file opens in a tab. Reorder by dragging; right-click for *Move to New Window*, Duplicate, Close Others; drag a tab out to split it into its own window |
 | **Picks up where you left off** | Reopens your last windows and tabs, each scrolled to where you stopped reading |
-| **Proper menu bar** | File, Edit, View, Tabs and Help are always visible (or auto-hide them: *View → Always Show Menu Bar*) |
+| **Proper menu bar** | File, Edit, View, Tabs and Help are always visible (or auto-hide them: *Preferences → General*) |
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
-| **Automatic updates** | The installed app downloads new versions and offers *Restart to update* |
+| **Automatic updates** | The installed app downloads new versions; *Restart to update* installs them without any installer screens |
+| **Hands-on tutorial** *(new in 3.4)* | A guided tour with a practice document, offered the first time you open the app, and again from *Help → Tutorial* |
+| **Help Center** *(new in 3.4)* | Press `F1` for guides, common questions and quick links, with buttons that take you straight to the setting |
+| **Preferences** *(new in 3.4)* | Every setting in one window (`Ctrl+,`), so the menus stay short |
+| **Work with Claude** *(new in 3.4)* | Claude Desktop and Claude Code can read your documents and suggest changes you approve, and AI assist can use your Claude Code sign-in with no API key |
 | **Opens your files** | Double-click, *Open with*, drag and drop, `Ctrl+O`, recent files, Windows jump list |
 | **Your AI, your choice** *(new in 3.3)* | AI assist with Claude, ChatGPT, Gemini, Mistral or OpenRouter, each with your own key, or with a private model on your own computer (Ollama, LM Studio) that needs no key and no internet; a quicker model for writing help, and a check before anything large is sent ([details](#your-ai-your-choice)) |
 | **Natural voices** *(3.2)* | Read aloud in ten natural-sounding voices that run on your computer, offline, in 31 languages; downloaded once, only when you ask ([details](#natural-voices)) |
 | **Across your computers** *(3.1)* | Highlights, notes, bookmarks, recent files, reading positions and settings kept the same on every computer through a folder you already sync (OneDrive, Dropbox, iCloud Drive, Google Drive), with no account ([details](#across-your-computers)) |
-| **Make it yours** *(3.0)* | The app in English, Spanish, French or German (it follows your computer, or choose in *View → Language*); Arabic, Hebrew and other right-to-left documents read right to left; add-ons for new code-block types, export formats and colour themes, each approved by you and run in a sealed sandbox ([details](#make-it-yours)) |
+| **Make it yours** *(3.0)* | The app in English, Spanish, French or German (it follows your computer, or choose in *Preferences → General*); Arabic, Hebrew and other right-to-left documents read right to left; add-ons for new code-block types, export formats and colour themes, each approved by you and run in a sealed sandbox ([details](#make-it-yours)) |
 | **Read, listen & share** *(2.4)* | Read aloud with your computer's voices; focus mode, folding sections and hover previews; open CSV, JSON, YAML and Jupyter notebooks; charts from a table or a `chart` block; export e-books (EPUB) and slides (PDF or PowerPoint); and (optionally) proofread, rewrite, shorten or translate a selection with Claude ([details](#read-listen--share)) |
 | **Connected notes** *(2.3)* | Link documents with `[[wiki links]]` (suggested as you type, kept up to date when you rename); see what links here, a map of how a folder fits together, tags and every task in one list, a daily note, a link checker, and (optionally) ask Claude questions about a folder with links to its sources ([details](#connected-notes)) |
 | **Write faster** *(2.2)* | Paste or drop pictures (saved next to the document); edit tables in a grid and paste cells from Excel; paste from Word and web pages as clean Markdown, or import a Word document; version history with compare and restore; replace across a folder with a preview and undo; run any command from `Ctrl+K` and choose your own shortcuts ([details](#writing-faster)) |
@@ -71,10 +77,10 @@ symbols, and no browser tab or code editor is needed.
 
 1. Go to **[Releases](https://github.com/neogentrics/neo-markdown-reader/releases/latest)**.
 2. Download one of:
-   - **`NeoMarkdownReader-<version>-Setup.exe`** (recommended installer). It adds Start-menu
+   - **`RTMarkdownReader-<version>-Setup.exe`** (recommended installer). It adds Start-menu
      and desktop shortcuts and registers the reader for `.md` files, so double-clicking any Markdown
      file opens it here.
-   - **`NeoMarkdownReader-<version>-Portable.exe`**: a single file that needs no install. Run it from
+   - **`RTMarkdownReader-<version>-Portable.exe`**: a single file that needs no install. Run it from
      anywhere, including a USB stick.
 3. Until the app is code-signed, Windows SmartScreen may say *"Windows protected your PC"*.
    Click **More info → Run anyway**.
@@ -92,18 +98,18 @@ Reader** → tick **Always use this app**.
   Install the `.deb` with:
 
   ```bash
-  sudo apt install ./NeoMarkdownReader-<version>-linux-amd64.deb
+  sudo apt install ./RTMarkdownReader-<version>-linux-amd64.deb
   ```
 
 **Updates:** from version 1.1 on, the installed app checks for new versions by itself, downloads them in the
 background and offers *Restart to update*. The portable `.exe` and the Mac build tell you when a new
 version is out and link to the download. *(Coming from 1.0? Install 1.1 once by hand; after that it's automatic.)*
 
-**Which version do I have?** *Help → About Neo Markdown Reader* shows the version, what's new in it, the app's
+**Which version do I have?** *Help → About RT Markdown Reader* shows the version, what's new in it, the app's
 [website](https://recontowers.com/projects/neo-markdown-reader/), where to report a problem, and *Copy Version
 Details* for a bug report.
 
-<img src="docs/screenshots/about.png" width="860" alt="The About window: the Neo Markdown Reader icon, version 3.3.0, a short description, links to the website, what's new in this version, reporting a problem and the source code, the Electron, Chromium, Node and Windows versions, the copyright with License and Open-source notices links, and Copy Version Details and Done buttons">
+<img src="docs/screenshots/about.png" width="860" alt="The About window: the RT Markdown Reader icon, version 3.3.0, a short description, links to the website, what's new in this version, reporting a problem and the source code, the Electron, Chromium, Node and Windows versions, the copyright with License and Open-source notices links, and Copy Version Details and Done buttons">
 
 ## Creating and editing
 
@@ -113,12 +119,12 @@ Details* for a bug report.
   a title page). New documents open straight in the editor; `Ctrl+S` asks where to save them.
 - **Edit a file:** click **Edit** (or `Ctrl+E`). Files always open read-only, so the first time you edit one
   the app asks: **Just this time** (the default; ends when you close the tab), **Always for this file**, or
-  **Always for this folder**. Review or remove "always" choices under *Edit → Editing Permissions…*.
+  **Always for this folder**. Review or remove "always" choices under *Preferences → Editing*.
 - **While editing:** Markdown on the left, the formatted page on the right, scrolling together. The toolbar
   adds headings, bold, lists, checklists, links, images, tables and code. Spelling mistakes are
   underlined; right-click one for suggestions. Click **Done** (or `Ctrl+E`) when you're finished.
 - **Safe saving:**
-  - Before the first save, the original file is copied to a backups folder (*Edit → Open Backups Folder*).
+  - Before the first save, the original file is copied to a backups folder (*Preferences → Editing*).
   - If another program changed the file while you were editing, the app asks before replacing those changes.
   - Windows-style line endings are kept exactly as they were.
   - Files marked read-only stay locked; use *Save As* to edit a copy.
@@ -143,7 +149,7 @@ Details* for a bug report.
   - Paste from a web page or Word and you get clean Markdown: headings, lists, links, bold, tables.
     Scripts and hidden page parts are dropped, and pictures from the web stay linked.
   - `Ctrl+Shift+V` pastes plain text instead, and code copied from a code editor always pastes as it is.
-  - *File → Import Word Document…* (or drop a `.docx` on the window) converts a Word document to a new
+  - *File → This Document → Import Word Document…* (or drop a `.docx` on the window) converts a Word document to a new
     Markdown file, saving its pictures in an `images` folder.
 - **Version history** (`Ctrl+Shift+Y`, or the **History** panel):
   - Every save keeps the version it replaces. So do *Replace in Folder* and restoring.
@@ -162,7 +168,7 @@ Details* for a bug report.
 - **Commands and shortcuts:**
   - In Quick Open (`Ctrl+K`), type `>` to run any menu command by name (or use *Help → Find a Command…*,
     `Ctrl+Shift+K`).
-  - *Help → Customize Keyboard Shortcuts…* lets you give any command a new shortcut, remove one, or reset
+  - *Preferences → Shortcuts* lets you give any command a new shortcut, remove one, or reset
     them all. If a combination is already taken, it says by what and offers to move it.
 
 <table>
@@ -187,7 +193,7 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
   - If two documents share a name, the one in the same folder wins; write `[[Projects/Budget]]` to choose.
   - A link to a document that doesn't exist yet looks faded. Click it and the app offers to create it.
   - While editing, type `[[` to pick a document from a list. Prefer links every Markdown app understands?
-    Tick *Edit → Insert Standard Markdown Links* and you get `[Budget](Projects/Budget.md)` instead.
+    Tick the option in *Preferences → Editing* and you get `[Budget](Projects/Budget.md)` instead.
 - **Linked from:** the bottom of the **Outline** panel lists every document that links to the one you're
   reading, with the line around each link.
 - **Rename** (`F2`, or *File → Rename…*): renames the file and offers to update every link to it in the folder,
@@ -284,12 +290,51 @@ Open a folder (*File → Open Folder…*) and its documents start working togeth
 
 <img src="docs/screenshots/ai-writing.png" width="860" alt="A suggested rewrite of a paragraph shown as a change, with Reject, Try again and Accept buttons">
 
+## Work with Claude
+
+<img src="docs/screenshots/connect-claude.png" width="860" alt="The Connect Claude window, with the connector turned on and buttons to add it to Claude Desktop and Claude Code">
+
+*New in 3.4.* Use the Claude you already sign in to, with no API key:
+
+- **Connect Claude** (*Preferences → AI and Claude*): turn it on, then click **Add to Claude Desktop** or
+  **Add to Claude Code**. Claude can then list your open documents, read them, search your open folder, and see
+  your highlights and notes.
+- **Changes stay yours.** Claude can't write to a file. It suggests a change, and you see it marked up in the app
+  to accept or reject. Accepting asks for edit permission as usual, and keeps a backup and a History copy.
+- **What Claude can't reach:** password-locked documents, and anything that isn't open in a tab or in the open
+  folder. It works only while the app is open and the connector is on.
+- **AI assist through Claude Code:** in *AI Assist Settings…*, choose *Claude Code (your sign-in, no key)*. Requests
+  use your Claude plan, and Claude Code runs with every tool switched off, so it can only write text back.
+- ***File → Open Folder in Claude Code*** opens a terminal in the document's folder, running Claude Code.
+
+The portable version moves each time it runs, so use the installed app for the connector.
+
+## Help and settings
+
+<img src="docs/screenshots/tutorial.png" width="860" alt="The tutorial pointing at the outline button, with a card explaining the step">
+
+*New in 3.4.* The first time you open the app, including after updating from an older version, it offers a
+hands-on tour. Steps move on when you've done what they say, on a practice copy, so your own files aren't touched.
+Stop at any time and pick up where you left off, or take it again from the Help Center.
+
+<img src="docs/screenshots/help-center.png" width="860" alt="The Help Center home page, with the tutorial, quick links and common questions">
+
+The **Help Center** (`F1`, or the **?** button) is the app's own guide. Its home page has the tutorial, quick links
+and common questions, and the guides can take you straight to the setting they describe. You can search them all.
+The guides are in English for now.
+
+<img src="docs/screenshots/preferences.png" width="860" alt="Preferences open at Reading Aloud, with the voice list and speed">
+
+**Preferences** (`Ctrl+,`, or the gear button) has every setting in one window: language, appearance, voices,
+editing, AI and Claude, sync and shortcuts. Simple choices are made there, and larger ones open their own window.
+Anything that moved out of the menus keeps its shortcut, and *Find a Command* (`Ctrl+Shift+K`) still finds it.
+
 ## Your AI, your choice
 
 <img src="docs/screenshots/ai-services.png" width="860" alt="AI assist settings with the service set to On this computer (Ollama, LM Studio…), the server address http://localhost:11434/v1, no API key needed, the model qwen3:8b, a quicker model llama3.2:3b for writing help, and 4 models available">
 
 AI assist (summaries, explanations, reports, *Ask About This Folder…* and writing help) now works with the
-service you already use. Choose it in *Edit → AI Assist → AI Assist Settings…*:
+service you already use. Choose it in *Preferences → AI and Claude*:
 
 | Service | What you need |
 |---|---|
@@ -320,16 +365,16 @@ To use a model on your computer with Ollama: install it, run `ollama pull llama3
 
 <img src="docs/screenshots/sync.png" width="860" alt="The Sync between computers window: on, last synced now, a sync folder in OneDrive, this computer named Office Desktop, and a Studio MacBook last seen 4 minutes ago">
 
-Read on one computer, pick up on another. *Edit → Sync Between Computers…* keeps these the same everywhere:
+Read on one computer, pick up on another. *Preferences → Sync* keeps these the same everywhere:
 
 - your **highlights and notes**,
 - your **bookmarks**, **recent files** and **where you stopped reading** in each document,
 - your **settings**: theme, typeface, text size, page width, language, read-aloud speed and voice, export
   choices, your own colours and fonts, and your keyboard shortcuts.
 
-**Setting it up:** on each computer, open *Edit → Sync Between Computers…* and choose the same folder inside
+**Setting it up:** on each computer, open *Preferences → Sync* and choose the same folder inside
 OneDrive, Dropbox, iCloud Drive or Google Drive (the app offers the cloud folders it finds). That's all: no
-account, no server, no sign-in. The app keeps its files in a *Neo Markdown Reader* folder inside the one you
+account, no server, no sign-in. The app keeps its files in a *RT Markdown Reader* folder inside the one you
 choose, and your cloud service carries them between computers.
 
 **How it stays out of trouble:**
@@ -375,7 +420,7 @@ checksum before it's used.
 <img src="docs/screenshots/language.png" width="860" alt="The app in Spanish: the toolbar, sidebar tabs, outline filter and word count are in Spanish; the document is shown as written">
 
 - **The app in your language:** English, Spanish (Español), French (Français) or German (Deutsch).
-  - It follows your computer's language. To choose another, use *View → Language*; the change is immediate.
+  - It follows your computer's language. To choose another, use *Preferences → General*; the change is immediate.
   - Menus, buttons, dialogs, messages and the shortcut list are translated. Your documents, file names and
     notes are always shown exactly as written.
 - **Right-to-left documents:** Arabic, Hebrew, Persian, Urdu and other right-to-left text reads right to left.
@@ -384,10 +429,10 @@ checksum before it's used.
     the first column on the right.
   - To turn a whole document, add `lang: ar` (or `he`, `fa`, `ur`…) or `dir: rtl` to its front matter.
   - The outline, PDF, Word, web page and e-book exports keep the direction.
-- **Add-ons** (*View → Add-ons…*): an add-on is a small package (`.nmraddon`) that can add:
+- **Add-ons** (*Preferences → Appearance*): an add-on is a small package (`.nmraddon`) that can add:
   - **code-block types:** for example, a `timeline` block that's drawn as a picture;
   - **export formats** (in *File → Export*): for example, an outline (OPML) for mind-map apps;
-  - **colour themes** (in *View → Theme*), built on the light or dark theme.
+  - **colour themes** (in *Preferences → Appearance*), built on the light or dark theme.
 
   Before an add-on is installed, the app shows what it will add, and nothing is installed until you agree.
   Its code runs in the same sealed sandbox as ▶ Run: it can't use the internet, read your files or change your
@@ -424,8 +469,8 @@ checksum before it's used.
 - **Compare**: see exactly what changed between two documents: added lines in green, removed lines in red,
   changed words highlighted.
   - *Right-click a tab → Compare with…* compares two open documents.
-  - *Edit → Compare with File…* compares the current document with any other file.
-  - *Edit → Compare with Saved Version* shows your unsaved edits.
+  - *Edit → Compare and History → Compare with File…* compares the current document with any other file.
+  - *Edit → Compare and History → Compare with Saved Version* shows your unsaved edits.
 - **Highlights & notes:** select text and choose **Highlight** or **Add note** (`Ctrl+Shift+H`). Click a highlight
   to change its colour or note. The **Notes** panel lists them all.
   - Highlights are private: they're stored by the app, never written into the file.
@@ -466,7 +511,7 @@ checksum before it's used.
 
 <img src="docs/screenshots/presentation.png" width="860" alt="Presentation mode showing a slide with a diagram and a tip box">
 
-- **Customize theme** (*View → Customize Theme…*, or *Customize colours & fonts…* in the theme menu):
+- **Customize theme** (*Preferences → Appearance*, or *Customize colours & fonts…* in the theme menu):
   - Pick an accent colour and fonts for text, headings and code. They apply to every theme.
   - Optionally choose a **brand stylesheet** (a `.css` file, such as a company house style).
   - Exports use the same look, so a PDF or web page matches what you see.
@@ -485,18 +530,18 @@ checksum before it's used.
   (30 for Python).
 - Python is the real thing ([Pyodide](https://pyodide.org)) with its standard library, built into the app.
 - Shell, PowerShell and batch commands are never run.
-- Turn the feature off entirely with *Edit → Allow Running Code Blocks*.
+- Turn the feature off entirely with the option in *Preferences → Editing*.
 
 ### Password-locked documents
 
 <img src="docs/screenshots/password-lock.png" width="860" alt="The Protect with Password dialog, and a locked document asking for its password">
 
-- **File → Protect with Password…** saves an encrypted copy (`notes.mdlock`) next to the original, using
-  AES-256 with a key made from your password (scrypt). Only Neo Markdown Reader can open it, and only
+- **File → This Document → Protect with Password…** saves an encrypted copy (`notes.mdlock`) next to the original, using
+  AES-256 with a key made from your password (scrypt). Only RT Markdown Reader can open it, and only
   with the password.
 - The original stays unless you tick *Move the unlocked original to the Recycle Bin*.
 - Opening a locked document asks for the password. After that it stays open until you quit or choose
-  **File → Lock Now**.
+  **File → This Document → Lock Now**.
 - You can edit a locked document. Saving keeps it encrypted.
 - **File → Save an Unlocked Copy…** writes a normal `.md` where you choose.
 - Locked documents are never searched, highlighted or sent to AI assist, so their text is never stored
@@ -549,7 +594,7 @@ with your own accent colour and in exports.
   - Tabs, the sidebar and Quick Open work from the keyboard and are announced properly by screen readers.
   - Focus is always visible, and animations stop when Windows' *Animation effects* setting is off.
 
-<img src="docs/screenshots/high-contrast.png" width="860" alt="Neo Markdown Reader in Windows high-contrast mode, using the system colours, with the keyboard focus outlined on the tab bar and sidebar">
+<img src="docs/screenshots/high-contrast.png" width="860" alt="RT Markdown Reader in Windows high-contrast mode, using the system colours, with the keyboard focus outlined on the tab bar and sidebar">
 
 *In Windows high-contrast mode the app uses the system colours, and the keyboard focus is always outlined.*
 
@@ -603,7 +648,7 @@ with your own accent colour and in exports.
 | `Ctrl` `Shift` `N` / `Ctrl` `Shift` `W` | New window / close window |
 | `F1` | Keyboard shortcuts |
 
-On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help → Customize Keyboard Shortcuts…*.
+On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Preferences → Shortcuts*.
 
 ## Roadmap
 
@@ -636,10 +681,6 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Help �
   key, or a private model on your own computer (Ollama, LM Studio), plus a quicker model for writing help.
 
 Coming next:
-- **v3.4 — Claude, connected (ships as 3.4.1):** a connector that lets Claude Desktop and Claude Code read your documents
-  (and suggest edits you approve), AI assist through your Claude Code sign-in with no API key, and a hands-on
-  **first-run tutorial** that people updating from older versions get too. The same release fixes *Update Links*
-  after a rename and makes *Restart to update* install without the installer screens.
 - **v3.5 — Listen & speak:** documents exported as MP3s or audiobooks, a pronunciation list, and offline dictation.
 - **v3.6 — Study & research:** search by meaning, citations and bibliographies, and flashcards.
 - **v3.7 — Automate with n8n:** send a document, a selection or a folder to your n8n workflows (or any webhook)
@@ -705,6 +746,10 @@ src/
 │   ├── voice-worker.js   that process: Supertonic 3 on ONNX Runtime's WebAssembly engine (bundled into dist/)
 │   ├── supertonic.js     the model's four networks, run sentence by sentence
 │   ├── voice-text.js     text preparation, sentence chunks and language guessing (shared with the page)
+│   ├── (help/*.md at the top of the repo are the Help Center's guides)
+│   ├── connector.js      the Claude connector: what Claude can reach, and adding it to Claude's apps
+│   ├── connector-bridge.js  the program Claude starts: MCP on stdin and stdout
+│   ├── claude-code.js    AI assist and Open Folder through Claude Code
 │   ├── updater.js        update checks against GitHub Releases (electron-updater for the installer)
 │   ├── version.js        version comparison
 │   ├── files.js          which files can be opened + reading them safely
@@ -730,8 +775,8 @@ src/
     ├── export-model.js   the page as a simple document model (for Word and plain text)
     ├── present.js        presentation mode (slides split on ---)
     ├── brand.js          custom accent colour and fonts as CSS
-    ├── theme-ui.js       View → Customize Theme
-    ├── lock-ui.js        the unlock screen and File → Protect with Password
+    ├── theme-ui.js       Customize Theme
+    ├── lock-ui.js        the unlock screen and Protect with Password
     ├── run-ui.js         ▶ Run buttons and output panels
     ├── ai-ui.js          AI assist settings and the answer panel
     ├── index.html        layout + Content-Security-Policy
@@ -795,7 +840,7 @@ downloadable Windows build under the run's *Artifacts*.
 
 ## License
 
-**Proprietary. All rights reserved.** © 2026 Neo Gentrics.
+**Proprietary. All rights reserved.** © 2026 Recon Towers.
 
 The source code is visible for reference only. You may download and use the official releases. You
 may **not** copy, modify, redistribute or reuse the code, in whole or in part, without written

@@ -50,7 +50,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   const app = await electron.launch({
     executablePath: require(path.join(root, 'node_modules/electron')),
     args: [root, ...(process.platform === 'linux' ? ['--no-sandbox'] : []), doc],
-    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: profile, NMR_DISABLE_UPDATES: '1', NMR_NO_REVEAL: '1', NMR_AI_BASE_URL: base },
+    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: profile, NMR_DISABLE_UPDATES: '1', NMR_NO_TOUR: '1', NMR_NO_REVEAL: '1', NMR_AI_BASE_URL: base },
   });
   const win = await app.firstWindow();
   const errors = [];
@@ -83,7 +83,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await menu('ai-settings');
     await win.waitForSelector('#ai-dlg[open]');
     const labels = await win.$$eval('#ai-provider option', (o) => o.map((x) => x.textContent));
-    assert.deepEqual(labels, ['Claude (Anthropic)', 'ChatGPT (OpenAI)', 'Gemini (Google)', 'Mistral', 'OpenRouter (hundreds of models, one key)', 'On this computer (Ollama, LM Studio…)']);
+    assert.deepEqual(labels, ['Claude (Anthropic)', 'Claude Code (your sign-in, no key)', 'ChatGPT (OpenAI)', 'Gemini (Google)', 'Mistral', 'OpenRouter (hundreds of models, one key)', 'On this computer (Ollama, LM Studio…)']);
     await win.selectOption('#ai-provider', 'local');
     assert.equal(await win.isVisible('#ai-local'), true);
     assert.equal(await win.textContent('#ai-key-label'), 'API key (if your server needs one)');
@@ -184,7 +184,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     const version = await app.evaluate(({ app: a }) => a.getVersion());
     assert.equal(await win.textContent('#about-version'), `Version ${version}`);
     assert.match(await win.textContent('.about-blurb'), /distraction-free Markdown reader/);
-    assert.match(await win.textContent('#about-copyright'), new RegExp(`© ${new Date().getFullYear()} Neo Gentrics`));
+    assert.match(await win.textContent('#about-copyright'), new RegExp(`© ${new Date().getFullYear()} Recon Towers`));
     await win.click('#about-website');
     await win.click('#about-notes');
     await win.click('#about-issue');
@@ -198,7 +198,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await win.click('#about-copy');
     await win.waitForFunction(() => /Version details copied/.test(document.getElementById('toast').textContent));
     const copied = await app.evaluate(({ clipboard }) => clipboard.readText());
-    assert.match(copied, new RegExp(`^Neo Markdown Reader ${version.replace(/\./g, '\\.')}\\nElectron \\d+`));
+    assert.match(copied, new RegExp(`^RT Markdown Reader ${version.replace(/\./g, '\\.')}\\nElectron \\d+`));
     await win.click('#about-done');
     await win.waitForSelector('#about-dlg', { state: 'hidden' });
   });

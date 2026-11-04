@@ -481,7 +481,7 @@ class SyncEngine {
           written: Number.isFinite(data.written) ? data.written : st.mtimeMs,
         });
         if (id === this.state.device) continue;            // our own file: we already have all of it
-        if (data.version > VERSION) { warning = `${this.devices.get(id).name} uses a newer version of Neo Markdown Reader — update this one to sync with it`; continue; }
+        if (data.version > VERSION) { warning = `${this.devices.get(id).name} uses a newer version of RT Markdown Reader — update this one to sync with it`; continue; }
         if (this.seen.get(file) === st.mtimeMs) continue;
         this.seen.set(file, st.mtimeMs);
         out.push({ id, items: data.items });
@@ -518,12 +518,12 @@ class SyncEngine {
   }
 }
 
-const README = `This folder keeps Neo Markdown Reader in step between your computers.
+const README = `This folder keeps RT Markdown Reader in step between your computers.
 
 Each computer writes its own file in "devices". Every computer reads all of them and keeps the newest
 of each highlight, note, bookmark, recent file, reading position and setting.
 
-You don't need to do anything here. To stop syncing, turn it off in Neo Markdown Reader
+You don't need to do anything here. To stop syncing, turn it off in RT Markdown Reader
 (Edit > Sync Between Computers). Deleting this folder deletes nothing from your documents.
 `;
 

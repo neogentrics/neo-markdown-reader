@@ -8,9 +8,11 @@
 // Everything here is pure apart from the fetch it's given (unit-tested with a fake).
 
 const { SYSTEM, MODELS, DEFAULT_MODEL, KEY_RE } = require('./ai');
+const claudeCode = require('./claude-code');
 
 const PROVIDERS = {
   anthropic: { label: 'Claude (Anthropic)', name: 'Claude', kind: 'anthropic', keyName: 'Anthropic API key', keyHint: 'sk-ant-…', keyUrl: 'https://console.anthropic.com/settings/keys', baseURL: 'https://api.anthropic.com' },
+  claudecode: { label: 'Claude Code (your sign-in, no key)', name: 'Claude Code', kind: 'cli', keyName: '', keyHint: '', keyUrl: '', baseURL: '', keyOptional: true, noKey: true },
   openai: { label: 'ChatGPT (OpenAI)', name: 'ChatGPT', kind: 'openai', keyName: 'OpenAI API key', keyHint: 'sk-…', keyUrl: 'https://platform.openai.com/api-keys', baseURL: 'https://api.openai.com/v1' },
   gemini: { label: 'Gemini (Google)', name: 'Gemini', kind: 'openai', keyName: 'Gemini API key', keyHint: 'AIza…', keyUrl: 'https://aistudio.google.com/apikey', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai' },
   mistral: { label: 'Mistral', name: 'Mistral', kind: 'openai', keyName: 'Mistral API key', keyHint: '', keyUrl: 'https://console.mistral.ai/api-keys', baseURL: 'https://api.mistral.ai/v1' },
@@ -78,7 +80,7 @@ function cleanAiSettings(a) {
 
 /** The model for a task: writing help uses the quick model when one is chosen. */
 function modelFor(conf, task) {
-  const main = conf.models?.[conf.provider] || (conf.provider === 'anthropic' ? DEFAULT_MODEL : '');
+  const main = conf.models?.[conf.provider] || (conf.provider === 'anthropic' ? DEFAULT_MODEL : conf.provider === 'claudecode' ? claudeCode.DEFAULT_MODEL : '');
   const quick = conf.quick?.[conf.provider];
   return QUICK_TASKS.has(task) && quick ? quick : main;
 }
@@ -101,7 +103,7 @@ function baseUrlFor(conf, override) {
 function headersFor(provider, apiKey) {
   const h = { 'content-type': 'application/json', accept: 'text/event-stream, application/json' };
   if (apiKey) h.authorization = `Bearer ${apiKey}`;
-  if (provider === 'openrouter') { h['http-referer'] = 'https://github.com/neogentrics/neo-markdown-reader'; h['x-title'] = 'Neo Markdown Reader'; }
+  if (provider === 'openrouter') { h['http-referer'] = 'https://github.com/neogentrics/neo-markdown-reader'; h['x-title'] = 'RT Markdown Reader'; }
   return h;
 }
 
@@ -215,6 +217,7 @@ const NOT_CHAT = /(embed|whisper|tts|dall-e|davinci|babbage|moderation|image|aud
  */
 async function listModels({ fetch, provider, baseURL, apiKey, signal }) {
   if (provider === 'anthropic') return MODELS.map(({ id, label }) => ({ id, label }));
+  if (provider === 'claudecode') return claudeCode.MODELS;
   let res;
   try { res = await fetch(`${baseURL}/models`, { headers: headersFor(provider, apiKey), signal }); } catch (err) { throw unreachable(provider, err); }
   if (!res.ok) throw await failure(provider, res);
