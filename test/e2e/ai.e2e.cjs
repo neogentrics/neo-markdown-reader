@@ -192,8 +192,8 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     const opened = await app.evaluate(() => global.__opened);
     assert.deepEqual(opened, [
       'https://recontowers.com/projects/neo-markdown-reader/',
-      `https://github.com/neogentrics/neo-markdown-reader/releases/tag/v${version}`,
-      'https://github.com/neogentrics/neo-markdown-reader/issues/new',
+      `https://github.com/neogentrics/rt-markdown-reader/releases/tag/v${version}`,
+      'https://github.com/neogentrics/rt-markdown-reader/issues/new',
     ]);
     await win.click('#about-copy');
     await win.waitForFunction(() => /Version details copied/.test(document.getElementById('toast').textContent));

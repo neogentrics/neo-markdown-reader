@@ -1,16 +1,16 @@
 <div align="center">
 
-<a href="https://github.com/neogentrics/neo-markdown-reader/releases/latest"><img src="docs/brand/banner.png" width="100%" alt="RT Markdown Reader by the Recon Towers Dev Department. Read Markdown the way it was meant to look."></a>
+<a href="https://github.com/neogentrics/rt-markdown-reader/releases/latest"><img src="docs/brand/banner.png" width="100%" alt="RT Markdown Reader by the Recon Towers Dev Department. Read Markdown the way it was meant to look."></a>
 
 <br>
 
-[![Latest release](https://img.shields.io/github/v/release/neogentrics/neo-markdown-reader?style=for-the-badge&label=latest&color=7c3aed&labelColor=150e22)](https://github.com/neogentrics/neo-markdown-reader/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/neogentrics/neo-markdown-reader/total?style=for-the-badge&color=2e8fe0&labelColor=150e22)](https://github.com/neogentrics/neo-markdown-reader/releases)
-[![Tests](https://img.shields.io/github/actions/workflow/status/neogentrics/neo-markdown-reader/ci.yml?branch=main&style=for-the-badge&label=tests&labelColor=150e22)](https://github.com/neogentrics/neo-markdown-reader/actions/workflows/ci.yml)
-[![Platforms](https://img.shields.io/badge/windows%20%7C%20macOS%20%7C%20linux-e0433a?style=for-the-badge&labelColor=150e22)](#install-windows)
+[![Latest release](https://img.shields.io/github/v/release/neogentrics/rt-markdown-reader?style=for-the-badge&label=latest&color=7c3aed&labelColor=150e22)](https://github.com/neogentrics/rt-markdown-reader/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/neogentrics/rt-markdown-reader/total?style=for-the-badge&color=2e8fe0&labelColor=150e22)](https://github.com/neogentrics/rt-markdown-reader/releases)
+[![Tests](https://img.shields.io/github/actions/workflow/status/neogentrics/rt-markdown-reader/ci.yml?branch=main&style=for-the-badge&label=tests&labelColor=150e22)](https://github.com/neogentrics/rt-markdown-reader/actions/workflows/ci.yml)
+[![Platforms](https://img.shields.io/badge/windows%20%7C%20macOS%20%7C%20linux-b79cff?style=for-the-badge&labelColor=150e22)](#install-windows)
 [![Price](https://img.shields.io/badge/price-free-f2b417?style=for-the-badge&labelColor=150e22)](LICENSE)
 
-**[Download](https://github.com/neogentrics/neo-markdown-reader/releases/latest)** &nbsp;·&nbsp; **[Features](#features)** &nbsp;·&nbsp; **[Listen & speak](#listen--speak)** &nbsp;·&nbsp; **[Your AI](#your-ai-your-choice)** &nbsp;·&nbsp; **[Roadmap](ROADMAP.md)** &nbsp;·&nbsp; **[What's new](CHANGELOG.md)** &nbsp;·&nbsp; **[Get help](SUPPORT.md)**
+**[Download](https://github.com/neogentrics/rt-markdown-reader/releases/latest)** &nbsp;·&nbsp; **[Features](#features)** &nbsp;·&nbsp; **[Listen & speak](#listen--speak)** &nbsp;·&nbsp; **[Your AI](#your-ai-your-choice)** &nbsp;·&nbsp; **[Roadmap](ROADMAP.md)** &nbsp;·&nbsp; **[What's new](CHANGELOG.md)** &nbsp;·&nbsp; **[Get help](SUPPORT.md)**
 
 </div>
 
@@ -38,7 +38,7 @@ Markdown Reader until version 3.4.1.
 
 | Windows | macOS | Linux |
 |---|---|---|
-| [Installer or portable `.exe`](https://github.com/neogentrics/neo-markdown-reader/releases/latest) | [`.dmg` for Apple silicon or Intel](https://github.com/neogentrics/neo-markdown-reader/releases/latest) | [`AppImage` or `.deb`](https://github.com/neogentrics/neo-markdown-reader/releases/latest) |
+| [Installer or portable `.exe`](https://github.com/neogentrics/rt-markdown-reader/releases/latest) | [`.dmg` for Apple silicon or Intel](https://github.com/neogentrics/rt-markdown-reader/releases/latest) | [`AppImage` or `.deb`](https://github.com/neogentrics/rt-markdown-reader/releases/latest) |
 
 The builds aren't code-signed yet, so Windows may show a SmartScreen warning the first time. See [Install](#install-windows).
 
@@ -65,6 +65,7 @@ The builds aren't code-signed yet, so Windows may show a SmartScreen warning the
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions; *Restart to update* installs them without any installer screens |
 | **Listen & speak** *(new in 3.5)* | Export a document as an MP3 or an audiobook with chapters, dictate instead of typing, read aloud through your slides, teach the voices how to say names, and choose your speakers and microphone ([details](#listen--speak)) |
+| **Linked apps** *(new in 3.6)* | Link other Recon Towers apps on your computer and send documents between them, with no accounts ([details](help/09-sync.md)) |
 | **Your look** *(new in 3.5)* | Blue, Red and Yellow themes, a Glass look for any theme, colour-safe colours for colour blindness, and fifteen fonts |
 | **Hands-on tutorial** *(new in 3.4)* | A guided tour with a practice document, offered the first time you open the app, and again from *Help → Tutorial* |
 | **Help Center** *(new in 3.4)* | Press `F1` for guides, common questions and quick links, with buttons that take you straight to the setting |
@@ -97,7 +98,7 @@ The builds aren't code-signed yet, so Windows may show a SmartScreen warning the
 
 ## Install (Windows)
 
-1. Go to **[Releases](https://github.com/neogentrics/neo-markdown-reader/releases/latest)**.
+1. Go to **[Releases](https://github.com/neogentrics/rt-markdown-reader/releases/latest)**.
 2. Download one of:
    - **`RTMarkdownReader-<version>-Setup.exe`** (recommended installer). It adds Start-menu
      and desktop shortcuts and registers the reader for `.md` files, so double-clicking any Markdown
@@ -934,7 +935,7 @@ For licensing enquiries: **author@neogentrics.com**
 
 **Recon Towers Dev Department**
 
-[recontowers.com](https://recontowers.com) &nbsp;·&nbsp; [This app on the Bench](https://recontowers.com/projects/neo-markdown-reader/) &nbsp;·&nbsp; [Report a problem](https://github.com/neogentrics/neo-markdown-reader/issues/new/choose)
+[recontowers.com](https://recontowers.com) &nbsp;·&nbsp; [This app on the Bench](https://recontowers.com/projects/neo-markdown-reader/) &nbsp;·&nbsp; [Report a problem](https://github.com/neogentrics/rt-markdown-reader/issues/new/choose)
 
 <sub>© 2026 Recon Towers. All rights reserved.</sub>
 

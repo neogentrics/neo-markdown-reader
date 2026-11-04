@@ -11,7 +11,8 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Only a pull request drops its older run. Every commit on main finishes, or the README badge keeps showing the last run that did.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test:
@@ -85,7 +86,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download v3.3.0 -R neogentrics/neo-markdown-reader -p 'NeoMarkdownReader-3.3.0-Setup.exe' -D old-release
+          gh release download v3.3.0 -R neogentrics/rt-markdown-reader -p 'NeoMarkdownReader-3.3.0-Setup.exe' -D old-release
           $new = Get-ChildItem release/RTMarkdownReader-*-Setup.exe | Select-Object -First 1
           powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ci-update-check.ps1 -OldSetup (Resolve-Path old-release/NeoMarkdownReader-3.3.0-Setup.exe).Path -NewSetup $new.FullName
           if ($LASTEXITCODE) { exit $LASTEXITCODE }

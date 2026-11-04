@@ -25,19 +25,19 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v1.0](#v10--the-reader) | The reader | ✅ Released |
 | [v1.1](#v11--everyday-comfort) | Everyday comfort | ✅ Released (1.1.0) |
 | [v1.2](#v12--create--edit) | Create & edit | ✅ Released (1.2.0) |
-| [v1.3](#v13--compare--organize) | Compare & organize | ✅ Released ([1.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.3.0)) |
-| [v1.4](#v14--publish-beautifully) | Publish beautifully | ✅ Released ([1.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.4.0)) |
-| [v2.0](#v20--power-features) | Power features | ✅ Released ([2.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.0.0)) |
-| [v2.1](#v21--at-home-on-windows) | At home on Windows | ✅ Released ([2.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.1.0)) |
-| [v2.2](#v22--write-faster) | Write faster | ✅ Released ([2.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.2.0)) |
-| [v2.3](#v23--connected-notes) | Connected notes | ✅ Released ([2.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.3.0)) |
-| [v2.4](#v24--read-listen--share) | Read, listen & share | ✅ Released ([2.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.4.0)) |
-| [v3.0](#v30--make-it-yours) | Make it yours | ✅ Released ([3.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.0.0)) |
-| [v3.1](#v31--across-your-computers) | Across your computers | ✅ Released ([3.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.1.0)) |
-| [v3.2](#v32--natural-voices) | Natural voices | ✅ Released ([3.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.2.0)) |
-| [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | ✅ Released ([3.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.3.0)) |
-| [v3.4](#v34--claude-connected) | Claude, connected, and a first-run tutorial | ✅ Released ([3.4.1](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.4.1)) |
-| [v3.5](#v35--listen--speak) | Listen & speak | ✅ Released ([3.5.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.5.0)) |
+| [v1.3](#v13--compare--organize) | Compare & organize | ✅ Released ([1.3.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v1.3.0)) |
+| [v1.4](#v14--publish-beautifully) | Publish beautifully | ✅ Released ([1.4.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v1.4.0)) |
+| [v2.0](#v20--power-features) | Power features | ✅ Released ([2.0.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v2.0.0)) |
+| [v2.1](#v21--at-home-on-windows) | At home on Windows | ✅ Released ([2.1.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v2.1.0)) |
+| [v2.2](#v22--write-faster) | Write faster | ✅ Released ([2.2.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v2.2.0)) |
+| [v2.3](#v23--connected-notes) | Connected notes | ✅ Released ([2.3.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v2.3.0)) |
+| [v2.4](#v24--read-listen--share) | Read, listen & share | ✅ Released ([2.4.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v2.4.0)) |
+| [v3.0](#v30--make-it-yours) | Make it yours | ✅ Released ([3.0.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.0.0)) |
+| [v3.1](#v31--across-your-computers) | Across your computers | ✅ Released ([3.1.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.1.0)) |
+| [v3.2](#v32--natural-voices) | Natural voices | ✅ Released ([3.2.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.2.0)) |
+| [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | ✅ Released ([3.3.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.3.0)) |
+| [v3.4](#v34--claude-connected) | Claude, connected, and a first-run tutorial | ✅ Released ([3.4.1](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.4.1)) |
+| [v3.5](#v35--listen--speak) | Listen & speak | ✅ Released ([3.5.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.5.0)) |
 | [v3.6](#v36--study--research) | Study & research | 🔨 In progress |
 | [v3.7](#v37--automate-with-n8n) | Automate with n8n | Planned |
 | [v3.8](#v38--notion) | Notion | Planned |
@@ -59,7 +59,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 ## v1.1 — Everyday comfort
 
 Make it feel like a normal Windows program. **Released in
-[1.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.1.0)** — the installed app now
+[1.1.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v1.1.0)** — the installed app now
 updates itself from here on.
 
 | Feature | Size | Details |
@@ -73,7 +73,7 @@ updates itself from here on.
 
 ## v1.2 — Create & edit
 
-✅ **Released in [1.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.2.0).** Decided: the edit-permission prompt defaults to **Just this time**.
+✅ **Released in [1.2.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v1.2.0).** Decided: the edit-permission prompt defaults to **Just this time**.
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -84,7 +84,7 @@ updates itself from here on.
 
 ## v1.3 — Compare & organize
 
-✅ **Released in [1.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.3.0).**
+✅ **Released in [1.3.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v1.3.0).**
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -95,7 +95,7 @@ updates itself from here on.
 
 ## v1.4 — Publish beautifully
 
-✅ **Released in [1.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v1.4.0).**
+✅ **Released in [1.4.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v1.4.0).**
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -106,7 +106,7 @@ updates itself from here on.
 
 ## v2.0 — Power features
 
-✅ **Released in [2.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.0.0).**
+✅ **Released in [2.0.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v2.0.0).**
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -125,7 +125,7 @@ updates itself from here on.
 
 ## v2.1 — At home on Windows
 
-✅ **Released in [2.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.1.0).**
+✅ **Released in [2.1.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v2.1.0).**
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -136,7 +136,7 @@ updates itself from here on.
 
 ## v2.2 — Write faster
 
-✅ **Released in [2.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.2.0).** Make writing and editing quicker, and make every change easy to undo.
+✅ **Released in [2.2.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v2.2.0).** Make writing and editing quicker, and make every change easy to undo.
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -149,7 +149,7 @@ updates itself from here on.
 
 ## v2.3 — Connected notes
 
-✅ **Released in [2.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.3.0).** Turn a folder of documents into a small knowledge base.
+✅ **Released in [2.3.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v2.3.0).** Turn a folder of documents into a small knowledge base.
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -162,7 +162,7 @@ updates itself from here on.
 
 ## v2.4 — Read, listen & share
 
-✅ **Released in [2.4.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v2.4.0).** More ways to take in a document, and more ways to hand it on.
+✅ **Released in [2.4.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v2.4.0).** More ways to take in a document, and more ways to hand it on.
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -175,7 +175,7 @@ updates itself from here on.
 
 ## v3.0 — Make it yours
 
-✅ **Released in [3.0.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.0.0).** Add-ons you approve, the app in your language, and right-to-left documents (decision 8).
+✅ **Released in [3.0.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.0.0).** Add-ons you approve, the app in your language, and right-to-left documents (decision 8).
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -184,7 +184,7 @@ updates itself from here on.
 
 ## v3.1 — Across your computers
 
-✅ **Released in [3.1.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.1.0).** Your reading life, the same on every computer, without an account.
+✅ **Released in [3.1.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.1.0).** Your reading life, the same on every computer, without an account.
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -192,7 +192,7 @@ updates itself from here on.
 
 ## v3.2 — Natural voices
 
-✅ **Released in [3.2.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.2.0)** (decision 9). Read aloud in a voice that sounds like a person, not a machine.
+✅ **Released in [3.2.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.2.0)** (decision 9). Read aloud in a voice that sounds like a person, not a machine.
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -200,7 +200,7 @@ updates itself from here on.
 
 ## v3.3 — Your AI, your choice
 
-✅ **Released in [3.3.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.3.0)** (decision 10). AI assist works with the service you already pay for, or with none at all.
+✅ **Released in [3.3.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.3.0)** (decision 10). AI assist works with the service you already pay for, or with none at all.
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -210,7 +210,7 @@ updates itself from here on.
 
 ## v3.4 — Claude, connected
 
-✅ **Released in [3.4.1](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.4.1)** (decision 11), numbered that way because the fixes below went out in the same release. The app also took its Recon Towers name here: RT Markdown Reader. 🙋 Work with Claude through the Claude apps you already sign in to, with no API key needed.
+✅ **Released in [3.4.1](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.4.1)** (decision 11), numbered that way because the fixes below went out in the same release. The app also took its Recon Towers name here: RT Markdown Reader. 🙋 Work with Claude through the Claude apps you already sign in to, with no API key needed.
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -228,7 +228,7 @@ updates itself from here on.
 
 ## v3.5 — Listen & speak
 
-✅ **Released in [3.5.0](https://github.com/neogentrics/neo-markdown-reader/releases/tag/v3.5.0).** More out of the natural voices, a voice of your own for writing, and more ways to make the app look right for you.
+✅ **Released in [3.5.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.5.0).** More out of the natural voices, a voice of your own for writing, and more ways to make the app look right for you.
 
 | Feature | Size | Details |
 |---|:-:|---|
@@ -257,9 +257,9 @@ updates itself from here on.
 | Smart search | M | Find documents by what they mean, not only by their exact words, with an index built and kept on your computer. *Related documents* appear under the outline. |
 | Citations & bibliography | M | Insert citations from a BibTeX file or a Zotero library. The bibliography is formatted (APA, MLA, Chicago and more) on the page and in PDF and Word exports. |
 | Flashcards & quizzes | M | Turn definitions, or `Q:` / `A:` lines, into flashcards with spaced repetition. AI (optional) can draft questions from a chapter. |
-| 🙋 Colour for the older themes | S | The themes from before 3.5 get what Blue, Red and Yellow have: panels that run from one colour to another, and contrasting buttons. High Contrast stays flat, because plain contrast is the point of it. |
+| ✅ 🙋 Colour for the older themes | S | The themes from before 3.5 get what Blue, Red and Yellow have: panels that run from one colour to another, and contrasting buttons. High Contrast stays flat, because plain contrast is the point of it. |
 | 🙋 More colours in Customize Theme | S | Pick the panel and background colours as well as the button colour. |
-| 🙋 Link with other Recon Towers apps | M | Apps on the same computer find each other, you approve the link once, and documents can be sent across, with no accounts. The rules are published in `docs/app-link.md`, so StoryTracker can be built to them. Pairing with a copy on another computer, by a one-time code, comes with StoryTracker's sync. |
+| ✅ 🙋 Link with other Recon Towers apps | M | Apps on the same computer find each other, you approve the link once, and documents can be sent across, with no accounts. The rules are published in `docs/app-link.md`, so StoryTracker can be built to them. Pairing with a copy on another computer, by a one-time code, comes with StoryTracker's sync. |
 
 ## v3.7 — Automate with n8n
 

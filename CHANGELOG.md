@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [3.6.0] - Unreleased
 
+### Added
+- **App Link** (*Preferences → Linked Apps*): other Recon Towers apps on this computer can link with this one, and
+  documents can be sent between them with *File → Send to Linked App*. You approve each app once, there are no
+  accounts, and it stays off until you turn it on. The rules for other apps are in `docs/app-link.md`.
+
 ### Changed
 - **Paper, Sepia, Mist, Night, Forest and Dusk** now have panels that run from one colour to another, with contrasting
   buttons, like Blue, Red and Yellow. High Contrast stays flat.
