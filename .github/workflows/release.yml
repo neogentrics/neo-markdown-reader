@@ -40,9 +40,18 @@ jobs:
         if: matrix.name != 'windows'
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-      # Code signing (Windows): add the certificate as repository secrets and every release is
-      # signed automatically. WINDOWS_CSC_LINK = the .pfx file, base64-encoded;
-      # WINDOWS_CSC_KEY_PASSWORD = its password. Without them the build is simply unsigned.
+      # Code signing (Windows) is off until it's set up: see docs/release-channels.md.
+      # Azure Artifact Signing starts once the repository variable AZURE_SIGNING_ENDPOINT exists.
+      - name: Turn on Azure Artifact Signing
+        if: matrix.name == 'windows' && vars.AZURE_SIGNING_ENDPOINT
+        env:
+          SIGN_ENDPOINT: ${{ vars.AZURE_SIGNING_ENDPOINT }}
+          SIGN_ACCOUNT: ${{ vars.AZURE_SIGNING_ACCOUNT }}
+          SIGN_PROFILE: ${{ vars.AZURE_SIGNING_PROFILE }}
+          SIGN_PUBLISHER: ${{ vars.AZURE_SIGNING_PUBLISHER }}
+        run: node scripts/azure-signing.mjs
+      # With a certificate instead: WINDOWS_CSC_LINK = the .pfx file, base64-encoded;
+      # WINDOWS_CSC_KEY_PASSWORD = its password. Without either, the build is simply unsigned.
       # (Only this step gets them: on macOS even an empty CSC_LINK is read as a certificate path.)
       - run: npm run ${{ matrix.script }}
         if: matrix.name == 'windows'
@@ -50,13 +59,20 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           CSC_LINK: ${{ secrets.WINDOWS_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CSC_KEY_PASSWORD }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       - name: Report whether the Windows build is signed
         if: matrix.name == 'windows'
         shell: powershell
+        env:
+          MUST_BE_SIGNED: ${{ vars.AZURE_SIGNING_ENDPOINT }}
         run: |
-          $exe = Get-ChildItem release/RTMarkdownReader-*-Setup.exe | Select-Object -First 1
-          $sig = Get-AuthenticodeSignature $exe.FullName
-          Write-Host "Signature status of $($exe.Name): $($sig.Status)"
+          foreach ($exe in Get-ChildItem release/RTMarkdownReader-*.exe) {
+            $sig = Get-AuthenticodeSignature $exe.FullName
+            Write-Host "Signature status of $($exe.Name): $($sig.Status)"
+            if ($env:MUST_BE_SIGNED -and $sig.Status -ne 'Valid') { throw "$($exe.Name) should be signed" }
+          }
       - uses: actions/upload-artifact@v7
         with:
           name: release-${{ matrix.name }}
@@ -66,6 +82,8 @@ jobs:
     name: Publish GitHub Release
     needs: build
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.name }}
     steps:
       - uses: actions/checkout@v7
       - name: Work out the release tag
@@ -89,3 +107,31 @@ jobs:
           files: artifacts/*
           generate_release_notes: true
           fail_on_unmatched_files: true
+
+  # Off until the repository variable WINGET_SUBMIT is 'true': see docs/release-channels.md.
+  # A failure here doesn't touch the release, which is already published.
+  winget:
+    name: Submit to winget
+    needs: publish
+    if: vars.WINGET_SUBMIT == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - name: Write the manifests
+        id: manifests
+        shell: bash
+        env:
+          TAG: ${{ needs.publish.outputs.tag }}
+          WINGET_ID: ${{ vars.WINGET_PACKAGE_ID }}
+        run: node scripts/winget-manifest.mjs --version "${TAG#v}"
+      - name: Open the pull request on microsoft/winget-pkgs
+        shell: powershell
+        env:
+          WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+          MANIFESTS: ${{ steps.manifests.outputs.dir }}
+        run: |
+          Invoke-WebRequest https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+          .\wingetcreate.exe submit --token $env:WINGET_TOKEN $env:MANIFESTS

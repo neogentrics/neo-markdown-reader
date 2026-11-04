@@ -2,11 +2,12 @@
 //
 //   node scripts/winget-manifest.mjs                 # version from package.json, downloads the installer
 //   node scripts/winget-manifest.mjs --file <Setup.exe> [--version 2.1.0]
+//   node scripts/winget-manifest.mjs --id Publisher.Package    # or set WINGET_ID
 //
 // winget needs the installer's SHA-256, so run this after the release is published (or point
-// --file at the built installer). Output: packaging/winget/manifests/n/NeoGentrics/NeoMarkdownReader/<version>/
+// --file at the built installer). Output: packaging/winget/manifests/<letter>/<Publisher>/<Package>/<version>/
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -15,7 +16,14 @@ const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const ID = 'NeoGentrics.NeoMarkdownReader';
 const REPO = 'https://github.com/neogentrics/rt-markdown-reader';
 
-export function manifests({ version, sha256, url }) {
+/** Where a package's manifests sit, the same way microsoft/winget-pkgs lays them out. */
+export function manifestPath(id, version) {
+  const parts = id.split('.');
+  return ['manifests', parts[0][0].toLowerCase(), ...parts, version];
+}
+
+export function manifests({ version, sha256, url, id = ID }) {
+  const ID = id;
   const head = (kind) => `# Created with scripts/winget-manifest.mjs
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.${kind}.1.12.0.schema.json
 
@@ -74,6 +82,7 @@ async function main() {
   const args = process.argv.slice(2);
   const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
   const version = opt('--version') || pkg.version;
+  const id = opt('--id') || process.env.WINGET_ID || ID;
   const url = `${REPO}/releases/download/v${version}/RTMarkdownReader-${version}-Setup.exe`;
   let bytes;
   if (opt('--file')) bytes = readFileSync(opt('--file'));
@@ -84,10 +93,11 @@ async function main() {
     bytes = Buffer.from(await res.arrayBuffer());
   }
   const sha256 = createHash('sha256').update(bytes).digest('hex');
-  const dir = join(root, 'packaging', 'winget', 'manifests', 'n', 'NeoGentrics', 'NeoMarkdownReader', version);
+  const dir = join(root, 'packaging', 'winget', ...manifestPath(id, version));
   mkdirSync(dir, { recursive: true });
-  for (const [name, text] of Object.entries(manifests({ version, sha256, url }))) writeFileSync(join(dir, name), text);
+  for (const [name, text] of Object.entries(manifests({ version, sha256, url, id }))) writeFileSync(join(dir, name), text);
   console.log(`Wrote winget manifests for ${version} (SHA-256 ${sha256}) to ${dir}`);
+  if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `dir=${dir}\n`);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main().catch((e) => { console.error(e.message); process.exit(1); });

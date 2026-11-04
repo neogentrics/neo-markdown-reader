@@ -907,9 +907,11 @@ that same sandbox, and what they draw is sanitized like a document. See [SECURIT
      `winget validate --manifest <folder>`, then submit it to
      [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) as
      `manifests/n/NeoGentrics/NeoMarkdownReader/<version>/`, for example with `wingetcreate submit`.
-     The manifests use the 1.12 schema.
+     The manifests use the 1.12 schema. The Release workflow can also do this by itself: see
+     [release channels](docs/release-channels.md).
    - **Code signing:** add `WINDOWS_CSC_LINK` (the `.pfx` certificate, base64-encoded) and
-     `WINDOWS_CSC_KEY_PASSWORD` as repository secrets. Every later release is then signed automatically,
+     `WINDOWS_CSC_KEY_PASSWORD` as repository secrets, or set up Azure Artifact Signing as in
+     [release channels](docs/release-channels.md). Every later release is then signed automatically,
      and the Release log reports the signature status.
 
 Every push and pull request runs the **CI** workflow: tests on Windows, macOS and Linux, plus a

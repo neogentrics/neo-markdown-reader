@@ -134,6 +134,32 @@ test('AI assist: prompts, request parameters and settings', () => {
   assert.equal(ai.KEY_RE.test('sk-ant-abcdefghijklmnopqrstuvwxyz\nX-Header: 1'), false);
 });
 
+test('Azure signing: settings reach the Windows build, and a gap stops the release', async () => {
+  const { withAzureSigning } = await import('../scripts/azure-signing.mjs');
+  const pkg = { version: '3.6.0', build: { productName: 'App', win: { icon: 'a.ico' }, mac: { icon: 'a.png' } } };
+  const env = { SIGN_ENDPOINT: 'https://x.codesigning.azure.net', SIGN_ACCOUNT: 'acct', SIGN_PROFILE: 'prof', SIGN_PUBLISHER: 'Two Names' };
+  const out = withAzureSigning(pkg, env);
+  assert.deepEqual(out.build.win.azureSignOptions, {
+    endpoint: env.SIGN_ENDPOINT, codeSigningAccountName: 'acct', certificateProfileName: 'prof', publisherName: 'Two Names',
+  });
+  assert.equal(out.build.win.icon, 'a.ico');
+  assert.deepEqual(out.build.mac, pkg.build.mac);
+  assert.equal(pkg.build.win.azureSignOptions, undefined);
+  assert.throws(() => withAzureSigning(pkg, { ...env, SIGN_PUBLISHER: '' }), /missing: publisherName/);
+});
+
+test('winget manifests: a new package id reaches every file and the folder', async () => {
+  const { manifests, manifestPath } = await import('../scripts/winget-manifest.mjs');
+  assert.deepEqual(manifestPath('NeoGentrics.NeoMarkdownReader', '3.6.0'), ['manifests', 'n', 'NeoGentrics', 'NeoMarkdownReader', '3.6.0']);
+  assert.deepEqual(manifestPath('ReconTowers.RTMarkdownReader', '3.6.0'), ['manifests', 'r', 'ReconTowers', 'RTMarkdownReader', '3.6.0']);
+  const m = manifests({ version: '3.6.0', sha256: 'ab'.repeat(32), url: 'https://example.com/Setup.exe', id: 'ReconTowers.RTMarkdownReader' });
+  assert.deepEqual(Object.keys(m).sort(), ['ReconTowers.RTMarkdownReader.installer.yaml', 'ReconTowers.RTMarkdownReader.locale.en-US.yaml', 'ReconTowers.RTMarkdownReader.yaml']);
+  for (const text of Object.values(m)) {
+    assert.match(text, /^PackageIdentifier: ReconTowers\.RTMarkdownReader$/m);
+    assert.doesNotMatch(text, /NeoGentrics\.NeoMarkdownReader/);
+  }
+});
+
 test('winget manifests: id, version, installer URL and checksum line up', async () => {
   const { manifests } = await import('../scripts/winget-manifest.mjs');
   const m = manifests({ version: '2.1.0', sha256: 'ab'.repeat(32), url: 'https://example.com/Setup.exe' });
