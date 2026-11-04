@@ -49,6 +49,9 @@ license texts are in `export-tools.cjs.LEGAL.txt` next to it.
 ONNX Runtime Web is bundled into `resources/app.asar/dist/voice-worker.cjs` (license texts in
 `voice-worker.cjs.LEGAL.txt`), with its WebAssembly engine in `dist/voice/`.
 
+**The dictation model is not part of the application.** Whisper by OpenAI (MIT license), in the ONNX form
+published by the ONNX Community, is downloaded by the reader when they first use dictation.
+
 **The natural-voice model is not part of the application.** Supertonic 3 by Supertone Inc. is downloaded
 by the reader, from Supertone's published repository
 ([supertone-oss-archive/supertonic-3](https://huggingface.co/supertone-oss-archive/supertonic-3), revision

@@ -23,6 +23,7 @@ import { createSyncUi } from './sync-ui.js';
 import { createAboutUi } from './about-ui.js';
 import { createConnectorUi } from './connector-ui.js';
 import { createSayUi } from './say-ui.js';
+import { createDictateUi } from './dictate-ui.js';
 import { createTourUi } from './tour-ui.js';
 import { createPrefsUi } from './prefs-ui.js';
 import { createHelpUi } from './help-ui.js';
@@ -72,6 +73,7 @@ let syncUi = null;
 let aboutUi = null;
 let connectorUi = null;
 let sayUi = null;
+let dictateUi = null;
 let tourUi = null;
 let prefsUi = null;
 let helpUi = null;
@@ -243,7 +245,7 @@ function activate(id) {
   next.btn.tabIndex = 0;                       // the active tab is the one Tab key lands on
   next.btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   if (!els.findBar.hidden) closeFind();
-  if (prev !== next) readUi?.tabChanged();
+  if (prev !== next) { readUi?.tabChanged(); dictateUi?.tabChanged(); }
   split?.afterActivate(prev, next);
   showActiveDoc();
   editMode?.show(next);
@@ -267,7 +269,7 @@ async function closeTab(id) {
     if (choice === 'cancel') return false;
     if (choice === 'save' && !(await editMode.save(tab))) return false;
   }
-  if (tab.editing) await editMode.exit(tab, { force: true });
+  if (tab.editing) { dictateUi.stop(); await editMode.exit(tab, { force: true }); }
   i = tabIndex(id);
   if (i < 0) return true;
   tab.scroll = currentScroll(tab);
@@ -973,6 +975,8 @@ api.onCommand(({ cmd, arg }) => {
     case 'present': if (presenter.active()) presenter.stop(); else presenter.start(); break;
     case 'customize-theme': themeUi.open(); break;
     case 'pronunciation': sayUi.open(); break;
+    case 'dictate': dictateUi.toggle(); break;
+    case 'dictate-remove': api.dictateRemove(); break;
     case 'lock-protect': lockUi.protect(); break;
     case 'lock-now': lockUi.lockNow(); break;
     case 'lock-remove': lockUi.saveUnlockedCopy(); break;
@@ -1289,6 +1293,7 @@ readUi = createReadUi({
 publish = createPublish({ api, activeTab, settings: () => settings, toast, themeCss: () => themeUi.exportCss() });
 presenter = createPresenter({ api, activeTab, toast, reading: () => readUi });
 sayUi = createSayUi({ api, activeTab, reading: () => readUi });
+dictateUi = createDictateUi({ api, toast, activeTab, settings: () => settings });
 prefsUi = createPrefsUi({ api, settings: () => settings, toast, refreshVoices: () => readUi.refreshVoices(), openHelp: () => helpUi.open() });
 helpUi = createHelpUi({ api, render, openPrefs: (pane) => prefsUi.open(pane), startTutorial: () => tourUi.start() });
 $('btn-prefs').onclick = () => prefsUi.open();

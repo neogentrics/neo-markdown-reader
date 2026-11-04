@@ -94,6 +94,9 @@
     "mac": {
       "icon": "build/icon.png",
       "category": "public.app-category.productivity",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "RT Markdown Reader listens only while you use Dictation. What you say stays on your computer."
+      },
       "target": [
         "dmg"
       ]

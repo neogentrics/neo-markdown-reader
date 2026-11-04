@@ -108,6 +108,11 @@ contextBridge.exposeInMainWorld('reader', {
   onAnnotationsChanged: on('annotations:changed'),
   // natural voices (3.2)
   voiceStatus: invoke('voice:status'),
+  dictateStatus: invoke('dictate:status'),
+  dictateInstall: invoke('dictate:install'),
+  dictateRemove: invoke('dictate:remove'),
+  dictateHear: invoke('dictate:hear'),
+  onDictateProgress: on('dictate:progress'),
   sayGet: invoke('say:get'),
   sayRules: invoke('say:rules'),
   saySet: invoke('say:set'),

@@ -49,7 +49,7 @@ for (const f of ['ort-wasm-simd-threaded.wasm', 'ort-wasm-simd-threaded.mjs']) {
 }
 
 const mainTools = {
-  entryPoints: { 'export-tools': join(root, 'src/main/export-tools.js'), 'voice-worker': join(root, 'src/main/voice-worker.js') },
+  entryPoints: { 'export-tools': join(root, 'src/main/export-tools.js'), 'voice-worker': join(root, 'src/main/voice-worker.js'), 'dictate-worker': join(root, 'src/main/dictate-worker.js') },
   outdir: out,
   outExtension: { '.js': '.cjs' },
   bundle: true,

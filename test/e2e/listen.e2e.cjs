@@ -11,13 +11,25 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-listen-'));
 const doc = path.join(tmp, 'talk.md');
 fs.writeFileSync(doc, '# The talk\n\nFirst slide here. It has two sentences.\n\n---\n\n## Second\n\nThe middle part. Read on.\n\n---\n\n## Third\n\nThe last part.\n');
 
+// A second of sound and two of silence, as the microphone stand-in.
+const sound = path.join(tmp, 'mic.wav');
+{
+  const rate = 16000;
+  const pcm = Buffer.alloc(rate * 3 * 2);
+  for (let i = 0; i < rate; i++) pcm.writeInt16LE(Math.round(9000 * Math.sin((2 * Math.PI * 300 * i) / rate)), i * 2);
+  const head = Buffer.alloc(44);
+  head.write('RIFF', 0); head.writeUInt32LE(36 + pcm.length, 4); head.write('WAVEfmt ', 8); head.writeUInt32LE(16, 16); head.writeUInt16LE(1, 20); head.writeUInt16LE(1, 22);
+  head.writeUInt32LE(rate, 24); head.writeUInt32LE(rate * 2, 28); head.writeUInt16LE(2, 32); head.writeUInt16LE(16, 34); head.write('data', 36); head.writeUInt32LE(pcm.length, 40);
+  fs.writeFileSync(sound, Buffer.concat([head, pcm]));
+}
+
 const step = async (name, fn) => { await fn(); console.log('ok -', name); };
 
 (async () => {
   const app = await electron.launch({
     executablePath: require(path.join(root, 'node_modules/electron')),
-    args: [root, doc, ...(process.platform === 'linux' ? ['--no-sandbox'] : [])],
-    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: path.join(tmp, 'p'), NMR_DISABLE_UPDATES: '1', NMR_NO_TOUR: '1' },
+    args: [root, doc, '--use-fake-device-for-media-stream', `--use-file-for-fake-audio-capture=${sound}`, ...(process.platform === 'linux' ? ['--no-sandbox'] : [])],
+    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1', NMR_USER_DATA: path.join(tmp, 'p'), NMR_DISABLE_UPDATES: '1', NMR_NO_TOUR: '1', NMR_FAKE_TTS: '1' },
   });
   const win = await app.firstWindow();
   await win.waitForSelector('.tab.active');
@@ -230,6 +242,30 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await win.evaluate(() => window.reader.setSettings({ theme: 'light', surface: 'solid' }));
     await win.waitForFunction(() => document.documentElement.dataset.surface === 'solid');
     await win.keyboard.press('Escape');
+  });
+
+  await step('dictation needs Edit, asks before the download, and types what it hears', async () => {
+    await menu('dictate');
+    await win.waitForFunction(() => /Click Edit first/.test(document.body.textContent));
+    await app.evaluate(({ dialog }) => {
+      globalThis.__asked = [];
+      dialog.showMessageBox = async (...args) => { const o = args.at(-1); globalThis.__asked.push(o.message); return { response: 0 }; };
+    });
+    await menu('toggle-edit');
+    await win.evaluate(() => {
+      for (const b of document.querySelectorAll('dialog[open] .big-btn')) b.click();
+    });
+    await win.waitForSelector('#fmt-dictate');
+    await win.waitForFunction(() => document.getElementById('fmt-dictate').offsetParent);
+    await win.click('#fmt-dictate');
+    await win.waitForFunction(() => document.getElementById('fmt-dictate').classList.contains('active'), null, { timeout: 15000 });
+    assert.deepEqual(await app.evaluate(() => globalThis.__asked.filter((m) => /dictation/i.test(m))), ['Download dictation?']);
+    await win.waitForFunction(() => /I said \d+ seconds/.test(document.querySelector('.cm-content').textContent), null, { timeout: 20000 });
+    await win.click('#fmt-dictate');
+    await win.waitForFunction(() => !document.getElementById('fmt-dictate').classList.contains('active'));
+    await win.keyboard.press('Control+z');
+    await menu('toggle-edit');
+    await win.evaluate(() => { for (const b of document.querySelectorAll('dialog[open] button')) if (/Discard|Don.t Save/i.test(b.textContent)) b.click(); });
   });
 
   await step('the fonts change the page and its headings', async () => {

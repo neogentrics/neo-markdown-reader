@@ -7,6 +7,7 @@ const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
 const { Settings, FONTS, FONT_NAMES, cleanAccelerator } = require('./settings');
 const { PronunciationStore } = require('./pronounce');
+const { DictationStore } = require('./dictation');
 const { isMarkdownPath, isLockedPath, isOpenablePath, isViewablePath, isDataPath, fileFromArgv, readMarkdown, readDocument, isWritable, encodeForSave } = require('./files');
 const { HistoryStore } = require('./history');
 const { runJob: runReplaceJob } = require('./folder-replace');
@@ -58,6 +59,8 @@ let annotations;
 let history;
 /** Sync between your computers (3.1), see sync.js. */
 let sync;
+/** Dictation (3.5), see dictation.js. */
+let dictation = null;
 /** Natural voices (3.2), see voices.js. */
 let voices;
 /** Every menu command, for running by name from Quick Open (">") and for changing shortcuts. */
@@ -725,6 +728,8 @@ function rebuildMenu() {
         cmd('highlight', 'Highlight Selection', 'CmdOrCtrl+Shift+H'),
         cmd('bookmark', 'Bookmark This File', 'CmdOrCtrl+D'),
         cmd('edit-table', 'Edit Table…'),
+        cmd('dictate', 'Dictation', 'CmdOrCtrl+Alt+D'),
+        moved(cmd('dictate-remove', 'Remove Dictation Download…')),
         {
           label: 'Compare and History',
           submenu: [
@@ -1425,7 +1430,7 @@ function registerIpc() {
   ipcMain.handle('doc:print', (e) => { stateFor(e)?.win.webContents.print({ printBackground: true }); });
   ipcMain.handle('settings:set', (_e, patch) => {
     if (!patch || typeof patch !== 'object') return rendererSettings();
-    const allowed = ['theme', 'surface', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'language'];
+    const allowed = ['theme', 'surface', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'audioInput', 'language'];
     setSetting(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
     return rendererSettings();
   });
@@ -2074,6 +2079,31 @@ function registerIpc() {
   ipcMain.handle('sync:now', () => sync.sync());
 
   // ---- natural voices (3.2): downloaded only after the reader agrees; spoken in a separate process
+  ipcMain.handle('dictate:status', () => dictation.status());
+  ipcMain.handle('dictate:install', async (e) => {
+    if (dictation.status().installed) return dictation.status();
+    const { response } = await dlg.showMessageBox(stateFor(e)?.win, {
+      type: 'question', title: 'Dictation', noLink: true, buttons: ['Download', 'Cancel'], defaultId: 0, cancelId: 1,
+      message: 'Download dictation?',
+      detail: `About ${Math.round(dictation.status().total / 1e6 / 10) * 10} MB, downloaded once. After that it works offline: what you say never leaves your computer.\n\nDictation uses the Whisper model by OpenAI, under the MIT license.`,
+    });
+    if (response !== 0) return { ...dictation.status(), canceled: true };
+    return dictation.install((status) => { for (const { win } of liveStates()) win.webContents.send('dictate:progress', status); });
+  });
+  ipcMain.handle('dictate:remove', async (e) => {
+    if (!dictation.status().installed) return dictation.status();
+    const { response } = await dlg.showMessageBox(stateFor(e)?.win, {
+      type: 'question', title: 'Dictation', noLink: true, buttons: ['Remove', 'Cancel'], defaultId: 1, cancelId: 1,
+      message: 'Remove the dictation download?',
+      detail: 'This frees the space it uses. You can download it again at any time.',
+    });
+    return response === 0 ? dictation.remove() : dictation.status();
+  });
+  ipcMain.handle('dictate:hear', async (_e, job = {}) => {
+    if (!(job.samples instanceof Float32Array) || job.samples.length > 16000 * 30) return { error: 'That was too long' };
+    try { return await dictation.hear({ samples: job.samples, lang: /^[a-z]{2}$/.test(job.lang) ? job.lang : '' }); } catch (err) { return { error: err.message }; }
+  });
+
   ipcMain.handle('voice:status', () => voices.status());
   ipcMain.handle('voice:install', async (e) => {
     const st = stateFor(e);
@@ -2242,8 +2272,17 @@ app.whenReady().then(() => {
     worker: path.join(ROOT, 'dist', 'voice-worker.cjs'),
     fake: !!process.env.NMR_FAKE_TTS,             // tests: no download, and a tone instead of a voice
   });
-  // Documents never need camera, mic, notifications, etc.; only clipboard writes for "Copy".
-  session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));
+  dictation = new DictationStore({
+    root: path.join(app.getPath('userData'), 'dictation'),
+    fetch: (url, opts) => net.fetch(url, opts),
+    fork: (script) => utilityProcess.fork(script, [], { serviceName: 'RT Markdown Reader dictation', stdio: 'ignore' }),
+    worker: path.join(ROOT, 'dist', 'dictate-worker.cjs'),
+    fake: !!process.env.NMR_FAKE_TTS,             // tests: no download, and made-up words
+  });
+  // Documents never need camera, notifications, etc.: only clipboard writes for "Copy", and the app's own
+  // windows may use the microphone for dictation, which only starts when you ask for it.
+  session.defaultSession.setPermissionRequestHandler((wc, perm, cb, details) => cb(perm === 'clipboard-sanitized-write'
+    || (perm === 'media' && details.mediaTypes?.length === 1 && details.mediaTypes[0] === 'audio' && liveStates().some(({ win }) => win.webContents === wc))));
   nativeTheme.on('updated', () => { if (settings.get().theme === 'system') broadcastSettings(); });
   registerIpc();
   rebuildMenu();

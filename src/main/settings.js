@@ -32,6 +32,7 @@ const DEFAULTS = Object.freeze({
   readAloud: { rate: 1, voice: '' },
   speakBar: null,         // where the read-aloud bar was left: { x, y }, each 0–1 of the room it has
   audioOutput: '',        // the device natural voices play through ('' = the computer's default); never synced
+  audioInput: '',         // the microphone for dictation ('' = the computer's default); never synced
   language: 'system',     // system | en | es | fr | de — the app's menus and dialogs
   addonsOff: [],          // ids of installed add-ons that are switched off   // read aloud: speed (0.5–2) and the chosen voice's name ('' = the system's default)
   windowBounds: null,
@@ -176,6 +177,7 @@ function sanitize(input) {
   const bar = input.speakBar;
   if (bar && [bar.x, bar.y].every((n) => Number.isFinite(n) && n >= 0 && n <= 1)) s.speakBar = { x: bar.x, y: bar.y };
   if (typeof input.audioOutput === 'string') s.audioOutput = input.audioOutput.slice(0, 200);
+  if (typeof input.audioInput === 'string') s.audioInput = input.audioInput.slice(0, 200);
   s.ai = cleanAiSettings(input.ai);
   s.exportOptions = cleanExportOptions(input.exportOptions);
   s.brand = cleanBrand(input.brand);
