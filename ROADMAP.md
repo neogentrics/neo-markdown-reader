@@ -258,7 +258,7 @@ updates itself from here on.
 | Citations & bibliography | M | Insert citations from a BibTeX file or a Zotero library. The bibliography is formatted (APA, MLA, Chicago and more) on the page and in PDF and Word exports. |
 | Flashcards & quizzes | M | Turn definitions, or `Q:` / `A:` lines, into flashcards with spaced repetition. AI (optional) can draft questions from a chapter. |
 | ✅ 🙋 Colour for the older themes | S | The themes from before 3.5 get what Blue, Red and Yellow have: panels that run from one colour to another, and contrasting buttons. High Contrast stays flat, because plain contrast is the point of it. |
-| 🙋 More colours in Customize Theme | S | Pick the panel and background colours as well as the button colour. |
+| ✅ 🙋 More colours in Customize Theme | S | Pick the panel and background colours as well as the button colour. Text on the panels changes to stay readable. |
 | ✅ 🙋 Link with other Recon Towers apps | M | Apps on the same computer find each other, you approve the link once, and documents can be sent across, with no accounts. The rules are published in `docs/app-link.md`, so StoryTracker can be built to them. Pairing with a copy on another computer, by a one-time code, comes with StoryTracker's sync. |
 
 ## v3.7 — Automate with n8n

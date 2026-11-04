@@ -566,6 +566,7 @@ Double-click it to put it back.
 
 - **Customize theme** (*Preferences → Appearance*, or *Customize colours & fonts…* in the theme menu):
   - Pick an accent colour and fonts for text, headings and code. They apply to every theme.
+  - Pick your own panel and background colours. Text on the panels changes to stay readable, and High Contrast keeps its own.
   - Optionally choose a **brand stylesheet** (a `.css` file, such as a company house style).
   - Exports use the same look, so a PDF or web page matches what you see.
 

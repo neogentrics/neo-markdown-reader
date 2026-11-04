@@ -28,7 +28,7 @@ const DEFAULTS = Object.freeze({
   tutorialStep: 0,        // where to resume
   ai: null,               // AI assist: { enabled, provider, models, quick, localUrl } — off by default; API keys are stored separately, encrypted
   runCode: 'ask',         // ask | off — running code blocks (always asks before each run)
-  brand: null,            // custom theme: accent colour, fonts, brand stylesheet (see BRAND_DEFAULTS)
+  brand: null,            // custom theme: accent, panel and background colours, fonts, brand stylesheet (see BRAND_DEFAULTS)
   shortcuts: {},          // your own keyboard shortcuts: menu command id -> accelerator ('' = none)
   wikiLinks: 'wiki',      // wiki | markdown — what the editor inserts when you pick a document after [[
   readAloud: { rate: 1, voice: '' },
@@ -52,7 +52,7 @@ const EXPORT_DEFAULTS = Object.freeze({
 });
 const EXPORT_CHOICES = { paper: ['auto', 'letter', 'a4', 'legal', 'a5'], margins: ['narrow', 'normal', 'wide'], colors: ['paper', 'theme'] };
 
-const BRAND_DEFAULTS = Object.freeze({ accent: '', bodyFont: '', headingFont: '', codeFont: '', stylesheet: '' });
+const BRAND_DEFAULTS = Object.freeze({ accent: '', panel: '', background: '', bodyFont: '', headingFont: '', codeFont: '', stylesheet: '' });
 
 const THEMES = ['system', 'light', 'dark', 'sepia', 'mist', 'forest', 'dusk', 'contrast', 'blue', 'red', 'yellow'];
 // The two the app has always had, then fonts by name. FONT_NAMES also sets the font of Word and PowerPoint exports.
@@ -110,7 +110,7 @@ function cleanFont(v) {
 function cleanBrand(b) {
   const out = { ...BRAND_DEFAULTS };
   if (!b || typeof b !== 'object') return out;
-  if (typeof b.accent === 'string' && /^#[0-9a-f]{6}$/i.test(b.accent)) out.accent = b.accent.toLowerCase();
+  for (const k of ['accent', 'panel', 'background']) if (typeof b[k] === 'string' && /^#[0-9a-f]{6}$/i.test(b[k])) out[k] = b[k].toLowerCase();
   for (const k of ['bodyFont', 'headingFont', 'codeFont']) out[k] = cleanFont(b[k]);
   if (isPath(b.stylesheet) && /\.css$/i.test(b.stylesheet)) out.stylesheet = b.stylesheet;
   return out;

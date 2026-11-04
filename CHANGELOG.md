@@ -10,6 +10,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - **App Link** (*Preferences → Linked Apps*): other Recon Towers apps on this computer can link with this one, and
   documents can be sent between them with *File → Send to Linked App*. You approve each app once, there are no
   accounts, and it stays off until you turn it on. The rules for other apps are in `docs/app-link.md`.
+- **Customize Theme** can now change the panel and background colours too. Text on your panels changes to stay
+  readable, whatever colour you pick. These stay in the app, so exports don't use them, and High Contrast keeps its own.
+  With Glass on, panels stay solid over colours you've chosen, so they can still be read.
 
 ### Changed
 - **Paper, Sepia, Mist, Night, Forest and Dusk** now have panels that run from one colour to another, with contrasting
@@ -17,6 +20,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 - Blue and Red: small text on the brightest part of the panels was a little too faint.
+- Your accent colour didn't reach the buttons on the toolbar, tabs and sidebar in themes with coloured panels. It does
+  now, lightened or darkened only as much as it takes to be read there.
+- Text on buttons in your accent colour now stays readable, whatever colour you pick.
 
 ## [3.5.0] - 2026-11-04
 

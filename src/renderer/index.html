@@ -337,9 +337,14 @@
 
   <dialog class="shortcuts theme-dlg" id="theme-dlg" aria-labelledby="theme-dlg-h">
     <h3 id="theme-dlg-h">Customize theme</h3>
-    <p class="grants-intro">Your colour and fonts apply to every theme, and to PDFs, Word documents and web pages you export.</p>
+    <p class="grants-intro">Your accent colour and fonts apply to every theme, and to PDFs, Word documents and web pages you export.</p>
     <div class="pop-label">Accent colour</div>
     <div class="accent-row"><div class="accent-swatches" id="accent-swatches"></div><label class="accent-pick" title="Pick any colour"><input type="color" id="accent-custom" aria-label="Custom accent colour"> Custom</label></div>
+    <div class="pop-label">Panel colour</div>
+    <div class="accent-row"><div class="accent-swatches" id="panel-swatches"></div><label class="accent-pick" title="Pick any colour"><input type="color" id="panel-custom" aria-label="Custom panel colour"> Custom</label></div>
+    <div class="pop-label">Background colour</div>
+    <div class="accent-row"><div class="accent-swatches" id="background-swatches"></div><label class="accent-pick" title="Pick any colour"><input type="color" id="background-custom" aria-label="Custom background colour"> Custom</label></div>
+    <p class="hint-text">Panels and the background stay in the app, and High Contrast keeps its own. Text on your panels changes to stay readable.</p>
     <div class="font-grid">
       <label>Text font<input type="text" data-key="bodyFont" list="fonts-body" placeholder="Theme default" spellcheck="false"></label>
       <label>Heading font<input type="text" data-key="headingFont" list="fonts-heading" placeholder="Theme default" spellcheck="false"></label>

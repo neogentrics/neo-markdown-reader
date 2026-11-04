@@ -196,9 +196,11 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   });
 
   await step('a custom accent colour and brand stylesheet restyle the page and travel with exports', async () => {
+    await win.evaluate(() => window.reader.setSettings({ theme: 'light' }));   // a dark computer would lift the colour
+    await win.waitForFunction(() => document.documentElement.dataset.theme === 'light');
     await menu('customize-theme');
     await win.waitForSelector('#theme-dlg[open]');
-    await win.click('#accent-swatches [data-accent="#2b8a3e"]');
+    await win.click('#accent-swatches [data-color="#2b8a3e"]');
     await win.waitForFunction(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() === '#2b8a3e');
     await win.fill('#theme-dlg input[data-key="headingFont"]', 'Georgia');
     await win.waitForFunction(() => getComputedStyle(document.documentElement).getPropertyValue('--font-display').includes('Georgia'));
@@ -214,14 +216,43 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     assert.match(html, /--accent: #2b8a3e/);
   });
 
+  await step('your button colour reaches the panels, and your panel and background colours paint the app', async () => {
+    const panelToken = (name) => win.evaluate((n) => getComputedStyle(document.querySelector('.toolbar')).getPropertyValue(n).trim(), name);
+    const onPanels = await panelToken('--accent');
+    await win.evaluate(() => { document.getElementById('brand-app').media = 'not all'; });
+    assert.notEqual(onPanels, await panelToken('--accent'), 'the theme would otherwise keep its own');
+    await win.evaluate(() => { document.getElementById('brand-app').media = ''; });
+    await menu('customize-theme');
+    await win.waitForSelector('#theme-dlg[open]');
+    await win.click('#panel-swatches [data-color="#12355b"]');
+    await win.waitForFunction(() => getComputedStyle(document.querySelector('.toolbar')).getPropertyValue('--chrome').trim() === '#12355b');
+    assert.equal(await win.evaluate(() => getComputedStyle(document.querySelector('.toolbar')).colorScheme), 'dark');
+    assert.equal(await panelToken('--heading'), '#ffffff');
+    await win.click('#background-swatches [data-color="#efe6d4"]');
+    await win.waitForFunction(() => getComputedStyle(document.documentElement).getPropertyValue('--desk').trim() === '#efe6d4');
+    assert.match(await win.evaluate(() => getComputedStyle(document.body).backgroundImage), /gradient/);
+    assert.equal(await win.locator('#panel-swatches [data-color="#12355b"]').evaluate((b) => b.classList.contains('active')), true);
+    await win.click('#theme-dlg-close');
+    const out = path.join(tmp, 'painted.html');
+    await saveTo(out);
+    await menu('export-html');
+    const html = (await exported(out)).toString('utf8');
+    assert.match(html, /--accent: #2b8a3e/);
+    assert.doesNotMatch(html, /#12355b|#efe6d4/, 'an export carries the page, not the app around it');
+  });
+
   await step('the custom theme is remembered and can be reset', async () => {
     const s = await savedSettings((x) => x.brand?.stylesheet);
     assert.equal(s.brand.accent, '#2b8a3e');
+    assert.equal(s.brand.panel, '#12355b');
+    assert.equal(s.brand.background, '#efe6d4');
     assert.equal(s.brand.headingFont, 'Georgia');
     assert.equal(s.brand.stylesheet, brandCss);
     await menu('customize-theme');
     await win.click('#brand-reset');
     await win.waitForFunction(() => getComputedStyle(document.querySelector('.page:not([hidden]) h1')).color !== 'rgb(1, 2, 3)');
+    await win.waitForFunction(() => getComputedStyle(document.querySelector('.toolbar')).getPropertyValue('--chrome').trim() !== '#12355b');
+    assert.notEqual(await win.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--desk').trim()), '#efe6d4');
     await win.click('#theme-dlg-close');
   });
 
