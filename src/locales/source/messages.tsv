@@ -132,6 +132,7 @@ Locked copy saved as {0}	Copia bloqueada guardada como {0}	Copie verrouillée en
 That file is read-only	Ese archivo es de solo lectura	Ce fichier est en lecture seule	Diese Datei ist schreibgeschützt
 Couldn’t change that task	No se pudo cambiar esa tarea	Impossible de modifier cette tâche	Diese Aufgabe konnte nicht geändert werden
 Renamed — {0} link{1} updated	Nombre cambiado: {0} enlace(s) actualizado(s)	Renommé — {0} lien(s) mis à jour	Umbenannt – {0} Link(s) aktualisiert
+Renamed — links in {0} document{1} couldn’t be updated	Nombre cambiado: no se pudieron actualizar los enlaces de {0} documento(s)	Renommé — impossible de mettre à jour les liens de {0} document(s)	Umbenannt – Links in {0} Dokument(en) konnten nicht aktualisiert werden
 Renamed	Nombre cambiado	Renommé	Umbenannt
 No voice is available — install a voice in your system’s speech settings (on Linux: speech-dispatcher with espeak-ng)	No hay ninguna voz disponible: instale una en los ajustes de voz del sistema (en Linux: speech-dispatcher con espeak-ng)	Aucune voix disponible — installez une voix dans les réglages vocaux du système (sous Linux : speech-dispatcher avec espeak-ng)	Keine Stimme verfügbar – installieren Sie eine in den Spracheinstellungen des Systems (unter Linux: speech-dispatcher mit espeak-ng)
 Reading aloud stopped	Lectura en voz alta detenida	Lecture à voix haute arrêtée	Vorlesen beendet

@@ -623,6 +623,7 @@
  "Rename…": "Renommer…",
  "Renamed": "Renommé",
  "Renamed — {0} link{1} updated": "Renommé — {0} lien(s) mis à jour",
+ "Renamed — links in {0} document{1} couldn’t be updated": "Renommé — impossible de mettre à jour les liens de {0} document(s)",
  "Reopen closed tab": "Rouvrir l’onglet fermé",
  "Reopen Closed Tab": "Rouvrir l’onglet fermé",
  "Replace": "Remplacer",

@@ -623,6 +623,7 @@
  "Rename…": "Cambiar nombre…",
  "Renamed": "Nombre cambiado",
  "Renamed — {0} link{1} updated": "Nombre cambiado: {0} enlace(s) actualizado(s)",
+ "Renamed — links in {0} document{1} couldn’t be updated": "Nombre cambiado: no se pudieron actualizar los enlaces de {0} documento(s)",
  "Reopen closed tab": "Volver a abrir la pestaña cerrada",
  "Reopen Closed Tab": "Volver a abrir la pestaña cerrada",
  "Replace": "Reemplazar",

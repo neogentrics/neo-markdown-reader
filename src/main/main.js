@@ -1842,9 +1842,11 @@ function registerIpc() {
     }
     const idx = await folderIndex(st);
     const updates = idx && st.folder.scan.files.includes(p) ? idx.retarget(p, target) : [];
+    const files = idx?.files;                        // as they were before the rename: the folder watcher refreshes the index while the question below is open
     try { await fs.promises.rename(p, target); } catch (err) { return { error: errorMessage(err, p) }; }
     editing.sessionGrants(st).add(editing.key(target));
     let updated = 0;
+    let missed = 0;
     if (updates.length) {
       const links = updates.reduce((n, u) => n + u.count, 0);
       const { response } = await dlg.showMessageBox(st.win, {
@@ -1856,14 +1858,15 @@ function registerIpc() {
         for (const u of updates) {
           try {
             const raw = (await fs.promises.readFile(u.path, 'utf8')).replace(/^\ufeff/, '').replace(/\r\n?/g, '\n');
-            const res = require('./notes-core').retargetLinks(raw, u.path, p, target, idx.files);
-            if (res.count && (await isWritable(u.path))) { await rewriteFile(u.path, res.text); updated += res.count; }
-          } catch { /* left as it was */ }
+            const res = require('./notes-core').retargetLinks(raw, u.path, p, target, files);
+            if (!res.count) continue;
+            if (await isWritable(u.path)) { await rewriteFile(u.path, res.text); updated += res.count; } else missed++;
+          } catch { missed++; /* left as it was */ }
         }
       }
     }
     if (st.folder) { st.folder.scan = await scanFolder(st.folder.root); st.win.webContents.send('folder:changed', folderInfo(st.folder.scan)); }
-    return { doc: await loadDoc(target), updated };
+    return { doc: await loadDoc(target), updated, missed };
   });
 
   // ---- AI: ask a question about documents from the open folder
