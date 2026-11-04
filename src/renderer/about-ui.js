@@ -3,7 +3,7 @@
 
 const $ = (id) => document.getElementById(id);
 export const WEBSITE = 'https://recontowers.com/projects/neo-markdown-reader/';
-const REPO = 'https://github.com/neogentrics/neo-markdown-reader';
+const REPO = 'https://github.com/neogentrics/rt-markdown-reader';
 
 export function createAboutUi({ api, toast }) {
   const dlg = $('about-dlg');
