@@ -31,6 +31,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Fixed
 - The read-aloud bar was hard to see, because it used the same colour as the page. It now uses the opposite colours
   in every theme.
+- Replace in Folder: a search still waiting from your last keystroke could land on top of the preview or wipe the
+  "Replaced" message.
 
 ## [3.4.1] - 2026-11-03
 
