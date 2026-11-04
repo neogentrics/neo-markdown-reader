@@ -280,11 +280,18 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   await step('the new panels and dialogs have no accessibility problems', async () => {
     await win.emulateMedia({ reducedMotion: 'reduce' });
     await win.evaluate(fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8'));
+    // The editor repaints its colours a moment after a theme change, so look again before calling it a
+    // problem: a real one is still there on every try.
     const problems = async (where) => {
-      const found = await win.evaluate(async () => {
-        const r = await window.axe.run(document, { resultTypes: ['violations'] });
-        return r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => `${v.id}: ${v.nodes[0]?.target.join(' ')}`);
-      });
+      let found = [];
+      for (let i = 0; i < 8; i++) {
+        found = await win.evaluate(async () => {
+          const r = await window.axe.run(document, { resultTypes: ['violations'] });
+          return r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => `${v.id}: ${v.nodes[0]?.target.join(' ')}`);
+        });
+        if (!found.length) return;
+        await new Promise((r) => setTimeout(r, 250));
+      }
       assert.deepEqual(found, [], `accessibility problems in ${where}: ${found.join(' | ')}`);
     };
     for (const theme of ['light', 'dark']) {
