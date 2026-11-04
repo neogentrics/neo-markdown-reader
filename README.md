@@ -729,12 +729,13 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Prefere
   key, or a private model on your own computer (Ollama, LM Studio), plus a quicker model for writing help.
 - **v3.4.1** took the name RT Markdown Reader, connected Claude Desktop and Claude Code to your documents, and added
   a hands-on tutorial, the Help Center and one Preferences window, with shorter menus.
+- **v3.5** added MP3 and audiobook export, a pronunciation list, offline dictation, a choice of speakers and
+  microphone, read aloud in presentation mode, a read-aloud bar you can see and move, Blue, Red and Yellow themes,
+  a Glass look, colour-safe colours and fifteen fonts.
 
 Coming next:
-- **v3.5 — Listen & speak:** documents exported as MP3s or audiobooks, a pronunciation list, offline dictation,
-  a choice of speakers and microphone, read aloud in presentation mode, a read-aloud bar you can move, blue, red
-  and yellow themes, and more fonts.
-- **v3.6 — Study & research:** search by meaning, citations and bibliographies, and flashcards.
+- **v3.6 — Study & research:** search by meaning, citations and bibliographies, and flashcards, plus richer
+  colours for the older themes and more choices in Customize Theme.
 - **v3.7 — Automate with n8n:** send a document, a selection or a folder to your n8n workflows (or any webhook)
   and get the result back as a document or a suggested change.
 - **v3.8 — Notion:** bring Notion pages in as Markdown, send documents to Notion, and keep the two in step.
