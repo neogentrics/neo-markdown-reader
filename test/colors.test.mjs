@@ -85,3 +85,35 @@ test('colour-safe: what it replaces really was a problem', () => {
   const del = mix('#e03131', '#ffffff', 0.32);
   assert.ok(difference(seen(add, KINDS.deuteranopia), seen(del, KINDS.deuteranopia)) < 3);
 });
+
+const luminance = (hex) => {
+  const [r, g, b] = rgb(hex).map(toLinear);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrast = (a, b) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+};
+
+/** Every colour a theme's panels run through. */
+function stops(text, theme) {
+  const start = text.indexOf(`:root[data-theme="${theme}"] {`);
+  const block = text.slice(start, text.indexOf('\n}', start));
+  return [...block.matchAll(/--(?:toolbar|tabstrip|sidebar)-fill:[^;]*/g)].flatMap((m) => m[0].match(/#[0-9a-f]{6}/g));
+}
+
+for (const theme of ['light', 'sepia', 'mist', 'dark', 'forest', 'dusk', 'blue', 'red', 'yellow']) {
+  test(`${theme}: what's on the panels can be read everywhere the colour runs`, () => {
+    const text = css('theme');
+    const panel = { ...tokens(text, `:root[data-theme="${theme}"]`), ...tokens(text, `:root[data-theme="${theme}"] :is(.toolbar, .tabstrip, .sidebar)`) };
+    const colors = stops(text, theme);
+    assert.ok(colors.length >= 4, 'the panels run from one colour to another');
+    for (const color of colors) {
+      for (const name of ['text', 'text-soft', 'muted', 'link', 'heading']) {
+        assert.ok(contrast(panel[name], color) >= 4.5, `${name} on ${color}: ${contrast(panel[name], color).toFixed(2)}`);
+      }
+      assert.ok(contrast(panel.accent, color) >= 3, `buttons on ${color}: ${contrast(panel.accent, color).toFixed(2)}`);
+    }
+    assert.ok(contrast(panel['on-accent'], panel.accent) >= 4.5, 'text on a button');
+  });
+}
