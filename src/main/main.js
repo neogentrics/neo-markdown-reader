@@ -5,7 +5,7 @@ const { spawn } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const { fileURLToPath, pathToFileURL } = require('node:url');
-const { Settings, cleanAccelerator } = require('./settings');
+const { Settings, FONTS, FONT_NAMES, cleanAccelerator } = require('./settings');
 const { isMarkdownPath, isLockedPath, isOpenablePath, isViewablePath, isDataPath, fileFromArgv, readMarkdown, readDocument, isWritable, encodeForSave } = require('./files');
 const { HistoryStore } = require('./history');
 const { runJob: runReplaceJob } = require('./folder-replace');
@@ -34,7 +34,7 @@ const isMac = process.platform === 'darwin';
 const ROOT = path.join(__dirname, '..', '..');
 const RENDERER_HTML = path.join(ROOT, 'dist', 'index.html');
 const SHOWCASE = path.join(ROOT, 'samples', 'showcase.md');
-const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb', mist: '#dfe5ec', forest: '#0b120e', dusk: '#110e18', contrast: '#000000' };
+const THEME_BG = { light: '#e8ebf0', dark: '#0e1014', sepia: '#e6dccb', mist: '#dfe5ec', forest: '#0b120e', dusk: '#110e18', contrast: '#000000', blue: '#0a1c36', red: '#1f0a0d', yellow: '#f1e3a8' };
 
 registerScheme(protocol);                     // the code sandbox's private scheme (must precede app ready)
 let sandbox = null;
@@ -518,7 +518,7 @@ async function runExport(state, payload) {
   if (!EXPORT_FORMATS[format] || !payload.meta || typeof payload.meta !== 'object') return { ok: false, error: 'Nothing to export' };
   const css = typeof payload.css === 'string' && payload.css.length < 2e6 ? payload.css : '';
   const theme = Object.hasOwn(THEME_BG, payload.theme) ? payload.theme : 'light';
-  const font = payload.font === 'serif' ? 'serif' : 'sans';
+  const font = FONTS.includes(payload.font) ? payload.font : 'sans';
   const meta = {
     name: typeof payload.meta.name === 'string' ? payload.meta.name.slice(0, 500) : '',
     title: typeof payload.meta.title === 'string' ? payload.meta.title.slice(0, 1000) : '',
@@ -558,11 +558,11 @@ async function runExport(state, payload) {
     } else if (format === 'pptx') {
       if (!Array.isArray(payload.slides) || !payload.slides.length || payload.slides.length > 1000 || !payload.slides.every(Array.isArray)) return { ok: false, error: 'Nothing to export' };
       const brand = settings.get().brand;
-      data = await publish.renderPptx({ root: ROOT, payload: { slides: payload.slides, meta, css }, options: { accent: brand.accent, bodyFont: brand.bodyFont, headingFont: brand.headingFont, codeFont: brand.codeFont } });
+      data = await publish.renderPptx({ root: ROOT, payload: { slides: payload.slides, meta, css }, options: { accent: brand.accent, bodyFont: brand.bodyFont || FONT_NAMES[font], headingFont: brand.headingFont, codeFont: brand.codeFont } });
     } else if (format === 'docx') {
       if (!Array.isArray(payload.model)) return { ok: false, error: 'Nothing to export' };
       const brand = settings.get().brand;
-      data = await publish.renderDocx({ root: ROOT, payload: { model: payload.model, meta, css }, options: { ...options, accent: brand.accent, bodyFont: brand.bodyFont, headingFont: brand.headingFont, codeFont: brand.codeFont } });
+      data = await publish.renderDocx({ root: ROOT, payload: { model: payload.model, meta, css }, options: { ...options, accent: brand.accent, bodyFont: brand.bodyFont || FONT_NAMES[font], headingFont: brand.headingFont, codeFont: brand.codeFont } });
     } else {
       if (typeof payload.text !== 'string') return { ok: false, error: 'Nothing to export' };
       data = payload.text.replace(/\r?\n/g, process.platform === 'win32' ? '\r\n' : '\n');
@@ -789,9 +789,9 @@ function rebuildMenu() {
             { id: 'text-reset', label: 'Reset Text Size', accelerator: 'CmdOrCtrl+0', click: () => setSetting({ fontScale: 1 }) },
           ],
         },
-        moved({ label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('High Contrast', 'theme', 'contrast'),
+        moved({ label: 'Theme', submenu: [radio('Follow System', 'theme', 'system'), { type: 'separator' }, radio('Paper (light)', 'theme', 'light'), radio('Sepia', 'theme', 'sepia'), radio('Mist', 'theme', 'mist'), radio('Yellow', 'theme', 'yellow'), { type: 'separator' }, radio('Night (dark)', 'theme', 'dark'), radio('Forest (dark)', 'theme', 'forest'), radio('Dusk (dark)', 'theme', 'dusk'), radio('Blue (dark)', 'theme', 'blue'), radio('Red (dark)', 'theme', 'red'), radio('High Contrast', 'theme', 'contrast'),
           ...addonThemeItems(s)] }),
-        moved({ label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif')] }),
+        moved({ label: 'Typeface', submenu: [radio('Sans-serif (modern)', 'font', 'sans'), radio('Serif (book)', 'font', 'serif'), { type: 'separator' }, radio('Times New Roman', 'font', 'times'), radio('Georgia', 'font', 'georgia'), radio('Century Schoolbook', 'font', 'century'), radio('Garamond', 'font', 'garamond'), radio('Palatino Linotype', 'font', 'palatino'), radio('Cambria', 'font', 'cambria'), radio('Arial', 'font', 'arial'), radio('Calibri', 'font', 'calibri'), radio('Verdana', 'font', 'verdana'), radio('Tahoma', 'font', 'tahoma'), radio('Century Gothic', 'font', 'gothic'), radio('Trebuchet MS', 'font', 'trebuchet'), radio('Courier New', 'font', 'courier')] }),
         moved({ label: 'Page Width', submenu: [radio('Narrow', 'pageWidth', 'narrow'), radio('Normal', 'pageWidth', 'normal'), radio('Wide', 'pageWidth', 'wide'), radio('Full Window', 'pageWidth', 'full')] }),
         moved(cmd('customize-theme', 'Customize Theme…')),
         moved(cmd('addons', 'Add-ons…')),
@@ -1422,7 +1422,7 @@ function registerIpc() {
   ipcMain.handle('doc:print', (e) => { stateFor(e)?.win.webContents.print({ printBackground: true }); });
   ipcMain.handle('settings:set', (_e, patch) => {
     if (!patch || typeof patch !== 'object') return rendererSettings();
-    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'language'];
+    const allowed = ['theme', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'language'];
     setSetting(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
     return rendererSettings();
   });

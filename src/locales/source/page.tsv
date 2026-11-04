@@ -10,6 +10,7 @@ Mist	Niebla	Brume	Nebel
 Night	Noche	Nuit	Nacht
 Forest	Bosque	Forêt	Wald
 Dusk	Crepúsculo	Crépuscule	Dämmerung
+Red	Rojo	Rouge	Rot
 Contrast	Contraste	Contraste	Kontrast
 Typeface	Tipo de letra	Police	Schrift
 Modern	Moderna	Moderne	Modern
@@ -306,3 +307,24 @@ e.g. Spanish	p. ej., inglés	ex. : anglais	z. B. Englisch
 Find a command	Buscar un comando	Rechercher une commande	Befehl suchen
 Find a command…	Buscar un comando…	Rechercher une commande…	Befehl suchen…
 Read	Leer	Lire	Vorlesen
+Times New Roman	Times New Roman	Times New Roman	Times New Roman
+Georgia	Georgia	Georgia	Georgia
+Century Schoolbook	Century Schoolbook	Century Schoolbook	Century Schoolbook
+Garamond	Garamond	Garamond	Garamond
+Palatino Linotype	Palatino Linotype	Palatino Linotype	Palatino Linotype
+Cambria	Cambria	Cambria	Cambria
+Arial	Arial	Arial	Arial
+Calibri	Calibri	Calibri	Calibri
+Verdana	Verdana	Verdana	Verdana
+Tahoma	Tahoma	Tahoma	Tahoma
+Century Gothic	Century Gothic	Century Gothic	Century Gothic
+Trebuchet MS	Trebuchet MS	Trebuchet MS	Trebuchet MS
+Courier New	Courier New	Courier New	Courier New
+Blue (dark)	Azul (oscuro)	Bleu (sombre)	Blau (dunkel)
+Red (dark)	Rojo (oscuro)	Rouge (sombre)	Rot (dunkel)
+Play through	Reproducir en	Lire sur	Wiedergabe über
+This works with the natural voices. The computer's own voices always use its default device.	Funciona con las voces naturales. Las voces del propio equipo siempre usan su dispositivo predeterminado.	Cela fonctionne avec les voix naturelles. Les voix de l’ordinateur utilisent toujours son périphérique par défaut.	Das funktioniert mit den natürlichen Stimmen. Die Stimmen des Computers verwenden immer sein Standardgerät.
+Drag to move (double-click to put it back)	Arrastre para mover (doble clic para volver a colocarla)	Faites glisser pour déplacer (double-cliquez pour la remettre)	Zum Verschieben ziehen (Doppelklick setzt sie zurück)
+Move the read-aloud bar	Mover la barra de lectura en voz alta	Déplacer la barre de lecture à voix haute	Vorleseleiste verschieben
+← → to move · R to read aloud · Esc to leave	← → para moverse · R para leer en voz alta · Esc para salir	← → pour naviguer · R pour lire à voix haute · Échap pour quitter	← → zum Blättern · R zum Vorlesen · Esc zum Beenden
+Computer’s default	Predeterminado del equipo	Par défaut de l’ordinateur	Standard des Computers

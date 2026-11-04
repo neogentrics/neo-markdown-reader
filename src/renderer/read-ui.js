@@ -161,7 +161,7 @@ export function createReadUi(ctx) {
   let actx = null;
   function play(samples, sampleRate) {
     if (window.__nmrAudio) return window.__nmrAudio.play(samples, sampleRate);
-    actx ??= new AudioContext();
+    if (!actx) { actx = new AudioContext(); routeAudio(); }
     if (actx.state === 'suspended') actx.resume();
     const buf = actx.createBuffer(1, samples.length, sampleRate);
     buf.copyToChannel(samples instanceof Float32Array ? samples : Float32Array.from(samples), 0);
@@ -174,6 +174,22 @@ export function createReadUi(ctx) {
     src.start();
     return { ended, stop: () => { try { src.stop(); } catch { /* not started */ } done(); } };
   }
+
+  /** The device natural voices play through. One that's been unplugged falls back to the default. */
+  function routeAudio() {
+    actx?.setSinkId?.(ctx.settings().audioOutput || '').catch(() => actx.setSinkId(''));
+  }
+
+  async function fillOutputs() {
+    const list = $('pref-output');
+    const found = (await navigator.mediaDevices?.enumerateDevices?.() || []).filter((d) => d.kind === 'audiooutput' && !['default', 'communications'].includes(d.deviceId));
+    list.replaceChildren(new Option('Computer’s default', ''), ...found.map((d, i) => new Option(d.label || `Output ${i + 1}`, d.deviceId)));
+    const want = ctx.settings().audioOutput || '';
+    list.value = found.some((d) => d.deviceId === want) ? want : '';
+  }
+  navigator.mediaDevices?.addEventListener?.('devicechange', fillOutputs);
+  fillOutputs();
+  $('pref-output').onchange = async (e) => { await api.setSettings({ audioOutput: e.target.value }); routeAudio(); };
 
   /** Stop the sentence playing and drop the ones made ahead (they're cancelled in the worker too). */
   function stopAudio() {
@@ -215,6 +231,25 @@ export function createReadUi(ctx) {
     els.play.setAttribute('aria-label', on ? 'Pause' : 'Read');
   }
 
+  /** Show the sentence being read: on its slide when presenting, otherwise on the page. */
+  function showItem(item) {
+    const slides = ctx.presenter();
+    if (slides?.active()) { highlight(slides.follow(item.range)); return; }
+    highlight(item.range);
+    focusOn(item.block);
+    const rect = item.range.getBoundingClientRect();
+    const desk = ctx.deskFor(ctx.activeTab());
+    const box = desk.getBoundingClientRect();
+    if (rect.top < box.top + 60 || rect.bottom > box.bottom - 90) desk.scrollBy({ top: rect.top - box.top - box.height * 0.3, behavior: 'smooth' });
+  }
+
+  /** The first sentence on this slide, or the next one after it if the slide has none to read. */
+  function itemOnSlide(i) {
+    const slides = ctx.presenter();
+    const at = items.findIndex((it) => slides.slideOf(it.block) >= i);
+    return at < 0 ? items.length : at;
+  }
+
   function speakAt(i) {
     const s = synth();
     const mine = ++gen;
@@ -224,12 +259,7 @@ export function createReadUi(ctx) {
     if (i >= items.length) { finish(); return; }
     index = Math.max(0, i);
     const item = items[index];
-    highlight(item.range);
-    focusOn(item.block);
-    const rect = item.range.getBoundingClientRect();
-    const desk = ctx.deskFor(ctx.activeTab());
-    const box = desk.getBoundingClientRect();
-    if (rect.top < box.top + 60 || rect.bottom > box.bottom - 90) desk.scrollBy({ top: rect.top - box.top - box.height * 0.3, behavior: 'smooth' });
+    showItem(item);
     els.status.textContent = `${index + 1} of ${items.length}`;
     if (isNatural() && naturalLang) { speakNatural(mine); return; }
     if (!s) { stop(); toast('Read aloud isn’t available on this computer'); return; }
@@ -276,7 +306,9 @@ export function createReadUi(ctx) {
         const r = sel.getRangeAt(0);
         at = Math.max(0, items.findIndex((it) => it.range.compareBoundaryPoints(Range.END_TO_START, r) <= 0 && it.range.compareBoundaryPoints(Range.START_TO_END, r) >= 0));
       } else at = Math.max(0, items.findIndex((it) => it.range.getBoundingClientRect().bottom > top));
+      if (ctx.presenter()?.active()) at = Math.min(itemOnSlide(ctx.presenter().index), items.length - 1);
       bar.hidden = false;
+      placeBar();
       document.body.classList.add('speaking');
       setPlaying(true);
       speakAt(at);
@@ -312,6 +344,62 @@ export function createReadUi(ctx) {
     i = Math.min(Math.max(i, 0), items.length - 1);
     if (playing) speakAt(i); else { index = i; highlight(items[i].range); focusOn(items[i].block); els.status.textContent = `${i + 1} of ${items.length}`; }
   }
+
+  // ---------------------------------------------------------------- moving the bar
+  const room = () => ({ w: Math.max(1, window.innerWidth - bar.offsetWidth), h: Math.max(1, window.innerHeight - bar.offsetHeight) });
+  function placeBar(pos = ctx.settings().speakBar) {
+    if (!pos) { bar.style.left = bar.style.top = bar.style.bottom = bar.style.transform = ''; return; }
+    const { w, h } = room();
+    bar.style.left = `${pos.x * w}px`;
+    bar.style.top = `${pos.y * h}px`;
+    bar.style.bottom = 'auto';
+    bar.style.transform = 'none';
+  }
+  const barSpot = () => {
+    const r = bar.getBoundingClientRect();
+    const { w, h } = room();
+    return { x: Math.min(1, Math.max(0, r.left / w)), y: Math.min(1, Math.max(0, r.top / h)) };
+  };
+  const grip = $('speak-grip');
+  /** Drag from the grip, or from any part of the bar that isn't a control. */
+  bar.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0 || (e.target.closest('button, select, label') && !e.target.closest('#speak-grip'))) return;
+    e.preventDefault();
+    const r = bar.getBoundingClientRect();
+    const dx = e.clientX - r.left;
+    const dy = e.clientY - r.top;
+    const { w, h } = room();
+    bar.setPointerCapture(e.pointerId);
+    bar.classList.add('moving');
+    let moved = false;
+    const move = (m) => { moved = true; placeBar({ x: Math.min(1, Math.max(0, (m.clientX - dx) / w)), y: Math.min(1, Math.max(0, (m.clientY - dy) / h)) }); };
+    const end = () => {
+      bar.removeEventListener('pointermove', move);
+      bar.classList.remove('moving');
+      if (moved) api.setSettings({ speakBar: barSpot() });
+    };
+    bar.addEventListener('pointermove', move);
+    bar.addEventListener('pointerup', end, { once: true });
+    bar.addEventListener('pointercancel', end, { once: true });
+  });
+  // The bar holds the pointer while it's pressed, so a double-click on the grip arrives here too.
+  bar.ondblclick = (e) => {
+    if (e.target.closest('button, select, label') && !e.target.closest('#speak-grip')) return;
+    api.setSettings({ speakBar: null });
+    placeBar(null);
+  };
+  grip.onkeydown = (e) => {
+    const step = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const { w, h } = room();
+    const p = barSpot();
+    const next = { x: Math.min(1, Math.max(0, p.x + (step[0] * 24) / w)), y: Math.min(1, Math.max(0, p.y + (step[1] * 24) / h)) };
+    placeBar(next);
+    api.setSettings({ speakBar: next });
+  };
+  window.addEventListener('resize', () => { if (!bar.hidden) placeBar(); });
 
   els.play.onclick = start;
   $('speak-stop').onclick = stop;
@@ -552,6 +640,16 @@ export function createReadUi(ctx) {
   return {
     refreshVoices: fillVoices,
     toggleSpeak: start, stopSpeak: stop, speaking: () => !bar.hidden,
+    /** Presentation mode started or ended while reading: show the sentence in the right place. */
+    presentChanged() { if (items[index]) showItem(items[index]); },
+    /** Someone moved to another slide while reading: read from there. */
+    slideMoved(i) {
+      if (bar.hidden) return;
+      const at = itemOnSlide(i);
+      if (at >= items.length) return;
+      if (playing) speakAt(at);
+      else { index = at; showItem(items[at]); els.status.textContent = `${at + 1} of ${items.length}`; }
+    },
     toggleFocus, focusMode: () => focusMode,
     afterRender(tab) { addFolds(tab); if (tab.id === tabId) stop(); if (focusMode) updateFocus(); hidePeek(); peekCache.clear(); },
     tabChanged() { if (!bar.hidden) stop(); if (focusMode) updateFocus(); hidePeek(); },

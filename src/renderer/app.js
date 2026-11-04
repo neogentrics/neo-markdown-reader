@@ -29,7 +29,7 @@ import { resolveWiki, relative, dirOf, slugify as wikiSlug } from '../main/notes
 import './styles/app.css';
 
 const api = window.reader;
-const DARK_THEMES = new Set(['dark', 'forest', 'dusk', 'contrast']);
+const DARK_THEMES = new Set(['dark', 'forest', 'dusk', 'contrast', 'blue', 'red']);
 const render = createRenderer(window);
 const $ = (id) => document.getElementById(id);
 
@@ -874,6 +874,8 @@ $('btn-customize').onclick = () => { els.themeMenu.hidden = true; themeUi.open()
 $('btn-print').onclick = () => (activeTab() ? api.print() : toast('Open a document first'));
 $('btn-theme').onclick = (e) => { e.stopPropagation(); els.themeMenu.hidden = !els.themeMenu.hidden; };
 document.addEventListener('click', (e) => { if (!els.themeMenu.hidden && !e.target.closest('.tb-menu-wrap')) els.themeMenu.hidden = true; });
+$('pop-font').append(...[...$('pref-font').children].map((o) => o.cloneNode(true)));
+$('pop-font').onchange = (e) => api.setSettings({ font: e.target.value });
 for (const seg of document.querySelectorAll('.seg[data-key]')) {
   seg.addEventListener('click', (e) => {
     const b = e.target.closest('button');
@@ -1094,6 +1096,7 @@ function applySettings(s) {
   root.dataset.theme = s.resolvedTheme || 'light';
   root.dataset.tone = DARK_THEMES.has(root.dataset.theme) ? 'dark' : 'light';
   root.dataset.font = s.font;
+  $('pop-font').value = s.font;
   root.dataset.width = s.pageWidth;
   root.style.setProperty('--font-scale', s.fontScale);
   document.body.classList.toggle('toc-hidden', !s.showToc);
@@ -1277,9 +1280,10 @@ readUi = createReadUi({
   api, toast, activeTab, render, desk: els.desk,
   settings: () => settings,
   deskFor: (t) => deskFor(t),
+  presenter: () => presenter,
 });
 publish = createPublish({ api, activeTab, settings: () => settings, toast, themeCss: () => themeUi.exportCss() });
-presenter = createPresenter({ api, activeTab, toast });
+presenter = createPresenter({ api, activeTab, toast, reading: () => readUi });
 prefsUi = createPrefsUi({ api, settings: () => settings, toast, refreshVoices: () => readUi.refreshVoices(), openHelp: () => helpUi.open() });
 helpUi = createHelpUi({ api, render, openPrefs: (pane) => prefsUi.open(pane), startTutorial: () => tourUi.start() });
 $('btn-prefs').onclick = () => prefsUi.open();

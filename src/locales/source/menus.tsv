@@ -129,6 +129,9 @@ Mist	Niebla	Brume	Nebel
 Night (dark)	Noche (oscuro)	Nuit (sombre)	Nacht (dunkel)
 Forest (dark)	Bosque (oscuro)	Forêt (sombre)	Wald (dunkel)
 Dusk (dark)	Crepúsculo (oscuro)	Crépuscule (sombre)	Dämmerung (dunkel)
+Blue (dark)	Azul (oscuro)	Bleu (sombre)	Blau (dunkel)
+Red (dark)	Rojo (oscuro)	Rouge (sombre)	Rot (dunkel)
+Yellow	Amarillo	Jaune	Gelb
 High Contrast	Alto contraste	Contraste élevé	Hoher Kontrast
 Sans-serif (modern)	Sin serifa (moderna)	Sans empattement (moderne)	Serifenlos (modern)
 Serif (book)	Con serifa (libro)	Avec empattement (livre)	Serifen (Buch)
@@ -147,3 +150,16 @@ Paste	Pegar	Coller	Einfügen
 Select All	Seleccionar todo	Tout sélectionner	Alles auswählen
 Toggle Full Screen	Pantalla completa	Plein écran	Vollbild
 Delete	Eliminar	Supprimer	Löschen
+Times New Roman	Times New Roman	Times New Roman	Times New Roman
+Georgia	Georgia	Georgia	Georgia
+Century Schoolbook	Century Schoolbook	Century Schoolbook	Century Schoolbook
+Garamond	Garamond	Garamond	Garamond
+Palatino Linotype	Palatino Linotype	Palatino Linotype	Palatino Linotype
+Cambria	Cambria	Cambria	Cambria
+Arial	Arial	Arial	Arial
+Calibri	Calibri	Calibri	Calibri
+Verdana	Verdana	Verdana	Verdana
+Tahoma	Tahoma	Tahoma	Tahoma
+Century Gothic	Century Gothic	Century Gothic	Century Gothic
+Trebuchet MS	Trebuchet MS	Trebuchet MS	Trebuchet MS
+Courier New	Courier New	Courier New	Courier New

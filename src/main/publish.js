@@ -15,7 +15,7 @@ const PAPERS = {
 const MARGINS = { narrow: 0.5, normal: 0.8, wide: 1.1 };
 const LETTER_COUNTRIES = new Set(['US', 'CA', 'MX', 'PH', 'CL', 'CO', 'VE', 'GT', 'CR', 'PR', 'DO', 'PA', 'SV', 'NI', 'HN', 'BO']);
 const MAX_INLINE_IMAGE = 25 * 1024 * 1024;
-const DARK_THEMES = new Set(['dark', 'forest', 'dusk', 'contrast']);
+const DARK_THEMES = new Set(['dark', 'forest', 'dusk', 'contrast', 'blue', 'red']);
 const tone = (theme) => (DARK_THEMES.has(theme) ? 'dark' : 'light');
 const IMAGE_MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml', bmp: 'image/bmp', avif: 'image/avif', ico: 'image/x-icon' };
 

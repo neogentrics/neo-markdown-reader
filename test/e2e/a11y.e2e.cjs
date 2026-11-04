@@ -42,10 +42,10 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
 
   await step('the welcome screen has no accessibility problems', () => problems('the welcome screen'));
 
-  await step('a rich document has none in any of the seven themes', async () => {
+  await step('a rich document has none in any of the ten themes', async () => {
     await win.click('#welcome-showcase');
     await win.waitForSelector('.page:not([hidden]) .mermaid-diagram svg');
-    for (const theme of ['light', 'sepia', 'mist', 'dark', 'forest', 'dusk', 'contrast']) {
+    for (const theme of ['light', 'sepia', 'mist', 'dark', 'forest', 'dusk', 'contrast', 'blue', 'red', 'yellow']) {
       await win.evaluate((t) => window.reader.setSettings({ theme: t }), theme);
       await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);
       await problems(`the showcase in the ${theme} theme`);

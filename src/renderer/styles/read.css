@@ -11,13 +11,21 @@
 /* ---------- read aloud */
 .speak-bar {
   position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 55; display: flex; align-items: center; gap: 6px;
-  padding: 6px 8px 6px 10px; border-radius: 14px; background: var(--page); color: var(--text); border: 1px solid var(--chrome-border);
+  padding: 6px 8px 6px 4px; border-radius: 14px; background: var(--inverse-bg); color: var(--inverse-fg);
+  border: 1px solid color-mix(in srgb, var(--inverse-fg) 35%, transparent);
   box-shadow: 0 14px 40px -12px rgba(0, 0, 0, .45); font: 12.5px var(--font-sans); max-width: calc(100vw - 32px);
+  /* It sits on the page, so it takes the page's opposite colours in every theme. */
+  --text: var(--inverse-fg); --text-soft: var(--inverse-fg); --muted: var(--inverse-fg); --heading: var(--inverse-fg);
+  --chrome: var(--inverse-bg); --chrome-border: color-mix(in srgb, var(--inverse-fg) 45%, transparent);
+  --btn-hover: color-mix(in srgb, var(--inverse-fg) 18%, transparent);
 }
+body.presenting .speak-bar { z-index: 1001; }
+.speak-grip { cursor: grab; touch-action: none; min-width: 26px; }
+.speak-grip svg { stroke-width: 3; }
+.speak-bar.moving, .speak-bar.moving .speak-grip { cursor: grabbing; }
 .speak-bar[hidden] { display: none; }
 body.speaking .toast { bottom: 84px; }
-.speak-play { background: var(--accent); color: #fff; border-radius: 50%; }
-.speak-play:hover { background: color-mix(in srgb, var(--accent) 85%, #000); color: #fff; }
+.speak-play, .speak-play:hover:not(:disabled) { background: var(--inverse-fg); color: var(--inverse-bg); border-radius: 50%; }
 .speak-play .i-play { display: none; }
 .speak-play.paused .i-play { display: inline; fill: currentColor; }
 .speak-play.paused .i-pause { display: none; }

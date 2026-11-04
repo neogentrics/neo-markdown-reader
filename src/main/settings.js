@@ -6,8 +6,8 @@ const { cleanAiSettings } = require('./ai-providers');
 const path = require('node:path');
 
 const DEFAULTS = Object.freeze({
-  theme: 'system',        // system | light | dark | sepia | mist | forest | dusk | contrast
-  font: 'sans',           // sans | serif
+  theme: 'system',        // system | light | dark | sepia | mist | forest | dusk | contrast | blue | red | yellow
+  font: 'sans',           // one of FONTS
   fontScale: 1,           // 0.7 – 1.8
   pageWidth: 'normal',    // narrow | normal | wide | full
   showToc: true,
@@ -29,6 +29,8 @@ const DEFAULTS = Object.freeze({
   shortcuts: {},          // your own keyboard shortcuts: menu command id -> accelerator ('' = none)
   wikiLinks: 'wiki',      // wiki | markdown — what the editor inserts when you pick a document after [[
   readAloud: { rate: 1, voice: '' },
+  speakBar: null,         // where the read-aloud bar was left: { x, y }, each 0–1 of the room it has
+  audioOutput: '',        // the device natural voices play through ('' = the computer's default); never synced
   language: 'system',     // system | en | es | fr | de — the app's menus and dialogs
   addonsOff: [],          // ids of installed add-ons that are switched off   // read aloud: speed (0.5–2) and the chosen voice's name ('' = the system's default)
   windowBounds: null,
@@ -48,8 +50,10 @@ const EXPORT_CHOICES = { paper: ['auto', 'letter', 'a4', 'legal', 'a5'], margins
 
 const BRAND_DEFAULTS = Object.freeze({ accent: '', bodyFont: '', headingFont: '', codeFont: '', stylesheet: '' });
 
-const THEMES = ['system', 'light', 'dark', 'sepia', 'mist', 'forest', 'dusk', 'contrast'];
-const FONTS = ['sans', 'serif'];
+const THEMES = ['system', 'light', 'dark', 'sepia', 'mist', 'forest', 'dusk', 'contrast', 'blue', 'red', 'yellow'];
+// The two the app has always had, then fonts by name. FONT_NAMES also sets the font of Word and PowerPoint exports.
+const FONT_NAMES = Object.freeze({ times: 'Times New Roman', georgia: 'Georgia', century: 'Century Schoolbook', garamond: 'Garamond', palatino: 'Palatino Linotype', cambria: 'Cambria', arial: 'Arial', calibri: 'Calibri', verdana: 'Verdana', tahoma: 'Tahoma', gothic: 'Century Gothic', trebuchet: 'Trebuchet MS', courier: 'Courier New' });
+const FONTS = ['sans', 'serif', ...Object.keys(FONT_NAMES)];
 const WIDTHS = ['narrow', 'normal', 'wide', 'full'];
 const MAX_RECENT = 15;
 const MAX_POSITIONS = 200;
@@ -167,6 +171,9 @@ function sanitize(input) {
       voice: typeof input.readAloud.voice === 'string' ? input.readAloud.voice.slice(0, 200) : '',
     };
   }
+  const bar = input.speakBar;
+  if (bar && [bar.x, bar.y].every((n) => Number.isFinite(n) && n >= 0 && n <= 1)) s.speakBar = { x: bar.x, y: bar.y };
+  if (typeof input.audioOutput === 'string') s.audioOutput = input.audioOutput.slice(0, 200);
   s.ai = cleanAiSettings(input.ai);
   s.exportOptions = cleanExportOptions(input.exportOptions);
   s.brand = cleanBrand(input.brand);
@@ -211,4 +218,4 @@ class Settings {
   }
 }
 
-module.exports = { Settings, sanitize, DEFAULTS, EXPORT_DEFAULTS, BRAND_DEFAULTS, cleanExportOptions, cleanBrand, cleanFont, cleanAccelerator, cleanShortcuts };
+module.exports = { Settings, sanitize, FONTS, FONT_NAMES, DEFAULTS, EXPORT_DEFAULTS, BRAND_DEFAULTS, cleanExportOptions, cleanBrand, cleanFont, cleanAccelerator, cleanShortcuts };

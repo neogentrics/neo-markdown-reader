@@ -10,6 +10,21 @@
   text-rendering: optimizeLegibility;
 }
 :root[data-font="serif"] .markdown-body { font-family: var(--font-serif); font-size: calc(17.5px * var(--font-scale)); line-height: 1.7; }
+/* Fonts chosen by name, with the nearest match on computers that don't have them. Headings use them too. */
+:root[data-font="times"] { --font-pick: "Times New Roman", Times, "Liberation Serif", "Nimbus Roman", serif; }
+:root[data-font="georgia"] { --font-pick: Georgia, Gelasio, "DejaVu Serif", serif; }
+:root[data-font="century"] { --font-pick: "Century Schoolbook", Century, C059, "TeX Gyre Schola", Georgia, serif; }
+:root[data-font="garamond"] { --font-pick: Garamond, "EB Garamond", "Adobe Garamond Pro", "Times New Roman", serif; }
+:root[data-font="palatino"] { --font-pick: "Palatino Linotype", Palatino, "Book Antiqua", P052, "TeX Gyre Pagella", serif; }
+:root[data-font="cambria"] { --font-pick: Cambria, Caladea, Georgia, serif; }
+:root[data-font="arial"] { --font-pick: Arial, Helvetica, "Liberation Sans", sans-serif; }
+:root[data-font="calibri"] { --font-pick: Calibri, Carlito, "Segoe UI", sans-serif; }
+:root[data-font="verdana"] { --font-pick: Verdana, "DejaVu Sans", Geneva, sans-serif; }
+:root[data-font="tahoma"] { --font-pick: Tahoma, Geneva, "DejaVu Sans", sans-serif; }
+:root[data-font="gothic"] { --font-pick: "Century Gothic", "URW Gothic", "Avant Garde", Futura, sans-serif; }
+:root[data-font="trebuchet"] { --font-pick: "Trebuchet MS", "Fira Sans", sans-serif; }
+:root[data-font="courier"] { --font-pick: "Courier New", Courier, "Liberation Mono", monospace; }
+:root[data-font]:not([data-font="sans"], [data-font="serif"]) .markdown-body { font-family: var(--font-pick); --font-display: var(--font-pick); }
 .markdown-body > :first-child { margin-top: 0 !important; }
 .markdown-body > :last-child { margin-bottom: 0 !important; }
 
