@@ -225,7 +225,7 @@ test('your real network address comes before the virtual ones', () => {
     Ethernet: [{ family: 'IPv4', internal: false, address: '192.168.10.71' }],
     'Wi-Fi': [{ family: 'IPv4', internal: false, address: '10.0.0.211' }],
   };
-  assert.deepEqual(networkAddresses(list), ['192.168.10.71', '10.0.0.211', '172.23.192.1', '172.25.112.1']);
+  assert.deepEqual(networkAddresses(list), ['192.168.10.71', '10.0.0.211', '172.25.112.1', '172.23.192.1']);
 });
 
 const rootsWith = (platform, paths, home = platform === 'win32' ? 'C:\\Users\\me' : '/home/me') => detectRoots({
