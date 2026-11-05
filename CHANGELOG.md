@@ -4,7 +4,7 @@ All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [3.7.0] - Unreleased
+## [3.7.0] - 2026-11-04
 
 ### Added
 - **Automations** (*File → Automations*): any webhook becomes a command, in the menu and in Quick Open. n8n, Make, Zapier,

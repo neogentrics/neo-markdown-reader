@@ -763,9 +763,10 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Prefere
 - **v3.6** added search by meaning with related documents, citations and reference lists, flashcards and quizzes,
   links with other Recon Towers apps, richer colours for the older themes, and more choices in Customize Theme.
 
+- **v3.7** added automations: your webhooks as commands, your n8n workflows by name, and an address your workflows can
+  call to open documents.
+
 Coming next:
-- **v3.7 — Automate with n8n:** send a document, a selection or a folder to your n8n workflows (or any webhook)
-  and get the result back as a document or a suggested change.
 - **v3.8 — Notion:** bring Notion pages in as Markdown, send documents to Notion, and keep the two in step.
 - **v3.9 — Your home server:** open and save documents on Nextcloud or any WebDAV server, and publish to
   self-hosted wikis (BookStack, Wiki.js, Outline).
