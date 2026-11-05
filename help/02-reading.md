@@ -40,6 +40,6 @@ The words of your cards stay in your document. The app keeps only the date each 
 
 ## Staying focused
 
-**View → Focus Mode** (`F8`) hides everything but the page. **View → Present as Slides** turns a document into a presentation.
+**View → Focus Mode** (`F8`) hides everything but the page. **View → Present as Slides** turns a document into a presentation. A section too long for one slide flows onto as many as it needs. Move with the arrow keys, by clicking, or with the mouse wheel.
 
 The app reopens your tabs where you stopped reading. You can turn that off in [Preferences → General](#do=preferences:general).

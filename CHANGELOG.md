@@ -4,6 +4,23 @@ All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.6.2] - Unreleased
+
+### Added
+- **Names for the natural voices:** Clara, Maya, Nora, Sofia and Zoe, and Ethan, Leo, Marcus, Owen and Theo. Your saved
+  choice stays the same.
+- **Skip by paragraph** in the read-aloud bar, next to skip by section.
+
+### Fixed
+- **Long documents in presentation mode:** text ran off the bottom of the slide. A section too long for one slide now
+  flows onto as many as it needs, at a readable size, and PDF and PowerPoint slides do the same. Lists and tables are cut
+  between their items and rows, tables keep their header row, and later slides name the section they continue.
+- The mouse wheel now turns the slides.
+- Read aloud's skip buttons went to the wrong place. A heading like "I. The Beginning" counted as two sections, and with
+  no section left to go to, skipping jumped to the very end of the document.
+- Skipping while read aloud is paused now moves the page or slide to where it will read from.
+- Skipping several times quickly no longer scrolls past the sentence being read.
+
 ## [3.6.1] - 2026-11-04
 
 ### Fixed

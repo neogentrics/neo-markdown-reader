@@ -417,7 +417,7 @@ choose, and your cloud service carries them between computers.
 
 ## Natural voices
 
-<img src="docs/screenshots/natural-voices.png" width="860" alt="A document being read aloud with Female voice 3, a natural voice: the sentence being read is highlighted, and the read-aloud bar shows sentence 11 of 76">
+<img src="docs/screenshots/natural-voices.png" width="860" alt="A document being read aloud with Nora, a natural voice: the sentence being read is highlighted, and the read-aloud bar shows sentence 11 of 76">
 
 Your computer's built-in voices can sound flat and robotic. Since 3.2, *Read aloud* can use **natural
 voices** instead: ten of them, five female and five male, that sound like someone reading to you.

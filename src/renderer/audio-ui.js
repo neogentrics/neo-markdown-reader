@@ -3,7 +3,7 @@
 // to disk a sentence at a time, and the finished file only appears at the end.
 import { collectSentences } from './read-ui.js';
 import { m4bStart, m4bEnd, id3 } from './m4b.js';
-import { modelLang, guessLang, applyPronunciation } from '../main/voice-text.js';
+import { modelLang, guessLang, applyPronunciation, voiceLabel } from '../main/voice-text.js';
 
 const $ = (id) => document.getElementById(id);
 const NATURAL = 'natural:';
@@ -135,7 +135,7 @@ export function createAudioUi({ api, toast, activeTab, settings, reading }) {
   }
 
   function voices() {
-    voice.replaceChildren(...natural.voices.map((id) => new Option(`${id[0] === 'F' ? 'Female' : 'Male'} voice ${id[1]}`, id)));
+    voice.replaceChildren(...natural.voices.map((id) => new Option(voiceLabel(id), id)));
     const want = settings().readAloud?.voice || '';
     if (want.startsWith(NATURAL)) voice.value = want.slice(NATURAL.length);
     $('audio-need-voices').hidden = natural.installed;

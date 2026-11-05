@@ -9,7 +9,7 @@ Click the export button in the toolbar, or open **File → Export**:
 | Web page (.html) | One self-contained file |
 | Plain text | Pasting anywhere |
 | E-book (.epub) | E-readers |
-| Slides | PDF or PowerPoint, split at each `---` |
+| Slides | PDF or PowerPoint, split at each `---`, with long sections flowing onto more slides |
 
 **Print** is `Ctrl+P`.
 

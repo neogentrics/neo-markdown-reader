@@ -2,7 +2,7 @@
 // the main process, which builds the file (see src/main/publish.js).
 import { buildModel, toPlainText } from './export-model.js';
 import { cleanCopy } from './read-ui.js';
-import { splitSlides, fitSlide } from './present.js';
+import { splitSlides, fitSlide, layoutSlides } from './present.js';
 
 const $ = (id) => document.getElementById(id);
 const PAPER_RATIO = { letter: 11 / 8.5, a4: 11.69 / 8.27, legal: 14 / 8.5, a5: 8.27 / 5.83 };
@@ -22,11 +22,14 @@ function offstage(width) {
  * for PDF each slide's HTML with the text size presentation mode would use.
  */
 export function slidesFor(root, kind) {
-  const slides = splitSlides(root);
+  const parts = splitSlides(root);
+  for (const nodes of parts) for (const n of nodes) n.querySelectorAll?.('.copy-btn, .run-output, .fold-btn').forEach((x) => x.remove());
   const stage = offstage(1280);
   try {
-    return slides.map((nodes) => {
-      for (const n of nodes) n.querySelectorAll?.('.copy-btn, .run-output, .fold-btn').forEach((x) => x.remove());
+    const measure = document.createElement('div');
+    measure.className = 'present-slide markdown-body';
+    stage.replaceChildren(measure);
+    return layoutSlides(parts, measure).map(({ nodes, font }) => {
       if (kind === 'pptx') {
         const div = document.createElement('div');
         div.className = 'markdown-body';
@@ -39,11 +42,12 @@ export function slidesFor(root, kind) {
       el.className = 'present-slide markdown-body';
       const cls = [];
       if (nodes.length === 1 && nodes[0].classList?.contains('doc-meta')) cls.push('title-slide');
-      if (nodes.length <= 2) cls.push('short');
+      if (nodes.length <= 2 && !font) cls.push('short');
       el.classList.add(...cls);
-      el.append(...nodes);
+      el.append(...nodes.map((n) => n.cloneNode(true)));
       stage.replaceChildren(el);
-      const fontSize = fitSlide(el);
+      if (font) el.style.fontSize = `${font}px`;
+      const fontSize = font || fitSlide(el);
       return { html: el.innerHTML, cls: cls.join(' '), fontSize };
     });
   } finally { stage.remove(); }
