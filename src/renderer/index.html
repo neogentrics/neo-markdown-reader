@@ -9,11 +9,13 @@
 </head>
 <body>
   <header class="toolbar" id="toolbar">
+    <div class="tb-group tb-left">
     <button class="tb-btn" id="btn-toc" title="Toggle outline (Ctrl+B)" aria-label="Toggle outline"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/></svg></button>
     <button class="tb-btn" id="btn-back" title="Back (Alt+←)" aria-label="Back" disabled><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
     <button class="tb-btn tb-primary" id="btn-open" title="Open a Markdown file (Ctrl+O)"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7.5a2 2 0 0 0-1.9 1.4L3 19z"/><path d="M3 19l2.6-7.6A2 2 0 0 1 7.5 10H22l-2.7 7.7a2 2 0 0 1-1.9 1.3z"/></svg><span>Open</span></button>
+    </div>
     <div class="tb-title" id="doc-title" title=""><span class="tb-title-name">RT Markdown Reader</span><span class="tb-title-meta" id="doc-meta"></span></div>
-    <div class="tb-group">
+    <div class="tb-group tb-right">
       <button class="tb-btn tb-save" id="btn-save" title="Save (Ctrl+S)" hidden><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7 3v5h8V3M7 21v-7h10v7"/></svg><span>Save</span></button>
       <button class="tb-btn tb-edit" id="btn-edit" title="Edit this document (Ctrl+E)" hidden><svg class="ico-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><svg class="ico-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span class="edit-label">Edit</span></button>
       <span class="tb-sep"></span>
@@ -611,7 +613,7 @@ Term
   <dialog class="shortcuts tour-welcome" id="tour-welcome" aria-labelledby="tour-welcome-h">
     <div class="about-top"><img class="about-logo" src="icon.png" alt=""><h3 id="tour-welcome-h">Welcome to RT Markdown Reader</h3></div>
     <p class="about-blurb">Would you like a hands-on tour? It uses a practice document, so your own files aren’t touched, and you can stop at any time.</p>
-    <div class="grants-actions"><button type="button" class="link-btn" id="tour-never">Don’t show this again</button><span class="spacer"></span><button type="button" class="link-btn" id="tour-not-now">Not now</button><button type="button" class="big-btn sm" id="tour-start">Start the tutorial</button></div>
+    <div class="grants-actions"><button type="button" class="link-btn" id="tour-never">Don’t show this again</button><button type="button" class="link-btn" id="tour-not-now">Not now</button><button type="button" class="big-btn sm" id="tour-start">Start the tutorial</button></div>
   </dialog>
 
   <div class="tour-ring" id="tour-ring" hidden></div>

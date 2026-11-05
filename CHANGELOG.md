@@ -4,6 +4,15 @@ All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.6.1] - Unreleased
+
+### Fixed
+- The document's title now sits in the middle of the window, not between the toolbar's buttons.
+- Buttons at the bottom of dialogs no longer touch. In the welcome message, *Not now* sits between the other two.
+- Your accent colour is now exactly the same on every filled button, including *Open* in themes with dark panels, where
+  it was washed out. Words on the panels are still lightened or darkened as far as they need to be read.
+- *Save* and *Restart to update* no longer use white text on a pale accent colour.
+
 ## [3.6.0] - 2026-11-04
 
 ### Added

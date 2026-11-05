@@ -200,7 +200,7 @@ const step = async (name, fn) => { await fn(); passed++; console.log(`ok - ${nam
     await win.keyboard.type('Also [@li');
     await win.waitForSelector('.cm-tooltip-autocomplete');
     assert.match(await win.textContent('.cm-tooltip-autocomplete'), /lib2021/);
-    await win.keyboard.press('Enter');
+    await win.click('.cm-tooltip-autocomplete li');      // Enter is ignored for a moment after the list appears
     await win.keyboard.type(']');
     await win.waitForFunction(() => /Also \[@lib2021\]/.test(document.querySelector('.cm-content').innerText));
   });
