@@ -68,7 +68,7 @@ class Supertonic {
    * Speak one piece of text (≤ ~300 characters; see voice-text.chunks()).
    * @returns {Promise<Float32Array>} mono samples at this.sampleRate
    */
-  async speak(text, { lang = 'en', style, speed = 1.05, steps = 8, random = Math.random } = {}) {
+  async speak(text, { lang = 'en', style, speed = 1.05, steps = 8, random = Math.random, between = null } = {}) {
     const { ort } = this;
     const ids = this.ids(prepare(text, lang));
     const n = ids.length;
@@ -85,6 +85,7 @@ class Supertonic {
     const latentMask = new ort.Tensor('float32', new Float32Array(latentLen).fill(1), [1, 1, latentLen]);
     const total = new ort.Tensor('float32', Float32Array.of(steps), [1]);
     for (let step = 0; step < steps; step++) {
+      await between?.();          // a chance to give up on this sentence: most of the time goes here
       const out = await this.s.est.run({
         noisy_latent: new ort.Tensor('float32', latent, [1, this.latentDim, latentLen]),
         text_emb: textEmb, style_ttl: style.ttl, text_mask: textMask, latent_mask: latentMask,
@@ -92,6 +93,7 @@ class Supertonic {
       });
       latent = Float32Array.from(out.denoised_latent.data);
     }
+    await between?.();
     const { wav_tts: wav } = await this.s.voc.run({ latent: new ort.Tensor('float32', latent, [1, this.latentDim, latentLen]) });
     return Float32Array.from(wav.data.subarray(0, Math.min(wav.data.length, wavLen)));
   }

@@ -5,7 +5,7 @@
 //
 // Messages in:  { type: 'init', dir, fake }
 //               { type: 'speak', id, text, lang, voice, speed, steps }
-//               { type: 'cancel' }                       drop everything not yet started
+//               { type: 'cancel' }                       drop everything, and stop the sentence being made
 // Messages out: { type: 'ready' } | { type: 'failed', error }
 //               { type: 'audio', id, sampleRate, samples, ms } | { type: 'error', id, error }
 const fs = require('node:fs');
@@ -18,6 +18,7 @@ let dir = '';
 const styles = new Map();
 const queue = [];
 let busy = false;
+let running = null;
 
 /** Test stand-in: a quiet tone as long as the sentence would take to read, made instantly. */
 function tone(text, speed) {
@@ -56,19 +57,26 @@ async function pump() {
   busy = true;
   while (queue.length) {
     const job = queue.shift();
+    running = job;
     const t = Date.now();
+    // Sentences can take seconds to make. Between steps, look for a message saying this one isn't wanted any more.
+    const between = async () => {
+      await new Promise(setImmediate);
+      if (job.cancelled) throw new Error('cancelled');
+    };
     try {
       if (fake) {
         const { samples, sampleRate } = tone(job.text, job.speed);
         port.postMessage({ type: 'audio', id: job.id, sampleRate, samples, ms: Date.now() - t });
       } else {
-        const samples = await tts.speak(job.text, { lang: job.lang, style: style(job.voice), speed: job.speed, steps: job.steps });
+        const samples = await tts.speak(job.text, { lang: job.lang, style: style(job.voice), speed: job.speed, steps: job.steps, between });
         port.postMessage({ type: 'audio', id: job.id, sampleRate: tts.sampleRate, samples, ms: Date.now() - t });
       }
     } catch (err) {
       port.postMessage({ type: 'error', id: job.id, error: err?.message || String(err) });
     }
   }
+  running = null;
   busy = false;
 }
 
@@ -80,6 +88,7 @@ port.on('message', async (e) => {
     queue.push(msg);
     pump();
   } else if (msg.type === 'cancel') {
+    if (running) running.cancelled = true;
     for (const job of queue.splice(0)) port.postMessage({ type: 'error', id: job.id, error: 'cancelled' });
   }
 });
