@@ -1,0 +1,101 @@
+en	es	fr	de
+Home Server	Servidor doméstico	Serveur personnel	Heimserver
+Open a Folder on My Server…	Abrir una carpeta de mi servidor…	Ouvrir un dossier de mon serveur…	Ordner auf meinem Server öffnen…
+Open a Folder on My Server	Abrir una carpeta de mi servidor	Ouvrir un dossier de mon serveur	Ordner auf meinem Server öffnen
+Publish This Document to My Wiki…	Publicar este documento en mi wiki…	Publier ce document sur mon wiki…	Dieses Dokument in meinem Wiki veröffentlichen…
+Publish This Folder to My Wiki…	Publicar esta carpeta en mi wiki…	Publier ce dossier sur mon wiki…	Diesen Ordner in meinem Wiki veröffentlichen…
+Publish to My Wiki	Publicar en mi wiki	Publier sur mon wiki	In meinem Wiki veröffentlichen
+My Servers…	Mis servidores…	Mes serveurs…	Meine Server…
+My Servers	Mis servidores	Mes serveurs	Meine Server
+One place for your servers. Passwords and keys are kept encrypted on this computer, and only go to the server they’re for.	Un solo lugar para sus servidores. Las contraseñas y claves se guardan cifradas en este equipo y solo van al servidor correspondiente.	Un seul endroit pour vos serveurs. Les mots de passe et clés restent chiffrés sur cet ordinateur et ne vont qu’au serveur concerné.	Ein Ort für Ihre Server. Passwörter und Schlüssel bleiben verschlüsselt auf diesem Computer und gehen nur an den jeweiligen Server.
+No servers yet.	Aún no hay servidores.	Aucun serveur pour le moment.	Noch keine Server.
+Add a Server…	Añadir un servidor…	Ajouter un serveur…	Server hinzufügen…
+Add a server	Añadir un servidor	Ajouter un serveur	Server hinzufügen
+Edit server	Editar servidor	Modifier le serveur	Server bearbeiten
+Kind	Tipo	Type	Art
+Nextcloud or ownCloud	Nextcloud u ownCloud	Nextcloud ou ownCloud	Nextcloud oder ownCloud
+Other WebDAV server	Otro servidor WebDAV	Autre serveur WebDAV	Anderer WebDAV-Server
+BookStack	BookStack	BookStack	BookStack
+Wiki.js	Wiki.js	Wiki.js	Wiki.js
+Nextcloud	Nextcloud	Nextcloud	Nextcloud
+WebDAV	WebDAV	WebDAV	WebDAV
+Name on the server	Nombre en el servidor	Nom sur le serveur	Name auf dem Server
+Test and Save	Probar y guardar	Tester et enregistrer	Testen und speichern
+Test	Probar	Tester	Testen
+Testing…	Probando…	Test en cours…	Wird getestet…
+Connected.	Conectado.	Connecté.	Verbunden.
+Server	Servidor	Serveur	Server
+Wiki	Wiki	Wiki	Wiki
+Book	Libro	Livre	Buch
+Collection	Colección	Collection	Sammlung
+Folder	Carpeta	Dossier	Ordner
+New…	Nuevo…	Nouveau…	Neu…
+Where in the wiki	Dónde en la wiki	Où dans le wiki	Wo im Wiki
+Up One Folder	Subir una carpeta	Dossier parent	Ein Ordner nach oben
+Go In	Entrar	Ouvrir	Öffnen
+Open This Folder	Abrir esta carpeta	Ouvrir ce dossier	Diesen Ordner öffnen
+Its documents and pictures are copied to this computer, so it works like any folder, even offline. Changes go both ways. Nothing on your server is deleted from here.	Sus documentos e imágenes se copian a este equipo, así que funciona como cualquier carpeta, incluso sin conexión. Los cambios van en ambos sentidos. Desde aquí no se elimina nada de su servidor.	Ses documents et images sont copiés sur cet ordinateur : il fonctionne comme tout dossier, même hors ligne. Les modifications vont dans les deux sens. Rien n’est supprimé de votre serveur depuis ici.	Seine Dokumente und Bilder werden auf diesen Computer kopiert, sodass er wie jeder Ordner funktioniert, auch offline. Änderungen gehen in beide Richtungen. Von hier aus wird nichts auf Ihrem Server gelöscht.
+Asking the server…	Consultando al servidor…	Interrogation du serveur…	Server wird gefragt…
+Asking the wiki…	Consultando la wiki…	Interrogation du wiki…	Wiki wird gefragt…
+No folders in here.	No hay carpetas aquí.	Aucun dossier ici.	Hier sind keine Ordner.
+Bringing the folder here… A large folder can take a while the first time.	Trayendo la carpeta… Una carpeta grande puede tardar la primera vez.	Récupération du dossier… Un grand dossier peut prendre du temps la première fois.	Ordner wird geholt… Ein großer Ordner kann beim ersten Mal dauern.
+1 document is here, and changes will go both ways.	1 documento está aquí, y los cambios irán en ambos sentidos.	1 document est ici, et les modifications iront dans les deux sens.	1 Dokument ist hier, und Änderungen gehen in beide Richtungen.
+{0} documents are here, and changes will go both ways.	{0} documentos están aquí, y los cambios irán en ambos sentidos.	{0} documents sont ici, et les modifications iront dans les deux sens.	{0} Dokumente sind hier, und Änderungen gehen in beide Richtungen.
+Add your server first.	Añada primero su servidor.	Ajoutez d’abord votre serveur.	Fügen Sie zuerst Ihren Server hinzu.
+Add your wiki first.	Añada primero su wiki.	Ajoutez d’abord votre wiki.	Fügen Sie zuerst Ihr Wiki hinzu.
+Publish	Publicar	Publier	Veröffentlichen
+Publishing…	Publicando…	Publication…	Wird veröffentlicht…
+Open on the Wiki	Abrir en la wiki	Ouvrir sur le wiki	Im Wiki öffnen
+1 new page	1 página nueva	1 nouvelle page	1 neue Seite
+{0} new pages	{0} páginas nuevas	{0} nouvelles pages	{0} neue Seiten
+1 page to update	1 página por actualizar	1 page à mettre à jour	1 Seite zum Aktualisieren
+{0} pages to update	{0} páginas por actualizar	{0} pages à mettre à jour	{0} Seiten zum Aktualisieren
+1 picture	1 imagen	1 image	1 Bild
+{0} pictures	{0} imágenes	{0} images	{0} Bilder
+1 page made	1 página creada	1 page créée	1 Seite erstellt
+{0} pages made	{0} páginas creadas	{0} pages créées	{0} Seiten erstellt
+1 page updated	1 página actualizada	1 page mise à jour	1 Seite aktualisiert
+{0} pages updated	{0} páginas actualizadas	{0} pages mises à jour	{0} Seiten aktualisiert
+1 page already up to date	1 página ya al día	1 page déjà à jour	1 Seite bereits aktuell
+{0} pages already up to date	{0} páginas ya al día	{0} pages déjà à jour	{0} Seiten bereits aktuell
+1 picture not found	1 imagen no encontrada	1 image introuvable	1 Bild nicht gefunden
+{0} pictures not found	{0} imágenes no encontradas	{0} images introuvables	{0} Bilder nicht gefunden
+1 page refused: {0}, {1}	1 página rechazada: {0}, {1}	1 page refusée : {0}, {1}	1 Seite abgelehnt: {0}, {1}
+{0} pages refused	{0} páginas rechazadas	{0} pages refusées	{0} Seiten abgelehnt
+{0} You’re working from your copy, and changes will go when the server is back.	{0} Está trabajando con su copia, y los cambios se enviarán cuando vuelva el servidor.	{0} Vous travaillez sur votre copie, et les modifications partiront au retour du serveur.	{0} Sie arbeiten mit Ihrer Kopie, und Änderungen gehen, sobald der Server wieder da ist.
+Changed in both places, so yours is kept as “{0}”.	Cambió en ambos lugares, así que el suyo se conserva como “{0}”.	Modifié aux deux endroits : le vôtre est conservé sous « {0} ».	An beiden Orten geändert, Ihre Fassung bleibt als „{0}“ erhalten.
+{0} documents changed in both places, so yours are kept as copies.	{0} documentos cambiaron en ambos lugares, así que los suyos se conservan como copias.	{0} documents ont changé aux deux endroits : les vôtres sont conservés en copies.	{0} Dokumente wurden an beiden Orten geändert, Ihre Fassungen bleiben als Kopien erhalten.
+This address isn’t encrypted, so your password could be read on the way. That’s usually fine inside your home network.	Esta dirección no está cifrada, así que su contraseña podría leerse por el camino. Suele estar bien dentro de su red doméstica.	Cette adresse n’est pas chiffrée : votre mot de passe pourrait être lu en chemin. C’est généralement sans risque sur votre réseau domestique.	Diese Adresse ist nicht verschlüsselt, Ihr Passwort könnte unterwegs gelesen werden. Im Heimnetz ist das meist unbedenklich.
+Use an app password, from Personal settings, then Security.	Use una contraseña de aplicación, en Ajustes personales y luego Seguridad.	Utilisez un mot de passe d’application, dans Paramètres personnels, puis Sécurité.	Verwenden Sie ein App-Passwort unter Persönliche Einstellungen, dann Sicherheit.
+The full address of the folder, and your name and password for it.	La dirección completa de la carpeta, con su nombre y contraseña.	L’adresse complète du dossier, avec votre nom et votre mot de passe.	Die vollständige Adresse des Ordners und Ihr Name und Passwort dafür.
+From your profile, under API Tokens: the token ID, a colon, then the secret, like id:secret.	De su perfil, en API Tokens: el ID del token, dos puntos y el secreto, así: id:secreto.	Depuis votre profil, sous API Tokens : l’ID du jeton, deux-points, puis le secret, comme id:secret.	Aus Ihrem Profil unter API Tokens: die Token-ID, ein Doppelpunkt, dann das Secret, also id:secret.
+An API key, from Administration, then API Access.	Una clave de API, en Administración y luego API Access.	Une clé d’API, dans Administration, puis API Access.	Ein API-Schlüssel unter Administration, dann API Access.
+An API key, from Settings, then API.	Una clave de API, en Ajustes y luego API.	Une clé d’API, dans Paramètres, puis API.	Ein API-Schlüssel unter Einstellungen, dann API.
+The server didn’t accept that name and password. Nextcloud needs an app password if two-step sign-in is on.	El servidor no aceptó ese nombre y contraseña. Nextcloud necesita una contraseña de aplicación si el inicio de sesión en dos pasos está activado.	Le serveur n’a pas accepté ce nom et ce mot de passe. Nextcloud demande un mot de passe d’application si la connexion en deux étapes est active.	Der Server hat Name und Passwort nicht angenommen. Nextcloud braucht ein App-Passwort, wenn die Zwei-Faktor-Anmeldung aktiv ist.
+The server refused that.	El servidor lo rechazó.	Le serveur a refusé.	Der Server hat das abgelehnt.
+That folder isn’t on the server.	Esa carpeta no está en el servidor.	Ce dossier n’est pas sur le serveur.	Dieser Ordner ist nicht auf dem Server.
+That address doesn’t answer as a WebDAV folder.	Esa dirección no responde como carpeta WebDAV.	Cette adresse ne répond pas comme un dossier WebDAV.	Diese Adresse antwortet nicht als WebDAV-Ordner.
+That changed on the server.	Eso cambió en el servidor.	Cela a changé sur le serveur.	Das hat sich auf dem Server geändert.
+The server is out of space.	El servidor no tiene espacio.	Le serveur n’a plus d’espace.	Der Server hat keinen Platz mehr.
+The server answered {0}.	El servidor respondió {0}.	Le serveur a répondu {0}.	Der Server antwortete {0}.
+The server can’t be reached. Check the address and that you’re on its network.	No se puede acceder al servidor. Revise la dirección y que esté en su red.	Impossible de joindre le serveur. Vérifiez l’adresse et que vous êtes sur son réseau.	Der Server ist nicht erreichbar. Prüfen Sie die Adresse und ob Sie in seinem Netzwerk sind.
+That file is too large.	Ese archivo es demasiado grande.	Ce fichier est trop volumineux.	Diese Datei ist zu groß.
+Check the address. It needs to start with http:// or https://.	Revise la dirección. Debe empezar por http:// o https://.	Vérifiez l’adresse. Elle doit commencer par http:// ou https://.	Prüfen Sie die Adresse. Sie muss mit http:// oder https:// beginnen.
+Type your password.	Escriba su contraseña.	Saisissez votre mot de passe.	Geben Sie Ihr Passwort ein.
+Paste your key.	Pegue su clave.	Collez votre clé.	Fügen Sie Ihren Schlüssel ein.
+That server isn’t there any more.	Ese servidor ya no está.	Ce serveur n’existe plus.	Dieser Server ist nicht mehr da.
+Open a folder first.	Abra primero una carpeta.	Ouvrez d’abord un dossier.	Öffnen Sie zuerst einen Ordner.
+Save the document first, so its pictures can be found.	Guarde primero el documento, para poder encontrar sus imágenes.	Enregistrez d’abord le document, pour que ses images soient trouvées.	Speichern Sie das Dokument zuerst, damit seine Bilder gefunden werden.
+Give it a name first.	Póngale primero un nombre.	Donnez-lui d’abord un nom.	Geben Sie ihm zuerst einen Namen.
+That isn’t waiting any more.	Eso ya no está en espera.	Ce n’est plus en attente.	Das wartet nicht mehr.
+The wiki didn’t accept that key.	La wiki no aceptó esa clave.	Le wiki n’a pas accepté cette clé.	Das Wiki hat diesen Schlüssel nicht angenommen.
+That key isn’t allowed to do that. Check its permissions on the wiki.	Esa clave no tiene permiso para eso. Revise sus permisos en la wiki.	Cette clé n’y est pas autorisée. Vérifiez ses droits sur le wiki.	Dieser Schlüssel darf das nicht. Prüfen Sie seine Rechte im Wiki.
+That isn’t on the wiki any more.	Eso ya no está en la wiki.	Ce n’est plus sur le wiki.	Das ist nicht mehr im Wiki.
+That’s too large for the wiki to take.	Es demasiado grande para la wiki.	C’est trop volumineux pour le wiki.	Das ist zu groß für das Wiki.
+The wiki said: {0}	La wiki dijo: {0}	Le wiki a répondu : {0}	Das Wiki sagte: {0}
+The wiki answered {0}.	La wiki respondió {0}.	Le wiki a répondu {0}.	Das Wiki antwortete {0}.
+The wiki can’t be reached. Check the address and that you’re on its network.	No se puede acceder a la wiki. Revise la dirección y que esté en su red.	Impossible de joindre le wiki. Vérifiez l’adresse et que vous êtes sur son réseau.	Das Wiki ist nicht erreichbar. Prüfen Sie die Adresse und ob Sie in seinem Netzwerk sind.
+Go into {0}	Entrar en {0}	Ouvrir {0}	{0} öffnen
+Test {0}	Probar {0}	Tester {0}	{0} testen
+Edit {0}	Editar {0}	Modifier {0}	{0} bearbeiten
+Local AI model	Modelo de IA local	Modèle d’IA local	Lokales KI-Modell

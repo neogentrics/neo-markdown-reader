@@ -4,6 +4,18 @@ All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.9.0] - Unreleased
+
+Documents and publishing on servers you run yourself.
+
+### Added
+- **Folders on your server.** *File → Home Server → Open a Folder on My Server…* opens a folder on Nextcloud, ownCloud or any WebDAV server. The app keeps a private copy of its documents and pictures, so search, links and editing work as they do for any folder, even offline. Changes go both ways by themselves. Nothing on your server is deleted from here, and when both sides change a document, yours is kept as a copy.
+- **Publish to your wiki.** Send a document or a whole folder to BookStack, Wiki.js or Outline as pages, with their pictures, and links between your documents become links between the pages. Publishing again updates the same pages and skips what hasn't changed.
+- **My Servers.** One place for your servers, with *Test Connection*. Passwords and keys are encrypted on this computer and only go to the server they're for. Your n8n and local AI model appear here too.
+
+### Changed
+- *Rename…* moved to *File → This Document*, with the same shortcut.
+
 ## [3.8.0] - 2026-11-05
 
 Notion and your Markdown files, working together.

@@ -33,6 +33,9 @@ const flashcards = require('./flashcards');
 const bibliography = require('./bibliography');
 const automations = require('./automations');
 const notion = require('./notion');
+const servers = require('./servers');
+const webdav = require('./webdav');
+const wikis = require('./wikis');
 const { Inbound, newKey: newInboundKey, networkAddresses } = require('./inbound');
 const { SyncEngine } = require('./sync');
 const { VoiceStore, VOICES, LICENSE_URL } = require('./voices');
@@ -675,11 +678,11 @@ function rebuildMenu() {
         { type: 'separator' },
         cmd('save', 'Save', 'CmdOrCtrl+S'),
         cmd('save-as', 'Save As…', 'CmdOrCtrl+Shift+S'),
-        cmd('rename-doc', 'Rename…', 'F2'),
         { type: 'separator' },
         {
           label: 'This Document',
           submenu: [
+            cmd('rename-doc', 'Rename…', 'F2'),
             cmd('reload', 'Reload File', 'F5'),
             cmd('reveal', 'Show in Folder'),
             cmd('copy-path', 'Copy File Path'),
@@ -725,6 +728,16 @@ function rebuildMenu() {
             cmd('notion-open', 'Open in Notion'),
             { type: 'separator' },
             cmd('notion-setup', 'Notion Connection…'),
+          ],
+        },
+        {
+          label: 'Home Server',
+          submenu: [
+            cmd('server-open', 'Open a Folder on My Server…'),
+            cmd('server-publish', 'Publish This Document to My Wiki…'),
+            cmd('server-publish-folder', 'Publish This Folder to My Wiki…'),
+            { type: 'separator' },
+            cmd('server-list', 'My Servers…'),
           ],
         },
         { id: 'print', label: 'Print…', accelerator: 'CmdOrCtrl+P', click: () => targetState()?.win.webContents.print({ printBackground: true }) },
@@ -1096,11 +1109,13 @@ async function setFolder(state, root) {
         folder.scan = await scanFolder(root);
         state.win.webContents.send('folder:changed', folderInfo(folder.scan));
         smartRefresh(state);
+        folder.sync?.();
       }, 700);
     });
     watcher.on('error', () => {});
     folder.unwatch = () => { clearTimeout(timer); watcher.close(); };
   } catch { /* watching isn't available everywhere; the Refresh button still works */ }
+  followServerFolder(state, folder);
   const recentFolders = [root, ...settings.get().recentFolders.filter((f) => f.toLowerCase() !== root.toLowerCase())];
   settings.update({ recentFolders });
   snapshot(state);
@@ -1234,6 +1249,100 @@ async function openFromLink({ from, name, text, path: file }) {
   focusState(st);
   st.win.webContents.send('link:document', { from, name, content: text });
 }
+
+// ---------------------------------------------------------------- your home server (3.9)
+const SERVER_SYNC_MS = 60 * 1000;
+const publishJobs = new Map();
+const serverById = (id) => settings.get().servers.find((s) => s.id === id) || null;
+const serverSecret = (id) => loadSecrets().servers?.[id] || '';
+const serverRoot = () => path.join(app.getPath('userData'), 'server-folders');
+const wikiFile = () => path.join(app.getPath('userData'), 'wiki-pages.json');
+let wikiCache = null;
+
+function wikiRecords() {
+  if (!wikiCache) {
+    try { wikiCache = JSON.parse(fs.readFileSync(wikiFile(), 'utf8')); } catch { wikiCache = {}; }
+  }
+  return wikiCache;
+}
+
+function saveWikiRecords(id, known) {
+  wikiRecords()[id] = known;
+  try { fs.writeFileSync(wikiFile(), JSON.stringify(wikiCache)); } catch { /* the pages are made; it only means they'd be made again */ }
+}
+
+/** Keep a folder on a server and this computer's copy in step, for as long as the folder is open here. */
+function followServerFolder(state, folder) {
+  const link = settings.get().serverFolders.find((f) => path.resolve(f.root).toLowerCase() === path.resolve(folder.root).toLowerCase());
+  const server = link && serverById(link.server);
+  if (!server) return;
+  const stateFile = `${path.dirname(folder.root)}.json`;
+  let told = false;
+  let running = null;
+  folder.sync = () => {
+    running ??= (async () => {
+      let known = {};
+      try { known = JSON.parse(await fs.promises.readFile(stateFile, 'utf8')); } catch { /* the first time */ }
+      try {
+        const client = servers.davClient({ fetch: net.fetch, server, secret: serverSecret(server.id) });
+        const res = await webdav.syncFolder({ client, remote: link.remote, root: folder.root, known });
+        await fs.promises.writeFile(stateFile, JSON.stringify(res.known));
+        told = false;
+        if (res.report.conflicts.length && !state.win.isDestroyed()) state.win.webContents.send('srv:synced', { conflicts: res.report.conflicts });
+        return res.report;
+      } catch (err) {
+        if (!told && !state.win.isDestroyed()) state.win.webContents.send('srv:synced', { error: err.message });
+        told = true;
+        return null;
+      } finally {
+        running = null;
+      }
+    })();
+    return running;
+  };
+  const timer = setInterval(() => folder.sync(), SERVER_SYNC_MS);
+  const stopWatching = folder.unwatch;
+  folder.unwatch = () => { clearInterval(timer); stopWatching?.(); };
+  folder.sync();
+}
+
+/** Where this computer keeps its copy of a folder on a server. */
+function serverCopyPath(server, remote) {
+  const id = crypto.createHash('sha256').update(`${server.id}|${remote}`).digest('hex').slice(0, 16);
+  const name = (remote.split('/').pop() || server.name).replace(/[\\/:*?"<>|]/g, '-').replace(/[. ]+$/, '').slice(0, 80) || 'Server folder';
+  return path.join(serverRoot(), id, name);
+}
+
+/** The documents to publish, as the publisher wants them. Locked ones are never included. */
+async function publishDocs(st, req) {
+  if (req.scope === 'folder') {
+    if (!st.folder) throw new wikis.WikiError('Open a folder first.', 'no_folder');
+    const docs = [];
+    for (const file of st.folder.scan.files) {
+      if (isLockedPath(file) || !isMarkdownPath(file)) continue;
+      const text = await fs.promises.readFile(file, 'utf8').catch(() => null);
+      if (text !== null) docs.push({ key: file, rel: path.relative(st.folder.root, file).replace(/\\/g, '/'), name: path.basename(file), text, dir: path.dirname(file) });
+    }
+    if (!docs.length) throw new wikis.WikiError('There are no documents in this folder.', 'empty');
+    return docs;
+  }
+  if (!isStr(req.path, 4096) || !path.isAbsolute(req.path)) throw new wikis.WikiError('Save the document first, so its pictures can be found.', 'unsaved');
+  if (isLockedPath(req.path)) throw new wikis.WikiError('Password-locked documents are never sent.', 'locked');
+  const text = typeof req.text === 'string' ? req.text : '';
+  if (!text.trim()) throw new wikis.WikiError('Open a document first.', 'empty');
+  return [{ key: req.path, rel: path.basename(req.path), name: path.basename(req.path), text, dir: path.dirname(req.path) }];
+}
+
+const hostOf = (url) => { try { return new URL(url).host; } catch { return url; } };
+
+/** Give an answer the page can show, whatever went wrong. */
+const serverAnswer = (fn) => async (e, req = {}) => {
+  try {
+    return await fn(e, req && typeof req === 'object' ? req : {});
+  } catch (err) {
+    return { error: err instanceof webdav.DavError || err instanceof wikis.WikiError ? err.message : 'That didn’t work.', code: err.code };
+  }
+};
 
 // ---------------------------------------------------------------- Notion (3.8)
 const notionJobs = new Map();     // what's been fetched or is about to be sent, so the page only has to name it
@@ -1541,6 +1650,7 @@ function registerIpc() {
   ipcMain.handle('folder:refresh', async (e) => {
     const st = stateFor(e);
     if (!st?.folder) return null;
+    await st.folder.sync?.();
     st.folder.scan = await scanFolder(st.folder.root);
     return folderInfo(st.folder.scan);
   });
@@ -1921,6 +2031,118 @@ function registerIpc() {
     autoJobs.set(token, { action, payload });
     return { token, action, plain: !/^https:/i.test(action.url), ...automations.describeSend(payload) };
   });
+  // ---- your servers: the page names one by its id, and its password stays here.
+  const serverList = () => {
+    const secrets = loadSecrets().servers || {};
+    const s = settings.get();
+    const others = [];
+    if (s.n8nUrl) others.push({ key: 'n8n', name: 'n8n', host: hostOf(s.n8nUrl), command: 'automations' });
+    if (s.ai?.localUrl && s.ai.provider === 'local') others.push({ key: 'ai', name: 'Local AI model', host: hostOf(s.ai.localUrl), command: 'preferences', arg: 'ai' });
+    return {
+      servers: s.servers.map((x) => ({ ...x, host: hostOf(x.url), kindName: servers.KINDS[x.kind].name, hasSecret: !!secrets[x.id] })),
+      kinds: servers.KINDS, others, secure: secureStorage(),
+    };
+  };
+  ipcMain.handle('srv:list', () => serverList());
+  ipcMain.handle('srv:save', serverAnswer(async (_e, req) => {
+    const clean = servers.cleanServer(req);
+    if (!clean) throw new webdav.DavError('Check the address. It needs to start with http:// or https://.', 'bad_url');
+    const secret = (typeof req.secret === 'string' && req.secret.trim()) || (typeof req.id === 'string' ? serverSecret(req.id) : '');
+    if (!secret) throw new webdav.DavError(servers.KINDS[clean.kind].user ? 'Type your password.' : 'Paste your key.', 'no_key');
+    await servers.testServer({ fetch: net.fetch, server: clean, secret });
+    saveSecrets({ servers: { ...loadSecrets().servers, [clean.id]: secret } });
+    const list = settings.get().servers;
+    setSetting({ servers: list.some((x) => x.id === clean.id) ? list.map((x) => (x.id === clean.id ? clean : x)) : [...list, clean] });
+    return { ok: true };
+  }));
+  ipcMain.handle('srv:remove', (_e, id) => {
+    const { [id]: gone, ...rest } = loadSecrets().servers || {};
+    saveSecrets({ servers: rest });
+    const s = settings.get();
+    setSetting({ servers: s.servers.filter((x) => x.id !== id), serverFolders: s.serverFolders.filter((f) => f.server !== id) });
+    return {};
+  });
+  ipcMain.handle('srv:test', serverAnswer(async (_e, req) => {
+    if (req.other === 'n8n' || req.other === 'ai') {
+      const s = settings.get();
+      const url = req.other === 'n8n' ? `${s.n8nUrl}/healthz` : `${s.ai?.localUrl}/models`;
+      const res = await net.fetch(url, { signal: AbortSignal.timeout(10000) }).catch(() => null);
+      if (!res?.ok) throw new webdav.DavError('The server can’t be reached. Check the address and that you’re on its network.', 'offline');
+      return { ok: true };
+    }
+    const server = serverById(req.id);
+    if (!server) throw new webdav.DavError('That server isn’t there any more.', 'gone');
+    await servers.testServer({ fetch: net.fetch, server, secret: serverSecret(server.id) });
+    return { ok: true };
+  }));
+  ipcMain.handle('srv:folders', serverAnswer(async (_e, req) => {
+    const server = serverById(req.id);
+    if (!server) throw new webdav.DavError('That server isn’t there any more.', 'gone');
+    const client = servers.davClient({ fetch: net.fetch, server, secret: serverSecret(server.id) });
+    return { folders: await client.folders(typeof req.rel === 'string' ? req.rel : '') };
+  }));
+  ipcMain.handle('srv:open-folder', serverAnswer(async (e, req) => {
+    const st = stateFor(e);
+    const server = serverById(req.id);
+    if (!st || !server) throw new webdav.DavError('That server isn’t there any more.', 'gone');
+    const remote = (typeof req.rel === 'string' ? req.rel : '').replace(/^\/+|\/+$/g, '');
+    const root = serverCopyPath(server, remote);
+    await fs.promises.mkdir(root, { recursive: true });
+    const list = settings.get().serverFolders;
+    if (!list.some((f) => f.root === root)) setSetting({ serverFolders: [...list, { server: server.id, remote, root }] });
+    const client = servers.davClient({ fetch: net.fetch, server, secret: serverSecret(server.id) });
+    const stateFile = `${path.dirname(root)}.json`;
+    let known = {};
+    try { known = JSON.parse(await fs.promises.readFile(stateFile, 'utf8')); } catch { /* the first time */ }
+    const res = await webdav.syncFolder({ client, remote, root, known });
+    await fs.promises.writeFile(stateFile, JSON.stringify(res.known));
+    const info = await setFolder(st, root);
+    if (info) st.win.webContents.send('folder:opened', info);
+    smartRefresh(st);
+    return { count: info?.count || 0 };
+  }));
+  ipcMain.handle('srv:publish-prepare', serverAnswer(async (e, req) => {
+    const st = stateFor(e);
+    const server = serverById(req.id);
+    if (!st || !server || !servers.KINDS[server.kind].wiki) throw new wikis.WikiError('That server isn’t there any more.', 'gone');
+    const docs = await publishDocs(st, req);
+    const wiki = servers.wikiClient({ fetch: net.fetch, server, secret: serverSecret(server.id) });
+    const places = await wiki.places();
+    const known = wikiRecords()[server.id] || {};
+    const token = crypto.randomUUID();
+    publishJobs.set(token, { server, docs });
+    const fresh = docs.filter((d) => !known[d.key]).length;
+    const pictures = new Set(docs.flatMap((d) => wikis.localPictures(d.text).map((p) => wikis.pictureFile(d.dir, p)))).size;
+    const suggested = req.scope === 'folder' ? path.basename(st.folder.root) : wikis.pageFrom(docs[0].text, docs[0].name).title;
+    return { token, places, placeWord: wiki.placeWord, freePlace: !!wiki.freePlace, fresh, again: docs.length - fresh, pictures, suggested, lastPlace: known['place|last']?.id || '' };
+  }));
+  ipcMain.handle('srv:publish', serverAnswer(async (_e, req) => {
+    const job = publishJobs.get(req.token);
+    if (!job) throw new wikis.WikiError('That isn’t waiting any more.', 'gone');
+    const { server, docs } = job;
+    const wiki = servers.wikiClient({ fetch: net.fetch, server, secret: serverSecret(server.id) });
+    const known = wikiRecords()[server.id] || {};
+    let place = typeof req.place === 'string' ? req.place : '';
+    if (!place) {
+      const name = typeof req.newPlace === 'string' ? req.newPlace.trim().slice(0, 200) : '';
+      if (!name) throw new wikis.WikiError('Give it a name first.', 'no_name');
+      place = (await wiki.makePlace(name)).id;
+    }
+    const readFile = (file) => fs.promises.readFile(file).catch(() => null);
+    let res;
+    try {
+      res = await wikis.publish({ wiki, place, docs, known, readFile });
+    } catch (err) {
+      if (err.known) saveWikiRecords(server.id, err.known);
+      throw err;
+    }
+    res.known['place|last'] = { id: place };
+    saveWikiRecords(server.id, res.known);
+    publishJobs.delete(req.token);
+    const { made, updated, same, missing, failed, pages } = res.report;
+    return { made, updated, same, missing, failed, url: pages.length === 1 || docs.length === 1 ? res.known[docs[0].key]?.url : pages[0]?.url };
+  }));
+
   // ---- Notion: your key stays here, and what's sent is what you were shown.
   ipcMain.handle('notion:state', () => ({ hasKey: !!loadSecrets().notion, secure: secureStorage() }));
   ipcMain.handle('notion:connect', notionAnswer(async (_e, req) => {

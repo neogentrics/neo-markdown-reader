@@ -289,9 +289,9 @@ app learns to talk to them (decision 12).
 
 | Feature | Size | Details |
 |---|:-:|---|
-| 🙋 Nextcloud & WebDAV folders | M | Open a folder on Nextcloud, ownCloud or any WebDAV server like a folder on your computer: browse, search, read, and (with permission) edit and save back. |
-| 🙋🛡️ Publish to your wiki | M | Send a document, or a whole folder, to BookStack, Wiki.js or Outline as pages, with pictures, and update them later. |
-| Home server presets | S | One place for your servers' addresses and keys (encrypted like AI keys), shared by n8n, wikis, WebDAV and local AI models, with a *Test connection* button. |
+| ✅ 🙋 Nextcloud & WebDAV folders | M | Open a folder on Nextcloud, ownCloud or any WebDAV server like a folder on your computer: browse, search, read, and (with permission) edit and save back. The app keeps a private copy, so it works offline too, changes go both ways, and nothing on the server is deleted from here. |
+| ✅ 🙋🛡️ Publish to your wiki | M | Send a document, or a whole folder, to BookStack, Wiki.js or Outline as pages, with pictures, and update them later. |
+| ✅ Home server presets | S | One place for your servers' addresses and keys (encrypted like AI keys), shared by n8n, wikis, WebDAV and local AI models, with a *Test connection* button. |
 
 ## v3.10 — Publish anywhere
 
