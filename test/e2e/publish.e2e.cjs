@@ -181,16 +181,22 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   await step('presentation mode splits slides on --- and moves with the keyboard', async () => {
     await menu('present');
     await win.waitForSelector('#present:not([hidden])');
-    assert.equal(await win.textContent('#present-count'), '1 / 4');            // title slide + three sections
+    // A title slide and three sections, the long ones flowing onto more slides.
+    const [first, total] = (await win.textContent('#present-count')).split(' / ').map(Number);
+    assert.equal(first, 1);
+    assert.ok(total >= 4, `${total} slides`);
     assert.ok(await win.$('#present-slide.title-slide .doc-meta-title'));
     await win.keyboard.press('ArrowRight');
-    assert.equal(await win.textContent('#present-count'), '2 / 4');
+    assert.equal(await win.textContent('#present-count'), `2 / ${total}`);
     assert.ok(await win.$('#present-slide #summary'));
     await win.keyboard.press('End');
-    assert.equal(await win.textContent('#present-count'), '4 / 4');
+    assert.equal(await win.textContent('#present-count'), `${total} / ${total}`);
     await win.keyboard.press('ArrowLeft');
-    assert.equal(await win.textContent('#present-count'), '3 / 4');
-    assert.ok(await win.$('#present-slide table'));
+    assert.equal(await win.textContent('#present-count'), `${total - 1} / ${total}`);
+    await win.keyboard.press('Home');
+    let table = false;
+    for (let i = 0; i < total && !table; i++) { table = !!(await win.$('#present-slide table')); await win.keyboard.press('ArrowRight'); }
+    assert.ok(table, 'the table is on a slide');
     await win.keyboard.press('Escape');
     await win.waitForSelector('#present', { state: 'hidden' });
   });

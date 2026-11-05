@@ -80,7 +80,7 @@ const step = async (name, fn) => { await fn(); passed++; console.log(`ok - ${nam
     assert.ok(total >= 8, `${total} slides`);
     for (let i = 1; i <= total; i++) {
       assert.ok(await overflow() <= 1, `slide ${i} overflows by ${await overflow()}`);
-      assert.ok(await win.evaluate(() => parseFloat(getComputedStyle(document.getElementById('present-slide')).fontSize)) >= 22);
+      assert.ok(await win.evaluate(() => parseFloat(getComputedStyle(document.getElementById('present-slide')).fontSize)) >= 20);
       await win.keyboard.press('ArrowRight');
     }
     await win.keyboard.press('Home');

@@ -88,7 +88,7 @@ let sourceOf = new WeakMap();
 let spans = new WeakMap();
 
 const BASE_FONT = 30;
-const MIN_FONT = 22;        // a slide that would need smaller text than this is split instead
+const MIN_FONT = 20;        // a slide that would need smaller text than this is split instead
 const PAGE_FONT = 22;       // the text size on slides made by splitting
 const MIN_SPLIT_TEXT = 200; // shorter paragraphs move to the next slide whole
 
