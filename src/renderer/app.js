@@ -339,6 +339,7 @@ function showActiveDoc() {
   updateChrome();
   if (sidebar?.panel() === 'history') historyUi?.render(tab);
   notesUi?.renderBacklinks(tab);
+  notesUi?.renderRelated(tab);
 }
 
 function isBookmarked(p) { return !!p && (settings.bookmarks || []).some((b) => b.toLowerCase() === p.toLowerCase()); }
@@ -999,6 +1000,7 @@ api.onCommand(({ cmd, arg }) => {
     case 'pronunciation': sayUi.open(); break;
     case 'dictate': dictateUi.toggle(); break;
     case 'dictate-remove': api.dictateRemove(); break;
+    case 'smart-remove': api.smartRemove().then(() => sidebar.syncSmart()); break;
     case 'lock-protect': lockUi.protect(); break;
     case 'lock-now': lockUi.lockNow(); break;
     case 'lock-remove': lockUi.saveUnlockedCopy(); break;
@@ -1044,6 +1046,7 @@ function folderUpdated(folder) {
   if (!folder) notesUi.clearTag();
   notesUi.renderTags();
   notesUi.renderBacklinks();
+  notesUi.renderRelated();
   if (sidebar.panel() === 'tasks') notesUi.renderTasks();
 }
 
@@ -1211,6 +1214,7 @@ sidebar = createSidebar({
   renderHistory: () => historyUi.render(activeTab()),
   unsavedPaths: () => tabs.filter((t) => t.editing && t.dirty && t.doc.path).map((t) => t.doc.path),
   renderTasks: () => notesUi.renderTasks(),
+  smartChanged: () => notesUi.renderRelated(),
   onFolder: folderUpdated,
   toast,
 });

@@ -53,6 +53,10 @@ ONNX Runtime Web is bundled into `resources/app.asar/dist/voice-worker.cjs` (lic
 a JavaScript port of the LAME encoder. It is kept as one unmodified file, `resources/app.asar.unpacked/dist/lame.min.js`
 in an installed copy, which you may replace with your own build. Its source and license are at the link above.
 
+**The smart search model is not part of the application.** multilingual-e5-small by Liang Wang et al. (MIT license), in the ONNX
+form published as [Xenova/multilingual-e5-small](https://huggingface.co/Xenova/multilingual-e5-small) (revision `761b726`), is downloaded
+only if the reader turns on Search by meaning.
+
 **The dictation model is not part of the application.** Whisper by OpenAI (MIT license), in the ONNX form
 published by the ONNX Community, is downloaded by the reader when they first use dictation.
 

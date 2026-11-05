@@ -110,3 +110,6 @@
   .map-node text { fill: CanvasText; stroke: Canvas; }
   .markdown-body a.wikilink-missing { color: LinkText; }
 }
+
+/* Search by meaning (3.6) */
+.search-meaning { margin: 8px 16px 2px; }

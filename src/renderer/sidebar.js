@@ -157,6 +157,7 @@ export function createSidebar(ctx) {
       return;
     }
     els.summary.textContent = 'Searching…';
+    if (meaning()) { await runMeaning(q, seq); return; }
     const res = await api.searchFolder(q);
     if (seq !== searchSeq) return;
     els.summary.textContent = res.total
@@ -177,6 +178,71 @@ export function createSidebar(ctx) {
       els.results.appendChild(group);
     }
   }
+  // ---------------------------------------------------------------- search by meaning (3.6)
+  const smart = { box: $('search-meaning'), row: $('search-meaning-row'), reading: null };
+  const meaning = () => smart.box.checked && !replacing;
+
+  function readingNote() {
+    const r = smart.reading;
+    return r && r.done < r.total ? `Reading this folder… ${r.done} of ${r.total} documents` : '';
+  }
+
+  async function runMeaning(q, seq) {
+    const res = await api.smartSearch(q);
+    if (seq !== searchSeq) return;
+    if (res.error) { els.summary.textContent = res.error; return; }
+    smart.reading = res.indexing || smart.reading;
+    const note = readingNote();
+    els.summary.textContent = res.results.length ? (note || 'Closest documents first.') : (note || 'No results.');
+    for (const r of res.results) {
+      const group = document.createElement('div');
+      group.className = 'search-file';
+      const folderPart = r.rel.slice(0, -r.name.length - 1);
+      group.innerHTML = `<div class="search-file-head" title="${esc(r.path)}">${esc(r.name)}<span class="file-sub">${esc(folderPart)}</span></div>`;
+      const b = document.createElement('button');
+      b.className = 'search-hit';
+      b.innerHTML = `<span class="hit-line">${r.line + 1}</span><span class="hit-text">${esc(r.text)}</span>`;
+      b.onclick = () => ctx.openAtLine(r.path, r.line);
+      group.appendChild(b);
+      els.results.appendChild(group);
+    }
+  }
+
+  smart.box.addEventListener('change', async () => {
+    const on = smart.box.checked;
+    if (on) els.summary.textContent = 'Getting smart search ready…';
+    const res = await api.smartEnable(on);
+    if (on && !res.enabled) {
+      smart.box.checked = false;
+      els.summary.textContent = res.error || '';
+      return;
+    }
+    smart.reading = res.indexing;
+    ctx.smartChanged?.();
+    runSearch();
+  });
+  api.onSmartDownload((s) => {
+    if (s.downloading) els.summary.textContent = `Downloading smart search… ${Math.round((s.done / s.total) * 100)}%`;
+  });
+  api.onSmartProgress((p) => {
+    if (p.root !== folder?.root) return;
+    const was = smart.reading;
+    smart.reading = p;
+    if (!meaning()) return;
+    if (p.done >= p.total) {
+      if (was && was.done < was.total) { ctx.smartChanged?.(); runSearch(); }
+      return;
+    }
+    if (!els.results.children.length || !els.search.value.trim()) els.summary.textContent = readingNote();
+  });
+  async function syncSmart() {
+    const s = await api.smartStatus();
+    smart.box.checked = !!s.enabled && s.installed;
+    smart.reading = s.indexing;
+    ctx.smartChanged?.();
+  }
+  syncSmart();
+
   els.search.addEventListener('input', () => { dropPreview(); clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 250); });
   els.search.addEventListener('keydown', (e) => { if (e.key === 'Enter') { clearTimeout(searchTimer); if (replacing) runPreview(); else runSearch(); } });
 
@@ -192,6 +258,7 @@ export function createSidebar(ctx) {
   let chosen = new Map();          // path -> Set of match indexes
 
   function setReplacing(on) {
+    smart.row.hidden = on;
     replacing = on;
     rep.box.hidden = !on;
     rep.toggle.textContent = on ? 'Hide replace' : 'Replace…';
@@ -330,6 +397,7 @@ export function createSidebar(ctx) {
     setBookmarks(list) { bookmarks = list || []; renderFiles(); },
     setTagFilter(t) { tagFilter = t || null; renderFiles(); },
     async refresh() { if (folder) setFolder(await api.refreshFolder()); },
+    syncSmart,
     findInFolder() { ctx.showSidebar(); show('search'); },
     replaceInFolder() { ctx.showSidebar(); show('search'); if (!replacing) setReplacing(true); else rep.input.focus(); },
     panel: () => panel,

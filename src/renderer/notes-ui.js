@@ -41,6 +41,30 @@ export function createNotesUi(ctx) {
     }
   }
 
+  // ---------------------------------------------------------------- related documents (3.6)
+  const rel = { box: $('related'), list: $('related-list') };
+  let relSeq = 0;
+  async function renderRelated(tab = ctx.activeTab()) {
+    const mine = ++relSeq;
+    if (!ctx.folder() || !tab?.doc.path || tab.doc.compare) { rel.box.hidden = true; return; }
+    const list = await api.smartRelated(tab.doc.path);
+    if (mine !== relSeq) return;
+    rel.box.hidden = !list.length;
+    rel.list.replaceChildren();
+    for (const r of list) {
+      const btn = document.createElement('button');
+      btn.className = 'backlink';
+      btn.title = r.rel;
+      const name = document.createElement('b');
+      name.textContent = baseName(r.path).replace(/\.[^.]+$/, '');
+      const where = document.createElement('span');
+      where.textContent = r.rel;
+      btn.append(name, where);
+      btn.onclick = () => ctx.openPath(r.path);
+      rel.list.appendChild(btn);
+    }
+  }
+
   // ---------------------------------------------------------------- tags
   const chips = $('tag-chips');
   let activeTag = null;
@@ -294,5 +318,5 @@ export function createNotesUi(ctx) {
     else toast(res.updated ? `Renamed — ${res.updated} link${res.updated === 1 ? '' : 's'} updated` : 'Renamed');
   });
 
-  return { renderBacklinks, renderTags, renderTasks, openMap, checkLinks, rename, clearTag() { activeTag = null; } };
+  return { renderBacklinks, renderRelated, renderTags, renderTasks, openMap, checkLinks, rename, clearTag() { activeTag = null; } };
 }

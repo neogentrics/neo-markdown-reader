@@ -84,6 +84,10 @@
           <summary>Linked from <span class="count" id="backlinks-count"></span></summary>
           <div class="backlinks-list" id="backlinks-list"></div>
         </details>
+        <details class="backlinks" id="related" open hidden>
+          <summary>Related documents</summary>
+          <div class="backlinks-list" id="related-list"></div>
+        </details>
       </section>
       <section class="side-panel" data-panel="files" role="tabpanel" id="side-panel-files" aria-labelledby="side-tab-files" hidden>
         <div class="files-head">
@@ -99,6 +103,7 @@
       </section>
       <section class="side-panel" data-panel="search" role="tabpanel" id="side-panel-search" aria-labelledby="side-tab-search" hidden>
         <input class="side-filter" id="folder-search" type="search" placeholder="Find in folder…" spellcheck="false" aria-label="Find in folder">
+        <label class="check sm search-meaning" id="search-meaning-row" title="Find documents by what they mean, not only their exact words. Works on this computer."><input type="checkbox" id="search-meaning"> Search by meaning</label>
         <div class="replace-box" id="replace-box" hidden>
           <input class="side-filter" id="folder-replace" type="text" placeholder="Replace with…" spellcheck="false" aria-label="Replace with">
           <div class="replace-opts">

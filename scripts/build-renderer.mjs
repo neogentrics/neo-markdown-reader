@@ -52,7 +52,7 @@ for (const f of ['ort-wasm-simd-threaded.wasm', 'ort-wasm-simd-threaded.mjs']) {
 cpSync(join(root, 'node_modules/lamejs/lame.min.js'), join(out, 'lame.min.js'));
 
 const mainTools = {
-  entryPoints: { 'export-tools': join(root, 'src/main/export-tools.js'), 'voice-worker': join(root, 'src/main/voice-worker.js'), 'dictate-worker': join(root, 'src/main/dictate-worker.js') },
+  entryPoints: { 'export-tools': join(root, 'src/main/export-tools.js'), 'voice-worker': join(root, 'src/main/voice-worker.js'), 'dictate-worker': join(root, 'src/main/dictate-worker.js'), 'smart-worker': join(root, 'src/main/smart-worker.js') },
   outdir: out,
   outExtension: { '.js': '.cjs' },
   bundle: true,

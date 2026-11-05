@@ -8,6 +8,7 @@ const { fileURLToPath, pathToFileURL } = require('node:url');
 const { Settings, FONTS, FONT_NAMES, cleanAccelerator } = require('./settings');
 const { PronunciationStore } = require('./pronounce');
 const { DictationStore } = require('./dictation');
+const { SmartStore } = require('./smart-search');
 const { isMarkdownPath, isLockedPath, isOpenablePath, isViewablePath, isDataPath, fileFromArgv, readMarkdown, readDocument, isWritable, encodeForSave } = require('./files');
 const { HistoryStore } = require('./history');
 const { runJob: runReplaceJob } = require('./folder-replace');
@@ -65,6 +66,8 @@ let history;
 let sync;
 /** Dictation (3.5), see dictation.js. */
 let dictation = null;
+/** Smart search (3.6), see smart-search.js. */
+let smart = null;
 /** Natural voices (3.2), see voices.js. */
 let voices;
 /** Every menu command, for running by name from Quick Open (">") and for changing shortcuts. */
@@ -737,6 +740,7 @@ function rebuildMenu() {
         cmd('citations', 'Insert Citation…'),
         cmd('dictate', 'Dictation', 'CmdOrCtrl+Alt+D'),
         moved(cmd('dictate-remove', 'Remove Dictation Download…')),
+        moved(cmd('smart-remove', 'Remove Smart Search Download…')),
         {
           label: 'Compare and History',
           submenu: [
@@ -1069,6 +1073,7 @@ async function setFolder(state, root) {
         if (state.folder !== folder || state.win.isDestroyed()) return;
         folder.scan = await scanFolder(root);
         state.win.webContents.send('folder:changed', folderInfo(folder.scan));
+        smartRefresh(state);
       }, 700);
     });
     watcher.on('error', () => {});
@@ -1092,13 +1097,14 @@ async function openFolderDialog(state) {
   if (res.canceled || !res.filePaths[0]) return null;
   const info = await setFolder(state, res.filePaths[0]);
   if (info) state.win.webContents.send('folder:opened', info);
+  smartRefresh(state);
   return info;
 }
 
 async function openRecentFolder(state, root) {
   if (!state) return;
   const info = await setFolder(state, root);
-  if (info) state.win.webContents.send('folder:opened', info);
+  if (info) { state.win.webContents.send('folder:opened', info); smartRefresh(state); }
   else state.win.webContents.send('doc:error', { message: `Folder not found:\n${root}` });
 }
 
@@ -1228,6 +1234,18 @@ const linkMessage = (err) => (err instanceof appLink.LinkError ? err.message : '
 
 // ---------------------------------------------------------------- connected notes (2.3)
 /** The open folder's link / tag / task index, brought up to date. */
+/** Keep a window's folder read for meaning, when smart search is on. Runs in the background. */
+function smartRefresh(st) {
+  if (!st?.folder || !settings.get().smartSearch || !smart?.status().installed) return;
+  clearTimeout(st.smartTimer);
+  st.smartTimer = setTimeout(() => {
+    if (!st.folder) return;
+    const files = st.folder.scan.files.filter((f) => !isLockedPath(f));
+    smart.index(st.folder.root, files).catch(() => {});
+  }, 1500);
+  st.smartTimer.unref?.();
+}
+
 async function folderIndex(st) {
   if (!st?.folder) return null;
   st.index ??= new FolderIndex();
@@ -1260,6 +1278,7 @@ async function openDailyNote(st) {
       await fs.promises.writeFile(file, encodeForSave(body, { eol: process.platform === 'win32' ? '\r\n' : '\n' }), { flag: 'wx' });
       st.folder.scan = await scanFolder(st.folder.root);
       st.win.webContents.send('folder:changed', folderInfo(st.folder.scan));
+      smartRefresh(st);
     }
     sendDoc(st, 'tab:open', await loadDoc(file));
   } catch (err) { st.win.webContents.send('doc:error', { message: errorMessage(err, file) }); }
@@ -2348,6 +2367,59 @@ function registerIpc() {
     try { return await dictation.hear({ samples: job.samples, lang: /^[a-z]{2}$/.test(job.lang) ? job.lang : '' }); } catch (err) { return { error: err.message }; }
   });
 
+  // ---- smart search: finding documents by what they mean, entirely on this computer
+  const smartStatus = (st) => ({ ...smart.status(), enabled: settings.get().smartSearch, indexing: st?.folder ? smart.indexing.get(st.folder.root) || null : null });
+  ipcMain.handle('smart:status', (e) => smartStatus(stateFor(e)));
+  ipcMain.handle('smart:enable', async (e, on) => {
+    const st = stateFor(e);
+    if (!on) { setSetting({ smartSearch: false }); return smartStatus(st); }
+    if (!smart.status().installed) {
+      const { response } = await dlg.showMessageBox(st?.win, {
+        type: 'question', title: 'Smart search', noLink: true, buttons: ['Download', 'Cancel'], defaultId: 0, cancelId: 1,
+        message: 'Download smart search?',
+        detail: `About ${Math.round(smart.status().total / 1e6 / 5) * 5} MB, downloaded once. After that it works offline: your documents are read on this computer and never leave it.\n\nIt uses the multilingual-e5-small model (MIT license), from Hugging Face. Locked documents are never read.`,
+      });
+      if (response !== 0) return { ...smartStatus(st), canceled: true };
+      const res = await smart.install((status) => { for (const { win } of liveStates()) win.webContents.send('smart:download', status); });
+      if (!res.installed) return smartStatus(st);
+    }
+    setSetting({ smartSearch: true });
+    for (const s of liveStates()) smartRefresh(s);
+    return smartStatus(st);
+  });
+  ipcMain.handle('smart:search', async (e, query) => {
+    const st = stateFor(e);
+    if (!st?.folder || !isStr(query, 500) || !settings.get().smartSearch) return { results: [] };
+    try {
+      const found = await smart.search(st.folder.root, query);
+      const idx = await folderIndex(st);
+      const results = found.map((r) => {
+        const rel = path.relative(st.folder.root, r.path);
+        return { path: r.path, rel, name: path.basename(r.path), line: r.line, text: idx?.passageText(r.path, r.line) || '' };
+      });
+      return { results, indexing: smart.indexing.get(st.folder.root) || null };
+    } catch { return { results: [], error: 'Smart search stopped. Try again.' }; }
+  });
+  ipcMain.handle('smart:related', async (e, p) => {
+    const st = stateFor(e);
+    if (!st?.folder || !isStr(p, 4096) || !settings.get().smartSearch || !smart.status().installed) return [];
+    try {
+      const found = await smart.related(st.folder.root, p);
+      return found.map((r) => ({ path: r.path, rel: path.relative(st.folder.root, r.path), name: path.basename(r.path) }));
+    } catch { return []; }
+  });
+  ipcMain.handle('smart:remove', async (e) => {
+    if (!smart.status().installed) return smart.status();
+    const { response } = await dlg.showMessageBox(stateFor(e)?.win, {
+      type: 'question', title: 'Smart search', noLink: true, buttons: ['Remove', 'Cancel'], defaultId: 1, cancelId: 1,
+      message: 'Remove the smart search download?',
+      detail: 'This frees the space it uses, and removes what it learned about your folders. Your documents aren’t touched. You can download it again at any time.',
+    });
+    if (response !== 0) return smart.status();
+    setSetting({ smartSearch: false });
+    return smart.remove();
+  });
+
   ipcMain.handle('voice:status', () => voices.status());
   ipcMain.handle('voice:install', async (e) => {
     const st = stateFor(e);
@@ -2526,6 +2598,14 @@ app.whenReady().then(() => {
     fork: (script) => utilityProcess.fork(script, [], { serviceName: 'RT Markdown Reader dictation', stdio: 'ignore' }),
     worker: path.join(ROOT, 'dist', 'dictate-worker.cjs'),
     fake: !!process.env.NMR_FAKE_TTS,             // tests: no download, and made-up words
+  });
+  smart = new SmartStore({
+    root: path.join(app.getPath('userData'), 'smart-search'),
+    fetch: (url, opts) => net.fetch(url, opts),
+    fork: (script) => utilityProcess.fork(script, [], { serviceName: 'RT Markdown Reader smart search', stdio: 'ignore' }),
+    worker: path.join(ROOT, 'dist', 'smart-worker.cjs'),
+    fake: !!process.env.NMR_FAKE_TTS,             // tests: no download, and words hashed instead of a model
+    onIndexing(progress) { for (const { win } of liveStates()) win.webContents.send('smart:progress', progress); },
   });
   // Documents never need camera, notifications, etc.: only clipboard writes for "Copy", and the app's own
   // windows may use the microphone for dictation, which only starts when you ask for it.

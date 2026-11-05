@@ -21,6 +21,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   list, in APA, MLA, Chicago, IEEE or Harvard. Sources come from a BibTeX or CSL JSON file, or from Zotero on your
   computer. They carry through to PDF, Word, web page, e-book and plain text exports. The syntax is Pandoc's, so
   documents still work there.
+- **Smart search** (*Search by meaning* in the Search panel): find documents by what they mean, in any of about a hundred
+  languages, not only by their exact words. *Related documents* appear under the outline. It's a one-time download of
+  about 135 MB, and after that everything happens on your computer. Locked documents are never read, and the index
+  keeps no words from your documents.
 
 ### Changed
 - **Paper, Sepia, Mist, Night, Forest and Dusk** now have panels that run from one colour to another, with contrasting

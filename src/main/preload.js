@@ -105,6 +105,14 @@ contextBridge.exposeInMainWorld('reader', {
   askFolder: invoke('ai:ask-folder'),
   peekDoc: invoke('doc:peek'),
   aiEdit: invoke('ai:edit'),
+  // smart search (3.6)
+  smartStatus: invoke('smart:status'),
+  smartEnable: invoke('smart:enable'),
+  smartSearch: invoke('smart:search'),
+  smartRelated: invoke('smart:related'),
+  smartRemove: invoke('smart:remove'),
+  onSmartProgress: on('smart:progress'),
+  onSmartDownload: on('smart:download'),
   // citations (3.6)
   citeFile: invoke('cite:file'),
   citeLibrary: invoke('cite:library'),

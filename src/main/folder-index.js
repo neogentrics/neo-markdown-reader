@@ -57,6 +57,15 @@ class FolderIndex {
     return out;
   }
 
+  /** A passage's first words: under a heading, the line of text that follows it. */
+  passageText(p, line) {
+    const lines = this.cache.get(p)?.lines || [];
+    for (let i = line; i < Math.min(lines.length, line + 8); i++) {
+      if (lines[i].trim() && !/^ {0,3}#{1,6}[ \t]/.test(lines[i])) return this.lineText(p, i);
+    }
+    return this.lineText(p, line);
+  }
+
   /** One line of a document, cleaned up for showing as context. */
   lineText(p, line) {
     const text = this.cache.get(p)?.lines[line] ?? '';
