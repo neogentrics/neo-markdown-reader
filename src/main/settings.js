@@ -23,13 +23,17 @@ const DEFAULTS = Object.freeze({
   recentFolders: [],      // most-recent-first folders opened with File > Open Folder
   exportOptions: null,    // last choices in the PDF designer (see EXPORT_DEFAULTS)
   claudeConnector: false, // the Claude connector (3.4): off until you turn it on
+  appLink: false,         // App Link (3.6): off until you turn it on
   tutorial: 'todo',       // todo | done — shown when the app starts until it's finished or declined, including after updating from an older version
   tutorialStep: 0,        // where to resume
   ai: null,               // AI assist: { enabled, provider, models, quick, localUrl } — off by default; API keys are stored separately, encrypted
   runCode: 'ask',         // ask | off — running code blocks (always asks before each run)
-  brand: null,            // custom theme: accent colour, fonts, brand stylesheet (see BRAND_DEFAULTS)
+  brand: null,            // custom theme: accent, panel and background colours, fonts, brand stylesheet (see BRAND_DEFAULTS)
   shortcuts: {},          // your own keyboard shortcuts: menu command id -> accelerator ('' = none)
   wikiLinks: 'wiki',      // wiki | markdown — what the editor inserts when you pick a document after [[
+  smartSearch: false,     // search by meaning (3.6): off until you turn it on; never synced
+  citeStyle: 'apa',       // apa | mla | chicago | ieee | harvard — unless a document sets its own
+  citeLibrary: '',        // your sources: a .bib or .json file, or 'zotero'; never synced
   readAloud: { rate: 1, voice: '' },
   speakBar: null,         // where the read-aloud bar was left: { x, y }, each 0–1 of the room it has
   audioOutput: '',        // the device natural voices play through ('' = the computer's default); never synced
@@ -51,7 +55,7 @@ const EXPORT_DEFAULTS = Object.freeze({
 });
 const EXPORT_CHOICES = { paper: ['auto', 'letter', 'a4', 'legal', 'a5'], margins: ['narrow', 'normal', 'wide'], colors: ['paper', 'theme'] };
 
-const BRAND_DEFAULTS = Object.freeze({ accent: '', bodyFont: '', headingFont: '', codeFont: '', stylesheet: '' });
+const BRAND_DEFAULTS = Object.freeze({ accent: '', panel: '', background: '', bodyFont: '', headingFont: '', codeFont: '', stylesheet: '' });
 
 const THEMES = ['system', 'light', 'dark', 'sepia', 'mist', 'forest', 'dusk', 'contrast', 'blue', 'red', 'yellow'];
 // The two the app has always had, then fonts by name. FONT_NAMES also sets the font of Word and PowerPoint exports.
@@ -109,7 +113,7 @@ function cleanFont(v) {
 function cleanBrand(b) {
   const out = { ...BRAND_DEFAULTS };
   if (!b || typeof b !== 'object') return out;
-  if (typeof b.accent === 'string' && /^#[0-9a-f]{6}$/i.test(b.accent)) out.accent = b.accent.toLowerCase();
+  for (const k of ['accent', 'panel', 'background']) if (typeof b[k] === 'string' && /^#[0-9a-f]{6}$/i.test(b[k])) out[k] = b[k].toLowerCase();
   for (const k of ['bodyFont', 'headingFont', 'codeFont']) out[k] = cleanFont(b[k]);
   if (isPath(b.stylesheet) && /\.css$/i.test(b.stylesheet)) out.stylesheet = b.stylesheet;
   return out;
@@ -153,7 +157,7 @@ function sanitize(input) {
   if (FONTS.includes(input.font)) s.font = input.font;
   if (['solid', 'glass'].includes(input.surface)) s.surface = input.surface;
   if (WIDTHS.includes(input.pageWidth)) s.pageWidth = input.pageWidth;
-  for (const k of ['showToc', 'showMenuBar', 'restoreSession', 'claudeConnector', 'colorSafe']) if (typeof input[k] === 'boolean') s[k] = input[k];
+  for (const k of ['showToc', 'showMenuBar', 'restoreSession', 'claudeConnector', 'appLink', 'colorSafe']) if (typeof input[k] === 'boolean') s[k] = input[k];
   const scale = Number(input.fontScale);
   if (Number.isFinite(scale)) s.fontScale = Math.min(1.8, Math.max(0.7, Math.round(scale * 100) / 100));
   if (Array.isArray(input.recent)) s.recent = input.recent.filter(isPath).slice(0, MAX_RECENT);
@@ -166,6 +170,9 @@ function sanitize(input) {
   if (['todo', 'done'].includes(input.tutorial)) s.tutorial = input.tutorial;
   if (Number.isInteger(input.tutorialStep) && input.tutorialStep >= 0 && input.tutorialStep < 100) s.tutorialStep = input.tutorialStep;
   if (['wiki', 'markdown'].includes(input.wikiLinks)) s.wikiLinks = input.wikiLinks;
+  if (['apa', 'mla', 'chicago', 'ieee', 'harvard'].includes(input.citeStyle)) s.citeStyle = input.citeStyle;
+  if (typeof input.smartSearch === 'boolean') s.smartSearch = input.smartSearch;
+  if (typeof input.citeLibrary === 'string' && input.citeLibrary.length <= 4096) s.citeLibrary = input.citeLibrary;
   if (['system', 'en', 'es', 'fr', 'de'].includes(input.language)) s.language = input.language;
   if (Array.isArray(input.addonsOff)) s.addonsOff = [...new Set(input.addonsOff.filter((x) => typeof x === 'string' && /^[a-z0-9][a-z0-9-]{1,39}$/.test(x)))].slice(0, 200);
   if (input.readAloud && typeof input.readAloud === 'object') {

@@ -5,6 +5,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const core = require('./notes-core');
+const { parseCards } = require('./flashcards');
 const { isLockedPath } = require('./files');
 
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -43,6 +44,27 @@ class FolderIndex {
   }
 
   rel(p) { return path.relative(this.root, p); }
+
+  /** The flashcards in each document, worked out once per version of the file. */
+  cards() {
+    const out = [];
+    for (const f of this.files) {
+      const entry = this.cache.get(f.path);
+      if (!entry) continue;
+      entry.cards ??= parseCards(entry.lines.join('\n'));
+      if (entry.cards.length) out.push({ ...f, cards: entry.cards });
+    }
+    return out;
+  }
+
+  /** A passage's first words: under a heading, the line of text that follows it. */
+  passageText(p, line) {
+    const lines = this.cache.get(p)?.lines || [];
+    for (let i = line; i < Math.min(lines.length, line + 8); i++) {
+      if (lines[i].trim() && !/^ {0,3}#{1,6}[ \t]/.test(lines[i])) return this.lineText(p, i);
+    }
+    return this.lineText(p, line);
+  }
 
   /** One line of a document, cleaned up for showing as context. */
   lineText(p, line) {

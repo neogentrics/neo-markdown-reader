@@ -13,6 +13,8 @@ import { createThemeUi } from './theme-ui.js';
 import { createLockUi } from './lock-ui.js';
 import { addRunButtons } from './run-ui.js';
 import { createAiUi } from './ai-ui.js';
+import { createCardsUi } from './cards-ui.js';
+import { createCiteUi } from './cite-ui.js';
 import { createHistoryUi } from './history-ui.js';
 import { createKeysUi } from './keys-ui.js';
 import { createNotesUi } from './notes-ui.js';
@@ -62,6 +64,8 @@ let split = null;
 let highlights = null;
 let publish = null;
 let presenter = null;
+let cardsUi = null;
+let citeUi = null;
 let themeUi = null;
 let lockUi = null;
 let aiUi = null;
@@ -143,7 +147,7 @@ function renderInto(tab, doc, { preview = false } = {}) {
     return Promise.resolve();
   }
   tab.el.classList.remove('locked-page');
-  const result = render(doc.content, { baseUrl: doc.baseUrl, wiki: wikiResolver(doc) });
+  const result = render(doc.content, { baseUrl: doc.baseUrl, wiki: wikiResolver(doc), citeFor: citeUi?.forDoc(doc) });
   if (!preview) tab.doc = doc;
   tab.result = result;
   tab.el.innerHTML = result.html;
@@ -335,6 +339,7 @@ function showActiveDoc() {
   updateChrome();
   if (sidebar?.panel() === 'history') historyUi?.render(tab);
   notesUi?.renderBacklinks(tab);
+  notesUi?.renderRelated(tab);
 }
 
 function isBookmarked(p) { return !!p && (settings.bookmarks || []).some((b) => b.toLowerCase() === p.toLowerCase()); }
@@ -905,6 +910,20 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('mouseup', (e) => { if (e.button === 3) goBack(); });
 
 // ================================================================ menu commands
+/** File > Send to Linked App: what's on screen, saved or not. */
+async function sendToLinkedApp() {
+  const tab = activeTab();
+  if (!tab) { toast('Open a document first'); return; }
+  const res = await api.linkSend({ name: tab.doc.name, path: tab.doc.path, text: tab.editing && tab.editor ? tab.editor.getText() : tab.doc.content });
+  if (res?.error) toast(res.error);
+  else if (res?.name) toast(`Sent to ${res.name}`);
+}
+
+api.onLinkDocument(async ({ from, name, content }) => {
+  await editMode.newDocument('blank', { name, content });
+  toast(`Sent from ${from}`);
+});
+
 api.onCommand(({ cmd, arg }) => {
   const target = Number.isInteger(arg) && arg >= 0 ? tabs[arg] : activeTab();
   switch (cmd) {
@@ -965,6 +984,7 @@ api.onCommand(({ cmd, arg }) => {
     case 'export-slides': publish.exportAs('slides'); break;
     case 'export-pptx': publish.exportAs('pptx'); break;
     case 'export-audio': audioUi.open(); break;
+    case 'send-linked': sendToLinkedApp(); break;
     case 'addons': addonsUi.open(); break;
     case 'sync': syncUi.open(); break;
     case 'about': aboutUi.open(); break;
@@ -980,12 +1000,16 @@ api.onCommand(({ cmd, arg }) => {
     case 'pronunciation': sayUi.open(); break;
     case 'dictate': dictateUi.toggle(); break;
     case 'dictate-remove': api.dictateRemove(); break;
+    case 'smart-remove': api.smartRemove().then(() => sidebar.syncSmart()); break;
     case 'lock-protect': lockUi.protect(); break;
     case 'lock-now': lockUi.lockNow(); break;
     case 'lock-remove': lockUi.saveUnlockedCopy(); break;
     case 'ai-summarize': aiUi.run('summarize'); break;
     case 'ai-explain': aiUi.run('explain'); break;
     case 'ai-report': aiUi.run('report'); break;
+    case 'ai-cards': cardsUi.openDraft(); break;
+    case 'citations': citeUi.open(); break;
+    case 'study': cardsUi.open(); break;
     case 'ai-settings': aiUi.openSettings(); break;
     case 'ai-folder': aiUi.askFolder(); break;
     case 'ai-proofread': case 'ai-rewrite': case 'ai-shorten': case 'ai-translate': aiUi.editSelection(cmd.slice(3)); break;
@@ -1022,6 +1046,7 @@ function folderUpdated(folder) {
   if (!folder) notesUi.clearTag();
   notesUi.renderTags();
   notesUi.renderBacklinks();
+  notesUi.renderRelated();
   if (sidebar.panel() === 'tasks') notesUi.renderTasks();
 }
 
@@ -1098,6 +1123,7 @@ const importedNote = (res) => `Imported from Word${res.images ? ` with ${res.ima
 // ================================================================ settings, updates, misc
 function applySettings(s) {
   settings = s;
+  citeUi?.settingsChanged(s);
   uiText.setLanguage(s.lang || 'en');
   addonsUi?.apply(s);
   const root = document.documentElement;
@@ -1175,6 +1201,7 @@ editMode = createEditMode({
   platform: () => platform,
   desk: els.desk,
   beforeEdit: () => split?.close(),
+  citeTargets: () => citeUi.targets(),
   linkTargets: (tab) => ({ files: sidebar?.allFiles() || [], style: settings.wikiLinks === 'markdown' ? 'markdown' : 'wiki', from: tab.doc.path || '' }),
 });
 sidebar = createSidebar({
@@ -1187,6 +1214,7 @@ sidebar = createSidebar({
   renderHistory: () => historyUi.render(activeTab()),
   unsavedPaths: () => tabs.filter((t) => t.editing && t.dirty && t.doc.path).map((t) => t.doc.path),
   renderTasks: () => notesUi.renderTasks(),
+  smartChanged: () => notesUi.renderRelated(),
   onFolder: folderUpdated,
   toast,
 });
@@ -1259,6 +1287,32 @@ aiUi = createAiUi({
     const st = view.state;
     const { from, to } = st.selection.main;
     return { tab, from, to, text: st.sliceDoc(from, to), before: st.sliceDoc(Math.max(0, from - 2000), from), after: st.sliceDoc(to, Math.min(st.doc.length, to + 2000)) };
+  },
+});
+citeUi = createCiteUi({
+  api, toast, activeTab,
+  settings: () => settings,
+  rerenderAll() { for (const t of tabs) if (t.result && !t.doc.compare && !t.doc.needsPassword && /@/.test(t.editing ? t.editor.getText() : t.doc.content)) rerender(t); },
+  rerenderDoc(path) { for (const t of tabs) if (t.doc.path === path && t.result) rerender(t); },
+});
+cardsUi = createCardsUi({
+  api, render, toast, activeTab, openAtLine,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
+  folder: () => sidebar.folder(),
+  selectionIn(t) {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !t.el.contains(sel.anchorNode)) return '';
+    return sel.toString().trim();
+  },
+  aiReady: () => aiUi.ready(),
+  /** Add to the end of a document, in the editor, so nothing is saved until you save it. */
+  async addToDocument(tab, textFor) {
+    await editMode.enter(tab);
+    const view = tab.editing && tab.editor?.view;
+    if (!view) return false;
+    const end = view.state.doc.length;
+    view.dispatch({ changes: { from: end, insert: textFor(view.state.doc.toString()) } });
+    return true;
   },
 });
 lockUi = createLockUi({

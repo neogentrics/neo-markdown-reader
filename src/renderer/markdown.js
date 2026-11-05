@@ -6,6 +6,7 @@ import footnote from 'markdown-it-footnote';
 import taskLists from 'markdown-it-task-lists';
 import { full as emoji } from 'markdown-it-emoji';
 import deflist from 'markdown-it-deflist';
+import { citationsPlugin } from './citations.js';
 import mark from 'markdown-it-mark';
 import sub from 'markdown-it-sub';
 import sup from 'markdown-it-sup';
@@ -169,6 +170,11 @@ function buildMarkdownIt(state) {
     .use(sup)
     .use(alerts)
     .use(wikiLinks)
+    .use(citationsPlugin, (env) => {
+      // Asked once per document, when its front matter is known. No sources: no change to the page.
+      if (env.citations === undefined) env.citations = env.citeFor ? env.citeFor(parseFrontMatter(state.frontMatterRaw)) : null;
+      return env.citations;
+    })
     .use(charts)
     .use(directions)
     .use(texmath, { engine: katex, delimiters: ['dollars', 'beg_end'], katexOptions: { throwOnError: false, output: 'htmlAndMathml' } });
@@ -201,8 +207,9 @@ function fmValue(v) {
 }
 
 function renderFrontMatter(data) {
-  // logo: used on PDF cover pages; lang / language and dir: how the document is read (3.0), not shown.
-  const { title, subtitle, description, author, date, tags, logo, lang, language, dir, ...rest } = data;
+  // logo: used on PDF cover pages; lang / language and dir: how the document is read (3.0); bibliography,
+  // citation-style and csl: where citations come from (3.6). None of these are shown.
+  const { title, subtitle, description, author, date, tags, logo, lang, language, dir, bibliography, csl, 'citation-style': citationStyle, ...rest } = data;
   let out = '<header class="doc-meta">';
   const start = out.length;
   if (title) out += `<div class="doc-meta-title">${escapeHtml(fmValue(title))}</div>`;
@@ -281,11 +288,11 @@ export function createRenderer(window) {
     return box.innerHTML;
   }
 
-  const render = function render(markdown, { baseUrl = '', wiki = null } = {}) {
+  const render = function render(markdown, { baseUrl = '', wiki = null, citeFor = null } = {}) {
     const state = { frontMatterRaw: null };
     const md = buildMarkdownIt(state);
     const src = String(markdown ?? '').replace(/^﻿/, '');
-    const env = wiki ? { wiki } : {};
+    const env = { ...(wiki ? { wiki } : {}), ...(citeFor ? { citeFor } : {}) };
     const tokens = md.parse(src, env);
     let body = md.renderer.render(tokens, md.options, env);
 

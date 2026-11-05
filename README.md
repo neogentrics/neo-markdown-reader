@@ -65,6 +65,10 @@ The builds aren't code-signed yet, so Windows may show a SmartScreen warning the
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions; *Restart to update* installs them without any installer screens |
 | **Listen & speak** *(new in 3.5)* | Export a document as an MP3 or an audiobook with chapters, dictate instead of typing, read aloud through your slides, teach the voices how to say names, and choose your speakers and microphone ([details](#listen--speak)) |
+| **Linked apps** *(new in 3.6)* | Link other Recon Towers apps on your computer and send documents between them, with no accounts ([details](help/09-sync.md)) |
+| **Smart search** *(new in 3.6)* | Find documents by what they mean, not only their exact words, with *Related documents* under the outline. Runs on your computer after a one-time download ([details](help/04-folders.md)) |
+| **Citations** *(new in 3.6)* | Cite with `[@key]` from a BibTeX or CSL JSON file or Zotero, with the reference list built for you in APA, MLA, Chicago, IEEE or Harvard ([details](help/03-editing.md)) |
+| **Flashcards** *(new in 3.6)* | `Q:` / `A:` lines and definitions become flashcards with spaced repetition, a quiz, and optional AI drafts from a chapter ([details](help/02-reading.md)) |
 | **Your look** *(new in 3.5)* | Blue, Red and Yellow themes, a Glass look for any theme, colour-safe colours for colour blindness, and fifteen fonts |
 | **Hands-on tutorial** *(new in 3.4)* | A guided tour with a practice document, offered the first time you open the app, and again from *Help → Tutorial* |
 | **Help Center** *(new in 3.4)* | Press `F1` for guides, common questions and quick links, with buttons that take you straight to the setting |
@@ -390,6 +394,7 @@ To use a model on your computer with Ollama: install it, run `ollama pull llama3
 Read on one computer, pick up on another. *Preferences → Sync* keeps these the same everywhere:
 
 - your **highlights and notes**,
+- how your **flashcards** are going,
 - your **bookmarks**, **recent files** and **where you stopped reading** in each document,
 - your **settings**: theme, typeface, text size, page width, language, read-aloud speed and voice, export
   choices, your own colours and fonts, and your keyboard shortcuts.
@@ -565,6 +570,7 @@ Double-click it to put it back.
 
 - **Customize theme** (*Preferences → Appearance*, or *Customize colours & fonts…* in the theme menu):
   - Pick an accent colour and fonts for text, headings and code. They apply to every theme.
+  - Pick your own panel and background colours. Text on the panels changes to stay readable, and High Contrast keeps its own.
   - Optionally choose a **brand stylesheet** (a `.css` file, such as a company house style).
   - Exports use the same look, so a PDF or web page matches what you see.
 
@@ -608,6 +614,7 @@ Double-click it to put it back.
   - **Summarize Document**
   - **Explain Selection** (in plain language)
   - **Turn Notes into a Report**, which opens the draft as a new document.
+  - **Draft Flashcards**, from the whole document, one chapter or the selected text. You tick the ones to add.
   - **Ask About This Folder…** (2.3) and **Proofread, Rewrite, Shorten** or **Translate** a selection in
     the editor (2.4; see [AI writing help](#read-listen--share)).
 - It uses the service you choose (since 3.3): Claude, ChatGPT, Gemini, Mistral, OpenRouter, or a model on
@@ -814,6 +821,11 @@ src/
 │   ├── addons.js         add-ons: checks manifests and packages, installs them, theme CSS, the sandbox program
 │   ├── folders.js        scanning and searching an opened folder
 │   ├── annotations.js    private highlights & notes (stored in app data, never in the file)
+│   ├── flashcards.js     finds cards in a document, and works out when each comes back
+│   ├── bibliography.js   reads sources from BibTeX, CSL JSON and Zotero
+│   ├── smart-search.js   smart search: the verified download, and talking to its process
+│   ├── smart-worker.js   that process: reads a folder for meaning (bundled into dist/)
+│   ├── smart-core.js     passages, the tokenizer, and the index of vectors
 │   ├── sync.js           sync between computers: one file per computer in a synced folder, newest item wins
 │   ├── voices.js         natural voices: the pinned, checksummed download, and the process that speaks
 │   ├── voice-worker.js   that process: Supertonic 3 on ONNX Runtime's WebAssembly engine (bundled into dist/)

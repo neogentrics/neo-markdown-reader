@@ -53,6 +53,10 @@ ONNX Runtime Web is bundled into `resources/app.asar/dist/voice-worker.cjs` (lic
 a JavaScript port of the LAME encoder. It is kept as one unmodified file, `resources/app.asar.unpacked/dist/lame.min.js`
 in an installed copy, which you may replace with your own build. Its source and license are at the link above.
 
+**The smart search model is not part of the application.** multilingual-e5-small by Liang Wang et al. (MIT license), in the ONNX
+form published as [Xenova/multilingual-e5-small](https://huggingface.co/Xenova/multilingual-e5-small) (revision `761b726`), is downloaded
+only if the reader turns on Search by meaning.
+
 **The dictation model is not part of the application.** Whisper by OpenAI (MIT license), in the ONNX form
 published by the ONNX Community, is downloaded by the reader when they first use dictation.
 
@@ -62,3 +66,5 @@ by the reader, from Supertone's published repository
 `aafc6e32416a594460b32413efc49d7fe4ce6d46`), only after they agree, and is used under its own license, the
 [BigScience OpenRAIL-M License](https://huggingface.co/supertone-oss-archive/supertonic-3/blob/aafc6e32416a594460b32413efc49d7fe4ce6d46/LICENSE),
 including its use restrictions (Attachment A). A copy of that license is downloaded with the model.
+
+Flashcard scheduling is based on Algorithm SM-2, (C) Copyright SuperMemo World, 1991. https://www.supermemo.com

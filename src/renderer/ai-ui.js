@@ -407,5 +407,5 @@ export function createAiUi(ctx) {
     if (/^https?:/i.test(href)) api.openExternal(a.href);
   });
 
-  return { run, openSettings, askFolder, editSelection };
+  return { run, openSettings, askFolder, editSelection, ready: () => ready(SETUP) };
 }

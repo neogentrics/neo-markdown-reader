@@ -10,7 +10,7 @@ import { unzipSync, strFromU8 } from 'fflate';
 import { createRenderer } from '../src/renderer/markdown.js';
 import { buildModel, toPlainText } from '../src/renderer/export-model.js';
 import { splitSlides } from '../src/renderer/present.js';
-import { brandCss, hasBrand } from '../src/renderer/brand.js';
+import { appCss, brandCss, hasBrand } from '../src/renderer/brand.js';
 
 const require = createRequire(import.meta.url);
 const publish = require('../src/main/publish.js');
@@ -182,8 +182,25 @@ test('custom theme: accent and fonts become CSS, unsafe font names are cleaned',
   assert.doesNotMatch(css, /}\s*body/);
   assert.equal(brandCss({ accent: 'red; x: y' }), '');
   const s = sanitize({ brand: { accent: '#ABCDEF', bodyFont: 'A{b}', stylesheet: 'C:\\brand\\style.txt' }, exportOptions: { paper: 'tabloid', cover: false } });
-  assert.deepEqual(s.brand, { accent: '#abcdef', bodyFont: 'Ab', headingFont: '', codeFont: '', stylesheet: '' });
+  assert.deepEqual(s.brand, { accent: '#abcdef', panel: '', background: '', bodyFont: 'Ab', headingFont: '', codeFont: '', stylesheet: '' });
   assert.equal(s.exportOptions.paper, 'auto');
   assert.equal(s.exportOptions.cover, false);
   assert.equal(cleanFont('x'.repeat(100)).length, 60);
+});
+
+test('custom theme: panel and background colours are checked, and stay out of exports', () => {
+  const s = sanitize({ brand: { panel: '#12355B', background: 'red; x: y' } });
+  assert.equal(s.brand.panel, '#12355b');
+  assert.equal(s.brand.background, '');
+  assert.equal(appCss({}), '');
+  assert.equal(appCss({ panel: 'red; x: y', background: '#12' }), '');
+  assert.equal(hasBrand({ panel: '#12355b' }), true);
+  assert.equal(hasBrand({ background: '#12355b' }), true);
+  assert.equal(brandCss({ panel: '#12355b', background: '#efe6d4' }), '');
+  assert.match(appCss({ panel: '#12355b' }), /color-scheme: dark/);
+  assert.match(appCss({ panel: '#efe6d4' }), /color-scheme: light/);
+  assert.match(appCss({ background: '#efe6d4' }), /--desk: #efe6d4/);
+  assert.match(appCss({ background: '#efe6d4' }), /:not\(\[data-theme="contrast"\]\)/, 'High Contrast keeps its own');
+  for (const brand of [{ panel: '#12355b' }, { background: '#efe6d4' }]) assert.match(appCss(brand), /\[data-surface="glass"\] \.toolbar \{ background: var\(--toolbar-fill\)/, 'panels stay solid over your colours');
+  assert.doesNotMatch(appCss({ accent: '#2b8a3e' }), /data-surface/);
 });

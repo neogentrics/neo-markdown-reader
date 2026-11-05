@@ -3,6 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { ACCENTS, PANELS, THEME_PANELS, appCss, brandCss, panelAccent, panelTokens } from '../src/renderer/brand.js';
 
 const css = (name) => fs.readFileSync(new URL(`../src/renderer/styles/${name}.css`, import.meta.url), 'utf8');
 const KINDS = {
@@ -84,4 +85,85 @@ test('colour-safe: what it replaces really was a problem', () => {
   const add = mix('#2f9e44', '#ffffff', 0.35);
   const del = mix('#e03131', '#ffffff', 0.32);
   assert.ok(difference(seen(add, KINDS.deuteranopia), seen(del, KINDS.deuteranopia)) < 3);
+});
+
+const luminance = (hex) => {
+  const [r, g, b] = rgb(hex).map(toLinear);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrast = (a, b) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+};
+
+/** Every colour a theme's panels run through. */
+function stops(text, theme) {
+  const start = text.indexOf(`:root[data-theme="${theme}"] {`);
+  const block = text.slice(start, text.indexOf('\n}', start));
+  return [...block.matchAll(/--(?:toolbar|tabstrip|sidebar)-fill:[^;]*/g)].flatMap((m) => m[0].match(/#[0-9a-f]{6}/g));
+}
+
+for (const theme of ['light', 'sepia', 'mist', 'dark', 'forest', 'dusk', 'blue', 'red', 'yellow']) {
+  test(`${theme}: what's on the panels can be read everywhere the colour runs`, () => {
+    const text = css('theme');
+    const panel = { ...tokens(text, `:root[data-theme="${theme}"]`), ...tokens(text, `:root[data-theme="${theme}"] :is(.toolbar, .tabstrip, .sidebar)`) };
+    const colors = stops(text, theme);
+    assert.ok(colors.length >= 4, 'the panels run from one colour to another');
+    for (const color of colors) {
+      for (const name of ['text', 'text-soft', 'muted', 'link', 'heading']) {
+        assert.ok(contrast(panel[name], color) >= 4.5, `${name} on ${color}: ${contrast(panel[name], color).toFixed(2)}`);
+      }
+      assert.ok(contrast(panel.accent, color) >= 3, `buttons on ${color}: ${contrast(panel.accent, color).toFixed(2)}`);
+    }
+    assert.ok(contrast(panel['on-accent'], panel.accent) >= 4.5, 'text on a button');
+  });
+}
+
+test('custom theme: the table of panel colours matches the themes', () => {
+  const text = css('theme');
+  for (const [theme, colors] of Object.entries(THEME_PANELS)) assert.deepEqual(colors, stops(text, theme), theme);
+});
+
+const STEPS = ['00', '33', '66', '80', '99', 'cc', 'ff'];
+const EVERY = STEPS.flatMap((r) => STEPS.flatMap((g) => STEPS.map((b) => `#${r}${g}${b}`)));
+
+function assertReadable(accent, on, soft, what) {
+  for (const color of on) assert.ok(contrast(accent.accent, color) >= 4.5, `${what}: buttons on ${color}`);
+  assert.ok(contrast(accent.accent, soft) >= 4.5, `${what}: the button colour on its own soft shade`);
+  assert.ok(contrast(accent['on-accent'], accent.accent) >= 4.5, `${what}: text on a button`);
+}
+
+test('custom theme: your button colour can be read on every theme\'s panels', () => {
+  for (const [theme, colors] of Object.entries(THEME_PANELS)) {
+    for (const accent of [...ACCENTS, ...EVERY]) {
+      const picked = panelAccent(accent, colors);
+      assertReadable(picked, colors, picked['accent-soft'], `${accent} on ${theme}`);
+    }
+  }
+});
+
+test('custom theme: a colour that already reads on a panel isn\'t changed', () => {
+  assert.equal(panelAccent('#0b3d91', THEME_PANELS.light).accent, '#0b3d91');
+});
+
+test('custom theme: everything on a panel of any colour can be read', () => {
+  for (const panel of [...PANELS, ...EVERY]) {
+    for (const accent of ['', ...ACCENTS]) {
+      const t = panelTokens(panel, accent);
+      const on = [panel, t['tabstrip-fill']];
+      for (const name of ['text', 'text-soft', 'muted', 'heading', 'link']) {
+        for (const color of on) assert.ok(contrast(t[name], color) >= 4.5, `${name} on ${color} (${panel}, ${accent})`);
+      }
+      assertReadable(t, on, t['accent-soft'], `${accent} on ${panel}`);
+    }
+  }
+});
+
+test('custom theme: buttons on the page keep readable text, whatever the theme gave them', () => {
+  for (const accent of ACCENTS) {
+    const on = brandCss({ accent }).match(/--on-accent: (#[0-9a-f]{6})/)[1];
+    assert.ok(contrast(on, accent) >= 4.5, accent);
+  }
+  assert.match(appCss({ accent: '#2b8a3e' }), /:root\[data-theme="blue"\] :is\(\.toolbar, \.tabstrip, \.sidebar\) \{ --accent:/);
+  assert.doesNotMatch(appCss({ accent: '#2b8a3e' }), /data-theme="contrast"\] :is/);
 });

@@ -108,7 +108,7 @@ A forgotten password can’t be recovered.	Una contraseña olvidada no se puede 
 Keep it somewhere safe — without it, the locked document can never be opened again.	Guárdela en un lugar seguro: sin ella, el documento bloqueado no se podrá volver a abrir.	Conservez-le en lieu sûr : sans lui, le document verrouillé ne pourra plus jamais être ouvert.	Bewahren Sie es sicher auf – ohne es lässt sich das gesperrte Dokument nie wieder öffnen.
 Lock	Bloquear	Verrouiller	Sperren
 Customize theme	Personalizar tema	Personnaliser le thème	Design anpassen
-Your colour and fonts apply to every theme, and to PDFs, Word documents and web pages you export.	Su color y sus fuentes se aplican a todos los temas y a los PDF, documentos de Word y páginas web que exporte.	Votre couleur et vos polices s’appliquent à tous les thèmes, ainsi qu’aux PDF, documents Word et pages web exportés.	Ihre Farbe und Schriften gelten für jedes Design und für exportierte PDFs, Word-Dokumente und Webseiten.
+Your accent colour and fonts apply to every theme, and to PDFs, Word documents and web pages you export.	Su color de acento y sus fuentes se aplican a todos los temas y a los PDF, documentos de Word y páginas web que exporte.	Votre couleur d’accent et vos polices s’appliquent à tous les thèmes, ainsi qu’aux PDF, documents Word et pages web exportés.	Ihre Akzentfarbe und Schriften gelten für jedes Design und für exportierte PDFs, Word-Dokumente und Webseiten.
 Accent colour	Color de acento	Couleur d’accent	Akzentfarbe
 Custom	Personalizado	Personnalisée	Eigene
 Text font	Fuente del texto	Police du texte	Textschrift
@@ -297,6 +297,11 @@ Stop reading	Dejar de leer	Arrêter la lecture	Vorlesen beenden
 Pick any colour	Elija cualquier color	Choisir une couleur	Beliebige Farbe wählen
 Custom accent colour	Color de acento personalizado	Couleur d’accent personnalisée	Eigene Akzentfarbe
 Theme default	Predeterminado del tema	Couleur du thème	Design-Standard
+Panel colour	Color de los paneles	Couleur des panneaux	Bereichsfarbe
+Background colour	Color de fondo	Couleur de fond	Hintergrundfarbe
+Custom panel colour	Color de paneles personalizado	Couleur de panneaux personnalisée	Eigene Bereichsfarbe
+Custom background colour	Color de fondo personalizado	Couleur de fond personnalisée	Eigene Hintergrundfarbe
+Panels and the background stay in the app, and High Contrast keeps its own. Text on your panels changes to stay readable.	Los paneles y el fondo solo se aplican a la aplicación, y Alto contraste conserva los suyos. El texto de los paneles cambia para seguir siendo legible.	Les panneaux et le fond restent dans l’application, et Contraste élevé garde les siens. Le texte des panneaux change pour rester lisible.	Bereiche und Hintergrund gelten nur in der App, und Hoher Kontrast behält seine eigenen. Der Text auf den Bereichen ändert sich, damit er lesbar bleibt.
 Presentation	Presentación	Présentation	Präsentation
 Leave presentation (Esc)	Salir de la presentación (Esc)	Quitter la présentation (Échap)	Präsentation beenden (Esc)
 Leave presentation	Salir de la presentación	Quitter la présentation	Präsentation beenden

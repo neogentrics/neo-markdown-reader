@@ -1,0 +1,30 @@
+en	es	fr	de
+Insert Citation…	Insertar cita…	Insérer une citation…	Zitat einfügen…
+Citations	Citas	Citations	Zitate
+Choose your sources	Elija sus fuentes	Choisissez vos sources	Quellen auswählen
+Choose File…	Elegir archivo…	Choisir un fichier…	Datei wählen…
+Use Zotero	Usar Zotero	Utiliser Zotero	Zotero verwenden
+Refresh	Actualizar	Actualiser	Aktualisieren
+Citation style	Estilo de cita	Style de citation	Zitierstil
+This document sets its own style in its front matter.	Este documento fija su propio estilo en sus metadatos.	Ce document définit son propre style dans ses métadonnées.	Dieses Dokument legt seinen Stil in seinen Metadaten selbst fest.
+Find a source	Buscar una fuente	Trouver une source	Quelle suchen
+Page	Página	Page	Seite
+Author, year or title	Autor, año o título	Auteur, année ou titre	Autor, Jahr oder Titel
+Optional	Opcional	Facultatif	Optional
+No library chosen yet	Aún no ha elegido una biblioteca	Aucune bibliothèque choisie	Noch keine Bibliothek gewählt
+No sources match.	Ninguna fuente coincide.	Aucune source ne correspond.	Keine passenden Quellen.
+Choose a BibTeX or CSL JSON file, or use your Zotero library, and your sources will appear here.	Elija un archivo BibTeX o CSL JSON, o use su biblioteca de Zotero, y sus fuentes aparecerán aquí.	Choisissez un fichier BibTeX ou CSL JSON, ou utilisez votre bibliothèque Zotero, et vos sources apparaîtront ici.	Wählen Sie eine BibTeX- oder CSL-JSON-Datei oder Ihre Zotero-Bibliothek, dann erscheinen Ihre Quellen hier.
+Choosing a source copies its citation. While editing, it goes in at the cursor.	Al elegir una fuente se copia su cita. Mientras edita, se inserta en el cursor.	Choisir une source copie sa citation. Pendant l’édition, elle s’insère au curseur.	Beim Auswählen einer Quelle wird ihr Zitat kopiert. Beim Bearbeiten wird es am Cursor eingefügt.
+Copied {0}	Copiado: {0}	Copié : {0}	Kopiert: {0}
+Reading your Zotero library…	Leyendo su biblioteca de Zotero…	Lecture de votre bibliothèque Zotero…	Ihre Zotero-Bibliothek wird gelesen…
+Your library “{0}” couldn’t be read.	No se pudo leer su biblioteca «{0}».	Votre bibliothèque « {0} » n’a pas pu être lue.	Ihre Bibliothek „{0}“ konnte nicht gelesen werden.
+The bibliography “{0}” must be a .bib or .json file named relative to this document.	La bibliografía «{0}» debe ser un archivo .bib o .json indicado en relación con este documento.	La bibliographie « {0} » doit être un fichier .bib ou .json indiqué par rapport à ce document.	Die Bibliografie „{0}“ muss eine .bib- oder .json-Datei sein, relativ zu diesem Dokument angegeben.
+The bibliography “{0}” wasn’t found next to this document.	No se encontró la bibliografía «{0}» junto a este documento.	La bibliographie « {0} » est introuvable à côté de ce document.	Die Bibliografie „{0}“ wurde neben diesem Dokument nicht gefunden.
+The bibliography “{0}” couldn’t be read. {1}	No se pudo leer la bibliografía «{0}». {1}	La bibliographie « {0} » n’a pas pu être lue. {1}	Die Bibliografie „{0}“ konnte nicht gelesen werden. {1}
+That file of sources is too large (over 20 MB).	Ese archivo de fuentes es demasiado grande (más de 20 MB).	Ce fichier de sources est trop volumineux (plus de 20 Mo).	Diese Quellendatei ist zu groß (über 20 MB).
+That file isn’t valid JSON.	Ese archivo no es JSON válido.	Ce fichier n’est pas du JSON valide.	Diese Datei ist kein gültiges JSON.
+That file isn’t a list of sources in CSL JSON.	Ese archivo no es una lista de fuentes en CSL JSON.	Ce fichier n’est pas une liste de sources en CSL JSON.	Diese Datei ist keine Quellenliste in CSL JSON.
+Zotero isn’t running. Open Zotero, then try again.	Zotero no está abierto. Ábralo e inténtelo de nuevo.	Zotero n’est pas ouvert. Ouvrez-le, puis réessayez.	Zotero läuft nicht. Öffnen Sie Zotero und versuchen Sie es erneut.
+Zotero needs to allow this. In Zotero, open Settings → Advanced and tick “Allow other applications on this computer to communicate with Zotero”.	Zotero debe permitirlo. En Zotero, abra Ajustes → Avanzado y marque «Allow other applications on this computer to communicate with Zotero».	Zotero doit l’autoriser. Dans Zotero, ouvrez Paramètres → Avancé et cochez « Allow other applications on this computer to communicate with Zotero ».	Zotero muss dies erlauben. Öffnen Sie in Zotero Einstellungen → Erweitert und aktivieren Sie „Allow other applications on this computer to communicate with Zotero“.
+Zotero answered with an error ({0}).	Zotero respondió con un error ({0}).	Zotero a répondu par une erreur ({0}).	Zotero hat mit einem Fehler geantwortet ({0}).
+This document’s own bibliography is listed here too.	La bibliografía de este documento también aparece aquí.	La bibliographie de ce document figure aussi ici.	Die eigene Bibliografie dieses Dokuments wird hier ebenfalls aufgeführt.

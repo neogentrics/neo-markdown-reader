@@ -1,7 +1,7 @@
 {
   "name": "neo-markdown-reader",
   "productName": "RT Markdown Reader",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "description": "Read Markdown the way it was meant to look. A free reader and writing app for Windows, macOS and Linux.",
   "author": "Recon Towers Dev Department <author@neogentrics.com>",
   "license": "SEE LICENSE IN LICENSE",
@@ -16,7 +16,7 @@
     "dist:linux": "npm run build:renderer && electron-builder --linux AppImage deb --publish never",
     "dev": "node scripts/build-renderer.mjs && electron . samples/showcase.md",
     "icons": "node scripts/make-icons.mjs",
-    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs && node test/e2e/power.e2e.cjs && node test/e2e/ai.e2e.cjs && node test/e2e/claude.e2e.cjs && node test/e2e/help.e2e.cjs && node test/e2e/write.e2e.cjs && node test/e2e/notes.e2e.cjs && node test/e2e/read.e2e.cjs && node test/e2e/yours.e2e.cjs && node test/e2e/sync.e2e.cjs && node test/e2e/voices.e2e.cjs && node test/e2e/listen.e2e.cjs && node test/e2e/a11y.e2e.cjs",
+    "test:e2e": "node scripts/build-renderer.mjs && node test/e2e/app.e2e.cjs && node test/e2e/editing.e2e.cjs && node test/e2e/organize.e2e.cjs && node test/e2e/publish.e2e.cjs && node test/e2e/power.e2e.cjs && node test/e2e/ai.e2e.cjs && node test/e2e/claude.e2e.cjs && node test/e2e/link.e2e.cjs && node test/e2e/cards.e2e.cjs && node test/e2e/citations.e2e.cjs && node test/e2e/smart.e2e.cjs && node test/e2e/help.e2e.cjs && node test/e2e/write.e2e.cjs && node test/e2e/notes.e2e.cjs && node test/e2e/read.e2e.cjs && node test/e2e/yours.e2e.cjs && node test/e2e/sync.e2e.cjs && node test/e2e/voices.e2e.cjs && node test/e2e/listen.e2e.cjs && node test/e2e/a11y.e2e.cjs",
     "build:preview": "dotnet build preview/NeoMarkdownPreview -c Release -o preview-dist && powershell -NoProfile -ExecutionPolicy Bypass -File preview/shim/build.ps1 -Out preview-dist",
     "test:preview": "dotnet test preview/NeoMarkdownPreview.Tests"
   },
@@ -180,7 +180,16 @@
   },
   "homepage": "https://recontowers.com/projects/neo-markdown-reader/",
   "bugs": "https://github.com/neogentrics/rt-markdown-reader/issues",
-  "keywords": ["markdown", "markdown-reader", "markdown-editor", "electron", "text-to-speech", "dictation", "audiobook", "recon-towers"],
+  "keywords": [
+    "markdown",
+    "markdown-reader",
+    "markdown-editor",
+    "electron",
+    "text-to-speech",
+    "dictation",
+    "audiobook",
+    "recon-towers"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/neogentrics/rt-markdown-reader.git"

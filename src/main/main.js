@@ -8,6 +8,7 @@ const { fileURLToPath, pathToFileURL } = require('node:url');
 const { Settings, FONTS, FONT_NAMES, cleanAccelerator } = require('./settings');
 const { PronunciationStore } = require('./pronounce');
 const { DictationStore } = require('./dictation');
+const { SmartStore } = require('./smart-search');
 const { isMarkdownPath, isLockedPath, isOpenablePath, isViewablePath, isDataPath, fileFromArgv, readMarkdown, readDocument, isWritable, encodeForSave } = require('./files');
 const { HistoryStore } = require('./history');
 const { runJob: runReplaceJob } = require('./folder-replace');
@@ -19,6 +20,7 @@ const { CodeSandbox, registerScheme, runnableLang, TIMEOUT: RUN_TIMEOUT } = requ
 const ai = require('./ai');
 const providers = require('./ai-providers');
 const connector = require('./connector');
+const appLink = require('./app-link');
 const claudeCode = require('./claude-code');
 const ABOUT_WEBSITE = 'https://recontowers.com/projects/neo-markdown-reader/';
 const i18n = require('./i18n');
@@ -27,6 +29,8 @@ const { Updater, RELEASES_URL } = require('./updater');
 const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
 const { AnnotationStore } = require('./annotations');
+const flashcards = require('./flashcards');
+const bibliography = require('./bibliography');
 const { SyncEngine } = require('./sync');
 const { VoiceStore, VOICES, LICENSE_URL } = require('./voices');
 const { LANGS: VOICE_LANGS } = require('./voice-text');
@@ -56,11 +60,14 @@ let settings;
 let updater;
 let editing;
 let annotations;
+let cardStore;
 let history;
 /** Sync between your computers (3.1), see sync.js. */
 let sync;
 /** Dictation (3.5), see dictation.js. */
 let dictation = null;
+/** Smart search (3.6), see smart-search.js. */
+let smart = null;
 /** Natural voices (3.2), see voices.js. */
 let voices;
 /** Every menu command, for running by name from Quick Open (">") and for changing shortcuts. */
@@ -697,6 +704,7 @@ function rebuildMenu() {
             ...addonExportItems(),
           ],
         },
+        cmd('send-linked', 'Send to Linked App…'),
         { id: 'print', label: 'Print…', accelerator: 'CmdOrCtrl+P', click: () => targetState()?.win.webContents.print({ printBackground: true }) },
         { type: 'separator' },
         cmd('close-tab', 'Close Tab', 'CmdOrCtrl+W'),
@@ -729,8 +737,10 @@ function rebuildMenu() {
         cmd('highlight', 'Highlight Selection', 'CmdOrCtrl+Shift+H'),
         cmd('bookmark', 'Bookmark This File', 'CmdOrCtrl+D'),
         cmd('edit-table', 'Edit Table…'),
+        cmd('citations', 'Insert Citation…'),
         cmd('dictate', 'Dictation', 'CmdOrCtrl+Alt+D'),
         moved(cmd('dictate-remove', 'Remove Dictation Download…')),
+        moved(cmd('smart-remove', 'Remove Smart Search Download…')),
         {
           label: 'Compare and History',
           submenu: [
@@ -747,6 +757,7 @@ function rebuildMenu() {
             cmd('ai-summarize', 'Summarize Document'),
             cmd('ai-explain', 'Explain Selection'),
             cmd('ai-report', 'Turn Notes into a Report'),
+            cmd('ai-cards', 'Draft Flashcards…'),
             cmd('ai-folder', 'Ask About This Folder…'),
             { type: 'separator' },
             cmd('ai-proofread', 'Proofread Selection'),
@@ -770,6 +781,7 @@ function rebuildMenu() {
       submenu: [
         cmd('read-aloud', 'Read Aloud', 'CmdOrCtrl+Shift+U'),
         cmd('present', 'Present as Slides', 'CmdOrCtrl+Shift+P'),
+        cmd('study', 'Study Flashcards…'),
         cmd('focus-mode', 'Focus Mode', 'F8'),
         cmd('split-toggle', 'Split View', 'CmdOrCtrl+\\'),
         { type: 'separator' },
@@ -1061,6 +1073,7 @@ async function setFolder(state, root) {
         if (state.folder !== folder || state.win.isDestroyed()) return;
         folder.scan = await scanFolder(root);
         state.win.webContents.send('folder:changed', folderInfo(folder.scan));
+        smartRefresh(state);
       }, 700);
     });
     watcher.on('error', () => {});
@@ -1084,13 +1097,14 @@ async function openFolderDialog(state) {
   if (res.canceled || !res.filePaths[0]) return null;
   const info = await setFolder(state, res.filePaths[0]);
   if (info) state.win.webContents.send('folder:opened', info);
+  smartRefresh(state);
   return info;
 }
 
 async function openRecentFolder(state, root) {
   if (!state) return;
   const info = await setFolder(state, root);
-  if (info) state.win.webContents.send('folder:opened', info);
+  if (info) { state.win.webContents.send('folder:opened', info); smartRefresh(state); }
   else state.win.webContents.send('doc:error', { message: `Folder not found:\n${root}` });
 }
 
@@ -1150,8 +1164,88 @@ async function applyConnector() {
   connectorServer = server;
 }
 
+// ---------------------------------------------------------------- App Link (3.6)
+// Other Recon Towers apps on this computer. The rules are in docs/app-link.md.
+let linkServer = null;
+let linksMemory = null;
+const linksFile = () => path.join(app.getPath('userData'), 'links.bin');
+
+function loadLinks() {
+  if (linksMemory) return { ...linksMemory };
+  if (!secureStorage()) return {};
+  try {
+    const saved = JSON.parse(safeStorage.decryptString(fs.readFileSync(linksFile())));
+    return saved && typeof saved === 'object' ? saved : {};
+  } catch { return {}; }
+}
+function saveLinks(links) {
+  if (secureStorage()) fs.writeFileSync(linksFile(), safeStorage.encryptString(JSON.stringify(links)));
+  else linksMemory = { ...links };             // kept until the app closes, never in a plain file
+}
+
+/** Ask the person, in this app, whether another app may link with it. */
+async function askToLink({ name }) {
+  const st = targetState();
+  if (st) focusState(st);
+  const box = {
+    type: 'question',
+    message: `Link ${name} with RT Markdown Reader?`,
+    detail: `${name} will be able to open documents here. It can’t read or change anything on its own.\n\nOnly say yes if you’ve just asked it to link.`,
+    buttons: ['Link', 'Don’t Link'], defaultId: 1, cancelId: 1, noLink: true,
+  };
+  const { response } = await (st ? dlg.showMessageBox(st.win, box) : dlg.showMessageBox(box));
+  return response === 0;
+}
+
+/** A document from a linked app. Text opens unsaved; a path opens like any Markdown file. */
+async function openFromLink({ from, name, text, path: file }) {
+  if (file) {
+    const full = path.resolve(file);
+    if (isLockedPath(full)) throw new appLink.LinkError('not_allowed', 'Password-locked documents can’t be opened this way.');
+    if (!isMarkdownPath(full)) throw new appLink.LinkError('not_allowed', 'RT Markdown Reader opens Markdown files this way.');
+    if (!fs.existsSync(full)) throw new appLink.LinkError('not_found', 'That document isn’t there.');
+    await openFile(full);
+    return;
+  }
+  const st = targetState();
+  if (!st) throw new appLink.LinkError('failed', 'RT Markdown Reader has no window open.');
+  focusState(st);
+  st.win.webContents.send('link:document', { from, name, content: text });
+}
+
+async function applyLink() {
+  if (!settings.get().appLink) { await linkServer?.stop(); linkServer = null; return; }
+  if (linkServer) return;
+  const server = new appLink.AppLink({
+    folder: appLink.sharedFolder({ home: app.getPath('home') }),
+    dataDir: app.getPath('userData'),
+    version: app.getVersion(),
+    load: loadLinks, save: saveLinks, ask: askToLink, open: openFromLink,
+  });
+  await server.start();
+  linkServer = server;
+}
+
+async function linkStatus() {
+  return { enabled: settings.get().appLink, safe: secureStorage(), apps: linkServer ? await linkServer.list() : [] };
+}
+
+const linkMessage = (err) => (err instanceof appLink.LinkError ? err.message : 'That didn’t work.');
+
 // ---------------------------------------------------------------- connected notes (2.3)
 /** The open folder's link / tag / task index, brought up to date. */
+/** Keep a window's folder read for meaning, when smart search is on. Runs in the background. */
+function smartRefresh(st) {
+  if (!st?.folder || !settings.get().smartSearch || !smart?.status().installed) return;
+  clearTimeout(st.smartTimer);
+  st.smartTimer = setTimeout(() => {
+    if (!st.folder) return;
+    const files = st.folder.scan.files.filter((f) => !isLockedPath(f));
+    smart.index(st.folder.root, files).catch(() => {});
+  }, 1500);
+  st.smartTimer.unref?.();
+}
+
 async function folderIndex(st) {
   if (!st?.folder) return null;
   st.index ??= new FolderIndex();
@@ -1184,6 +1278,7 @@ async function openDailyNote(st) {
       await fs.promises.writeFile(file, encodeForSave(body, { eol: process.platform === 'win32' ? '\r\n' : '\n' }), { flag: 'wx' });
       st.folder.scan = await scanFolder(st.folder.root);
       st.win.webContents.send('folder:changed', folderInfo(st.folder.scan));
+      smartRefresh(st);
     }
     sendDoc(st, 'tab:open', await loadDoc(file));
   } catch (err) { st.win.webContents.send('doc:error', { message: errorMessage(err, file) }); }
@@ -1432,7 +1527,7 @@ function registerIpc() {
   ipcMain.handle('doc:print', (e) => { stateFor(e)?.win.webContents.print({ printBackground: true }); });
   ipcMain.handle('settings:set', (_e, patch) => {
     if (!patch || typeof patch !== 'object') return rendererSettings();
-    const allowed = ['theme', 'surface', 'colorSafe', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'audioInput', 'language'];
+    const allowed = ['citeStyle', 'theme', 'surface', 'colorSafe', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'audioInput', 'language'];
     setSetting(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
     return rendererSettings();
   });
@@ -1608,6 +1703,97 @@ function registerIpc() {
     return aiRequest(e, req.id, req.action, content);
   });
   ipcMain.handle('ai:cancel', (_e, id) => { aiRuns.get(id)?.abort(); });
+
+  // ---- citations: sources from a file or from Zotero on this computer
+  const bibCache = new Map();          // path -> { mtime, size, parsed }
+  const zoteroFile = () => path.join(app.getPath('userData'), 'citations-zotero.json');
+  async function readBib(p) {
+    const st = await fs.promises.stat(p);
+    if (!st.isFile()) throw new Error('not a file');
+    if (st.size > 20 * 1024 * 1024) throw new Error('That file of sources is too large (over 20 MB).');
+    const hit = bibCache.get(p);
+    if (hit && hit.mtime === st.mtimeMs && hit.size === st.size) return hit;
+    const entry = { mtime: st.mtimeMs, size: st.size, parsed: bibliography.parseFile(p, await fs.promises.readFile(p, 'utf8')) };
+    bibCache.set(p, entry);
+    return entry;
+  }
+  async function libraryNow() {
+    const from = settings.get().citeLibrary;
+    if (!from) return { source: '', name: '', entries: [] };
+    if (from === 'zotero') {
+      try { return { source: 'zotero', name: 'Zotero', entries: JSON.parse(await fs.promises.readFile(zoteroFile(), 'utf8')).entries || [] }; } catch { return { source: 'zotero', name: 'Zotero', entries: [] }; }
+    }
+    try {
+      const hit = await readBib(from);
+      return { source: 'file', name: path.basename(from), entries: hit.parsed.entries };
+    } catch { return { source: 'file', name: path.basename(from), entries: [], error: `Your library “${path.basename(from)}” couldn’t be read.` }; }
+  }
+  // A document names its own file relative to itself. Never a full path or a network share: opening a
+  // document someone sent you must not reach out to a server, or read anything but a list of sources.
+  ipcMain.handle('cite:file', async (_e, req = {}) => {
+    const { docPath, rel } = req;
+    if (!isStr(docPath, 4096) || !isStr(rel, 1024) || !bibliography.isBibPath(rel) || path.isAbsolute(rel) || /^[\\/]|^[a-z][a-z0-9+.-]*:/i.test(rel)) return { error: `The bibliography “${String(rel).slice(0, 80)}” must be a .bib or .json file named relative to this document.` };
+    const file = path.resolve(path.dirname(docPath), rel);
+    try {
+      const hit = await readBib(file);
+      return { entries: hit.parsed.entries, stamp: `${hit.mtime}-${hit.size}`, skipped: hit.parsed.skipped };
+    } catch (err) {
+      return { error: err.code === 'ENOENT' ? `The bibliography “${rel}” wasn’t found next to this document.` : `The bibliography “${rel}” couldn’t be read. ${err.code ? '' : err.message}`.trim() };
+    }
+  });
+  ipcMain.handle('cite:library', () => libraryNow());
+  ipcMain.handle('cite:choose', async (e) => {
+    const res = await dlg.showOpenDialog(stateFor(e)?.win, { title: 'Choose your sources', properties: ['openFile'], filters: [{ name: 'BibTeX or CSL JSON', extensions: ['bib', 'bibtex', 'json'] }] });
+    if (res.canceled || !res.filePaths[0]) return null;
+    try { await readBib(res.filePaths[0]); } catch (err) { return { error: err.message }; }
+    setSetting({ citeLibrary: res.filePaths[0] });
+    return libraryNow();
+  });
+  ipcMain.handle('cite:zotero', async () => {
+    try {
+      const { entries } = await bibliography.fetchZotero(net.fetch, process.env.NMR_ZOTERO_URL || bibliography.ZOTERO_URL);
+      await fs.promises.writeFile(zoteroFile(), JSON.stringify({ entries, updated: Date.now() }));
+    } catch (err) { return { error: err.message }; }
+    if (settings.get().citeLibrary !== 'zotero') setSetting({ citeLibrary: 'zotero' });
+    return libraryNow();
+  });
+  ipcMain.handle('cite:clear', () => { setSetting({ citeLibrary: '' }); return libraryNow(); });
+
+  // ---- flashcards: found in the text, with only each card's progress kept by the app
+  ipcMain.handle('cards:deck', async (e, req = {}) => {
+    const today = flashcards.isoDay();
+    if (req.folder) {
+      const idx = await folderIndex(stateFor(e));
+      if (!idx) return { error: 'Open a folder first.' };
+      const cards = [];
+      for (const f of idx.cards()) cards.push(...flashcards.deck(f.cards, cardStore.get(f.path), today, { path: f.path, rel: f.rel, baseUrl: pathToFileURL(path.dirname(f.path) + path.sep).href }));
+      return { cards: cards.slice(0, 10000), keep: true };
+    }
+    const text = typeof req.text === 'string' ? req.text : '';
+    const keep = isStr(req.path, 4096) && isMarkdownPath(req.path);        // not locked or unsaved documents
+    const where = keep ? { path: req.path } : {};
+    return { cards: flashcards.deck(flashcards.parseCards(text), keep ? cardStore.get(req.path) : {}, today, where), keep };
+  });
+  ipcMain.handle('cards:grade', (_e, req = {}) => {
+    const { path: p, id, grade } = req;
+    if (!isStr(p, 4096) || !isMarkdownPath(p) || !/^[0-9a-f]{16}$/.test(String(id)) || ![1, 2, 3, 4].includes(grade)) return { error: 'invalid' };
+    const state = cardStore.grade(p, id, grade);
+    return { state, next: flashcards.intervals(state) };
+  });
+  ipcMain.handle('cards:draft', async (e, req = {}) => {
+    if (isStr(req.path, 4096) && isLockedPath(req.path)) return { error: 'AI assist is off for locked documents, so their text never leaves this computer.' };
+    if (!isStr(req.id, 100)) return { error: 'invalid' };
+    let content;
+    try {
+      content = ai.buildPrompt('cards', {
+        text: typeof req.text === 'string' ? req.text : '',
+        title: isStr(req.title, 500) ? req.title : '',
+        count: [5, 10, 20].includes(req.count) ? req.count : 10,
+      });
+    } catch (err) { return { error: err.message }; }
+    const res = await aiRequest(e, req.id, 'cards', content);
+    return res.error ? res : { ...res, cards: flashcards.parseDraft(res.text).map(({ q, a }) => ({ q, a })) };
+  });
 
   // Writing help: a suggested change to the editor's selection, which the page shows for accepting or rejecting.
   ipcMain.handle('ai:edit', async (e, req = {}) => {
@@ -1940,6 +2126,7 @@ function registerIpc() {
     const updates = idx && st.folder.scan.files.includes(p) ? idx.retarget(p, target) : [];
     const files = idx?.files;                        // as they were before the rename: the folder watcher refreshes the index while the question below is open
     try { await fs.promises.rename(p, target); } catch (err) { return { error: errorMessage(err, p) }; }
+    cardStore.move(p, target);
     editing.sessionGrants(st).add(editing.key(target));
     let updated = 0;
     let missed = 0;
@@ -1998,6 +2185,35 @@ function registerIpc() {
       s.done({ outcome: 'failed', message });
       return { error: message };
     }
+  });
+  // ---- App Link (3.6)
+  ipcMain.handle('link:status', () => linkStatus());
+  ipcMain.handle('link:set', async (_e, on) => {
+    settings.update({ appLink: on === true });
+    try { await applyLink(); } catch { settings.update({ appLink: false }); return { ...(await linkStatus()), error: 'App Link couldn’t start.' }; }
+    return linkStatus();
+  });
+  ipcMain.handle('link:pair', async (_e, id) => {
+    if (!linkServer || !appLink.validId(id)) return { error: 'Turn on App Link first.' };
+    try { return await linkServer.pairWith(id); } catch (err) { return { error: linkMessage(err) }; }
+  });
+  ipcMain.handle('link:unlink', async (_e, id) => {
+    if (linkServer && appLink.validId(id)) await linkServer.unlink(id);
+    return linkStatus();
+  });
+  ipcMain.handle('link:send', async (e, doc) => {
+    if (!linkServer) return { error: 'Turn on App Link in Preferences first.' };
+    if (typeof doc?.text !== 'string' || (doc.path && isLockedPath(doc.path))) return { error: 'Password-locked documents can’t be sent.' };
+    const ready = (await linkServer.list()).filter((a) => a.linked && a.running);
+    if (!ready.length) return { error: 'No linked app is running.' };
+    let choice = ready[0];
+    if (ready.length > 1) {
+      const buttons = [...ready.map((a) => a.name), 'Cancel'];
+      const { response } = await dlg.showMessageBox(stateFor(e).win, { type: 'question', message: 'Send this document to which app?', buttons, cancelId: ready.length, noLink: true });
+      choice = ready[response];
+      if (!choice) return {};
+    }
+    try { return await linkServer.send(choice.id, { name: doc.name, text: doc.text }); } catch (err) { return { error: linkMessage(err) }; }
   });
   ipcMain.handle('claude:open-terminal', (e) => {
     const st = stateFor(e);
@@ -2151,6 +2367,59 @@ function registerIpc() {
     try { return await dictation.hear({ samples: job.samples, lang: /^[a-z]{2}$/.test(job.lang) ? job.lang : '' }); } catch (err) { return { error: err.message }; }
   });
 
+  // ---- smart search: finding documents by what they mean, entirely on this computer
+  const smartStatus = (st) => ({ ...smart.status(), enabled: settings.get().smartSearch, indexing: st?.folder ? smart.indexing.get(st.folder.root) || null : null });
+  ipcMain.handle('smart:status', (e) => smartStatus(stateFor(e)));
+  ipcMain.handle('smart:enable', async (e, on) => {
+    const st = stateFor(e);
+    if (!on) { setSetting({ smartSearch: false }); return smartStatus(st); }
+    if (!smart.status().installed) {
+      const { response } = await dlg.showMessageBox(st?.win, {
+        type: 'question', title: 'Smart search', noLink: true, buttons: ['Download', 'Cancel'], defaultId: 0, cancelId: 1,
+        message: 'Download smart search?',
+        detail: `About ${Math.round(smart.status().total / 1e6 / 5) * 5} MB, downloaded once. After that it works offline: your documents are read on this computer and never leave it.\n\nIt uses the multilingual-e5-small model (MIT license), from Hugging Face. Locked documents are never read.`,
+      });
+      if (response !== 0) return { ...smartStatus(st), canceled: true };
+      const res = await smart.install((status) => { for (const { win } of liveStates()) win.webContents.send('smart:download', status); });
+      if (!res.installed) return smartStatus(st);
+    }
+    setSetting({ smartSearch: true });
+    for (const s of liveStates()) smartRefresh(s);
+    return smartStatus(st);
+  });
+  ipcMain.handle('smart:search', async (e, query) => {
+    const st = stateFor(e);
+    if (!st?.folder || !isStr(query, 500) || !settings.get().smartSearch) return { results: [] };
+    try {
+      const found = await smart.search(st.folder.root, query);
+      const idx = await folderIndex(st);
+      const results = found.map((r) => {
+        const rel = path.relative(st.folder.root, r.path);
+        return { path: r.path, rel, name: path.basename(r.path), line: r.line, text: idx?.passageText(r.path, r.line) || '' };
+      });
+      return { results, indexing: smart.indexing.get(st.folder.root) || null };
+    } catch { return { results: [], error: 'Smart search stopped. Try again.' }; }
+  });
+  ipcMain.handle('smart:related', async (e, p) => {
+    const st = stateFor(e);
+    if (!st?.folder || !isStr(p, 4096) || !settings.get().smartSearch || !smart.status().installed) return [];
+    try {
+      const found = await smart.related(st.folder.root, p);
+      return found.map((r) => ({ path: r.path, rel: path.relative(st.folder.root, r.path), name: path.basename(r.path) }));
+    } catch { return []; }
+  });
+  ipcMain.handle('smart:remove', async (e) => {
+    if (!smart.status().installed) return smart.status();
+    const { response } = await dlg.showMessageBox(stateFor(e)?.win, {
+      type: 'question', title: 'Smart search', noLink: true, buttons: ['Remove', 'Cancel'], defaultId: 1, cancelId: 1,
+      message: 'Remove the smart search download?',
+      detail: 'This frees the space it uses, and removes what it learned about your folders. Your documents aren’t touched. You can download it again at any time.',
+    });
+    if (response !== 0) return smart.status();
+    setSetting({ smartSearch: false });
+    return smart.remove();
+  });
+
   ipcMain.handle('voice:status', () => voices.status());
   ipcMain.handle('voice:install', async (e) => {
     const st = stateFor(e);
@@ -2296,11 +2565,13 @@ app.whenReady().then(() => {
   history = new HistoryStore(path.join(app.getPath('userData'), 'history'));
   editing = new Editing({ settings, dialog: dlg, backupDir: backupDir(), defaultDir: app.getPath('documents'), sealLocked, history });
   annotations = new AnnotationStore(app.getPath('userData'));
+  cardStore = new flashcards.CardStore(app.getPath('userData'));
   addonStore = new addons.AddonStore(path.join(app.getPath('userData'), 'addons')).load();
   sync = new SyncEngine({
     dir: app.getPath('userData'),
     settings,
     annotations,
+    cards: cardStore,
     // Another computer's changes have just been applied here: show them in every open window.
     onApplied: ({ settings: changed, annotationPaths }) => {
       if (changed) broadcastSettings();
@@ -2310,8 +2581,10 @@ app.whenReady().then(() => {
   });
   settings.onChange = () => sync.soon();
   annotations.onChange = () => sync.soon();
+  cardStore.onChange = () => sync.soon();
   sync.start();
   applyConnector().catch(() => {});
+  applyLink().catch(() => {});
   voices = new VoiceStore({
     root: path.join(app.getPath('userData'), 'voices'),
     fetch: (url, opts) => net.fetch(url, opts),
@@ -2325,6 +2598,14 @@ app.whenReady().then(() => {
     fork: (script) => utilityProcess.fork(script, [], { serviceName: 'RT Markdown Reader dictation', stdio: 'ignore' }),
     worker: path.join(ROOT, 'dist', 'dictate-worker.cjs'),
     fake: !!process.env.NMR_FAKE_TTS,             // tests: no download, and made-up words
+  });
+  smart = new SmartStore({
+    root: path.join(app.getPath('userData'), 'smart-search'),
+    fetch: (url, opts) => net.fetch(url, opts),
+    fork: (script) => utilityProcess.fork(script, [], { serviceName: 'RT Markdown Reader smart search', stdio: 'ignore' }),
+    worker: path.join(ROOT, 'dist', 'smart-worker.cjs'),
+    fake: !!process.env.NMR_FAKE_TTS,             // tests: no download, and words hashed instead of a model
+    onIndexing(progress) { for (const { win } of liveStates()) win.webContents.send('smart:progress', progress); },
   });
   // Documents never need camera, notifications, etc.: only clipboard writes for "Copy", and the app's own
   // windows may use the microphone for dictation, which only starts when you ask for it.
@@ -2359,15 +2640,18 @@ app.on('before-quit', (e) => {
     e.preventDefault();
     syncFlushed = true;
     annotations?.flush();
+    cardStore?.flush();
     Promise.race([sync.flush(), new Promise((r) => setTimeout(r, 4000))]).finally(() => app.quit());
   }
 });
 // Windows send their final tab state as they close, which can arrive after before-quit.
 app.on('will-quit', () => {
   connectorServer?.stop();
+  linkServer?.stop();
   persistSession();
   settings?.flush();
   annotations?.flush();
+  cardStore?.flush();
   voices?.stop();
 });
 app.on('window-all-closed', () => {

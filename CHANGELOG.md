@@ -4,6 +4,38 @@ All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.6.0] - Unreleased
+
+### Added
+- **App Link** (*Preferences → Linked Apps*): other Recon Towers apps on this computer can link with this one, and
+  documents can be sent between them with *File → Send to Linked App*. You approve each app once, there are no
+  accounts, and it stays off until you turn it on. The rules for other apps are in `docs/app-link.md`.
+- **Customize Theme** can now change the panel and background colours too. Text on your panels changes to stay
+  readable, whatever colour you pick. These stay in the app, so exports don't use them, and High Contrast keeps its own.
+  With Glass on, panels stay solid over colours you've chosen, so they can still be read.
+- **Flashcards** (*View → Study Flashcards*): `Q:` / `A:` lines and definitions in your documents become cards, with
+  spaced repetition that brings each one back when it's due. Study one document or the whole open folder, practise
+  everything, or take a multiple-choice quiz. Progress stays on your computer and follows you through Sync, and it
+  holds no words from your cards. AI assist can draft cards from a chapter (*Draft Flashcards*), for you to check first.
+- **Citations** (*Edit → Insert Citation*): write `[@key]`, and the page shows the citation and builds the reference
+  list, in APA, MLA, Chicago, IEEE or Harvard. Sources come from a BibTeX or CSL JSON file, or from Zotero on your
+  computer. They carry through to PDF, Word, web page, e-book and plain text exports. The syntax is Pandoc's, so
+  documents still work there.
+- **Smart search** (*Search by meaning* in the Search panel): find documents by what they mean, in any of about a hundred
+  languages, not only by their exact words. *Related documents* appear under the outline. It's a one-time download of
+  about 135 MB, and after that everything happens on your computer. Locked documents are never read, and the index
+  keeps no words from your documents.
+
+### Changed
+- **Paper, Sepia, Mist, Night, Forest and Dusk** now have panels that run from one colour to another, with contrasting
+  buttons, like Blue, Red and Yellow. High Contrast stays flat.
+
+### Fixed
+- Blue and Red: small text on the brightest part of the panels was a little too faint.
+- Your accent colour didn't reach the buttons on the toolbar, tabs and sidebar in themes with coloured panels. It does
+  now, lightened or darkened only as much as it takes to be read there.
+- Text on buttons in your accent colour now stays readable, whatever colour you pick.
+
 ## [3.5.0] - 2026-11-04
 
 ### Added

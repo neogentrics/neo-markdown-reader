@@ -19,6 +19,7 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { cleanAnnotation } = require('./annotations');
+const { cleanState } = require('./flashcards');
 
 const FORMAT = 'neo-markdown-reader-sync';
 const VERSION = 1;
@@ -30,7 +31,7 @@ const POLL_MS = 30 * 1000;
 const SETTLE_MS = 2000;
 
 /** Settings that follow you between computers. Everything else stays on the computer it was set on. */
-const SYNCED_SETTINGS = ['theme', 'surface', 'colorSafe', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'wikiLinks', 'readAloud', 'language', 'shortcuts', 'exportOptions', 'brand'];
+const SYNCED_SETTINGS = ['theme', 'surface', 'colorSafe', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'wikiLinks', 'citeStyle', 'readAloud', 'language', 'shortcuts', 'exportOptions', 'brand'];
 
 const isLocked = (p) => /\.mdlock$/i.test(p);
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -111,10 +112,11 @@ function fromKey(key, roots) {
 //   r:<doc>               true while the document is in Recent; newer = nearer the top
 //   p:<doc>               reading position (0–1)
 //   h:<doc>\t<id>         one highlight or note
+//   c:<doc>\t<id>         how one flashcard is going (never its words)
 // A removed item is kept as null, so the removal spreads instead of the item coming back.
 
 /** This computer's synced state, as items. */
-function snapshot({ settings, annotations }, keyOf) {
+function snapshot({ settings, annotations, cards }, keyOf) {
   const items = {};
   for (const k of SYNCED_SETTINGS) {
     let v = settings[k];
@@ -129,6 +131,11 @@ function snapshot({ settings, annotations }, keyOf) {
     const k = docKey(p);
     if (!k) continue;
     for (const a of list) items[`h:${k}\t${a.id}`] = a;
+  }
+  for (const [p, states] of Object.entries(cards || {})) {
+    const k = docKey(p);
+    if (!k) continue;
+    for (const [id, state] of Object.entries(states)) items[`c:${k}\t${id}`] = state;
   }
   return items;
 }
@@ -185,7 +192,7 @@ function merge(journal, remote) {
 }
 
 function validItem(k, e) {
-  if (typeof k !== 'string' || k.length > 4300 || !/^[sbrph]:./.test(k)) return false;
+  if (typeof k !== 'string' || k.length > 4300 || !/^[sbrphc]:./.test(k)) return false;
   if (!e || typeof e !== 'object' || !Number.isFinite(e.t) || e.t < 0) return false;
   if (k.startsWith('s:') && !SYNCED_SETTINGS.includes(k.slice(2))) return false;
   return true;
@@ -196,7 +203,7 @@ function validItem(k, e) {
  * folder exists on this computer and the file has arrived). Anything else waits in the journal.
  */
 function desired(journal, { resolve, exists }) {
-  const out = { settings: {}, bookmarks: [], recent: [], positions: {}, annotations: new Map() };
+  const out = { settings: {}, bookmarks: [], recent: [], positions: {}, annotations: new Map(), cards: new Map() };
   const doc = (k) => {
     const p = resolve(k);
     return p && !isLocked(p) && exists(p) ? p : null;
@@ -206,6 +213,15 @@ function desired(journal, { resolve, exists }) {
   for (const [k, e] of Object.entries(journal)) {
     if (k.startsWith('s:')) { if (e.v !== null) out.settings[k.slice(2)] = e.v; continue; }
     if (e.v === null && !k.startsWith('h:')) continue;
+    if (k.startsWith('c:')) {
+      const tab = k.indexOf('\t');
+      const p = doc(k.slice(2, tab));
+      const state = cleanState(e.v);
+      if (!p || !state) continue;
+      if (!out.cards.has(p)) out.cards.set(p, {});
+      out.cards.get(p)[k.slice(tab + 1)] = state;
+      continue;
+    }
     if (k.startsWith('h:')) {
       const tab = k.indexOf('\t');
       const p = doc(k.slice(2, tab));
@@ -233,13 +249,15 @@ class SyncEngine {
    * @param {string} o.dir        this computer's app-data folder (sync-state.json lives there)
    * @param {object} o.settings   the Settings store
    * @param {object} o.annotations the AnnotationStore
+   * @param {object} [o.cards] the flashcards' CardStore
    * @param {Function} o.onApplied called with { settings: bool, annotationPaths: string[] } after other computers' changes are applied
    * @param {Function} o.onStatus  called with the status whenever it changes
    */
-  constructor({ dir, settings, annotations, onApplied = () => {}, onStatus = () => {}, roots = detectRoots(), platform = process.platform, hostname = os.hostname() }) {
+  constructor({ dir, settings, annotations, cards = null, onApplied = () => {}, onStatus = () => {}, roots = detectRoots(), platform = process.platform, hostname = os.hostname() }) {
     this.file = path.join(dir, 'sync-state.json');
     this.settings = settings;
     this.annotations = annotations;
+    this.cards = cards;
     this.onApplied = onApplied;
     this.onStatus = onStatus;
     this.roots = roots;
@@ -385,7 +403,7 @@ class SyncEngine {
       for (const f of files) merge(this.state.journal, f.items);
       // 3. Make this computer match, for every document that's here. A document already in this
       //    computer's lists counts as here even if the file has moved: syncing never drops it.
-      const listed = new Set([...local.settings.bookmarks, ...local.settings.recent, ...Object.keys(local.settings.positions || {}), ...Object.keys(local.annotations)].map((p) => this.norm(p)));
+      const listed = new Set([...local.settings.bookmarks, ...local.settings.recent, ...Object.keys(local.settings.positions || {}), ...Object.keys(local.annotations), ...Object.keys(local.cards)].map((p) => this.norm(p)));
       const exists = (p) => listed.has(this.norm(p)) || fs.existsSync(p);
       this.applying = true;
       let applied;
@@ -413,7 +431,11 @@ class SyncEngine {
     for (const entry of Object.values(this.annotations.data || {})) {
       if (entry && typeof entry.path === 'string' && Array.isArray(entry.items)) annotations[entry.path] = entry.items;
     }
-    return { settings: s, annotations };
+    const cards = {};
+    for (const entry of Object.values(this.cards?.data || {})) {
+      if (entry && typeof entry.path === 'string' && entry.items) cards[entry.path] = entry.items;
+    }
+    return { settings: s, annotations, cards };
   }
 
   /** Bring this computer in line with `want`. Only what differs is written. */
@@ -441,6 +463,10 @@ class SyncEngine {
     const annotationPaths = [];
     for (const [p, items] of want.annotations) {
       if (!same(this.annotations.get(p), items)) { this.annotations.set(p, items); annotationPaths.push(p); }
+    }
+    for (const [p, items] of want.cards) {
+      const merged = { ...this.cards?.get(p), ...items };
+      if (this.cards && !same(Object.entries(this.cards.get(p)).sort(), Object.entries(merged).sort())) this.cards.set(p, merged);
     }
     return { settings: settingsChanged, annotationPaths };
   }
