@@ -39,7 +39,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v3.4](#v34--claude-connected) | Claude, connected, and a first-run tutorial | ✅ Released ([3.4.1](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.4.1)) |
 | [v3.5](#v35--listen--speak) | Listen & speak | ✅ Released ([3.5.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.5.0)) |
 | [v3.6](#v36--study--research) | Study & research | ✅ Released ([3.6.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.6.0)) |
-| [v3.7](#v37--automate-with-n8n) | Automate with n8n | 🔨 In progress |
+| [v3.7](#v37--automate-with-n8n) | Automate with n8n | ✅ Released ([3.7.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.7.0)) |
 | [v3.8](#v38--notion) | Notion | Planned |
 | [v3.9](#v39--your-home-server) | Your home server | Planned |
 | [v3.10](#v310--publish-anywhere) | Publish anywhere | Planned |
@@ -263,7 +263,7 @@ updates itself from here on.
 
 ## v3.7 — Automate with n8n
 
-🔨 **In progress.** 🙋 Your own automations, run on your documents. n8n and similar tools will never know about this app, so the
+✅ **Released in [3.7.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.7.0).** 🙋 Your own automations, run on your documents. n8n and similar tools will never know about this app, so the
 app learns to talk to them (decision 12).
 
 | Feature | Size | Details |
