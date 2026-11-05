@@ -20,3 +20,9 @@
 .auto-to { margin: 0; font: 13px var(--font-mono); overflow-wrap: anywhere; color: var(--heading); }
 .auto-what { margin: 0; font-size: 13.5px; font-weight: 600; }
 .auto-sample { margin: 0; max-height: 200px; overflow: auto; padding: 10px 12px; border-radius: 8px; background: var(--code-bg); font: 12.5px var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+#pref-auto-open { align-self: flex-start; }
+#pref-inbound-on[hidden] { display: none; }
+#pref-inbound-on { display: flex; flex-direction: column; gap: 8px; }
+#pref-inbound-on .field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: var(--muted); }
+#pref-inbound-on input[readonly] { font: 13px var(--font-mono); padding: 7px 10px; border-radius: 8px; border: 1px solid var(--rule-strong); background: var(--code-bg); color: var(--text); min-width: 0; }
+.pref-inbound-buttons { display: flex; gap: 16px; }

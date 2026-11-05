@@ -682,6 +682,7 @@ function rebuildMenu() {
             cmd('reload', 'Reload File', 'F5'),
             cmd('reveal', 'Show in Folder'),
             cmd('copy-path', 'Copy File Path'),
+            cmd('send-linked', 'Send to Linked App…'),
             cmd('open-claude-code', 'Open Folder in Claude Code'),
             { type: 'separator' },
             cmd('lock-protect', 'Protect with Password…'),
@@ -706,7 +707,6 @@ function rebuildMenu() {
             ...addonExportItems(),
           ],
         },
-        cmd('send-linked', 'Send to Linked App…'),
         {
           label: 'Automations',
           submenu: [
