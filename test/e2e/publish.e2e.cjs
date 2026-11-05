@@ -242,7 +242,7 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   });
 
   await step('the custom theme is remembered and can be reset', async () => {
-    const s = await savedSettings((x) => x.brand?.stylesheet);
+    const s = await savedSettings((x) => x.brand?.stylesheet && x.brand?.panel && x.brand?.background);     // saved a moment after each change
     assert.equal(s.brand.accent, '#2b8a3e');
     assert.equal(s.brand.panel, '#12355b');
     assert.equal(s.brand.background, '#efe6d4');
