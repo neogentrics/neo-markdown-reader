@@ -41,7 +41,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v3.6](#v36--study--research) | Study & research | ✅ Released ([3.6.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.6.0)) |
 | [v3.7](#v37--automate-with-n8n) | Automate with n8n | ✅ Released ([3.7.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.7.0)) |
 | [v3.8](#v38--notion) | Notion | ✅ Released ([3.8.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.8.0)) |
-| [v3.9](#v39--your-home-server) | Your home server | Planned |
+| [v3.9](#v39--your-home-server) | Your home server | 🔨 In progress |
 | [v3.10](#v310--publish-anywhere) | Publish anywhere | Planned |
 | [v4.0](#v40--writing-studio) | Writing studio | Planned |
 | [Later](#later--only-if-needed) | Only if needed | Ideas |
@@ -285,7 +285,7 @@ app learns to talk to them (decision 12).
 
 ## v3.9 — Your home server
 
-🙋 Documents and publishing on servers you run yourself.
+🔨 **In progress.** 🙋 Documents and publishing on servers you run yourself.
 
 | Feature | Size | Details |
 |---|:-:|---|
