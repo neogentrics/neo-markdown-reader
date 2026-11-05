@@ -105,6 +105,18 @@ contextBridge.exposeInMainWorld('reader', {
   askFolder: invoke('ai:ask-folder'),
   peekDoc: invoke('doc:peek'),
   aiEdit: invoke('ai:edit'),
+  // automations (3.7)
+  autoList: invoke('auto:list'),
+  autoSave: invoke('auto:save'),
+  autoRemove: invoke('auto:remove'),
+  autoN8n: invoke('auto:n8n'),
+  autoPrepare: invoke('auto:prepare'),
+  autoSend: invoke('auto:send'),
+  autoStop: invoke('auto:stop'),
+  inboundStatus: invoke('inbound:status'),
+  inboundSet: invoke('inbound:set'),
+  inboundNewKey: invoke('inbound:new-key'),
+  onInboundDocument: on('inbound:document'),
   // smart search (3.6)
   smartStatus: invoke('smart:status'),
   smartEnable: invoke('smart:enable'),

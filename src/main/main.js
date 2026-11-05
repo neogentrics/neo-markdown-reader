@@ -31,6 +31,8 @@ const { scanFolder, searchFolder } = require('./folders');
 const { AnnotationStore } = require('./annotations');
 const flashcards = require('./flashcards');
 const bibliography = require('./bibliography');
+const automations = require('./automations');
+const { Inbound, newKey: newInboundKey, networkAddresses } = require('./inbound');
 const { SyncEngine } = require('./sync');
 const { VoiceStore, VOICES, LICENSE_URL } = require('./voices');
 const { LANGS: VOICE_LANGS } = require('./voice-text');
@@ -705,6 +707,14 @@ function rebuildMenu() {
           ],
         },
         cmd('send-linked', 'Send to Linked App…'),
+        {
+          label: 'Automations',
+          submenu: [
+            ...settings.get().automations.map((a) => ({ id: `auto-${a.id}`, label: a.name, click: () => command('run-automation', a.id) })),
+            ...(settings.get().automations.length ? [{ type: 'separator' }] : []),
+            cmd('automations', 'Manage Automations…'),
+          ],
+        },
         { id: 'print', label: 'Print…', accelerator: 'CmdOrCtrl+P', click: () => targetState()?.win.webContents.print({ printBackground: true }) },
         { type: 'separator' },
         cmd('close-tab', 'Close Tab', 'CmdOrCtrl+W'),
@@ -1213,6 +1223,71 @@ async function openFromLink({ from, name, text, path: file }) {
   st.win.webContents.send('link:document', { from, name, content: text });
 }
 
+// ---------------------------------------------------------------- automations (3.7)
+const automationFile = () => path.join(app.getPath('userData'), 'automation-keys.bin');
+let automationMemory = null;      // on a computer with no safe place for keys, they last until the app closes
+
+function loadSecrets() {
+  if (automationMemory) return automationMemory;
+  try { automationMemory = JSON.parse(safeStorage.decryptString(fs.readFileSync(automationFile()))); } catch { automationMemory = {}; }
+  return automationMemory;
+}
+
+function saveSecrets(patch) {
+  automationMemory = { ...loadSecrets(), ...patch };
+  if (secureStorage()) { try { fs.writeFileSync(automationFile(), safeStorage.encryptString(JSON.stringify(automationMemory))); } catch { /* kept until the app closes */ } }
+}
+
+let inbound = null;
+
+/** Add text to the end of a document: asks for permission like any edit, and keeps a backup and a History copy. */
+async function appendFromWorkflow({ path: file, text }) {
+  const full = path.resolve(file);
+  if (isLockedPath(full)) throw Object.assign(new Error('Password-locked documents can’t be changed this way.'), { status: 403 });
+  if (!isMarkdownPath(full)) throw Object.assign(new Error('Only Markdown documents can be changed this way.'), { status: 403 });
+  if (!fs.existsSync(full)) throw Object.assign(new Error('That document isn’t there.'), { status: 404 });
+  const st = targetState();
+  if (!st) throw Object.assign(new Error('RT Markdown Reader has no window open.'), { status: 503 });
+  if (!editing.isGranted(st, full)) {
+    const grant = await editing.requestEdit(st, full);
+    if (!grant.ok) throw Object.assign(new Error('The change wasn’t allowed.'), { status: 403 });
+  }
+  const now = await fs.promises.readFile(full, 'utf8');
+  await rewriteFile(full, `${now.replace(/\s*$/, '')}\n\n${text.trim()}\n`, 'workflow');
+}
+
+async function applyInbound() {
+  await inbound?.stop();
+  inbound = null;
+  if (!settings.get().inbound) return;
+  if (!loadSecrets().inbound) saveSecrets({ inbound: newInboundKey() });
+  const server = new Inbound({
+    key: () => loadSecrets().inbound || '',
+    port: Number(process.env.NMR_INBOUND_PORT) || undefined,
+    network: settings.get().inboundNetwork,
+    actions: {
+      create: async ({ name, content }) => {
+        const st = targetState();
+        if (!st) throw Object.assign(new Error('RT Markdown Reader has no window open.'), { status: 503 });
+        focusState(st);
+        st.win.webContents.send('inbound:document', { name: appLink.documentName(name), content });
+      },
+      open: ({ path: file }) => openFromLink({ path: file }).catch((err) => { throw Object.assign(err, { status: err.code === 'not_found' ? 404 : 403 }); }),
+      append: appendFromWorkflow,
+    },
+  });
+  await server.start();
+  inbound = server;
+}
+
+function inboundStatus() {
+  const s = settings.get();
+  return {
+    enabled: s.inbound, network: s.inboundNetwork, safe: secureStorage(), port: inbound?.port || 0,
+    key: s.inbound ? loadSecrets().inbound || '' : '', addresses: s.inboundNetwork ? networkAddresses() : [],
+  };
+}
+
 async function applyLink() {
   if (!settings.get().appLink) { await linkServer?.stop(); linkServer = null; return; }
   if (linkServer) return;
@@ -1703,6 +1778,100 @@ function registerIpc() {
     return aiRequest(e, req.id, req.action, content);
   });
   ipcMain.handle('ai:cancel', (_e, id) => { aiRuns.get(id)?.abort(); });
+
+  // ---- automations: your webhooks. The page names one by its id, so it can only ever reach an address you saved.
+  const autoJobs = new Map();         // token -> { action, payload, controller }
+  const autoState = () => {
+    const secrets = loadSecrets().actions || {};
+    return {
+      actions: settings.get().automations.map((a) => ({ ...a, host: automations.hostOf(a.url), hasSecret: !!secrets[a.id] })),
+      n8n: { url: settings.get().n8nUrl, hasKey: !!loadSecrets().n8n }, secure: secureStorage(),
+    };
+  };
+  ipcMain.handle('auto:list', () => autoState());
+  ipcMain.handle('auto:save', (_e, a = {}) => {
+    const clean = automations.cleanAction(a);
+    if (!clean) return { error: isStr(String(a.name || '').trim(), 60) ? 'Enter the whole web address, starting with http:// or https://, with no password in it.' : 'Give it a name.' };
+    const list = settings.get().automations;
+    setSetting({ automations: list.some((x) => x.id === clean.id) ? list.map((x) => (x.id === clean.id ? clean : x)) : [...list, clean] });
+    if (typeof a.secret === 'string' && a.secret.trim()) saveSecrets({ actions: { ...loadSecrets().actions, [clean.id]: a.secret.trim().slice(0, 2000) } });
+    return autoState();
+  });
+  ipcMain.handle('auto:remove', (_e, id) => {
+    setSetting({ automations: settings.get().automations.filter((x) => x.id !== id) });
+    const { [id]: gone, ...rest } = loadSecrets().actions || {};
+    saveSecrets({ actions: rest });
+    return autoState();
+  });
+  ipcMain.handle('auto:n8n', async (_e, req = {}) => {
+    const base = automations.n8nBase(req.url);
+    if (!base) return { error: 'Enter your n8n address, starting with http:// or https://.' };
+    const key = (typeof req.key === 'string' && req.key.trim()) || loadSecrets().n8n;
+    if (!key) return { error: 'Add your n8n API key to list workflows by name. Or use New Automation with a webhook’s address.' };
+    try {
+      const workflows = await automations.listWorkflows({ fetch: net.fetch, base, key });
+      setSetting({ n8nUrl: base });
+      saveSecrets({ n8n: key });
+      return { workflows, n8n: { url: base, hasKey: true } };
+    } catch (err) { return { error: err.message }; }
+  });
+  ipcMain.handle('auto:prepare', async (e, req = {}) => {
+    const st = stateFor(e);
+    const action = settings.get().automations.find((a) => a.id === req.id);
+    if (!st || !action) return { error: 'That automation isn’t there any more.' };
+    const payload = { app: 'RT Markdown Reader', version: app.getVersion(), action: action.name };
+    if (action.send === 'folder') {
+      const idx = await folderIndex(st);
+      if (!idx) return { error: 'Open a folder first.' };
+      const documents = [];
+      let bytes = 0;
+      for (const f of idx.files) {
+        const lines = idx.cache.get(f.path)?.lines;
+        if (!lines) continue;
+        const text = lines.join('\n');
+        bytes += Buffer.byteLength(text);
+        if (documents.length >= automations.MAX_FOLDER_FILES || bytes > automations.MAX_FOLDER_BYTES) return { error: 'That folder is too large to send at once (over 500 documents or 20 MB).' };
+        documents.push({ name: path.basename(f.path), path: f.rel.replace(/\\/g, '/'), text });
+      }
+      if (!documents.length) return { error: 'There are no documents in this folder.' };
+      payload.folder = path.basename(st.folder.root);
+      payload.documents = documents;
+    } else {
+      if (isStr(req.path, 4096) && isLockedPath(req.path)) return { error: 'Password-locked documents are never sent.' };
+      const text = typeof req.text === 'string' ? req.text : '';
+      const selection = typeof req.selection === 'string' ? req.selection : '';
+      if (action.send === 'selection' && !selection.trim()) return { error: 'Select some text first.' };
+      if (action.send === 'document' && !text.trim()) return { error: 'Open a document first.' };
+      payload.name = isStr(req.name, 500) ? req.name : '';
+      if (action.send === 'selection') payload.selection = selection; else payload.text = text;
+    }
+    const token = crypto.randomUUID();
+    autoJobs.set(token, { action, payload });
+    return { token, action, plain: !/^https:/i.test(action.url), ...automations.describeSend(payload) };
+  });
+  ipcMain.handle('auto:send', async (_e, req = {}) => {
+    const job = autoJobs.get(req.token);
+    if (!job) return { error: 'That was already sent, or was stopped.' };
+    job.controller = new AbortController();
+    try {
+      const text = await automations.callWebhook({ fetch: net.fetch, url: job.action.url, payload: job.payload, secret: loadSecrets().actions?.[job.action.id] || '', signal: job.controller.signal });
+      return { text };
+    } catch (err) { return { error: err.message }; } finally { autoJobs.delete(req.token); }
+  });
+  ipcMain.handle('auto:stop', (_e, token) => {
+    const job = autoJobs.get(token);
+    if (job?.controller) job.controller.abort(); else autoJobs.delete(token);
+  });
+  ipcMain.handle('inbound:status', () => inboundStatus());
+  ipcMain.handle('inbound:set', async (_e, patch = {}) => {
+    const next = {};
+    if (typeof patch.enabled === 'boolean') next.inbound = patch.enabled;
+    if (typeof patch.network === 'boolean') next.inboundNetwork = patch.network;
+    settings.update(next);
+    try { await applyInbound(); } catch { settings.update({ inbound: false }); await applyInbound().catch(() => {}); return { ...inboundStatus(), error: 'That address couldn’t be opened. Another program may be using it.' }; }
+    return inboundStatus();
+  });
+  ipcMain.handle('inbound:new-key', () => { saveSecrets({ inbound: newInboundKey() }); return inboundStatus(); });
 
   // ---- citations: sources from a file or from Zotero on this computer
   const bibCache = new Map();          // path -> { mtime, size, parsed }
@@ -2585,6 +2754,7 @@ app.whenReady().then(() => {
   sync.start();
   applyConnector().catch(() => {});
   applyLink().catch(() => {});
+  applyInbound().catch(() => {});
   voices = new VoiceStore({
     root: path.join(app.getPath('userData'), 'voices'),
     fetch: (url, opts) => net.fetch(url, opts),

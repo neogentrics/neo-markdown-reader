@@ -54,7 +54,10 @@ function detectRoots({ env = process.env, home = os.homedir(), platform = proces
     add('onedrive-business', env.OneDriveCommercial);
     add('dropbox', path.join(home, 'Dropbox'));
     add('icloud', path.join(home, 'iCloudDrive'));
-    for (const drive of ['G', 'H', 'I']) add('google-drive', `${drive}:\\My Drive`);
+    // Streaming puts My Drive on a drive letter you can choose. Mirroring keeps it in your home folder.
+    for (const drive of 'DEFGHIJKLMNOPQRSTUVWXYZ') add('google-drive', `${drive}:\\My Drive`);
+    add('google-drive', path.join(home, 'My Drive'));
+    add('google-drive', path.join(home, 'Google Drive'));
   } else if (platform === 'darwin') {
     const cs = path.join(home, 'Library', 'CloudStorage');
     for (const name of list(cs)) {
@@ -63,6 +66,8 @@ function detectRoots({ env = process.env, home = os.homedir(), platform = proces
       else if (/^Dropbox/i.test(name)) add('dropbox', path.join(cs, name));
       else if (/^GoogleDrive-/i.test(name)) add('google-drive', path.join(cs, name, 'My Drive'));
     }
+    add('google-drive', path.join(home, 'My Drive'));
+    add('google-drive', path.join(home, 'Google Drive'));
     add('icloud', path.join(home, 'Library', 'Mobile Documents', 'com~apple~CloudDocs'));
     add('dropbox', path.join(home, 'Dropbox'));
     add('onedrive', path.join(home, 'OneDrive'));

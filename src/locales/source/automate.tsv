@@ -1,0 +1,70 @@
+en	es	fr	de
+Automations	Automatizaciones	Automatisations	Automatisierungen
+Manage Automations…	Administrar automatizaciones…	Gérer les automatisations…	Automatisierungen verwalten…
+New Automation…	Nueva automatización…	Nouvelle automatisation…	Neue Automatisierung…
+New automation	Nueva automatización	Nouvelle automatisation	Neue Automatisierung
+Edit automation	Editar automatización	Modifier l’automatisation	Automatisierung bearbeiten
+No automations yet.	Todavía no hay automatizaciones.	Aucune automatisation pour l’instant.	Noch keine Automatisierungen.
+Send documents to your own workflows: n8n, Make, Zapier, Home Assistant or a script of your own. Each one becomes a command in	Envíe documentos a sus propios flujos: n8n, Make, Zapier, Home Assistant o un script propio. Cada uno se convierte en un comando en	Envoyez des documents à vos propres workflows : n8n, Make, Zapier, Home Assistant ou votre propre script. Chacun devient une commande dans	Senden Sie Dokumente an Ihre eigenen Workflows: n8n, Make, Zapier, Home Assistant oder ein eigenes Skript. Jeder wird zu einem Befehl unter
+File → Automations	Archivo → Automatizaciones	Fichier → Automatisations	Datei → Automatisierungen
+and in Quick Open.	y en Apertura rápida.	et dans Ouverture rapide.	und im Schnellöffnen.
+Your n8n	Su n8n	Votre n8n	Ihr n8n
+n8n address	Dirección de n8n	Adresse de n8n	n8n-Adresse
+API key	Clave de API	Clé d’API	API-Schlüssel
+Optional	Opcional	Facultatif	Optional
+A key is saved. Type a new one to replace it.	Hay una clave guardada. Escriba otra para reemplazarla.	Une clé est enregistrée. Saisissez-en une autre pour la remplacer.	Ein Schlüssel ist gespeichert. Geben Sie einen neuen ein, um ihn zu ersetzen.
+One is saved. Type a new one to replace it.	Hay uno guardado. Escriba otro para reemplazarlo.	Un en-tête est enregistré. Saisissez-en un autre pour le remplacer.	Einer ist gespeichert. Geben Sie einen neuen ein, um ihn zu ersetzen.
+Optional, for example: Bearer abc123	Opcional, por ejemplo: Bearer abc123	Facultatif, par exemple : Bearer abc123	Optional, zum Beispiel: Bearer abc123
+This computer has no safe place to keep keys, so they last until the app closes.	Este equipo no tiene un lugar seguro para guardar claves, así que duran hasta que se cierra la aplicación.	Cet ordinateur n’a pas d’emplacement sûr pour les clés : elles durent jusqu’à la fermeture de l’application.	Dieser Computer hat keinen sicheren Speicherort für Schlüssel. Sie gelten daher nur, bis die App geschlossen wird.
+This computer has no safe place to keep keys, so this one lasts until the app closes.	Este equipo no tiene un lugar seguro para guardar claves, así que esta dura hasta que se cierra la aplicación.	Cet ordinateur n’a pas d’emplacement sûr pour les clés : celle-ci dure jusqu’à la fermeture de l’application.	Dieser Computer hat keinen sicheren Speicherort für Schlüssel. Dieser gilt daher nur, bis die App geschlossen wird.
+List My Workflows	Listar mis flujos	Lister mes workflows	Meine Workflows auflisten
+Asking n8n…	Consultando a n8n…	Interrogation de n8n…	n8n wird gefragt…
+No workflows with a POST webhook were found.	No se encontraron flujos con un webhook POST.	Aucun workflow avec un webhook POST n’a été trouvé.	Es wurden keine Workflows mit einem POST-Webhook gefunden.
+Not active	Inactivo	Inactif	Nicht aktiv
+Add	Añadir	Ajouter	Hinzufügen
+Run	Ejecutar	Exécuter	Ausführen
+Edit	Editar	Modifier	Bearbeiten
+Edit {0}	Editar {0}	Modifier {0}	{0} bearbeiten
+Run {0}	Ejecutar {0}	Exécuter {0}	{0} ausführen
+Add {0}	Añadir {0}	Ajouter {0}	{0} hinzufügen
+Name	Nombre	Nom	Name
+Tidy my notes	Ordenar mis notas	Ranger mes notes	Notizen aufräumen
+Webhook address	Dirección del webhook	Adresse du webhook	Webhook-Adresse
+Send	Enviar	Envoyer	Senden
+The open document	El documento abierto	Le document ouvert	Das geöffnete Dokument
+The selected text	El texto seleccionado	Le texte sélectionné	Der ausgewählte Text
+Every document in the open folder	Todos los documentos de la carpeta abierta	Tous les documents du dossier ouvert	Alle Dokumente im geöffneten Ordner
+With the answer	Con la respuesta	Avec la réponse	Mit der Antwort
+Open a new document	Abrir un documento nuevo	Ouvrir un nouveau document	Neues Dokument öffnen
+Show it as a change	Mostrarla como un cambio	L’afficher comme une modification	Als Änderung zeigen
+Do nothing	No hacer nada	Ne rien faire	Nichts tun
+Authorization header	Cabecera de autorización	En-tête d’autorisation	Authorization-Header
+This will be sent to:	Esto se enviará a:	Ceci sera envoyé à :	Dies wird gesendet an:
+Sent. Waiting for the answer…	Enviado. Esperando la respuesta…	Envoyé. En attente de la réponse…	Gesendet. Warten auf die Antwort…
+This address isn’t encrypted, so anything sent could be read on the way. That’s usually fine inside your home network.	Esta dirección no está cifrada, así que lo enviado podría leerse por el camino. Dentro de su red doméstica no suele ser un problema.	Cette adresse n’est pas chiffrée : ce qui est envoyé pourrait être lu en chemin. Sur votre réseau domestique, c’est généralement sans risque.	Diese Adresse ist nicht verschlüsselt, Gesendetes könnte unterwegs gelesen werden. In Ihrem Heimnetz ist das meist in Ordnung.
+Suggested change	Cambio sugerido	Modification suggérée	Vorgeschlagene Änderung
+Sent to {0}	Enviado a {0}	Envoyé vers {0}	An {0} gesendet
+{0} finished, with nothing to show	{0} terminó, sin nada que mostrar	{0} a terminé, sans rien à afficher	{0} ist fertig, ohne etwas anzuzeigen
+Changed. Save the document to keep it.	Cambiado. Guarde el documento para conservarlo.	Modifié. Enregistrez le document pour le conserver.	Geändert. Speichern Sie das Dokument, um es zu behalten.
+The change couldn’t be made, because the document can’t be edited.	No se pudo hacer el cambio porque el documento no se puede editar.	La modification n’a pas pu être faite, car le document ne peut pas être modifié.	Die Änderung konnte nicht vorgenommen werden, weil das Dokument nicht bearbeitet werden kann.
+Sent by a workflow	Enviado por un flujo	Envoyé par un workflow	Von einem Workflow gesendet
+Let my workflows open and add to documents	Permitir que mis flujos abran documentos y añadan texto	Autoriser mes workflows à ouvrir des documents et à y ajouter du texte	Meinen Workflows erlauben, Dokumente zu öffnen und zu ergänzen
+Off until you turn it on. Workflows need the key below, web pages can’t use this address, and every change to a file still asks you first.	Desactivado hasta que lo active. Los flujos necesitan la clave de abajo, las páginas web no pueden usar esta dirección y cada cambio en un archivo se le pregunta antes.	Désactivé tant que vous ne l’activez pas. Les workflows ont besoin de la clé ci-dessous, les pages web ne peuvent pas utiliser cette adresse et toute modification d’un fichier vous est d’abord demandée.	Aus, bis Sie es einschalten. Workflows brauchen den Schlüssel unten, Webseiten können diese Adresse nicht nutzen, und jede Dateiänderung fragt Sie zuerst.
+Also allow other computers on my network	Permitir también otros equipos de mi red	Autoriser aussi les autres ordinateurs de mon réseau	Auch andere Computer in meinem Netzwerk erlauben
+Needed if n8n runs on another computer. The key travels unencrypted, so only use this on a network you trust.	Necesario si n8n se ejecuta en otro equipo. La clave viaja sin cifrar, así que úselo solo en una red de confianza.	Nécessaire si n8n tourne sur un autre ordinateur. La clé circule sans chiffrement : utilisez ceci uniquement sur un réseau de confiance.	Nötig, wenn n8n auf einem anderen Computer läuft. Der Schlüssel wird unverschlüsselt übertragen, nutzen Sie das nur in einem vertrauenswürdigen Netzwerk.
+Address	Dirección	Adresse	Adresse
+Key	Clave	Clé	Schlüssel
+Copy Key	Copiar clave	Copier la clé	Schlüssel kopieren
+Copied	Copiado	Copié	Kopiert
+Make a New Key	Crear una clave nueva	Créer une nouvelle clé	Neuen Schlüssel erstellen
+Enter your n8n address, starting with http:// or https://.	Escriba la dirección de n8n, empezando por http:// o https://.	Saisissez l’adresse de n8n, commençant par http:// ou https://.	Geben Sie Ihre n8n-Adresse ein, beginnend mit http:// oder https://.
+Add your n8n API key to list workflows by name. Or use New Automation with a webhook’s address.	Añada su clave de API de n8n para listar los flujos por nombre, o use Nueva automatización con la dirección de un webhook.	Ajoutez votre clé d’API n8n pour lister les workflows par nom, ou utilisez Nouvelle automatisation avec l’adresse d’un webhook.	Fügen Sie Ihren n8n-API-Schlüssel hinzu, um Workflows nach Namen aufzulisten, oder nutzen Sie Neue Automatisierung mit einer Webhook-Adresse.
+Enter the whole web address, starting with http:// or https://, with no password in it.	Escriba la dirección web completa, empezando por http:// o https://, sin contraseña.	Saisissez l’adresse web complète, commençant par http:// ou https://, sans mot de passe.	Geben Sie die vollständige Webadresse ein, beginnend mit http:// oder https://, ohne Passwort.
+Give it a name.	Póngale un nombre.	Donnez-lui un nom.	Geben Sie einen Namen ein.
+That automation isn’t there any more.	Esa automatización ya no existe.	Cette automatisation n’existe plus.	Diese Automatisierung gibt es nicht mehr.
+That folder is too large to send at once (over 500 documents or 20 MB).	Esa carpeta es demasiado grande para enviarla de una vez (más de 500 documentos o 20 MB).	Ce dossier est trop volumineux pour être envoyé en une fois (plus de 500 documents ou 20 Mo).	Dieser Ordner ist zu groß, um ihn auf einmal zu senden (über 500 Dokumente oder 20 MB).
+There are no documents in this folder.	No hay documentos en esta carpeta.	Il n’y a aucun document dans ce dossier.	In diesem Ordner sind keine Dokumente.
+Password-locked documents are never sent.	Los documentos protegidos con contraseña nunca se envían.	Les documents protégés par mot de passe ne sont jamais envoyés.	Passwortgeschützte Dokumente werden nie gesendet.
+Select some text first.	Seleccione primero algo de texto.	Sélectionnez d’abord du texte.	Wählen Sie zuerst Text aus.
+That was already sent, or was stopped.	Eso ya se envió o se detuvo.	Cela a déjà été envoyé ou a été arrêté.	Das wurde bereits gesendet oder angehalten.
+That address couldn’t be opened. Another program may be using it.	No se pudo abrir esa dirección. Puede que otro programa la esté usando.	Cette adresse n’a pas pu être ouverte. Un autre programme l’utilise peut-être.	Diese Adresse konnte nicht geöffnet werden. Möglicherweise nutzt ein anderes Programm sie.
