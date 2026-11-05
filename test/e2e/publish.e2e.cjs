@@ -231,7 +231,8 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     for (const theme of ['blue', 'dark', 'light']) {
       await win.evaluate((t) => window.reader.setSettings({ theme: t }), theme);
       await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);
-      assert.equal(await win.evaluate(() => getComputedStyle(document.getElementById('btn-open')).backgroundColor), 'rgb(43, 138, 62)', `Open is your exact colour in ${theme}`);
+      // Colours fade when the theme changes, so give it a moment to settle.
+      await win.waitForFunction(() => getComputedStyle(document.getElementById('btn-open')).backgroundColor === 'rgb(43, 138, 62)');
     }
     await menu('customize-theme');
     await win.waitForSelector('#theme-dlg[open]');
