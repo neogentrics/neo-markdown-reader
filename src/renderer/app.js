@@ -15,6 +15,7 @@ import { addRunButtons } from './run-ui.js';
 import { createAiUi } from './ai-ui.js';
 import { createCardsUi } from './cards-ui.js';
 import { createCiteUi } from './cite-ui.js';
+import { createAutoUi } from './auto-ui.js';
 import { createHistoryUi } from './history-ui.js';
 import { createKeysUi } from './keys-ui.js';
 import { createNotesUi } from './notes-ui.js';
@@ -66,6 +67,7 @@ let publish = null;
 let presenter = null;
 let cardsUi = null;
 let citeUi = null;
+let autoUi = null;
 let themeUi = null;
 let lockUi = null;
 let aiUi = null;
@@ -919,6 +921,11 @@ async function sendToLinkedApp() {
   else if (res?.name) toast(`Sent to ${res.name}`);
 }
 
+api.onInboundDocument(async ({ name, content }) => {
+  await editMode.newDocument('blank', { name, content });
+  toast('Sent by a workflow');
+});
+
 api.onLinkDocument(async ({ from, name, content }) => {
   await editMode.newDocument('blank', { name, content });
   toast(`Sent from ${from}`);
@@ -1009,6 +1016,8 @@ api.onCommand(({ cmd, arg }) => {
     case 'ai-report': aiUi.run('report'); break;
     case 'ai-cards': cardsUi.openDraft(); break;
     case 'citations': citeUi.open(); break;
+    case 'automations': autoUi.open(); break;
+    case 'run-automation': autoUi.run(arg); break;
     case 'study': cardsUi.open(); break;
     case 'ai-settings': aiUi.openSettings(); break;
     case 'ai-folder': aiUi.askFolder(); break;
@@ -1287,6 +1296,27 @@ aiUi = createAiUi({
     const st = view.state;
     const { from, to } = st.selection.main;
     return { tab, from, to, text: st.sliceDoc(from, to), before: st.sliceDoc(Math.max(0, from - 2000), from), after: st.sliceDoc(to, Math.min(st.doc.length, to + 2000)) };
+  },
+});
+autoUi = createAutoUi({
+  api, toast, activeTab,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
+  folder: () => sidebar.folder(),
+  /** What's selected: in the editor with its place in the document, or on the page. */
+  selectionOf(t) {
+    const view = t.editing && t.editor?.view;
+    if (view) {
+      const { from, to } = view.state.selection.main;
+      return from === to ? null : { text: view.state.sliceDoc(from, to), from, to };
+    }
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !t.el.contains(sel.anchorNode)) return null;
+    return { text: sel.toString() };
+  },
+  newDocument: (given) => editMode.newDocument('blank', given),
+  async enterEditor(tab) {
+    await editMode.enter(tab);
+    return (tab.editing && tab.editor?.view) || null;
   },
 });
 citeUi = createCiteUi({

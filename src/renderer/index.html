@@ -326,6 +326,51 @@
     </div>
   </dialog>
 
+  <dialog class="shortcuts auto-dlg" id="auto-dlg" aria-labelledby="auto-h">
+    <section id="auto-list-page">
+      <div class="ai-head"><h3 id="auto-h">Automations</h3><button type="button" class="tb-btn sm" id="auto-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <p class="hint-text">Send documents to your own workflows: n8n, Make, Zapier, Home Assistant or a script of your own. Each one becomes a command in <em>File → Automations</em> and in Quick Open.</p>
+      <ul class="auto-rows" id="auto-actions"></ul>
+      <p class="hint-text" id="auto-none">No automations yet.</p>
+      <div class="auto-actions"><button type="button" class="big-btn sm" id="auto-new">New Automation…</button></div>
+      <h4>Your n8n</h4>
+      <div class="auto-two">
+        <label class="field">n8n address<input id="n8n-url" type="url" spellcheck="false" autocomplete="off" placeholder="http://192.168.1.10:5678"></label>
+        <label class="field">API key<input id="n8n-key" type="password" spellcheck="false" autocomplete="off"></label>
+      </div>
+      <p class="hint-text" id="auto-insecure" hidden>This computer has no safe place to keep keys, so they last until the app closes.</p>
+      <div class="auto-actions"><button type="button" class="link-btn" id="n8n-go">List My Workflows</button></div>
+      <p class="hint-text" id="n8n-msg" role="status"></p>
+      <ul class="auto-rows" id="n8n-list"></ul>
+    </section>
+    <section id="auto-edit-page" hidden>
+      <h3 id="auto-edit-h">New automation</h3>
+      <label class="field">Name<input id="auto-name" type="text" autocomplete="off" maxlength="60" placeholder="Tidy my notes"></label>
+      <label class="field">Webhook address<input id="auto-url" type="url" spellcheck="false" autocomplete="off" placeholder="https://n8n.example.com/webhook/tidy"></label>
+      <div class="auto-two">
+        <label class="field">Send<select id="auto-send-what"><option value="document">The open document</option><option value="selection">The selected text</option><option value="folder">Every document in the open folder</option></select></label>
+        <label class="field">With the answer<select id="auto-result"><option value="document">Open a new document</option><option value="change">Show it as a change</option><option value="none">Do nothing</option></select></label>
+      </div>
+      <label class="field">Authorization header<input id="auto-secret" type="password" spellcheck="false" autocomplete="off"></label>
+      <p class="hint-text" id="auto-edit-msg" role="status"></p>
+      <div class="auto-actions"><button type="button" class="link-btn" id="auto-delete" hidden>Remove</button><span class="spacer"></span><button type="button" class="link-btn" id="auto-edit-cancel">Cancel</button><button type="button" class="big-btn sm" id="auto-edit-save">Save</button></div>
+    </section>
+    <section id="auto-send-page" hidden>
+      <h3 id="auto-send-h" translate="no"></h3>
+      <p class="hint-text">This will be sent to:</p>
+      <p class="auto-to" id="auto-send-to" translate="no"></p>
+      <p class="auto-what" id="auto-send-summary"></p>
+      <pre class="auto-sample" id="auto-send-sample" translate="no"></pre>
+      <p class="hint-text" id="auto-send-msg" role="status"></p>
+      <div class="auto-actions"><span class="spacer"></span><button type="button" class="link-btn" id="auto-send-cancel">Cancel</button><button type="button" class="link-btn" id="auto-send-stop" hidden>Stop</button><button type="button" class="big-btn sm" id="auto-go">Send</button></div>
+    </section>
+    <section id="auto-change-page" hidden>
+      <h3>Suggested change</h3>
+      <div class="ai-edit-diff" id="auto-diff" translate="no"></div>
+      <div class="auto-actions"><span class="spacer"></span><button type="button" class="link-btn" id="auto-reject">Reject</button><button type="button" class="big-btn sm" id="auto-accept">Accept</button></div>
+    </section>
+  </dialog>
+
   <dialog class="shortcuts cite-dlg" id="cite-dlg" aria-labelledby="cite-h">
     <div class="ai-head"><h3 id="cite-h">Citations</h3><button type="button" class="tb-btn sm" id="cite-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="cite-source">
@@ -638,6 +683,7 @@ Term
         <button type="button" role="tab" data-pane="ai">AI and Claude</button>
         <button type="button" role="tab" data-pane="sync">Sync</button>
         <button type="button" role="tab" data-pane="link">Linked Apps</button>
+        <button type="button" role="tab" data-pane="automate">Automations</button>
         <button type="button" role="tab" data-pane="shortcuts">Shortcuts</button>
       </div>
       <div class="prefs-panes">
@@ -691,6 +737,19 @@ Term
           <p class="hint-text">Linked apps can send each other documents. You approve each app once, and no account is needed.</p>
           <ul class="link-list" id="pref-link-list"></ul>
           <p class="hint-text" id="pref-link-status"></p>
+        </section>
+        <section class="prefs-pane" data-pane="automate" hidden>
+          <button type="button" class="big-btn sm" id="pref-auto-open">Manage Automations…</button>
+          <label class="check"><input type="checkbox" id="pref-inbound"> Let my workflows open and add to documents</label>
+          <p class="hint-text">Off until you turn it on. Workflows need the key below, web pages can’t use this address, and every change to a file still asks you first.</p>
+          <div id="pref-inbound-on" hidden>
+            <label class="check"><input type="checkbox" id="pref-inbound-network"> Also allow other computers on my network</label>
+            <p class="hint-text">Needed if n8n runs on another computer. The key travels unencrypted, so only use this on a network you trust.</p>
+            <label class="field">Address<input id="pref-inbound-url" type="text" readonly spellcheck="false"></label>
+            <label class="field">Key<input id="pref-inbound-key" type="text" readonly spellcheck="false"></label>
+            <div class="pref-inbound-buttons"><button type="button" class="link-btn" id="pref-inbound-copy">Copy Key</button><button type="button" class="link-btn" id="pref-inbound-new">Make a New Key</button></div>
+          </div>
+          <p class="hint-text" id="pref-inbound-msg" role="status"></p>
         </section>
         <section class="prefs-pane" data-pane="shortcuts" hidden>
           <p class="hint-text">See the keyboard shortcuts, or change any of them to suit you.</p>

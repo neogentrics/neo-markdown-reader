@@ -4,6 +4,22 @@ All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.7.0] - Unreleased
+
+### Added
+- **Automations** (*File → Automations*): any webhook becomes a command, in the menu and in Quick Open. n8n, Make, Zapier,
+  Home Assistant or your own script gets the open document, the selected text or every document in the open folder. The
+  answer opens as a new document or shows as a change you accept or reject. The app always shows what will be sent, and
+  where, before anything goes. Locked documents are never sent.
+- **Your n8n workflows by name:** add your n8n address and API key, and pick from your workflows instead of pasting
+  webhook addresses.
+- **Let workflows open documents** (*Preferences → Automations*): off until you turn it on. A key-protected address that
+  your workflows can call to create, open or add to a document. Every change to a file still asks you first.
+  `docs/automations.md` has the details.
+
+### Changed
+- **Sync** finds Google Drive on any drive letter, and in mirrored folders too.
+
 ## [3.6.3] - 2026-11-04
 
 ### Fixed

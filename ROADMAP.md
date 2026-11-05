@@ -268,10 +268,10 @@ app learns to talk to them (decision 12).
 
 | Feature | Size | Details |
 |---|:-:|---|
-| 🙋🛡️ Run n8n workflows | M | Pick a workflow and send it the open document, the selection, or documents from the open folder. What it answers opens as a new document or appears as a change you accept or reject. With your n8n API key, the list shows your workflows by name; the app always shows what will be sent before it goes. |
-| 🛡️ Your own actions | S | Any webhook (n8n, Make, Zapier, Home Assistant, or your own script) becomes a command in the menu and in `Ctrl+K`, with its own name and what it receives. |
-| 🛡️ Let workflows open documents | M | Off until you turn it on: an address on this computer that your workflows can call to open, create or add to a document, protected by a key only you have. Every change still goes through the edit-permission prompt. |
-| 🙋 Find Google Drive however it's set up | S | Sync already works through Google Drive for desktop. It now finds Drive on any drive letter, and in mirrored folders too. |
+| ✅ 🙋🛡️ Run n8n workflows | M | Pick a workflow and send it the open document, the selection, or documents from the open folder. What it answers opens as a new document or appears as a change you accept or reject. With your n8n API key, the list shows your workflows by name; the app always shows what will be sent before it goes. |
+| ✅ 🛡️ Your own actions | S | Any webhook (n8n, Make, Zapier, Home Assistant, or your own script) becomes a command in the menu and in `Ctrl+K`, with its own name and what it receives. |
+| ✅ 🛡️ Let workflows open documents | M | Off until you turn it on: an address on this computer that your workflows can call to open, create or add to a document, protected by a key only you have. Every change still goes through the edit-permission prompt. |
+| ✅ 🙋 Find Google Drive however it's set up | S | Sync already works through Google Drive for desktop. It now finds Drive on any drive letter, and in mirrored folders too. |
 
 ## v3.8 — Notion
 

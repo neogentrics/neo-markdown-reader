@@ -66,6 +66,7 @@ The builds aren't code-signed yet, so Windows may show a SmartScreen warning the
 | **Automatic updates** | The installed app downloads new versions; *Restart to update* installs them without any installer screens |
 | **Listen & speak** *(new in 3.5)* | Export a document as an MP3 or an audiobook with chapters, dictate instead of typing, read aloud through your slides, teach the voices how to say names, and choose your speakers and microphone ([details](#listen--speak)) |
 | **Linked apps** *(new in 3.6)* | Link other Recon Towers apps on your computer and send documents between them, with no accounts ([details](help/09-sync.md)) |
+| **Automations** *(new in 3.7)* | Send documents to n8n, Make, Zapier, Home Assistant or your own script, and get the answer back as a document or a change ([details](help/07-ai.md)) |
 | **Smart search** *(new in 3.6)* | Find documents by what they mean, not only their exact words, with *Related documents* under the outline. Runs on your computer after a one-time download ([details](help/04-folders.md)) |
 | **Citations** *(new in 3.6)* | Cite with `[@key]` from a BibTeX or CSL JSON file or Zotero, with the reference list built for you in APA, MLA, Chicago, IEEE or Harvard ([details](help/03-editing.md)) |
 | **Flashcards** *(new in 3.6)* | `Q:` / `A:` lines and definitions become flashcards with spaced repetition, a quiz, and optional AI drafts from a chapter ([details](help/02-reading.md)) |
@@ -823,6 +824,8 @@ src/
 │   ├── annotations.js    private highlights & notes (stored in app data, never in the file)
 │   ├── flashcards.js     finds cards in a document, and works out when each comes back
 │   ├── bibliography.js   reads sources from BibTeX, CSL JSON and Zotero
+│   ├── automations.js    your webhooks as commands, and your n8n workflows by name
+│   ├── inbound.js        the key-protected address workflows can call
 │   ├── smart-search.js   smart search: the verified download, and talking to its process
 │   ├── smart-worker.js   that process: reads a folder for meaning (bundled into dist/)
 │   ├── smart-core.js     passages, the tokenizer, and the index of vectors

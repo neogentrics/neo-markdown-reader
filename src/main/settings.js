@@ -1,6 +1,7 @@
 'use strict';
 // JSON settings store kept in the per-user app-data folder
 // (Windows: %APPDATA%\RT Markdown Reader\settings.json, or Neo Markdown Reader for anyone who used the app under that name).
+const automations = require('./automations');
 const fs = require('node:fs');
 const { cleanAiSettings } = require('./ai-providers');
 const path = require('node:path');
@@ -31,6 +32,10 @@ const DEFAULTS = Object.freeze({
   brand: null,            // custom theme: accent, panel and background colours, fonts, brand stylesheet (see BRAND_DEFAULTS)
   shortcuts: {},          // your own keyboard shortcuts: menu command id -> accelerator ('' = none)
   wikiLinks: 'wiki',      // wiki | markdown — what the editor inserts when you pick a document after [[
+  automations: [],        // your webhooks as commands (3.7); any secrets are kept apart, encrypted
+  n8nUrl: '',             // your n8n server, for listing workflows by name
+  inbound: false,         // let workflows open documents (3.7): off until you turn it on
+  inboundNetwork: false,  // ...from other computers on your network as well
   smartSearch: false,     // search by meaning (3.6): off until you turn it on; never synced
   citeStyle: 'apa',       // apa | mla | chicago | ieee | harvard — unless a document sets its own
   citeLibrary: '',        // your sources: a .bib or .json file, or 'zotero'; never synced
@@ -172,6 +177,10 @@ function sanitize(input) {
   if (['wiki', 'markdown'].includes(input.wikiLinks)) s.wikiLinks = input.wikiLinks;
   if (['apa', 'mla', 'chicago', 'ieee', 'harvard'].includes(input.citeStyle)) s.citeStyle = input.citeStyle;
   if (typeof input.smartSearch === 'boolean') s.smartSearch = input.smartSearch;
+  s.automations = automations.cleanActions(input.automations);
+  if (typeof input.n8nUrl === 'string') s.n8nUrl = automations.n8nBase(input.n8nUrl);
+  if (typeof input.inbound === 'boolean') s.inbound = input.inbound;
+  if (typeof input.inboundNetwork === 'boolean') s.inboundNetwork = input.inboundNetwork;
   if (typeof input.citeLibrary === 'string' && input.citeLibrary.length <= 4096) s.citeLibrary = input.citeLibrary;
   if (['system', 'en', 'es', 'fr', 'de'].includes(input.language)) s.language = input.language;
   if (Array.isArray(input.addonsOff)) s.addonsOff = [...new Set(input.addonsOff.filter((x) => typeof x === 'string' && /^[a-z0-9][a-z0-9-]{1,39}$/.test(x)))].slice(0, 200);

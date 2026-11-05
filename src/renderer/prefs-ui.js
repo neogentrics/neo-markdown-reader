@@ -32,6 +32,21 @@ export function createPrefsUi({ api, settings, toast, refreshVoices, openHelp })
     $('pref-run').checked = s.runCode !== 'off';
   }
 
+  async function paintInbound(given) {
+    const s = given || await api.inboundStatus();
+    $('pref-inbound').checked = s.enabled;
+    $('pref-inbound-on').hidden = !s.enabled;
+    $('pref-inbound-network').checked = s.network;
+    $('pref-inbound-url').value = s.port ? `http://${s.network ? s.addresses[0] || '127.0.0.1' : '127.0.0.1'}:${s.port}/v1/documents` : '';
+    $('pref-inbound-key').value = s.key;
+    $('pref-inbound-msg').textContent = s.error || (s.enabled && !s.safe ? 'This computer has no safe place to keep keys, so this one lasts until the app closes.' : '');
+  }
+  $('pref-inbound').onchange = async () => paintInbound(await api.inboundSet({ enabled: $('pref-inbound').checked }));
+  $('pref-inbound-network').onchange = async () => paintInbound(await api.inboundSet({ network: $('pref-inbound-network').checked }));
+  $('pref-inbound-new').onclick = async () => paintInbound(await api.inboundNewKey());
+  $('pref-inbound-copy').onclick = async () => { await api.copyText($('pref-inbound-key').value); toast('Copied'); };
+  $('pref-auto-open').onclick = () => { dlg.close(); api.runCommand('automations'); };
+
   async function paintLink(given) {
     const link = given || await api.linkStatus();
     $('pref-link').checked = link.enabled;
