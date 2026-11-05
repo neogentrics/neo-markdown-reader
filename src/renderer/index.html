@@ -60,6 +60,12 @@
     <button class="tb-btn sm" id="update-dismiss" title="Dismiss" aria-label="Dismiss"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
 
+  <div class="disk-banner" id="notion-banner" hidden role="status">
+    <span>This document’s Notion page has changed.</span>
+    <button class="link-btn" id="notion-compare">Compare</button>
+    <button class="link-btn" id="notion-bring-changes">Bring In Changes</button>
+    <button class="link-btn" id="notion-not-now">Not Now</button>
+  </div>
   <div class="find-bar" id="find-bar" hidden>
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
     <input id="find-input" type="text" placeholder="Find in document" spellcheck="false">
@@ -368,6 +374,48 @@
       <h3>Suggested change</h3>
       <div class="ai-edit-diff" id="auto-diff" translate="no"></div>
       <div class="auto-actions"><span class="spacer"></span><button type="button" class="link-btn" id="auto-reject">Reject</button><button type="button" class="big-btn sm" id="auto-accept">Accept</button></div>
+    </section>
+  </dialog>
+
+  <dialog class="shortcuts auto-dlg" id="notion-dlg" aria-labelledby="notion-setup-h">
+    <section id="notion-setup-page">
+      <h3 id="notion-setup-h">Connect to Notion</h3>
+      <p class="hint-text" id="notion-connected" hidden>You’re connected. Your key is kept on this computer and only ever goes to Notion.</p>
+      <ol class="notion-steps" id="notion-steps">
+        <li>In Notion, open <em>Settings</em>, then <em>Connections</em>, and choose <em>Develop or manage integrations</em>.</li>
+        <li>Make a new internal integration, and copy its secret.</li>
+        <li>On each page you want here, use the ••• menu, then <em>Connections</em>, and add it.</li>
+      </ol>
+      <label class="field">Key<input id="notion-key" type="password" spellcheck="false" autocomplete="off"></label>
+      <p class="hint-text" id="notion-insecure" hidden>This computer has no safe place to keep keys, so they last until the app closes.</p>
+      <p class="hint-text" id="notion-setup-msg" role="status"></p>
+      <div class="auto-actions"><button type="button" class="link-btn" id="notion-disconnect" hidden>Disconnect</button><span class="spacer"></span><button type="button" class="link-btn" id="notion-setup-close">Close</button><button type="button" class="big-btn sm" id="notion-connect">Connect</button></div>
+    </section>
+    <section id="notion-pick-page" hidden>
+      <h3 id="notion-pick-h"></h3>
+      <p class="hint-text" id="notion-pick-hint"></p>
+      <label class="field">Find<input id="notion-search" type="search" spellcheck="false" autocomplete="off"></label>
+      <div class="auto-actions"><button type="button" class="big-btn sm" id="notion-use-link" hidden>Use This Link</button></div>
+      <p class="hint-text" id="notion-pick-msg" role="status"></p>
+      <ul class="auto-rows notion-rows" id="notion-results"></ul>
+      <div class="auto-actions"><span class="spacer"></span><button type="button" class="link-btn" id="notion-pick-cancel">Cancel</button></div>
+    </section>
+    <section id="notion-bring-page" hidden>
+      <h3 id="notion-bring-h" translate="no"></h3>
+      <p class="auto-what" id="notion-bring-what"></p>
+      <p class="hint-text" id="notion-bring-pictures"></p>
+      <label class="check" id="notion-linked-row"><input type="checkbox" id="notion-keep-linked"> Keep it linked to this page</label>
+      <p class="hint-text" id="notion-bring-msg" role="status"></p>
+      <div class="auto-actions"><span class="spacer"></span><button type="button" class="link-btn" id="notion-bring-cancel">Cancel</button><button type="button" class="link-btn" id="notion-just-open">Just Open It</button><button type="button" class="big-btn sm" id="notion-save">Save as Markdown…</button></div>
+    </section>
+    <section id="notion-send-page" hidden>
+      <h3 id="notion-send-h"></h3>
+      <p class="auto-to" id="notion-send-to" translate="no"></p>
+      <p class="auto-what" id="notion-send-what"></p>
+      <div class="ai-edit-diff" id="notion-diff" translate="no"></div>
+      <p class="hint-text" id="notion-send-notes"></p>
+      <p class="hint-text" id="notion-send-msg" role="status"></p>
+      <div class="auto-actions"><button type="button" class="link-btn" id="notion-send-new">Send as a New Page Instead…</button><span class="spacer"></span><button type="button" class="link-btn" id="notion-send-cancel">Cancel</button><button type="button" class="big-btn sm" id="notion-go">Send</button></div>
     </section>
   </dialog>
 
@@ -739,7 +787,7 @@ Term
           <p class="hint-text" id="pref-link-status"></p>
         </section>
         <section class="prefs-pane" data-pane="automate" hidden>
-          <button type="button" class="big-btn sm" id="pref-auto-open">Manage Automations…</button>
+          <div class="pref-auto-buttons"><button type="button" class="big-btn sm" id="pref-auto-open">Manage Automations…</button><button type="button" class="big-btn sm" id="pref-notion-open">Notion Connection…</button></div>
           <label class="check"><input type="checkbox" id="pref-inbound"> Let my workflows open and add to documents</label>
           <p class="hint-text">Off until you turn it on. Workflows need the key below, web pages can’t use this address, and every change to a file still asks you first.</p>
           <div id="pref-inbound-on" hidden>

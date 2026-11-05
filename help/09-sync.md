@@ -18,3 +18,15 @@ Other Recon Towers apps on this computer can link with RT Markdown Reader, so yo
 
 A document sent to you opens as a new, unsaved document, so nothing is saved until you save it. A linked app can't read
 or change your documents on its own, and password-locked documents are never sent. Remove a link in the same place.
+
+## Notion
+
+Choose **File → Notion → Bring In a Notion Page…** to open a page as Markdown, or a database as a table. The first time, the app shows how to make a key in Notion and share your pages with it.
+
+**Save as Markdown…** keeps a copy of Notion's pictures beside your document, because links to them stop working after about an hour. With **Keep it linked** on, you can send your changes back.
+
+**File → Notion → Send to Notion…** shows what will change before anything happens. Only the parts you changed are sent, so colours and mentions elsewhere on the page stay as they are. A document that isn't linked yet becomes a new page under the one you choose.
+
+When a linked page changes in Notion, a note appears at the top. **Compare** shows both, and **Bring In Changes** puts Notion's version in the editor for you to save.
+
+Pictures on your computer aren't sent, and password-locked documents never are.

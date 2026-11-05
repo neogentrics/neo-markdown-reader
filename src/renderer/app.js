@@ -16,6 +16,7 @@ import { createAiUi } from './ai-ui.js';
 import { createCardsUi } from './cards-ui.js';
 import { createCiteUi } from './cite-ui.js';
 import { createAutoUi } from './auto-ui.js';
+import { createNotionUi } from './notion-ui.js';
 import { createHistoryUi } from './history-ui.js';
 import { createKeysUi } from './keys-ui.js';
 import { createNotesUi } from './notes-ui.js';
@@ -68,6 +69,7 @@ let presenter = null;
 let cardsUi = null;
 let citeUi = null;
 let autoUi = null;
+let notionUi = null;
 let themeUi = null;
 let lockUi = null;
 let aiUi = null;
@@ -253,7 +255,7 @@ function activate(id) {
   next.btn.tabIndex = 0;                       // the active tab is the one Tab key lands on
   next.btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   if (!els.findBar.hidden) closeFind();
-  if (prev !== next) { readUi?.tabChanged(); dictateUi?.tabChanged(); }
+  if (prev !== next) { readUi?.tabChanged(); dictateUi?.tabChanged(); notionUi?.tabChanged(); }
   split?.afterActivate(prev, next);
   showActiveDoc();
   editMode?.show(next);
@@ -1017,6 +1019,11 @@ api.onCommand(({ cmd, arg }) => {
     case 'ai-cards': cardsUi.openDraft(); break;
     case 'citations': citeUi.open(); break;
     case 'automations': autoUi.open(); break;
+    case 'notion-bring': notionUi.bring(); break;
+    case 'notion-send': notionUi.send(); break;
+    case 'notion-compare': notionUi.compare(); break;
+    case 'notion-open': notionUi.open(); break;
+    case 'notion-setup': notionUi.setup(); break;
     case 'run-automation': autoUi.run(arg); break;
     case 'study': cardsUi.open(); break;
     case 'ai-settings': aiUi.openSettings(); break;
@@ -1313,6 +1320,15 @@ autoUi = createAutoUi({
     if (!sel || sel.isCollapsed || !t.el.contains(sel.anchorNode)) return null;
     return { text: sel.toString() };
   },
+  newDocument: (given) => editMode.newDocument('blank', given),
+  async enterEditor(tab) {
+    await editMode.enter(tab);
+    return (tab.editing && tab.editor?.view) || null;
+  },
+});
+notionUi = createNotionUi({
+  api, toast, activeTab, openCompare,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
   newDocument: (given) => editMode.newDocument('blank', given),
   async enterEditor(tab) {
     await editMode.enter(tab);
