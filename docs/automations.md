@@ -25,6 +25,8 @@ Turn this on in *Preferences → Automations*. Every request needs `Authorizatio
 
 The address is `http://127.0.0.1:41731`, or this computer's network address if you allow other computers. That traffic isn't encrypted, so only allow it on a network you trust.
 
+In n8n, use an HTTP Request node with an `Authorization` header of `Bearer <key>`. If n8n runs on another computer, Windows may ask whether to let the app through its firewall the first time.
+
 | Request | Body | Does |
 |---|---|---|
 | `GET /v1/status` | | Says the app is there |

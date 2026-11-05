@@ -19,11 +19,19 @@ function sameKey(a, b) {
   return crypto.timingSafeEqual(x, y);
 }
 
-/** Addresses this computer has on its network, for showing to the person setting up a workflow. */
+const VIRTUAL = /vethernet|hyper-?v|wsl|docker|vmware|virtualbox|vbox|loopback|br-|veth|utun|tailscale|wireguard|wg\d/i;
+const rank = (ip) => (ip.startsWith('192.168.') ? 0 : ip.startsWith('10.') ? 1 : /^172\.(?:1[6-9]|2\d|3[01])\./.test(ip) ? 2 : 3);
+
+/**
+ * Addresses this computer has on its network, for showing to the person setting up a workflow. The likeliest
+ * comes first: real network cards before the virtual ones that Hyper-V, WSL and VPNs add.
+ */
 function networkAddresses(list = os.networkInterfaces()) {
   const out = [];
-  for (const nets of Object.values(list)) for (const n of nets || []) if (n.family === 'IPv4' && !n.internal) out.push(n.address);
-  return out;
+  for (const [name, nets] of Object.entries(list)) {
+    for (const n of nets || []) if (n.family === 'IPv4' && !n.internal) out.push({ ip: n.address, virtual: VIRTUAL.test(name) });
+  }
+  return out.sort((a, b) => Number(a.virtual) - Number(b.virtual) || rank(a.ip) - rank(b.ip)).map((a) => a.ip);
 }
 
 const LOCAL_HOST = /^(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?$/i;

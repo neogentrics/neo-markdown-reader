@@ -217,6 +217,17 @@ test('network addresses leave out this computer’s own', () => {
   assert.deepEqual(networkAddresses({ lo: [{ family: 'IPv4', internal: true, address: '127.0.0.1' }], eth: [{ family: 'IPv4', internal: false, address: '192.168.1.5' }, { family: 'IPv6', internal: false, address: 'fe80::1' }] }), ['192.168.1.5']);
 });
 
+test('your real network address comes before the virtual ones', () => {
+  // As on a Windows PC with Hyper-V and WSL: the virtual adapters are listed first.
+  const list = {
+    'vEthernet (Default Switch)': [{ family: 'IPv4', internal: false, address: '172.25.112.1' }],
+    'vEthernet (WSL)': [{ family: 'IPv4', internal: false, address: '172.23.192.1' }],
+    Ethernet: [{ family: 'IPv4', internal: false, address: '192.168.10.71' }],
+    'Wi-Fi': [{ family: 'IPv4', internal: false, address: '10.0.0.211' }],
+  };
+  assert.deepEqual(networkAddresses(list), ['192.168.10.71', '10.0.0.211', '172.23.192.1', '172.25.112.1']);
+});
+
 const rootsWith = (platform, paths, home = platform === 'win32' ? 'C:\\Users\\me' : '/home/me') => detectRoots({
   env: {}, home, platform, list: () => [], exists: (p) => paths.includes(p),
 }).filter((r) => r.id !== 'home').map((r) => r.id);
