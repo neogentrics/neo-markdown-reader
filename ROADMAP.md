@@ -40,7 +40,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v3.5](#v35--listen--speak) | Listen & speak | ✅ Released ([3.5.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.5.0)) |
 | [v3.6](#v36--study--research) | Study & research | ✅ Released ([3.6.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.6.0)) |
 | [v3.7](#v37--automate-with-n8n) | Automate with n8n | ✅ Released ([3.7.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.7.0)) |
-| [v3.8](#v38--notion) | Notion | 🔨 In progress |
+| [v3.8](#v38--notion) | Notion | ✅ Released ([3.8.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.8.0)) |
 | [v3.9](#v39--your-home-server) | Your home server | Planned |
 | [v3.10](#v310--publish-anywhere) | Publish anywhere | Planned |
 | [v4.0](#v40--writing-studio) | Writing studio | Planned |
@@ -275,7 +275,7 @@ app learns to talk to them (decision 12).
 
 ## v3.8 — Notion
 
-🔨 **In progress.** 🙋 Notion and your Markdown files, working together (decision 13).
+✅ **Released in [3.8.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.8.0).** 🙋 Notion and your Markdown files, working together (decision 13).
 
 | Feature | Size | Details |
 |---|:-:|---|
