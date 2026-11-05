@@ -43,6 +43,22 @@ export function paragraphFrom(items, at, dir) {
   return i < items.length ? i : at;
 }
 
+/**
+ * A long sentence that has to start from nothing, in two parts: a short opening to say straight away, and the
+ * rest, made while the opening plays. Cut at punctuation if there's any near the start. Returns null if it's short.
+ */
+export function openingOf(text, most = 80) {
+  const t = String(text).trim();
+  if (t.length <= most * 1.4) return null;
+  const head = t.slice(0, most);
+  let cut = -1;
+  for (const m of head.matchAll(/[,;:—–]\s/g)) if (m.index >= 25) cut = m.index + 1;
+  if (cut > 0) return [t.slice(0, cut), t.slice(cut).trim()];
+  const space = head.lastIndexOf(' ');
+  // A comma keeps the voice up, where the full stop it would otherwise be given would bring it down.
+  return space >= 25 ? [`${t.slice(0, space)},`, t.slice(space + 1)] : null;
+}
+
 /** Split text into sentences (the language's own rules where the browser has them). */
 export function sentences(text, lang = undefined) {
   const out = [];
@@ -181,6 +197,12 @@ export function createReadUi(ctx) {
   api.voiceStatus?.().then((s) => { natural = s; fillVoices(); });
   api.onVoiceProgress?.((s) => { natural = s; fillVoices(); });
 
+  const QUICK_STEPS = 5;       // for speech someone is waiting for
+
+  function speech(text, n) {
+    return api.voiceSpeak({ text, lang: naturalLang, voice: els.voice.value.slice(NATURAL.length), speed: 1.05 * (Number(els.rate.value) || 1), steps: n });
+  }
+
   /** Ask for (and remember) the audio of sentence i. Two sentences ahead are made while one plays. */
   function synthesize(i) {
     if (i >= items.length || audio.has(i)) return audio.get(i);
@@ -235,6 +257,14 @@ export function createReadUi(ctx) {
   async function speakNatural(mine) {
     const item = items[index];
     const t0 = performance.now();
+    // Nothing made yet (just started, or skipped here): get a voice going as soon as possible.
+    let rest = null;
+    if (!audio.has(index)) {
+      const text = applyPronunciation(item.text, sayList);
+      const parts = openingOf(text);
+      audio.set(index, speech(parts ? parts[0] : text, Math.min(steps, QUICK_STEPS)));
+      if (parts) rest = speech(parts[1], Math.min(steps, QUICK_STEPS));
+    }
     const res = await synthesize(index);
     if (mine !== gen || !playing) return;
     if (res?.error === 'cancelled') { audio.delete(index); speakNatural(mine); return; }   // made ahead, then dropped: make it again
@@ -251,8 +281,17 @@ export function createReadUi(ctx) {
     for (let k = 1; k <= 2; k++) synthesize(index + k);
     window.__lastNatural = { index, text: item.text, secs, waited: performance.now() - t0 };     // read by the end-to-end tests
     player = play(res.samples, res.sampleRate);
-    const p = player;
+    let p = player;
     await p.ended;
+    if (rest && mine === gen && playing && player === p) {
+      const more = await rest;
+      if (mine !== gen || !playing) return;
+      if (more?.samples) {
+        player = play(more.samples, more.sampleRate);
+        p = player;
+        await p.ended;
+      }
+    }
     audio.delete(index);
     if (mine === gen && playing && player === p) speakAt(index + 1);
   }

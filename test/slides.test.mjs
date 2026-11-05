@@ -5,10 +5,11 @@ import { createRequire } from 'node:module';
 import { JSDOM } from 'jsdom';
 import { createRenderer } from '../src/renderer/markdown.js';
 import { splitSlides, paginate } from '../src/renderer/present.js';
-import { sectionFrom, paragraphFrom } from '../src/renderer/read-ui.js';
+import { sectionFrom, paragraphFrom, openingOf } from '../src/renderer/read-ui.js';
 
 const require = createRequire(import.meta.url);
 const { voiceLabel, VOICE_NAMES } = require('../src/main/voice-text.js');
+const { Supertonic } = require('../src/main/supertonic.js');
 
 const win = new JSDOM('').window;
 const render = createRenderer(win);
@@ -133,6 +134,49 @@ test('previous paragraph goes to the start of this one, then the one before', ()
   assert.equal(paragraphFrom(flow, 1, -1), 0);
   assert.equal(paragraphFrom(flow, 3, -1), 1);
   assert.equal(paragraphFrom(flow, 0, -1), 0);
+});
+
+test('a short sentence isn’t cut in two', () => {
+  assert.equal(openingOf('A short sentence.'), null);
+  assert.equal(openingOf('x'.repeat(100)), null);
+  assert.equal(openingOf('y'.repeat(300)), null, 'nowhere to cut');
+});
+
+test('a long sentence opens at its first natural pause', () => {
+  const text = 'The primary universe where all planets resided, and where the first of the great cosmic records were kept by the archivists of the library.';
+  const [head, tail] = openingOf(text);
+  assert.equal(head, 'The primary universe where all planets resided,');
+  assert.equal(`${head} ${tail}`, text);
+});
+
+test('with no pause it opens at a word, and sounds unfinished', () => {
+  const text = 'word '.repeat(60).trim();
+  const [head, tail] = openingOf(text);
+  assert.ok(head.length <= 81);
+  assert.match(head, /word,$/);
+  assert.equal(`${head.slice(0, -1)} ${tail}`, text);
+});
+
+test('a sentence being made can be given up between steps', async () => {
+  class Tensor { constructor(type, data, dims) { Object.assign(this, { type, data, dims }); } }
+  let steps = 0;
+  let vocoder = 0;
+  const tts = new Supertonic({ Tensor }, {
+    dp: { run: async () => ({ duration: { data: [1] } }) },
+    enc: { run: async () => ({ text_emb: {} }) },
+    est: { run: async () => { steps++; return { denoised_latent: { data: new Float32Array(16) } }; } },
+    voc: { run: async () => { vocoder++; return { wav_tts: { data: new Float32Array(100) } }; } },
+  }, { ae: { sample_rate: 100, base_chunk_size: 10 }, ttl: { chunk_compress_factor: 2, latent_dim: 2 } }, new Proxy({}, { get: () => 1 }));
+  let checks = 0;
+  const between = async () => { if (++checks === 3) throw new Error('cancelled'); };
+  await assert.rejects(tts.speak('Hello there.', { style: {}, steps: 8, between }), /cancelled/);
+  assert.equal(steps, 2);
+  assert.equal(vocoder, 0);
+  checks = -100;
+  steps = 0;
+  await tts.speak('Hello there.', { style: {}, steps: 8, between });
+  assert.equal(steps, 8);
+  assert.equal(vocoder, 1);
 });
 
 test('every natural voice has its own name', () => {
