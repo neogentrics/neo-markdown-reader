@@ -29,6 +29,7 @@ const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
 const { AnnotationStore } = require('./annotations');
 const flashcards = require('./flashcards');
+const bibliography = require('./bibliography');
 const { SyncEngine } = require('./sync');
 const { VoiceStore, VOICES, LICENSE_URL } = require('./voices');
 const { LANGS: VOICE_LANGS } = require('./voice-text');
@@ -733,6 +734,7 @@ function rebuildMenu() {
         cmd('highlight', 'Highlight Selection', 'CmdOrCtrl+Shift+H'),
         cmd('bookmark', 'Bookmark This File', 'CmdOrCtrl+D'),
         cmd('edit-table', 'Edit Table…'),
+        cmd('citations', 'Insert Citation…'),
         cmd('dictate', 'Dictation', 'CmdOrCtrl+Alt+D'),
         moved(cmd('dictate-remove', 'Remove Dictation Download…')),
         {
@@ -1506,7 +1508,7 @@ function registerIpc() {
   ipcMain.handle('doc:print', (e) => { stateFor(e)?.win.webContents.print({ printBackground: true }); });
   ipcMain.handle('settings:set', (_e, patch) => {
     if (!patch || typeof patch !== 'object') return rendererSettings();
-    const allowed = ['theme', 'surface', 'colorSafe', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'audioInput', 'language'];
+    const allowed = ['citeStyle', 'theme', 'surface', 'colorSafe', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'restoreSession', 'exportOptions', 'brand', 'readAloud', 'speakBar', 'audioOutput', 'audioInput', 'language'];
     setSetting(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
     return rendererSettings();
   });
@@ -1682,6 +1684,61 @@ function registerIpc() {
     return aiRequest(e, req.id, req.action, content);
   });
   ipcMain.handle('ai:cancel', (_e, id) => { aiRuns.get(id)?.abort(); });
+
+  // ---- citations: sources from a file or from Zotero on this computer
+  const bibCache = new Map();          // path -> { mtime, size, parsed }
+  const zoteroFile = () => path.join(app.getPath('userData'), 'citations-zotero.json');
+  async function readBib(p) {
+    const st = await fs.promises.stat(p);
+    if (!st.isFile()) throw new Error('not a file');
+    if (st.size > 20 * 1024 * 1024) throw new Error('That file of sources is too large (over 20 MB).');
+    const hit = bibCache.get(p);
+    if (hit && hit.mtime === st.mtimeMs && hit.size === st.size) return hit;
+    const entry = { mtime: st.mtimeMs, size: st.size, parsed: bibliography.parseFile(p, await fs.promises.readFile(p, 'utf8')) };
+    bibCache.set(p, entry);
+    return entry;
+  }
+  async function libraryNow() {
+    const from = settings.get().citeLibrary;
+    if (!from) return { source: '', name: '', entries: [] };
+    if (from === 'zotero') {
+      try { return { source: 'zotero', name: 'Zotero', entries: JSON.parse(await fs.promises.readFile(zoteroFile(), 'utf8')).entries || [] }; } catch { return { source: 'zotero', name: 'Zotero', entries: [] }; }
+    }
+    try {
+      const hit = await readBib(from);
+      return { source: 'file', name: path.basename(from), entries: hit.parsed.entries };
+    } catch { return { source: 'file', name: path.basename(from), entries: [], error: `Your library “${path.basename(from)}” couldn’t be read.` }; }
+  }
+  // A document names its own file relative to itself. Never a full path or a network share: opening a
+  // document someone sent you must not reach out to a server, or read anything but a list of sources.
+  ipcMain.handle('cite:file', async (_e, req = {}) => {
+    const { docPath, rel } = req;
+    if (!isStr(docPath, 4096) || !isStr(rel, 1024) || !bibliography.isBibPath(rel) || path.isAbsolute(rel) || /^[\\/]|^[a-z][a-z0-9+.-]*:/i.test(rel)) return { error: `The bibliography “${String(rel).slice(0, 80)}” must be a .bib or .json file named relative to this document.` };
+    const file = path.resolve(path.dirname(docPath), rel);
+    try {
+      const hit = await readBib(file);
+      return { entries: hit.parsed.entries, stamp: `${hit.mtime}-${hit.size}`, skipped: hit.parsed.skipped };
+    } catch (err) {
+      return { error: err.code === 'ENOENT' ? `The bibliography “${rel}” wasn’t found next to this document.` : `The bibliography “${rel}” couldn’t be read. ${err.code ? '' : err.message}`.trim() };
+    }
+  });
+  ipcMain.handle('cite:library', () => libraryNow());
+  ipcMain.handle('cite:choose', async (e) => {
+    const res = await dlg.showOpenDialog(stateFor(e)?.win, { title: 'Choose your sources', properties: ['openFile'], filters: [{ name: 'BibTeX or CSL JSON', extensions: ['bib', 'bibtex', 'json'] }] });
+    if (res.canceled || !res.filePaths[0]) return null;
+    try { await readBib(res.filePaths[0]); } catch (err) { return { error: err.message }; }
+    setSetting({ citeLibrary: res.filePaths[0] });
+    return libraryNow();
+  });
+  ipcMain.handle('cite:zotero', async () => {
+    try {
+      const { entries } = await bibliography.fetchZotero(net.fetch, process.env.NMR_ZOTERO_URL || bibliography.ZOTERO_URL);
+      await fs.promises.writeFile(zoteroFile(), JSON.stringify({ entries, updated: Date.now() }));
+    } catch (err) { return { error: err.message }; }
+    if (settings.get().citeLibrary !== 'zotero') setSetting({ citeLibrary: 'zotero' });
+    return libraryNow();
+  });
+  ipcMain.handle('cite:clear', () => { setSetting({ citeLibrary: '' }); return libraryNow(); });
 
   // ---- flashcards: found in the text, with only each card's progress kept by the app
   ipcMain.handle('cards:deck', async (e, req = {}) => {

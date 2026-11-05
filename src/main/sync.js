@@ -31,7 +31,7 @@ const POLL_MS = 30 * 1000;
 const SETTLE_MS = 2000;
 
 /** Settings that follow you between computers. Everything else stays on the computer it was set on. */
-const SYNCED_SETTINGS = ['theme', 'surface', 'colorSafe', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'wikiLinks', 'readAloud', 'language', 'shortcuts', 'exportOptions', 'brand'];
+const SYNCED_SETTINGS = ['theme', 'surface', 'colorSafe', 'font', 'fontScale', 'pageWidth', 'showToc', 'showMenuBar', 'wikiLinks', 'citeStyle', 'readAloud', 'language', 'shortcuts', 'exportOptions', 'brand'];
 
 const isLocked = (p) => /\.mdlock$/i.test(p);
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);

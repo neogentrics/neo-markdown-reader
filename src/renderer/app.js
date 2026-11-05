@@ -14,6 +14,7 @@ import { createLockUi } from './lock-ui.js';
 import { addRunButtons } from './run-ui.js';
 import { createAiUi } from './ai-ui.js';
 import { createCardsUi } from './cards-ui.js';
+import { createCiteUi } from './cite-ui.js';
 import { createHistoryUi } from './history-ui.js';
 import { createKeysUi } from './keys-ui.js';
 import { createNotesUi } from './notes-ui.js';
@@ -64,6 +65,7 @@ let highlights = null;
 let publish = null;
 let presenter = null;
 let cardsUi = null;
+let citeUi = null;
 let themeUi = null;
 let lockUi = null;
 let aiUi = null;
@@ -145,7 +147,7 @@ function renderInto(tab, doc, { preview = false } = {}) {
     return Promise.resolve();
   }
   tab.el.classList.remove('locked-page');
-  const result = render(doc.content, { baseUrl: doc.baseUrl, wiki: wikiResolver(doc) });
+  const result = render(doc.content, { baseUrl: doc.baseUrl, wiki: wikiResolver(doc), citeFor: citeUi?.forDoc(doc) });
   if (!preview) tab.doc = doc;
   tab.result = result;
   tab.el.innerHTML = result.html;
@@ -1004,6 +1006,7 @@ api.onCommand(({ cmd, arg }) => {
     case 'ai-explain': aiUi.run('explain'); break;
     case 'ai-report': aiUi.run('report'); break;
     case 'ai-cards': cardsUi.openDraft(); break;
+    case 'citations': citeUi.open(); break;
     case 'study': cardsUi.open(); break;
     case 'ai-settings': aiUi.openSettings(); break;
     case 'ai-folder': aiUi.askFolder(); break;
@@ -1117,6 +1120,7 @@ const importedNote = (res) => `Imported from Word${res.images ? ` with ${res.ima
 // ================================================================ settings, updates, misc
 function applySettings(s) {
   settings = s;
+  citeUi?.settingsChanged(s);
   uiText.setLanguage(s.lang || 'en');
   addonsUi?.apply(s);
   const root = document.documentElement;
@@ -1194,6 +1198,7 @@ editMode = createEditMode({
   platform: () => platform,
   desk: els.desk,
   beforeEdit: () => split?.close(),
+  citeTargets: () => citeUi.targets(),
   linkTargets: (tab) => ({ files: sidebar?.allFiles() || [], style: settings.wikiLinks === 'markdown' ? 'markdown' : 'wiki', from: tab.doc.path || '' }),
 });
 sidebar = createSidebar({
@@ -1279,6 +1284,12 @@ aiUi = createAiUi({
     const { from, to } = st.selection.main;
     return { tab, from, to, text: st.sliceDoc(from, to), before: st.sliceDoc(Math.max(0, from - 2000), from), after: st.sliceDoc(to, Math.min(st.doc.length, to + 2000)) };
   },
+});
+citeUi = createCiteUi({
+  api, toast, activeTab,
+  settings: () => settings,
+  rerenderAll() { for (const t of tabs) if (t.result && !t.doc.compare && !t.doc.needsPassword && /@/.test(t.editing ? t.editor.getText() : t.doc.content)) rerender(t); },
+  rerenderDoc(path) { for (const t of tabs) if (t.doc.path === path && t.result) rerender(t); },
 });
 cardsUi = createCardsUi({
   api, render, toast, activeTab, openAtLine,

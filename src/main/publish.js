@@ -403,6 +403,7 @@ table { border-collapse: collapse; margin: 1em 0; font-size: .9em; } th, td { bo
 .doc-meta { margin: 2em 0; text-align: center; } .doc-meta-title { font-size: 2em; font-weight: bold; font-family: sans-serif; }
 .doc-meta-sub { font-size: 1.2em; } .doc-meta-tags .tag { margin: 0 .3em; color: #555; }
 .footnotes { font-size: .85em; } .chart-svg { width: 100%; height: auto; } nav ol { list-style: none; padding-left: 1.2em; }
+.csl-entry { padding-left: 2em; text-indent: -2em; } a.citation { color: inherit; text-decoration: none; }
 .hljs-keyword, .hljs-built_in { color: #a626a4; } .hljs-string { color: #50a14f; } .hljs-comment { color: #888; font-style: italic; } .hljs-number { color: #986801; }`;
 
 /**

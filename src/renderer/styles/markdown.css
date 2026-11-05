@@ -208,3 +208,11 @@
 .markdown-body .mermaid-diagram svg { max-width: 100%; height: auto; }
 .markdown-body .mermaid-error { color: #dc2626; font-family: var(--font-mono); font-size: .85em; justify-content: flex-start; }
 .markdown-body pre.mermaid-src { color: var(--muted); font-size: .8em; }
+
+/* Citations (3.6): reference lists hang, so each source is easy to find. */
+.markdown-body a.citation { color: inherit; text-decoration: none; }
+.markdown-body a.citation:hover { color: var(--link); text-decoration: underline; }
+.markdown-body .cite-missing { color: #b91c1c; font-weight: 600; }
+.markdown-body .csl-entry { margin: 0 0 .7em; padding-left: 2em; text-indent: -2em; overflow-wrap: anywhere; }
+.markdown-body .csl-entry.numbered { padding-left: 2.6em; text-indent: -2.6em; }
+.markdown-body .csl-number { display: inline-block; min-width: 2.35em; text-indent: 0; }

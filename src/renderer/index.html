@@ -317,6 +317,27 @@
     </div>
   </dialog>
 
+  <dialog class="shortcuts cite-dlg" id="cite-dlg" aria-labelledby="cite-h">
+    <div class="ai-head"><h3 id="cite-h">Citations</h3><button type="button" class="tb-btn sm" id="cite-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="cite-source">
+      <span class="cite-where" id="cite-source"></span>
+      <button type="button" class="link-btn" id="cite-choose">Choose File…</button>
+      <button type="button" class="link-btn" id="cite-zotero">Use Zotero</button>
+      <button type="button" class="link-btn" id="cite-refresh" hidden>Refresh</button>
+      <button type="button" class="link-btn" id="cite-remove" hidden>Remove</button>
+    </div>
+    <p class="hint-text" id="cite-msg" role="status"></p>
+    <label class="field">Citation style<select id="cite-style"></select></label>
+    <p class="hint-text" id="cite-style-note" hidden>This document sets its own style in its front matter.</p>
+    <div class="cite-find">
+      <label class="field">Find a source<input id="cite-search" type="search" spellcheck="false" autocomplete="off" placeholder="Author, year or title"></label>
+      <label class="field">Page<input id="cite-page" type="text" spellcheck="false" autocomplete="off" placeholder="Optional"></label>
+    </div>
+    <div class="cite-list" id="cite-list"></div>
+    <p class="hint-text" id="cite-none" hidden></p>
+    <p class="hint-text" id="cite-hint"></p>
+  </dialog>
+
   <dialog class="shortcuts cards-dlg" id="cards-dlg" aria-labelledby="cards-h">
     <div class="ai-head"><h3 id="cards-h">Flashcards</h3><button type="button" class="tb-btn sm" id="cards-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <section id="cards-home">

@@ -31,6 +31,8 @@ const DEFAULTS = Object.freeze({
   brand: null,            // custom theme: accent, panel and background colours, fonts, brand stylesheet (see BRAND_DEFAULTS)
   shortcuts: {},          // your own keyboard shortcuts: menu command id -> accelerator ('' = none)
   wikiLinks: 'wiki',      // wiki | markdown — what the editor inserts when you pick a document after [[
+  citeStyle: 'apa',       // apa | mla | chicago | ieee | harvard — unless a document sets its own
+  citeLibrary: '',        // your sources: a .bib or .json file, or 'zotero'; never synced
   readAloud: { rate: 1, voice: '' },
   speakBar: null,         // where the read-aloud bar was left: { x, y }, each 0–1 of the room it has
   audioOutput: '',        // the device natural voices play through ('' = the computer's default); never synced
@@ -167,6 +169,8 @@ function sanitize(input) {
   if (['todo', 'done'].includes(input.tutorial)) s.tutorial = input.tutorial;
   if (Number.isInteger(input.tutorialStep) && input.tutorialStep >= 0 && input.tutorialStep < 100) s.tutorialStep = input.tutorialStep;
   if (['wiki', 'markdown'].includes(input.wikiLinks)) s.wikiLinks = input.wikiLinks;
+  if (['apa', 'mla', 'chicago', 'ieee', 'harvard'].includes(input.citeStyle)) s.citeStyle = input.citeStyle;
+  if (typeof input.citeLibrary === 'string' && input.citeLibrary.length <= 4096) s.citeLibrary = input.citeLibrary;
   if (['system', 'en', 'es', 'fr', 'de'].includes(input.language)) s.language = input.language;
   if (Array.isArray(input.addonsOff)) s.addonsOff = [...new Set(input.addonsOff.filter((x) => typeof x === 'string' && /^[a-z0-9][a-z0-9-]{1,39}$/.test(x)))].slice(0, 200);
   if (input.readAloud && typeof input.readAloud === 'object') {

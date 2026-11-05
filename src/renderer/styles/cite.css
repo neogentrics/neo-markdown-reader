@@ -1,0 +1,19 @@
+/* The Citations window (3.6) */
+.cite-dlg { width: min(640px, 94vw); max-height: 88vh; padding: 18px 22px 16px; }
+.cite-dlg:not([open]) { display: none; }
+.cite-dlg[open] { display: flex; flex-direction: column; gap: 10px; }
+.cite-dlg .hint-text { margin: 0; }
+.cite-dlg .hint-text:empty { display: none; }
+.cite-dlg .field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.cite-dlg select, .cite-dlg input {
+  font: 14px var(--font-sans); padding: 7px 10px; border-radius: 8px; border: 1px solid var(--rule-strong); background: var(--page); color: var(--text); min-width: 0;
+}
+.cite-source { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 4px; }
+.cite-where { flex: 1 1 200px; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cite-find { display: grid; grid-template-columns: 1fr 110px; gap: 10px; }
+.cite-list { display: flex; flex-direction: column; gap: 2px; min-height: 0; max-height: 40vh; overflow: auto; }
+.cite-list:empty { display: none; }
+.cite-row { display: flex; flex-direction: column; gap: 1px; width: 100%; padding: 7px 9px; border: 0; border-radius: 8px; background: none; color: var(--text); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.cite-row:hover, .cite-row:focus-visible { background: var(--inline-code-bg); }
+.cite-row b { font-weight: 600; color: var(--heading); }
+.cite-row span { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

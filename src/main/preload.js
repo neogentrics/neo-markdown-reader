@@ -105,6 +105,12 @@ contextBridge.exposeInMainWorld('reader', {
   askFolder: invoke('ai:ask-folder'),
   peekDoc: invoke('doc:peek'),
   aiEdit: invoke('ai:edit'),
+  // citations (3.6)
+  citeFile: invoke('cite:file'),
+  citeLibrary: invoke('cite:library'),
+  citeChoose: invoke('cite:choose'),
+  citeZotero: invoke('cite:zotero'),
+  citeClear: invoke('cite:clear'),
   // flashcards (3.6)
   cardsDeck: invoke('cards:deck'),
   cardsGrade: invoke('cards:grade'),

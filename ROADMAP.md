@@ -255,7 +255,7 @@ updates itself from here on.
 | Feature | Size | Details |
 |---|:-:|---|
 | Smart search | M | Find documents by what they mean, not only by their exact words, with an index built and kept on your computer. *Related documents* appear under the outline. |
-| Citations & bibliography | M | Insert citations from a BibTeX file or a Zotero library. The bibliography is formatted (APA, MLA, Chicago and more) on the page and in PDF and Word exports. |
+| ✅ Citations & bibliography | M | Insert citations from a BibTeX file or a Zotero library. The bibliography is formatted (APA, MLA, Chicago, IEEE and Harvard) on the page and in PDF and Word exports. |
 | ✅ Flashcards & quizzes | M | Turn definitions, or `Q:` / `A:` lines, into flashcards with spaced repetition. AI (optional) can draft questions from a chapter. |
 | ✅ 🙋 Colour for the older themes | S | The themes from before 3.5 get what Blue, Red and Yellow have: panels that run from one colour to another, and contrasting buttons. High Contrast stays flat, because plain contrast is the point of it. |
 | ✅ 🙋 More colours in Customize Theme | S | Pick the panel and background colours as well as the button colour. Text on the panels changes to stay readable. |

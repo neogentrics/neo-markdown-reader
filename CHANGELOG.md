@@ -17,6 +17,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   spaced repetition that brings each one back when it's due. Study one document or the whole open folder, practise
   everything, or take a multiple-choice quiz. Progress stays on your computer and follows you through Sync, and it
   holds no words from your cards. AI assist can draft cards from a chapter (*Draft Flashcards*), for you to check first.
+- **Citations** (*Edit → Insert Citation*): write `[@key]`, and the page shows the citation and builds the reference
+  list, in APA, MLA, Chicago, IEEE or Harvard. Sources come from a BibTeX or CSL JSON file, or from Zotero on your
+  computer. They carry through to PDF, Word, web page, e-book and plain text exports. The syntax is Pandoc's, so
+  documents still work there.
 
 ### Changed
 - **Paper, Sepia, Mist, Night, Forest and Dusk** now have panels that run from one colour to another, with contrasting

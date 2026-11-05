@@ -189,6 +189,19 @@ function wikiCompletions(linkTargets) {
   };
 }
 
+/** After [@ : your sources. The list shows who and when, and picking one adds its key. */
+function citeCompletions(citeTargets) {
+  return (context) => {
+    const m = context.matchBefore(/\[[^\]\n]*@[\p{L}\p{N}_:.-]*$/u);
+    if (!m || !citeTargets) return null;
+    const list = citeTargets();
+    if (!list.length) return null;
+    const at = m.text.lastIndexOf('@');
+    const options = list.slice(0, 5000).map((s) => ({ label: s.key, detail: [s.who, s.year].filter(Boolean).join(' '), info: s.title }));
+    return { from: m.from + at + 1, options, validFor: /^[\p{L}\p{N}_:.-]*$/u };
+  };
+}
+
 /**
  * Create an editor in `parent`.
  * @param {HTMLElement} parent
@@ -196,7 +209,7 @@ function wikiCompletions(linkTargets) {
  *           onImages?: (files: File[], pos: number) => void, onPasted?: (kind: string) => void,
  *           linkTargets?: () => { files: { path: string, rel: string, name: string }[], style: 'wiki'|'markdown', from: string } }} opts
  */
-function create(parent, { doc, onChange, onTopLine, onImages, onPasted, linkTargets }) {
+function create(parent, { doc, onChange, onTopLine, onImages, onPasted, linkTargets, citeTargets }) {
   let plainNext = 0;                 // Ctrl+Shift+V: paste as plain text
   const view = new EditorView({
     parent,
@@ -217,7 +230,7 @@ function create(parent, { doc, onChange, onTopLine, onImages, onPasted, linkTarg
         syntaxHighlighting(highlight),
         theme,
         placeholder('Start writing in Markdown…'),
-        autocompletion({ override: [wikiCompletions(linkTargets)], activateOnTyping: true, icons: false }),
+        autocompletion({ override: [wikiCompletions(linkTargets), citeCompletions(citeTargets)], activateOnTyping: true, icons: false }),
         EditorView.contentAttributes.of({ spellcheck: 'true', autocorrect: 'on', autocapitalize: 'sentences', 'aria-label': 'Markdown editor' }),
         keymap.of([
           { key: 'Mod-b', run: COMMANDS.bold },
