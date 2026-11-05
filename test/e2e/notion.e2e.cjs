@@ -150,7 +150,7 @@ async function until(fn, what, ms = 8000) {
   const saveAs = (file) => app.evaluate(({ dialog }, f) => { dialog.showSaveDialog = async () => ({ canceled: !f, filePath: f }); }, file);
 
   await step('the commands are in the File menu, and the menu is still short', async () => {
-    const items = await app.evaluate(({ Menu }) => Menu.getApplicationMenu().items[0].submenu.items.filter((i) => i.visible && i.type !== 'separator').map((i) => i.label));
+    const items = await app.evaluate(({ Menu }) => Menu.getApplicationMenu().items.find((m) => m.label.replace(/&/g, '') === 'File').submenu.items.filter((i) => i.visible && i.type !== 'separator').map((i) => i.label));
     assert.ok(items.includes('Notion'));
     assert.ok(items.length <= 20, `File has ${items.length}`);
     assert.ok(await app.evaluate(({ Menu }) => !!Menu.getApplicationMenu().getMenuItemById('reopen-closed-tab')));
@@ -344,7 +344,7 @@ async function until(fn, what, ms = 8000) {
     const dir = path.join(tmp, 'p');
     for (const f of fs.readdirSync(dir)) {
       const file = path.join(dir, f);
-      if (fs.statSync(file).isFile()) assert.ok(!fs.readFileSync(file).includes(KEY), f);
+      if (fs.lstatSync(file).isFile()) assert.ok(!fs.readFileSync(file).includes(KEY), f);
     }
   });
 
