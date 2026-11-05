@@ -1,0 +1,89 @@
+en	es	fr	de
+Notion	Notion	Notion	Notion
+Bring In a Notion Page…	Traer una página de Notion…	Importer une page Notion…	Notion-Seite holen…
+Bring In a Notion Page	Traer una página de Notion	Importer une page Notion	Notion-Seite holen
+Send to Notion…	Enviar a Notion…	Envoyer vers Notion…	An Notion senden…
+Send to Notion	Enviar a Notion	Envoyer vers Notion	An Notion senden
+Compare with Notion	Comparar con Notion	Comparer avec Notion	Mit Notion vergleichen
+Open in Notion	Abrir en Notion	Ouvrir dans Notion	In Notion öffnen
+Notion Connection…	Conexión con Notion…	Connexion à Notion…	Notion-Verbindung…
+Save as Markdown	Guardar como Markdown	Enregistrer en Markdown	Als Markdown speichern
+Save as Markdown…	Guardar como Markdown…	Enregistrer en Markdown…	Als Markdown speichern…
+This document’s Notion page has changed.	La página de Notion de este documento ha cambiado.	La page Notion de ce document a changé.	Die Notion-Seite dieses Dokuments hat sich geändert.
+Bring In Changes	Traer los cambios	Importer les modifications	Änderungen holen
+Not Now	Ahora no	Pas maintenant	Nicht jetzt
+Connect to Notion	Conectar con Notion	Se connecter à Notion	Mit Notion verbinden
+You’re connected. Your key is kept on this computer and only ever goes to Notion.	Está conectado. Su clave se guarda en este equipo y solo se envía a Notion.	Vous êtes connecté. Votre clé reste sur cet ordinateur et n’est envoyée qu’à Notion.	Sie sind verbunden. Ihr Schlüssel bleibt auf diesem Computer und geht nur an Notion.
+In Notion, open	En Notion, abra	Dans Notion, ouvrez	Öffnen Sie in Notion
+Settings	Ajustes	Paramètres	Einstellungen
+, then	y luego	, puis	, dann
+Connections	Conexiones	Connexions	Verbindungen
+, and choose	y elija	, et choisissez	, und wählen Sie
+Develop or manage integrations	Desarrollar o administrar integraciones	Développer ou gérer des intégrations	Integrationen entwickeln oder verwalten
+Make a new internal integration, and copy its secret.	Cree una integración interna nueva y copie su secreto.	Créez une intégration interne et copiez son secret.	Erstellen Sie eine neue interne Integration und kopieren Sie ihr Secret.
+On each page you want here, use the ••• menu, then	En cada página que quiera aquí, use el menú ••• y luego	Sur chaque page voulue ici, utilisez le menu •••, puis	Öffnen Sie auf jeder gewünschten Seite das Menü •••, dann
+, and add it.	y añádala.	, et ajoutez-la.	, und fügen Sie sie hinzu.
+Disconnect	Desconectar	Se déconnecter	Trennen
+Connect	Conectar	Se connecter	Verbinden
+Keep it linked to this page	Mantenerlo vinculado a esta página	Le garder lié à cette page	Mit dieser Seite verknüpft lassen
+Just Open It	Solo abrirlo	Ouvrir simplement	Nur öffnen
+Send as a New Page Instead…	Enviar como página nueva…	Envoyer plutôt comme nouvelle page…	Stattdessen als neue Seite senden…
+Use This Link	Usar este enlace	Utiliser ce lien	Diesen Link verwenden
+Choose {0}	Elegir {0}	Choisir {0}	{0} auswählen
+Database	Base de datos	Base de données	Datenbank
+Asking Notion…	Consultando a Notion…	Interrogation de Notion…	Notion wird gefragt…
+Saving…	Guardando…	Enregistrement…	Wird gespeichert…
+Sending…	Enviando…	Envoi…	Wird gesendet…
+Connected to {0}	Conectado a {0}	Connecté à {0}	Verbunden mit {0}
+Connected to Notion	Conectado a Notion	Connecté à Notion	Mit Notion verbunden
+Notion disconnected	Notion desconectado	Notion déconnecté	Notion getrennt
+Nothing found. Notion only shows pages you’ve shared with your connection.	No se encontró nada. Notion solo muestra las páginas que compartió con su conexión.	Aucun résultat. Notion n’affiche que les pages partagées avec votre connexion.	Nichts gefunden. Notion zeigt nur Seiten, die Sie mit Ihrer Verbindung geteilt haben.
+Search your shared pages and databases, or paste a link to one.	Busque en sus páginas y bases de datos compartidas, o pegue un enlace.	Cherchez dans vos pages et bases partagées, ou collez un lien.	Durchsuchen Sie Ihre geteilten Seiten und Datenbanken oder fügen Sie einen Link ein.
+Choose the page to put it under.	Elija la página donde colocarlo.	Choisissez la page sous laquelle le placer.	Wählen Sie die Seite, unter der es liegen soll.
+A database with 1 row.	Una base de datos con 1 fila.	Une base de données de 1 ligne.	Eine Datenbank mit 1 Zeile.
+A database with {0} rows.	Una base de datos con {0} filas.	Une base de données de {0} lignes.	Eine Datenbank mit {0} Zeilen.
+A page with 1 picture.	Una página con 1 imagen.	Une page avec 1 image.	Eine Seite mit 1 Bild.
+A page with {0} pictures.	Una página con {0} imágenes.	Une page avec {0} images.	Eine Seite mit {0} Bildern.
+A page.	Una página.	Une page.	Eine Seite.
+Only the first {0} rows are brought in.	Solo se traen las primeras {0} filas.	Seules les {0} premières lignes sont importées.	Nur die ersten {0} Zeilen werden geholt.
+It’s too long for Notion to send all of it.	Es demasiado largo para que Notion lo envíe completo.	C’est trop long pour que Notion envoie tout.	Es ist zu lang, als dass Notion alles senden könnte.
+Some of its blocks can’t be shown as Markdown.	Algunos de sus bloques no se pueden mostrar como Markdown.	Certains de ses blocs ne peuvent pas s’afficher en Markdown.	Einige Blöcke lassen sich nicht als Markdown zeigen.
+Pictures on Notion only work for about an hour, so saving keeps a copy beside your document.	Las imágenes de Notion solo funcionan cerca de una hora, así que al guardar se conserva una copia junto al documento.	Les images de Notion ne fonctionnent qu’environ une heure : enregistrer en garde une copie à côté du document.	Bilder aus Notion funktionieren nur etwa eine Stunde, daher legt das Speichern eine Kopie neben Ihrem Dokument ab.
+1 picture couldn’t be copied, so it still points to Notion.	No se pudo copiar 1 imagen, así que sigue apuntando a Notion.	1 image n’a pas pu être copiée et pointe encore vers Notion.	1 Bild konnte nicht kopiert werden und verweist weiter auf Notion.
+{0} pictures couldn’t be copied, so they still point to Notion.	No se pudieron copiar {0} imágenes, así que siguen apuntando a Notion.	{0} images n’ont pas pu être copiées et pointent encore vers Notion.	{0} Bilder konnten nicht kopiert werden und verweisen weiter auf Notion.
+1 picture on your computer stays behind: Notion can only take pictures from the web.	1 imagen de su equipo no se envía: Notion solo acepta imágenes de la web.	1 image de votre ordinateur reste ici : Notion n’accepte que les images du Web.	1 Bild auf Ihrem Computer bleibt zurück: Notion nimmt nur Bilder aus dem Web an.
+{0} pictures on your computer stay behind: Notion can only take pictures from the web.	{0} imágenes de su equipo no se envían: Notion solo acepta imágenes de la web.	{0} images de votre ordinateur restent ici : Notion n’accepte que les images du Web.	{0} Bilder auf Ihrem Computer bleiben zurück: Notion nimmt nur Bilder aus dem Web an.
+Notion has no footnotes, so yours go over as plain text.	Notion no tiene notas al pie, así que las suyas se envían como texto.	Notion n’a pas de notes de bas de page : les vôtres partent en texte simple.	Notion hat keine Fußnoten, Ihre gehen als einfacher Text hinüber.
+This document and its Notion page already match.	Este documento y su página de Notion ya coinciden.	Ce document et sa page Notion sont déjà identiques.	Dieses Dokument und seine Notion-Seite stimmen bereits überein.
+The page will be renamed to “{0}”.	La página pasará a llamarse “{0}”.	La page sera renommée « {0} ».	Die Seite wird in „{0}“ umbenannt.
+What will change on this page:	Lo que cambiará en esta página:	Ce qui changera sur cette page :	Das ändert sich auf dieser Seite:
+This page has changed in Notion since you last brought it in, and sending replaces what’s different.	Esta página cambió en Notion desde la última vez que la trajo, y al enviar se reemplaza lo que sea distinto.	Cette page a changé dans Notion depuis votre dernière importation, et l’envoi remplace ce qui diffère.	Diese Seite hat sich in Notion geändert, seit Sie sie zuletzt geholt haben, und das Senden ersetzt, was abweicht.
+Notion only sent part of this long page, so the rest is left as it is.	Notion solo envió parte de esta página larga, así que el resto queda como está.	Notion n’a envoyé qu’une partie de cette longue page : le reste ne change pas.	Notion hat nur einen Teil dieser langen Seite gesendet, der Rest bleibt, wie er ist.
+A new page, “{0}”, will be made under this one:	Se creará una página nueva, “{0}”, dentro de esta:	Une nouvelle page, « {0} », sera créée sous celle-ci :	Unter dieser Seite wird eine neue Seite „{0}“ erstellt:
+Sent to Notion and linked. Save the document to keep the link.	Enviado a Notion y vinculado. Guarde el documento para conservar el vínculo.	Envoyé vers Notion et lié. Enregistrez le document pour garder le lien.	An Notion gesendet und verknüpft. Speichern Sie das Dokument, um die Verknüpfung zu behalten.
+Sent to Notion	Enviado a Notion	Envoyé vers Notion	An Notion gesendet
+Sent, but Notion couldn’t place {0} of the changes. Use Compare with Notion to see them.	Enviado, pero Notion no pudo colocar {0} de los cambios. Use Comparar con Notion para verlos.	Envoyé, mais Notion n’a pas pu placer {0} des modifications. Utilisez Comparer avec Notion pour les voir.	Gesendet, aber Notion konnte {0} der Änderungen nicht einfügen. Mit „Mit Notion vergleichen“ sehen Sie sie.
+Brought in. Save the document to keep it.	Traído. Guarde el documento para conservarlo.	Importé. Enregistrez le document pour le garder.	Geholt. Speichern Sie das Dokument, um es zu behalten.
+Notion didn’t accept that key.	Notion no aceptó esa clave.	Notion n’a pas accepté cette clé.	Notion hat diesen Schlüssel nicht angenommen.
+Notion can’t find that page. Open it in Notion, then use the ••• menu and Connections to share it with your connection.	Notion no encuentra esa página. Ábrala en Notion y use el menú ••• y Conexiones para compartirla con su conexión.	Notion ne trouve pas cette page. Ouvrez-la dans Notion, puis utilisez le menu ••• et Connexions pour la partager avec votre connexion.	Notion findet diese Seite nicht. Öffnen Sie sie in Notion und teilen Sie sie über das Menü ••• und Verbindungen mit Ihrer Verbindung.
+Your connection isn’t allowed to do that. Check its capabilities in Notion.	Su conexión no tiene permiso para eso. Revise sus capacidades en Notion.	Votre connexion n’y est pas autorisée. Vérifiez ses capacités dans Notion.	Ihre Verbindung darf das nicht. Prüfen Sie ihre Berechtigungen in Notion.
+Notion is busy. Try again in a minute.	Notion está ocupado. Inténtelo de nuevo en un minuto.	Notion est occupé. Réessayez dans une minute.	Notion ist ausgelastet. Versuchen Sie es in einer Minute erneut.
+Notion took too long. Try again, or split the document.	Notion tardó demasiado. Inténtelo de nuevo o divida el documento.	Notion a mis trop de temps. Réessayez ou divisez le document.	Notion hat zu lange gebraucht. Versuchen Sie es erneut oder teilen Sie das Dokument.
+Notion refused, because this would delete a subpage or database. Put its link back in the document and send again.	Notion se negó, porque esto eliminaría una subpágina o base de datos. Vuelva a poner su enlace en el documento y envíe de nuevo.	Notion a refusé, car cela supprimerait une sous-page ou une base de données. Remettez son lien dans le document et renvoyez.	Notion hat abgelehnt, weil dies eine Unterseite oder Datenbank löschen würde. Setzen Sie ihren Link wieder ins Dokument und senden Sie erneut.
+That’s too large for Notion to take at once. Try splitting the document.	Es demasiado grande para que Notion lo reciba de una vez. Pruebe a dividir el documento.	C’est trop volumineux pour Notion en une fois. Essayez de diviser le document.	Das ist zu groß für Notion auf einmal. Teilen Sie das Dokument.
+Notion said: {0}	Notion dijo: {0}	Notion a répondu : {0}	Notion sagte: {0}
+Notion couldn’t do that.	Notion no pudo hacerlo.	Notion n’a pas pu le faire.	Notion konnte das nicht tun.
+Notion can’t be reached. Check your connection and try again.	No se puede acceder a Notion. Revise su conexión e inténtelo de nuevo.	Impossible de joindre Notion. Vérifiez votre connexion et réessayez.	Notion ist nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.
+That database has nothing in it to open.	Esa base de datos no tiene nada que abrir.	Cette base de données ne contient rien à ouvrir.	Diese Datenbank enthält nichts zum Öffnen.
+Connect to Notion first.	Conéctese primero a Notion.	Connectez-vous d’abord à Notion.	Verbinden Sie sich zuerst mit Notion.
+Paste your key first.	Pegue primero su clave.	Collez d’abord votre clé.	Fügen Sie zuerst Ihren Schlüssel ein.
+That doesn’t look like a Notion key.	Eso no parece una clave de Notion.	Cela ne ressemble pas à une clé Notion.	Das sieht nicht nach einem Notion-Schlüssel aus.
+That isn’t a link to a Notion page.	Eso no es un enlace a una página de Notion.	Ce n’est pas un lien vers une page Notion.	Das ist kein Link zu einer Notion-Seite.
+That page is in Notion’s trash.	Esa página está en la papelera de Notion.	Cette page est dans la corbeille de Notion.	Diese Seite liegt im Papierkorb von Notion.
+That page isn’t waiting any more.	Esa página ya no está en espera.	Cette page n’est plus en attente.	Diese Seite wartet nicht mehr.
+That isn’t waiting to be sent any more.	Eso ya no está pendiente de envío.	Ce n’est plus en attente d’envoi.	Das wartet nicht mehr auf das Senden.
+This document isn’t linked to a Notion page.	Este documento no está vinculado a una página de Notion.	Ce document n’est pas lié à une page Notion.	Dieses Dokument ist nicht mit einer Notion-Seite verknüpft.
+Sent to Notion, but this document couldn’t be linked to the new page.	Enviado a Notion, pero este documento no se pudo vincular a la página nueva.	Envoyé vers Notion, mais ce document n’a pas pu être lié à la nouvelle page.	An Notion gesendet, aber dieses Dokument konnte nicht mit der neuen Seite verknüpft werden.
+Pictures and files stored on Notion can’t be changed from here. Do that in Notion.	Las imágenes y los archivos guardados en Notion no se pueden cambiar desde aquí. Hágalo en Notion.	Les images et fichiers stockés sur Notion ne peuvent pas être modifiés d’ici. Faites-le dans Notion.	Bilder und Dateien, die in Notion liegen, lassen sich hier nicht ändern. Tun Sie das in Notion.
+Pictures and files stored on Notion can’t be changed from here, so those stay as they are.	Las imágenes y los archivos guardados en Notion no se pueden cambiar desde aquí, así que quedan como están.	Les images et fichiers stockés sur Notion ne peuvent pas être modifiés d’ici : ils restent tels quels.	Bilder und Dateien, die in Notion liegen, lassen sich hier nicht ändern und bleiben, wie sie sind.
+This change can’t be made around the pictures and files stored on this page. Make it in Notion instead.	Este cambio no se puede hacer alrededor de las imágenes y los archivos guardados en esta página. Hágalo en Notion.	Cette modification ne peut pas se faire autour des images et fichiers stockés sur cette page. Faites-la dans Notion.	Diese Änderung lässt sich um die auf dieser Seite gespeicherten Bilder und Dateien herum nicht vornehmen. Nehmen Sie sie in Notion vor.

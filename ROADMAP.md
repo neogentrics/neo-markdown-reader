@@ -279,9 +279,9 @@ app learns to talk to them (decision 12).
 
 | Feature | Size | Details |
 |---|:-:|---|
-| 🙋 Bring Notion pages in | M | Open a Notion page as Markdown, with its headings, lists, to-dos, tables, code, callouts and pictures; a database opens as a table. Save it as a `.md` file, or keep it linked. |
-| 🙋🛡️ Send documents to Notion | M | Send a document to a Notion page you choose: as a new page, or to update the linked one. Shows what will change before anything is replaced. |
-| Keep them in step | M | A linked document shows when its Notion page has changed, and *Compare* shows the differences before you bring them in. |
+| ✅ 🙋 Bring Notion pages in | M | Open a Notion page as Markdown, with its headings, lists, to-dos, tables, code, callouts and pictures; a database opens as a table. Save it as a `.md` file, or keep it linked. |
+| ✅ 🙋🛡️ Send documents to Notion | M | Send a document to a Notion page you choose: as a new page, or to update the linked one. Shows what will change before anything is replaced, and only what you changed is sent, so colours and mentions elsewhere on the page stay. Pictures on your computer aren't sent yet. |
+| ✅ Keep them in step | M | A linked document shows when its Notion page has changed, and *Compare* shows the differences before you bring them in. |
 
 ## v3.9 — Your home server
 

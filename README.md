@@ -66,7 +66,8 @@ The builds aren't code-signed yet, so Windows may show a SmartScreen warning the
 | **Automatic updates** | The installed app downloads new versions; *Restart to update* installs them without any installer screens |
 | **Listen & speak** *(new in 3.5)* | Export a document as an MP3 or an audiobook with chapters, dictate instead of typing, read aloud through your slides, teach the voices how to say names, and choose your speakers and microphone ([details](#listen--speak)) |
 | **Linked apps** *(new in 3.6)* | Link other Recon Towers apps on your computer and send documents between them, with no accounts ([details](help/09-sync.md)) |
-| **Automations** *(new in 3.7)* | Send documents to n8n, Make, Zapier, Home Assistant or your own script, and get the answer back as a document or a change ([details](help/07-ai.md)) |
+| **Automations** *(3.7)* | Send documents to n8n, Make, Zapier, Home Assistant or your own script, and get the answer back as a document or a change ([details](help/07-ai.md)) |
+| **Notion** *(new in 3.8)* | Bring Notion pages in as Markdown and databases as tables, send documents back with only your changes, and see when a linked page has moved on ([details](docs/notion.md)). |
 | **Smart search** *(new in 3.6)* | Find documents by what they mean, not only their exact words, with *Related documents* under the outline. Runs on your computer after a one-time download ([details](help/04-folders.md)) |
 | **Citations** *(new in 3.6)* | Cite with `[@key]` from a BibTeX or CSL JSON file or Zotero, with the reference list built for you in APA, MLA, Chicago, IEEE or Harvard ([details](help/03-editing.md)) |
 | **Flashcards** *(new in 3.6)* | `Q:` / `A:` lines and definitions become flashcards with spaced repetition, a quiz, and optional AI drafts from a chapter ([details](help/02-reading.md)) |
@@ -762,7 +763,6 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Prefere
   a Glass look, colour-safe colours and fifteen fonts.
 - **v3.6** added search by meaning with related documents, citations and reference lists, flashcards and quizzes,
   links with other Recon Towers apps, richer colours for the older themes, and more choices in Customize Theme.
-
 - **v3.7** added automations: your webhooks as commands, your n8n workflows by name, and an address your workflows can
   call to open documents.
 

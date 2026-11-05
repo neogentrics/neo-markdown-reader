@@ -32,6 +32,7 @@ const { AnnotationStore } = require('./annotations');
 const flashcards = require('./flashcards');
 const bibliography = require('./bibliography');
 const automations = require('./automations');
+const notion = require('./notion');
 const { Inbound, newKey: newInboundKey, networkAddresses } = require('./inbound');
 const { SyncEngine } = require('./sync');
 const { VoiceStore, VOICES, LICENSE_URL } = require('./voices');
@@ -715,10 +716,20 @@ function rebuildMenu() {
             cmd('automations', 'Manage Automations…'),
           ],
         },
+        {
+          label: 'Notion',
+          submenu: [
+            cmd('notion-bring', 'Bring In a Notion Page…'),
+            cmd('notion-send', 'Send to Notion…'),
+            cmd('notion-compare', 'Compare with Notion'),
+            cmd('notion-open', 'Open in Notion'),
+            { type: 'separator' },
+            cmd('notion-setup', 'Notion Connection…'),
+          ],
+        },
         { id: 'print', label: 'Print…', accelerator: 'CmdOrCtrl+P', click: () => targetState()?.win.webContents.print({ printBackground: true }) },
         { type: 'separator' },
         cmd('close-tab', 'Close Tab', 'CmdOrCtrl+W'),
-        cmd('reopen-closed-tab', 'Reopen Closed Tab', 'CmdOrCtrl+Shift+T'),
         { id: 'close-window', label: 'Close Window', accelerator: 'CmdOrCtrl+Shift+W', click: () => targetState()?.win.close() },
         ...(isMac ? [] : [{ type: 'separator' }, { label: 'Exit', role: 'quit' }]),
       ],
@@ -848,6 +859,7 @@ function rebuildMenu() {
         cmd('next-tab', 'Next Tab', 'CmdOrCtrl+PageDown', { id: 'next-tab-alt', visible: false, acceleratorWorksWhenHidden: true }),
         cmd('prev-tab', 'Previous Tab', 'CmdOrCtrl+PageUp', { id: 'prev-tab-alt', visible: false, acceleratorWorksWhenHidden: true }),
         { type: 'separator' },
+        cmd('reopen-closed-tab', 'Reopen Closed Tab', 'CmdOrCtrl+Shift+T'),
         cmd('duplicate-tab', 'Duplicate Tab'),
         cmd('open-side', 'Open Tab to the Side'),
         cmd('compare-tabs', 'Compare Tab with…'),
@@ -1221,6 +1233,66 @@ async function openFromLink({ from, name, text, path: file }) {
   if (!st) throw new appLink.LinkError('failed', 'RT Markdown Reader has no window open.');
   focusState(st);
   st.win.webContents.send('link:document', { from, name, content: text });
+}
+
+// ---------------------------------------------------------------- Notion (3.8)
+const notionJobs = new Map();     // what's been fetched or is about to be sent, so the page only has to name it
+const notionSeenFile = () => path.join(app.getPath('userData'), 'notion-seen.json');
+let notionSeenCache = null;
+
+function notionSeen() {
+  if (!notionSeenCache) {
+    try { notionSeenCache = JSON.parse(fs.readFileSync(notionSeenFile(), 'utf8')); } catch { notionSeenCache = {}; }
+  }
+  return notionSeenCache;
+}
+
+function markNotionSeen(id, edited) {
+  if (!id || !edited) return;
+  notionSeen()[id] = edited;
+  try { fs.writeFileSync(notionSeenFile(), JSON.stringify(notionSeenCache)); } catch { /* it only means one extra look at the page */ }
+}
+
+function notionClient(token = loadSecrets().notion) {
+  if (!token) throw new notion.NotionError('Connect to Notion first.', 'no_key');
+  return notion.createClient({ fetch: net.fetch, token, base: process.env.NMR_NOTION_URL || notion.API });
+}
+
+/** The page's address, for opening and for the link in a document. */
+const notionUrl = (id, url) => url || `https://www.notion.so/${String(id).replace(/-/g, '')}`;
+
+/** Give an answer the page can show, whatever went wrong. */
+const notionAnswer = (fn) => async (e, req = {}) => {
+  try {
+    return await fn(e, req && typeof req === 'object' ? req : {});
+  } catch (err) {
+    return { error: err instanceof notion.NotionError ? err.message : 'That didn’t work.', code: err.code };
+  }
+};
+
+function notionPictures(md, docPath) {
+  const dir = path.join(path.dirname(docPath), 'images');
+  return notion.keepPictures(md, {
+    fetch: net.fetch,
+    save: (picture) => saveImage(docPath, picture),
+    have(id) {
+      try {
+        const file = fs.readdirSync(dir).find((f) => f.startsWith(`notion-${id}`));
+        return file ? `images/${file}` : null;
+      } catch { return null; }
+    },
+  });
+}
+
+/** What's on a document's linked page now, written as that document would be. */
+async function notionLatest(text, docPath) {
+  const id = notion.linkOf(text);
+  if (!id) throw new notion.NotionError('This document isn’t linked to a Notion page.', 'no_link');
+  const client = notionClient();
+  const [meta, page] = await Promise.all([client.meta(id), client.content(id)]);
+  const latest = notion.asDocument(meta.title, notion.toMarkdown(page.markdown));
+  const kept = docPath ? await notionPictures(latest, docPath) : { md: latest };
+  return { id, meta, content: notion.splitFront(text).front + kept.md };
 }
 
 // ---------------------------------------------------------------- automations (3.7)
@@ -1849,6 +1921,162 @@ function registerIpc() {
     autoJobs.set(token, { action, payload });
     return { token, action, plain: !/^https:/i.test(action.url), ...automations.describeSend(payload) };
   });
+  // ---- Notion: your key stays here, and what's sent is what you were shown.
+  ipcMain.handle('notion:state', () => ({ hasKey: !!loadSecrets().notion, secure: secureStorage() }));
+  ipcMain.handle('notion:connect', notionAnswer(async (_e, req) => {
+    const key = typeof req.key === 'string' ? req.key.trim() : '';
+    if (!key) throw new notion.NotionError('Paste your key first.', 'no_key');
+    if (key.length > 500 || /\s/.test(key)) throw new notion.NotionError('That doesn’t look like a Notion key.', 'key');
+    const me = await notionClient(key).me();
+    saveSecrets({ notion: key });
+    return me;
+  }));
+  ipcMain.handle('notion:forget', () => { saveSecrets({ notion: '' }); notionJobs.clear(); return {}; });
+  ipcMain.handle('notion:search', notionAnswer(async (_e, req) => ({
+    items: await notionClient().search(isStr(req.query, 500) ? req.query : '', { pagesOnly: !!req.pagesOnly }),
+  })));
+
+  ipcMain.handle('notion:fetch', notionAnswer(async (_e, req) => {
+    const pasted = typeof req.link === 'string';
+    const id = notion.pageIdOf(pasted ? req.link : req.id);
+    if (!id) throw new notion.NotionError('That isn’t a link to a Notion page.', 'bad_link');
+    const client = notionClient();
+    const database = async (isSource) => {
+      const data = await client.rows(id, { isSource });
+      const job = { kind: 'database', id, title: data.title, content: notion.asDocument(data.title, notion.tableOf(data)) };
+      const token = crypto.randomUUID();
+      notionJobs.set(token, job);
+      return { token, kind: 'database', title: data.title, rows: data.rows.length, more: data.more };
+    };
+    if (req.kind === 'database') return database(true);
+    let meta;
+    let page;
+    try {
+      [meta, page] = await Promise.all([client.meta(id), client.content(id)]);
+    } catch (err) {
+      if (!pasted) throw err;
+      try { return await database(false); } catch { throw err; }   // a link may be to a database
+    }
+    if (meta.trashed) throw new notion.NotionError('That page is in Notion’s trash.', 'trashed');
+    const content = notion.asDocument(meta.title, notion.toMarkdown(page.markdown));
+    const token = crypto.randomUUID();
+    notionJobs.set(token, { kind: 'page', id, title: meta.title, url: notionUrl(id, meta.url), edited: meta.edited, content });
+    return { token, kind: 'page', title: meta.title, pictures: notion.picturesIn(content).length, truncated: page.truncated, unknown: page.unknown };
+  }));
+
+  ipcMain.handle('notion:keep', notionAnswer(async (e, req) => {
+    const st = stateFor(e);
+    const job = notionJobs.get(req.token);
+    if (!st || !job) throw new notion.NotionError('That page isn’t waiting any more.', 'gone');
+    const linked = job.kind === 'page' && !!req.linked;
+    const name = `${job.title.replace(/[\\/:*?"<>|]/g, '-').trim().slice(0, 120) || 'Notion page'}.md`;
+    const finish = () => {
+      notionJobs.delete(req.token);
+      if (linked) markNotionSeen(job.id, job.edited);
+    };
+    if (req.how === 'open') {
+      finish();
+      return { open: { name, content: linked ? notion.withLink(job.content, job.url) : job.content } };
+    }
+    const { canceled, filePath } = await dlg.showSaveDialog(st.win, {
+      title: 'Save as Markdown', defaultPath: path.join(st.folder?.root || app.getPath('documents'), name), filters: [{ name: 'Markdown', extensions: ['md'] }],
+    });
+    if (canceled || !filePath) return { canceled: true };
+    const { md, missed } = await notionPictures(job.content, filePath);
+    await fs.promises.writeFile(filePath, encodeForSave(`${linked ? notion.withLink(md, job.url) : md}\n`, { eol: process.platform === 'win32' ? '\r\n' : '\n' }));
+    editing.sessionGrants(st).add(editing.key(filePath));
+    finish();
+    await openFile(filePath);
+    return { saved: true, missed };
+  }));
+
+  ipcMain.handle('notion:prepare', notionAnswer(async (_e, req) => {
+    if (isStr(req.path, 4096) && isLockedPath(req.path)) throw new notion.NotionError('Password-locked documents are never sent.', 'locked');
+    const text = typeof req.text === 'string' ? req.text : '';
+    if (!text.trim()) throw new notion.NotionError('Open a document first.', 'empty');
+    const id = notion.linkOf(text);
+    if (!id) return { unlinked: true };
+    const client = notionClient();
+    const [meta, page] = await Promise.all([client.meta(id), client.content(id)]);
+    const { title, rest } = notion.splitTitle(notion.splitFront(text).body);
+    const notes = { pictures: 0, footnotes: 0 };
+    const plan = notion.planEdits(page.markdown, rest, notes);
+    const rename = title && title !== meta.title ? title : '';
+    if (!plan.changed && !rename) {
+      markNotionSeen(id, meta.edited);
+      return { same: true, hosted: notes.hosted || 0 };
+    }
+    if (plan.blocked) throw new notion.NotionError('This change can’t be made around the pictures and files stored on this page. Make it in Notion instead.', 'blocked');
+    const token = crypto.randomUUID();
+    notionJobs.set(token, { kind: 'update', id, plan, rename });
+    const known = notionSeen()[id];
+    return { token, title: meta.title, rename, before: plan.before, after: plan.after, moved: !!known && meta.edited > known, truncated: page.truncated, notes };
+  }));
+
+  ipcMain.handle('notion:prepare-new', notionAnswer(async (_e, req) => {
+    if (isStr(req.path, 4096) && isLockedPath(req.path)) throw new notion.NotionError('Password-locked documents are never sent.', 'locked');
+    const parent = notion.pageIdOf(req.parent);
+    const text = typeof req.text === 'string' ? req.text : '';
+    if (!parent || !text.trim()) throw new notion.NotionError('Open a document first.', 'empty');
+    const { title, rest } = notion.splitTitle(notion.splitFront(text).body);
+    const notes = { pictures: 0, footnotes: 0 };
+    const name = title || (isStr(req.name, 500) ? req.name : '').replace(/\.[^.]+$/, '') || 'Untitled';
+    const token = crypto.randomUUID();
+    notionJobs.set(token, { kind: 'create', parent, title: name, markdown: notion.fromMarkdown(rest, notes), text });
+    return { token, title: name, parentTitle: isStr(req.parentTitle, 2000) ? req.parentTitle : '', after: rest, notes };
+  }));
+
+  ipcMain.handle('notion:send', notionAnswer(async (_e, req) => {
+    const job = notionJobs.get(req.token);
+    if (!job || (job.kind !== 'update' && job.kind !== 'create')) throw new notion.NotionError('That isn’t waiting to be sent any more.', 'gone');
+    const client = notionClient();
+    if (job.kind === 'create') {
+      const made = await client.create(job);
+      notionJobs.delete(req.token);
+      markNotionSeen(made.id, made.edited);
+      return { text: notion.withLink(job.text, notionUrl(made.id, made.url)) };
+    }
+    const missed = job.plan.changed ? await client.edit(job.id, job.plan) : 0;
+    if (job.rename) await client.rename(job.id, job.rename);
+    notionJobs.delete(req.token);
+    markNotionSeen(job.id, (await client.meta(job.id)).edited);
+    return { missed };
+  }));
+
+  // Has a linked page moved on? Only a real difference counts, and being offline isn't one.
+  ipcMain.handle('notion:check', async (_e, req = {}) => {
+    try {
+      const text = typeof req?.text === 'string' ? req.text : '';
+      const id = notion.linkOf(text);
+      if (!id || !loadSecrets().notion) return {};
+      const client = notionClient();
+      const meta = await client.meta(id);
+      const known = notionSeen()[id];
+      if (known && meta.edited <= known) return {};
+      const page = await client.content(id);
+      if (!notion.planEdits(page.markdown, notion.splitTitle(notion.splitFront(text).body).rest).changed) {
+        markNotionSeen(id, meta.edited);
+        return {};
+      }
+      return { changed: true, title: meta.title, edited: meta.edited };
+    } catch { return {}; }
+  });
+  ipcMain.handle('notion:pull', notionAnswer(async (_e, req) => {
+    const text = typeof req.text === 'string' ? req.text : '';
+    const { meta, content } = await notionLatest(text, isStr(req.path, 4096) && path.isAbsolute(req.path) ? req.path : '');
+    return { content, title: meta.title, edited: meta.edited };
+  }));
+  ipcMain.handle('notion:seen', (_e, req = {}) => {
+    markNotionSeen(notion.linkOf(req?.text), isStr(req?.edited, 60) ? req.edited : '');
+    return {};
+  });
+  ipcMain.handle('notion:open', notionAnswer(async (_e, req) => {
+    const id = notion.linkOf(typeof req.text === 'string' ? req.text : '');
+    if (!id) throw new notion.NotionError('This document isn’t linked to a Notion page.', 'no_link');
+    await shell.openExternal(notionUrl(id));
+    return {};
+  }));
+
   ipcMain.handle('auto:send', async (_e, req = {}) => {
     const job = autoJobs.get(req.token);
     if (!job) return { error: 'That was already sent, or was stopped.' };
