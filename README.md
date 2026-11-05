@@ -765,9 +765,10 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Prefere
   links with other Recon Towers apps, richer colours for the older themes, and more choices in Customize Theme.
 - **v3.7** added automations: your webhooks as commands, your n8n workflows by name, and an address your workflows can
   call to open documents.
+- **v3.8** added Notion: pages in as Markdown and databases as tables, documents sent back with only your changes, and a
+  note when a linked page has moved on.
 
 Coming next:
-- **v3.8 — Notion:** bring Notion pages in as Markdown, send documents to Notion, and keep the two in step.
 - **v3.9 — Your home server:** open and save documents on Nextcloud or any WebDAV server, and publish to
   self-hosted wikis (BookStack, Wiki.js, Outline).
 - **v3.10 — Publish anywhere:** send a document as a WordPress or Ghost draft, or share it to Discord.
