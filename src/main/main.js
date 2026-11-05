@@ -28,6 +28,7 @@ const { Updater, RELEASES_URL } = require('./updater');
 const { Editing } = require('./editing');
 const { scanFolder, searchFolder } = require('./folders');
 const { AnnotationStore } = require('./annotations');
+const flashcards = require('./flashcards');
 const { SyncEngine } = require('./sync');
 const { VoiceStore, VOICES, LICENSE_URL } = require('./voices');
 const { LANGS: VOICE_LANGS } = require('./voice-text');
@@ -57,6 +58,7 @@ let settings;
 let updater;
 let editing;
 let annotations;
+let cardStore;
 let history;
 /** Sync between your computers (3.1), see sync.js. */
 let sync;
@@ -749,6 +751,7 @@ function rebuildMenu() {
             cmd('ai-summarize', 'Summarize Document'),
             cmd('ai-explain', 'Explain Selection'),
             cmd('ai-report', 'Turn Notes into a Report'),
+            cmd('ai-cards', 'Draft Flashcards…'),
             cmd('ai-folder', 'Ask About This Folder…'),
             { type: 'separator' },
             cmd('ai-proofread', 'Proofread Selection'),
@@ -772,6 +775,7 @@ function rebuildMenu() {
       submenu: [
         cmd('read-aloud', 'Read Aloud', 'CmdOrCtrl+Shift+U'),
         cmd('present', 'Present as Slides', 'CmdOrCtrl+Shift+P'),
+        cmd('study', 'Study Flashcards…'),
         cmd('focus-mode', 'Focus Mode', 'F8'),
         cmd('split-toggle', 'Split View', 'CmdOrCtrl+\\'),
         { type: 'separator' },
@@ -1679,6 +1683,42 @@ function registerIpc() {
   });
   ipcMain.handle('ai:cancel', (_e, id) => { aiRuns.get(id)?.abort(); });
 
+  // ---- flashcards: found in the text, with only each card's progress kept by the app
+  ipcMain.handle('cards:deck', async (e, req = {}) => {
+    const today = flashcards.isoDay();
+    if (req.folder) {
+      const idx = await folderIndex(stateFor(e));
+      if (!idx) return { error: 'Open a folder first.' };
+      const cards = [];
+      for (const f of idx.cards()) cards.push(...flashcards.deck(f.cards, cardStore.get(f.path), today, { path: f.path, rel: f.rel, baseUrl: pathToFileURL(path.dirname(f.path) + path.sep).href }));
+      return { cards: cards.slice(0, 10000), keep: true };
+    }
+    const text = typeof req.text === 'string' ? req.text : '';
+    const keep = isStr(req.path, 4096) && isMarkdownPath(req.path);        // not locked or unsaved documents
+    const where = keep ? { path: req.path } : {};
+    return { cards: flashcards.deck(flashcards.parseCards(text), keep ? cardStore.get(req.path) : {}, today, where), keep };
+  });
+  ipcMain.handle('cards:grade', (_e, req = {}) => {
+    const { path: p, id, grade } = req;
+    if (!isStr(p, 4096) || !isMarkdownPath(p) || !/^[0-9a-f]{16}$/.test(String(id)) || ![1, 2, 3, 4].includes(grade)) return { error: 'invalid' };
+    const state = cardStore.grade(p, id, grade);
+    return { state, next: flashcards.intervals(state) };
+  });
+  ipcMain.handle('cards:draft', async (e, req = {}) => {
+    if (isStr(req.path, 4096) && isLockedPath(req.path)) return { error: 'AI assist is off for locked documents, so their text never leaves this computer.' };
+    if (!isStr(req.id, 100)) return { error: 'invalid' };
+    let content;
+    try {
+      content = ai.buildPrompt('cards', {
+        text: typeof req.text === 'string' ? req.text : '',
+        title: isStr(req.title, 500) ? req.title : '',
+        count: [5, 10, 20].includes(req.count) ? req.count : 10,
+      });
+    } catch (err) { return { error: err.message }; }
+    const res = await aiRequest(e, req.id, 'cards', content);
+    return res.error ? res : { ...res, cards: flashcards.parseDraft(res.text).map(({ q, a }) => ({ q, a })) };
+  });
+
   // Writing help: a suggested change to the editor's selection, which the page shows for accepting or rejecting.
   ipcMain.handle('ai:edit', async (e, req = {}) => {
     if (isStr(req.path, 4096) && isLockedPath(req.path)) return { error: 'AI assist is off for locked documents, so their text never leaves this computer.' };
@@ -2010,6 +2050,7 @@ function registerIpc() {
     const updates = idx && st.folder.scan.files.includes(p) ? idx.retarget(p, target) : [];
     const files = idx?.files;                        // as they were before the rename: the folder watcher refreshes the index while the question below is open
     try { await fs.promises.rename(p, target); } catch (err) { return { error: errorMessage(err, p) }; }
+    cardStore.move(p, target);
     editing.sessionGrants(st).add(editing.key(target));
     let updated = 0;
     let missed = 0;
@@ -2395,11 +2436,13 @@ app.whenReady().then(() => {
   history = new HistoryStore(path.join(app.getPath('userData'), 'history'));
   editing = new Editing({ settings, dialog: dlg, backupDir: backupDir(), defaultDir: app.getPath('documents'), sealLocked, history });
   annotations = new AnnotationStore(app.getPath('userData'));
+  cardStore = new flashcards.CardStore(app.getPath('userData'));
   addonStore = new addons.AddonStore(path.join(app.getPath('userData'), 'addons')).load();
   sync = new SyncEngine({
     dir: app.getPath('userData'),
     settings,
     annotations,
+    cards: cardStore,
     // Another computer's changes have just been applied here: show them in every open window.
     onApplied: ({ settings: changed, annotationPaths }) => {
       if (changed) broadcastSettings();
@@ -2409,6 +2452,7 @@ app.whenReady().then(() => {
   });
   settings.onChange = () => sync.soon();
   annotations.onChange = () => sync.soon();
+  cardStore.onChange = () => sync.soon();
   sync.start();
   applyConnector().catch(() => {});
   applyLink().catch(() => {});
@@ -2459,6 +2503,7 @@ app.on('before-quit', (e) => {
     e.preventDefault();
     syncFlushed = true;
     annotations?.flush();
+    cardStore?.flush();
     Promise.race([sync.flush(), new Promise((r) => setTimeout(r, 4000))]).finally(() => app.quit());
   }
 });
@@ -2469,6 +2514,7 @@ app.on('will-quit', () => {
   persistSession();
   settings?.flush();
   annotations?.flush();
+  cardStore?.flush();
   voices?.stop();
 });
 app.on('window-all-closed', () => {

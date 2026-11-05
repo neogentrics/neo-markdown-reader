@@ -62,3 +62,5 @@ by the reader, from Supertone's published repository
 `aafc6e32416a594460b32413efc49d7fe4ce6d46`), only after they agree, and is used under its own license, the
 [BigScience OpenRAIL-M License](https://huggingface.co/supertone-oss-archive/supertonic-3/blob/aafc6e32416a594460b32413efc49d7fe4ce6d46/LICENSE),
 including its use restrictions (Attachment A). A copy of that license is downloaded with the model.
+
+Flashcard scheduling is based on Algorithm SM-2, (C) Copyright SuperMemo World, 1991. https://www.supermemo.com

@@ -13,6 +13,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - **Customize Theme** can now change the panel and background colours too. Text on your panels changes to stay
   readable, whatever colour you pick. These stay in the app, so exports don't use them, and High Contrast keeps its own.
   With Glass on, panels stay solid over colours you've chosen, so they can still be read.
+- **Flashcards** (*View → Study Flashcards*): `Q:` / `A:` lines and definitions in your documents become cards, with
+  spaced repetition that brings each one back when it's due. Study one document or the whole open folder, practise
+  everything, or take a multiple-choice quiz. Progress stays on your computer and follows you through Sync, and it
+  holds no words from your cards. AI assist can draft cards from a chapter (*Draft Flashcards*), for you to check first.
 
 ### Changed
 - **Paper, Sepia, Mist, Night, Forest and Dusk** now have panels that run from one colour to another, with contrasting

@@ -66,6 +66,7 @@ The builds aren't code-signed yet, so Windows may show a SmartScreen warning the
 | **Automatic updates** | The installed app downloads new versions; *Restart to update* installs them without any installer screens |
 | **Listen & speak** *(new in 3.5)* | Export a document as an MP3 or an audiobook with chapters, dictate instead of typing, read aloud through your slides, teach the voices how to say names, and choose your speakers and microphone ([details](#listen--speak)) |
 | **Linked apps** *(new in 3.6)* | Link other Recon Towers apps on your computer and send documents between them, with no accounts ([details](help/09-sync.md)) |
+| **Flashcards** *(new in 3.6)* | `Q:` / `A:` lines and definitions become flashcards with spaced repetition, a quiz, and optional AI drafts from a chapter ([details](help/02-reading.md)) |
 | **Your look** *(new in 3.5)* | Blue, Red and Yellow themes, a Glass look for any theme, colour-safe colours for colour blindness, and fifteen fonts |
 | **Hands-on tutorial** *(new in 3.4)* | A guided tour with a practice document, offered the first time you open the app, and again from *Help → Tutorial* |
 | **Help Center** *(new in 3.4)* | Press `F1` for guides, common questions and quick links, with buttons that take you straight to the setting |
@@ -391,6 +392,7 @@ To use a model on your computer with Ollama: install it, run `ollama pull llama3
 Read on one computer, pick up on another. *Preferences → Sync* keeps these the same everywhere:
 
 - your **highlights and notes**,
+- how your **flashcards** are going,
 - your **bookmarks**, **recent files** and **where you stopped reading** in each document,
 - your **settings**: theme, typeface, text size, page width, language, read-aloud speed and voice, export
   choices, your own colours and fonts, and your keyboard shortcuts.
@@ -610,6 +612,7 @@ Double-click it to put it back.
   - **Summarize Document**
   - **Explain Selection** (in plain language)
   - **Turn Notes into a Report**, which opens the draft as a new document.
+  - **Draft Flashcards**, from the whole document, one chapter or the selected text. You tick the ones to add.
   - **Ask About This Folder…** (2.3) and **Proofread, Rewrite, Shorten** or **Translate** a selection in
     the editor (2.4; see [AI writing help](#read-listen--share)).
 - It uses the service you choose (since 3.3): Claude, ChatGPT, Gemini, Mistral, OpenRouter, or a model on
@@ -816,6 +819,7 @@ src/
 │   ├── addons.js         add-ons: checks manifests and packages, installs them, theme CSS, the sandbox program
 │   ├── folders.js        scanning and searching an opened folder
 │   ├── annotations.js    private highlights & notes (stored in app data, never in the file)
+│   ├── flashcards.js     finds cards in a document, and works out when each comes back
 │   ├── sync.js           sync between computers: one file per computer in a synced folder, newest item wins
 │   ├── voices.js         natural voices: the pinned, checksummed download, and the process that speaks
 │   ├── voice-worker.js   that process: Supertonic 3 on ONNX Runtime's WebAssembly engine (bundled into dist/)

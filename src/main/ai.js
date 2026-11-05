@@ -29,7 +29,7 @@ const SYSTEM = [
 const escAttr = (s) => String(s || '').replace(/[&"<>]/g, (c) => ({ '&': '&amp;', '"': '&quot;', '<': '&lt;', '>': '&gt;' }[c]));
 
 /** Build the request content for an action. Throws a friendly error for empty or oversized input. */
-function buildPrompt(action, { text = '', selection = '', title = '' } = {}) {
+function buildPrompt(action, { text = '', selection = '', title = '', count = 10 } = {}) {
   const doc = String(text || '');
   const sel = String(selection || '').trim();
   if (!doc.trim()) throw new Error('This document is empty.');
@@ -43,6 +43,8 @@ function buildPrompt(action, { text = '', selection = '', title = '' } = {}) {
       return `${wrapped}\n\n<selection>\n${sel.slice(0, 20_000)}\n</selection>\n\nExplain the selected passage in plain language, using the rest of the document for context. Define any jargon or abbreviations it uses. Keep it brief: a few short paragraphs at most.`;
     case 'report':
       return `${wrapped}\n\nTurn these notes into a clean, well-structured report in Markdown.\n- Begin with YAML front matter containing title, subtitle and date (use a date from the notes; omit date if there is none).\n- Then an executive summary of two to four sentences.\n- Then sections with clear headings. Use tables where the notes contain comparable data, and a task list (- [ ]) for action items.\n- Keep every fact from the notes and add no new facts. Fix spelling and make the wording clear and professional.\n\nReply with only the Markdown document, without a code fence around it.`;
+    case 'cards':
+      return `${wrapped}\n\nWrite up to ${count} flashcards that test the main ideas in this text, so someone can check they've learned it.\n- Every answer must come from the text. Do not add outside facts.\n- One idea per card. Keep questions clear on their own and answers short.\n- Write the cards in the same language as the text, but always label the lines Q: and A:.\n\nReply with only the cards, in exactly this form, with a blank line between them and no code fence:\n\nQ: The question\nA: The answer`;
     default:
       throw new Error('Unknown AI action.');
   }

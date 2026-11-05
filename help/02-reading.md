@@ -18,6 +18,26 @@ For colour blindness, turn on **Colour-safe colours** in [Preferences → Appear
 
 Select some text and press `Ctrl+Shift+H`. Highlights are private: they're kept by the app and never written into the file. See them all in the **Notes** panel.
 
+## Flashcards
+
+Write cards in your document, and choose *View → Study Flashcards* to learn them.
+
+```
+Q: What does DNS do?
+A: It turns names into addresses.
+
+Firewall
+: Filters traffic between networks.
+```
+
+Bold terms in a list count too, under a heading such as *Glossary*, *Key Terms* or *Vocabulary*.
+
+- **Start Studying** shows each card that's due. Choose how well you knew it (or press `1` to `4`), and cards you know well come back less often. **Again** brings a card back in a few cards' time.
+- **Practice All** goes through every card, and **Quiz Me** asks multiple-choice questions using the other answers. Neither changes when cards come back.
+- With a folder open, you can study every card in it.
+
+The words of your cards stay in your document. The app keeps only the date each one comes back, so changing an answer keeps its place, and changing a question starts that card again. Progress isn't kept for locked documents or ones you haven't saved yet.
+
 ## Staying focused
 
 **View → Focus Mode** (`F8`) hides everything but the page. **View → Present as Slides** turns a document into a presentation.

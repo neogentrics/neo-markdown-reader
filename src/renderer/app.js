@@ -13,6 +13,7 @@ import { createThemeUi } from './theme-ui.js';
 import { createLockUi } from './lock-ui.js';
 import { addRunButtons } from './run-ui.js';
 import { createAiUi } from './ai-ui.js';
+import { createCardsUi } from './cards-ui.js';
 import { createHistoryUi } from './history-ui.js';
 import { createKeysUi } from './keys-ui.js';
 import { createNotesUi } from './notes-ui.js';
@@ -62,6 +63,7 @@ let split = null;
 let highlights = null;
 let publish = null;
 let presenter = null;
+let cardsUi = null;
 let themeUi = null;
 let lockUi = null;
 let aiUi = null;
@@ -1001,6 +1003,8 @@ api.onCommand(({ cmd, arg }) => {
     case 'ai-summarize': aiUi.run('summarize'); break;
     case 'ai-explain': aiUi.run('explain'); break;
     case 'ai-report': aiUi.run('report'); break;
+    case 'ai-cards': cardsUi.openDraft(); break;
+    case 'study': cardsUi.open(); break;
     case 'ai-settings': aiUi.openSettings(); break;
     case 'ai-folder': aiUi.askFolder(); break;
     case 'ai-proofread': case 'ai-rewrite': case 'ai-shorten': case 'ai-translate': aiUi.editSelection(cmd.slice(3)); break;
@@ -1274,6 +1278,26 @@ aiUi = createAiUi({
     const st = view.state;
     const { from, to } = st.selection.main;
     return { tab, from, to, text: st.sliceDoc(from, to), before: st.sliceDoc(Math.max(0, from - 2000), from), after: st.sliceDoc(to, Math.min(st.doc.length, to + 2000)) };
+  },
+});
+cardsUi = createCardsUi({
+  api, render, toast, activeTab, openAtLine,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
+  folder: () => sidebar.folder(),
+  selectionIn(t) {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !t.el.contains(sel.anchorNode)) return '';
+    return sel.toString().trim();
+  },
+  aiReady: () => aiUi.ready(),
+  /** Add to the end of a document, in the editor, so nothing is saved until you save it. */
+  async addToDocument(tab, textFor) {
+    await editMode.enter(tab);
+    const view = tab.editing && tab.editor?.view;
+    if (!view) return false;
+    const end = view.state.doc.length;
+    view.dispatch({ changes: { from: end, insert: textFor(view.state.doc.toString()) } });
+    return true;
   },
 });
 lockUi = createLockUi({

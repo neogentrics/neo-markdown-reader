@@ -105,6 +105,10 @@ contextBridge.exposeInMainWorld('reader', {
   askFolder: invoke('ai:ask-folder'),
   peekDoc: invoke('doc:peek'),
   aiEdit: invoke('ai:edit'),
+  // flashcards (3.6)
+  cardsDeck: invoke('cards:deck'),
+  cardsGrade: invoke('cards:grade'),
+  cardsDraft: invoke('cards:draft'),
   // sync between your computers (3.1)
   syncStatus: invoke('sync:status'),
   syncChooseFolder: invoke('sync:choose-folder'),

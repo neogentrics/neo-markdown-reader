@@ -317,6 +317,83 @@
     </div>
   </dialog>
 
+  <dialog class="shortcuts cards-dlg" id="cards-dlg" aria-labelledby="cards-h">
+    <div class="ai-head"><h3 id="cards-h">Flashcards</h3><button type="button" class="tb-btn sm" id="cards-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <section id="cards-home">
+      <label class="field" id="cards-scope-field">Study from<select id="cards-scope"><option value="doc">This document</option><option value="folder">The open folder</option></select></label>
+      <div class="cards-counts" id="cards-counts">
+        <div><b id="cards-total">0</b><span>Cards</span></div>
+        <div><b id="cards-due">0</b><span>Due today</span></div>
+        <div><b id="cards-new">0</b><span>New</span></div>
+      </div>
+      <div class="cards-empty" id="cards-empty" hidden>
+        <p>No cards here yet. Write them in your document like this, and they’ll appear here:</p>
+        <pre translate="no">Q: What does DNS do?
+A: It turns names into addresses.
+
+Term
+: What the term means.</pre>
+        <p>Bold terms in a list count too, under a heading such as Glossary or Key Terms.</p>
+      </div>
+      <p class="cards-note" id="cards-note" role="status"></p>
+      <div class="cards-actions">
+        <button type="button" class="big-btn sm" id="cards-study">Start Studying</button>
+        <button type="button" class="link-btn" id="cards-practice">Practice All</button>
+        <button type="button" class="link-btn" id="cards-quiz">Quiz Me</button>
+        <span class="spacer"></span>
+        <button type="button" class="link-btn" id="cards-draft">Draft Cards with AI…</button>
+      </div>
+    </section>
+    <section id="cards-run" hidden>
+      <div class="cards-progress"><span id="cards-count"></span><div class="cards-bar"><i id="cards-fill"></i></div></div>
+      <div class="cards-from" id="cards-from" translate="no"></div>
+      <div class="cards-stage">
+        <article class="markdown-body cards-face" id="cards-q" aria-live="polite"></article>
+        <article class="markdown-body cards-face cards-answer" id="cards-a" aria-live="polite" hidden></article>
+        <div class="cards-options" id="cards-options" hidden></div>
+      </div>
+      <div class="cards-foot">
+        <button type="button" class="link-btn" id="cards-quit">Stop</button>
+        <button type="button" class="link-btn" id="cards-source">Go to Source</button>
+        <span class="spacer"></span>
+        <button type="button" class="big-btn sm" id="cards-show">Show Answer</button>
+        <button type="button" class="big-btn sm" id="cards-next" hidden>Next</button>
+        <div class="cards-grades" id="cards-grades" role="group" aria-label="How well did you know it?" hidden>
+          <button type="button" data-grade="1" data-name="again">Again<small></small></button>
+          <button type="button" data-grade="2" data-name="hard">Hard<small></small></button>
+          <button type="button" data-grade="3" data-name="good">Good<small></small></button>
+          <button type="button" data-grade="4" data-name="easy">Easy<small></small></button>
+        </div>
+      </div>
+    </section>
+    <section id="cards-done" hidden>
+      <h4 class="cards-done-h" id="cards-done-h" role="status"></h4>
+      <div class="cards-counts two">
+        <div><b id="cards-done-big"></b><span id="cards-done-label"></span></div>
+        <div><b id="cards-done-repeats"></b><span id="cards-done-repeats-label"></span></div>
+      </div>
+      <div class="cards-actions">
+        <button type="button" class="big-btn sm" id="cards-back">Back to Cards</button>
+        <button type="button" class="link-btn" id="cards-missed" hidden>Practice the Ones You Missed</button>
+      </div>
+    </section>
+    <section id="cards-ai" hidden>
+      <div class="cards-ai-row">
+        <label class="field">Draft cards from<select id="cards-ai-from"></select></label>
+        <label class="field">How many<select id="cards-ai-count"><option>5</option><option selected>10</option><option>20</option></select></label>
+      </div>
+      <p class="cards-note" id="cards-ai-msg" role="status"></p>
+      <div class="cards-ai-list" id="cards-ai-list" hidden></div>
+      <div class="cards-actions">
+        <button type="button" class="link-btn" id="cards-ai-back">Back</button>
+        <span class="spacer"></span>
+        <button type="button" class="link-btn" id="cards-ai-stop" hidden>Stop</button>
+        <button type="button" class="link-btn" id="cards-ai-go">Draft Cards</button>
+        <button type="button" class="big-btn sm" id="cards-ai-add" hidden>Add to Document</button>
+      </div>
+    </section>
+  </dialog>
+
   <dialog class="shortcuts lock-dlg" id="lock-dlg" aria-labelledby="lock-dlg-h">
     <form id="lock-form">
       <h3 id="lock-dlg-h">Protect “<span id="lock-doc"></span>” with a password</h3>
