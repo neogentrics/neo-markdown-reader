@@ -4,7 +4,7 @@ All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [3.6.3] - Unreleased
+## [3.6.3] - 2026-11-04
 
 ### Fixed
 - **Natural voices start much sooner after you skip, start or resume.** A skip now interrupts the sentence being made
