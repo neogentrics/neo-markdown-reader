@@ -4,7 +4,7 @@ RT Markdown Reader reads and writes Notion pages through Notion's own Markdown s
 
 ## Connecting
 
-1. In Notion, open **Settings**, then **Connections**, and choose **Develop or manage integrations**.
+1. In Notion, open **Settings**, then **Connections**, and choose **Develop or manage integrations**, or go straight to [notion.so/profile/integrations](https://www.notion.so/profile/integrations).
 2. Make a new **internal integration** and copy its secret.
 3. On each page you want to use here, open the **•••** menu, choose **Connections**, and add your integration. Subpages come with it.
 4. In the app, choose **File → Notion → Notion Connection…** and paste the key.
@@ -41,7 +41,7 @@ A database opens as a table of up to 1,000 rows. It's a copy to read and isn't l
 | Columns, synced blocks | What's inside them, one after the other |
 | Colours | Plain text |
 
-Colours aren't lost from Notion by bringing a page in. They only change if you edit that block and send it back.
+Colours aren't lost from Notion by bringing a page in, and a block you edit keeps its colour when you send it back, as long as it's still the same kind of block.
 
 ## Sending to Notion
 
@@ -55,7 +55,8 @@ Colours aren't lost from Notion by bringing a page in. They only change if you e
 
 What doesn't go over:
 
-- Pictures on your computer stay behind, with a note in their place. Notion can only take pictures from the web here. Pictures that came from Notion and haven't changed stay on the page.
+- Pictures on your computer stay behind, with a note in their place. Notion can only take pictures from the web here.
+- Pictures and files stored on Notion can't be removed, moved or recaptioned from here, because Notion gives them a new link on every read. They stay as they are, and you're told. Words around them can be changed freely.
 - Notion has no footnotes, so they arrive as plain text.
 - Password-locked documents are never sent.
 

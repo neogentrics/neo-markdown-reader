@@ -339,6 +339,20 @@ test('an edited block keeps its colour and icon', () => {
   assert.equal(edit('<quote color="red">\nOld\n</quote>', '> New'), '<quote color="red">\nNew\n</quote>');
 });
 
+test('blocks edited side by side each keep their own look', () => {
+  const page = '<quote color="purple_bg">\nOld quote\n</quote>\n\n<callout icon="💡" color="blue_bg">\nOld tip\n</callout>';
+  const plan = planEdits(page, '> New quote\n\n> [!TIP]\n> New tip');
+  assert.equal(plan.edits[0].new_str, '<quote color="purple_bg">\nNew quote\n</quote>\n\n<callout icon="💡" color="blue_bg">\nNew tip\n</callout>');
+});
+
+test('what Notion only stores differently isn’t a change', () => {
+  assert.equal(planEdits('#### Small', '##### Small').changed, false);
+  assert.equal(planEdits('```javascript\nx\n```', '```js\nx\n```').changed, false);
+  assert.equal(planEdits('```py\nx\n```', '```python\nx\n```').changed, false);
+  assert.equal(planEdits('```py\nx\n```', '```ruby\nx\n```').changed, true);
+  assert.equal(planEdits('```py\nx\n```', '```py\ny\n```').changed, true);
+});
+
 test('footnotes arrive as plain marks, and don’t count as changes afterwards', () => {
   const notes = { pictures: 0, footnotes: 0 };
   const sent = fromMarkdown('Text[^1]\n\n[^1]: A note.', notes);

@@ -10,7 +10,7 @@ Notion and your Markdown files, working together.
 
 ### Added
 - **Bring Notion pages in.** *File → Notion → Bring In a Notion Page…* opens a page as Markdown, with its headings, lists, to-dos, tables, code, callouts, toggles and pictures. A database opens as a table. Save it as a file, with Notion's pictures copied beside it, or just read it.
-- **Send documents to Notion.** Send a document as a new page under one you choose, or update the page it's linked to. You see what will change first, and only the blocks you changed are sent, so colours, mentions and pictures elsewhere on the page stay as they are. Notion refuses anything that would delete a subpage or database.
+- **Send documents to Notion.** Send a document as a new page under one you choose, or update the page it's linked to. You see what will change first, and only the blocks you changed are sent, so colours, mentions and pictures elsewhere on the page stay as they are, and a block you edit keeps its colour. Notion refuses anything that would delete a subpage or database. Pictures on your computer aren't sent yet, and pictures stored on Notion can't be removed or moved from here.
 - **Keep them in step.** A linked document tells you when its Notion page has changed. *Compare* shows the differences, and *Bring In Changes* puts them in the editor for you to save.
 - **Connect with your own key.** A Notion internal integration, shared with the pages you choose, kept encrypted on this computer and sent only to Notion.
 

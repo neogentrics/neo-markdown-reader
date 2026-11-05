@@ -488,9 +488,20 @@ function swapPictures(md, swaps) {
   return String(md || '').replace(IMAGE, (whole, alt, url) => (swaps.has(url) ? `![${alt}](${swaps.get(url)})` : whole));
 }
 
-/** What a block says, so that a picture saved beside your document counts as the same picture on Notion. */
+// Notion stores some languages under another name, and headings stop at level 4.
+const LANGUAGES = {
+  python: 'py', typescript: 'ts', javascript: 'js', text: 'txt', plaintext: 'txt', plain: 'txt', shell: 'bash', sh: 'bash',
+  yml: 'yaml', markdown: 'md', csharp: 'cs', golang: 'go', rust: 'rs', ruby: 'rb',
+};
+
+/** What a block says, so that what Notion only stores differently doesn't count as a change. */
 function sameness(md) {
   return md.replace(/[ \t]+$/gm, '')
+    .replace(/^#{5,6}(?= )/gm, '####')
+    .replace(/^(`{3,}|~{3,})[ \t]*([^\s`]+)/gm, (_, fence, language) => {
+      const name = language.toLowerCase();
+      return `${fence}${LANGUAGES[name] || name}`;
+    })
     .replace(IMAGE, (whole, alt, url) => {
       const id = fileId(url) || LOCAL_COPY.exec(url)?.[1]?.toLowerCase();
       return id ? `![${alt}](notion:${id})` : asSent(whole);
@@ -638,8 +649,12 @@ function planEdits(nfm, body, notes = { pictures: 0, footnotes: 0 }) {
   const convert = (h) => {
     const kept = [];
     if (h.first !== null) for (let i = h.first; i <= h.last; i++) if (silent.has(i)) kept.push(blocks[i].raw);
-    let text = fromMarkdown(h.adds.join('\n\n'), notes);
-    if (h.first !== null && h.first === h.last) text = keepStyle(blocks[h.first].raw, text);
+    // Blocks edited side by side line up one for one, so each keeps its own look.
+    const shown = [];
+    if (h.first !== null) for (let i = h.first; i <= h.last; i++) if (!silent.has(i)) shown.push(i);
+    const text = shown.length === h.adds.length
+      ? h.adds.map((add, k) => keepStyle(blocks[shown[k]].raw, fromMarkdown(add, notes))).join('\n\n')
+      : fromMarkdown(h.adds.join('\n\n'), notes);
     return [text, ...kept].filter(Boolean).join('\n\n');
   };
   const converted = safe.map(convert);

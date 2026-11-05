@@ -29,4 +29,4 @@ Choose **File → Notion → Bring In a Notion Page…** to open a page as Markd
 
 When a linked page changes in Notion, a note appears at the top. **Compare** shows both, and **Bring In Changes** puts Notion's version in the editor for you to save.
 
-Pictures on your computer aren't sent, and password-locked documents never are.
+Pictures on your computer aren't sent, and password-locked documents never are. Pictures and files stored on Notion can't be removed or moved from here, so do that in Notion.
