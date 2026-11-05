@@ -20,10 +20,10 @@ body.has-doc .find-bar { top: 98px; }
   background: var(--page); color: var(--heading); font-weight: 600; border-color: var(--chrome-border);
   margin-bottom: -1px; height: 33px;
 }
-.tab.active::after { content: ""; position: absolute; left: 10px; right: 10px; top: 0; height: 2px; border-radius: 0 0 2px 2px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+.tab.active::after { content: ""; position: absolute; left: 10px; right: 10px; top: 0; height: 2px; border-radius: 0 0 2px 2px; background: linear-gradient(90deg, var(--accent-fill, var(--accent)), var(--accent-2)); }
 .tab.dragging { opacity: .45; }
 .tab.drop-before::before, .tab.drop-after::before {
-  content: ""; position: absolute; top: 6px; bottom: 6px; width: 2px; border-radius: 2px; background: var(--accent);
+  content: ""; position: absolute; top: 6px; bottom: 6px; width: 2px; border-radius: 2px; background: var(--accent-fill, var(--accent));
 }
 .tab.drop-before::before { left: -3px; }
 .tab.drop-after::before { right: -3px; }
@@ -56,8 +56,8 @@ body.has-doc .find-bar { top: 98px; }
   box-shadow: 0 14px 40px -12px rgba(0, 0, 0, .4);
 }
 .update-btn {
-  border: 0; border-radius: 8px; padding: 6px 12px; font-weight: 600; cursor: pointer; color: #fff;
-  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, var(--accent-2)));
+  border: 0; border-radius: 8px; padding: 6px 12px; font-weight: 600; cursor: pointer; color: var(--on-fill, var(--on-accent));
+  background: linear-gradient(135deg, var(--accent-fill, var(--accent)), color-mix(in srgb, var(--accent-fill, var(--accent)) 70%, var(--accent-2)));
 }
 
 /* ---------- image viewer */

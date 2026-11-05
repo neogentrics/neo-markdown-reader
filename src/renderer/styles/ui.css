@@ -14,13 +14,14 @@ button { font: inherit; color: inherit; }
 /* ---------- toolbar */
 .toolbar {
   position: fixed; inset: 0 0 auto 0; height: 52px; z-index: 20;
-  display: flex; align-items: center; gap: 4px; padding: 0 10px;
+  /* Equal sides keep the title in the middle of the window. A long title takes room from the wider side. */
+  display: grid; grid-template-columns: 1fr minmax(0, auto) 1fr; align-items: center; gap: 4px; padding: 0 10px;
   background: var(--toolbar-fill); border-bottom: 1px solid var(--chrome-border);
   backdrop-filter: saturate(1.4) blur(14px);
 }
 .toolbar::after {   /* reading progress */
   content: ""; position: absolute; left: 0; bottom: -1px; height: 2px;
-  width: calc(var(--progress) * 100%); background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  width: calc(var(--progress) * 100%); background: linear-gradient(90deg, var(--accent-fill, var(--accent)), var(--accent-2));
   opacity: 0; transition: opacity .2s;
 }
 body.has-doc .toolbar::after { opacity: 1; }
@@ -34,13 +35,15 @@ body.has-doc .toolbar::after { opacity: 1; }
 .tb-btn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .tb-btn.sm { height: 28px; min-width: 28px; }
 .tb-btn.sm svg { width: 16px; height: 16px; }
-.tb-primary { background: var(--accent); color: var(--on-accent); padding: 0 12px 0 10px; font-weight: 600; margin-left: 4px; }
-.tb-primary:hover:not(:disabled) { background: var(--accent); color: var(--on-accent); filter: brightness(1.08); }
-.tb-title { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; line-height: 1.2; padding: 0 12px; }
+.tb-primary { background: var(--accent-fill, var(--accent)); color: var(--on-fill, var(--on-accent)); padding: 0 12px 0 10px; font-weight: 600; margin-left: 4px; }
+.tb-primary:hover:not(:disabled) { background: var(--accent-fill, var(--accent)); color: var(--on-fill, var(--on-accent)); filter: brightness(1.08); }
+.tb-title { min-width: 0; display: flex; flex-direction: column; align-items: center; line-height: 1.2; padding: 0 12px; }
 .tb-title-name { font-weight: 600; color: var(--heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .tb-title-meta { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .tb-title-meta:empty { display: none; }
 .tb-group { display: flex; align-items: center; gap: 2px; }
+.tb-left { justify-self: start; gap: 4px; }
+.tb-right { justify-self: end; }
 .tb-menu-wrap { position: relative; }
 
 .popover {
@@ -119,8 +122,8 @@ body.toc-hidden .sidebar, body:not(.has-doc) .sidebar { margin-left: -281px; }
 .welcome-sub { color: var(--text-soft); margin: 0 0 26px; font-size: 15px; }
 .big-btn {
   display: inline-flex; align-items: center; gap: 10px; padding: 12px 22px; border: 0; border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, var(--accent-2)));
-  color: var(--on-accent); font-weight: 600; font-size: 15px; cursor: pointer; box-shadow: 0 8px 22px -8px var(--accent);
+  background: linear-gradient(135deg, var(--accent-fill, var(--accent)), color-mix(in srgb, var(--accent-fill, var(--accent)) 70%, var(--accent-2)));
+  color: var(--on-fill, var(--on-accent)); font-weight: 600; font-size: 15px; cursor: pointer; box-shadow: 0 8px 22px -8px var(--accent-fill, var(--accent));
   transition: transform .12s, filter .12s;
 }
 .big-btn:hover { filter: brightness(1.07); transform: translateY(-1px); }

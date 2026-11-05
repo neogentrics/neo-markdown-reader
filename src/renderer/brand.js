@@ -75,7 +75,7 @@ const tinted = (panel, color, ink) => {
   return panel;
 };
 
-/** Your button colour on a panel, changed only as much as it takes to be read there. */
+/** Your colour as words and marks on a panel, changed only as much as it takes to be read there. */
 export function panelAccent(accent, stops) {
   const ink = inkFor(stops);
   const soft = tinted(stops[0], accent || ink, ink);
@@ -105,6 +105,8 @@ const declare = (tokens) => Object.entries(tokens).map(([k, v]) => `--${k}: ${v}
 export function appCss(brand = {}) {
   const rules = [];
   const accent = HEX.test(brand.accent || '') ? brand.accent : '';
+  // Filled buttons are your colour exactly, in every theme: they carry their own text, so only words need adjusting.
+  if (accent) rules.push(`${NOT_CONTRAST} { ${declare({ 'accent-fill': accent, 'on-fill': inkFor([accent]) })}; }`);
   if (HEX.test(brand.panel || '')) {
     const scheme = inkFor([brand.panel]) === WHITE ? 'dark' : 'light';
     rules.push(`${NOT_CONTRAST} ${PANEL_SCOPE} { color-scheme: ${scheme}; ${declare(panelTokens(brand.panel, accent))}; }`);

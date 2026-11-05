@@ -222,6 +222,11 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
     await win.evaluate(() => { document.getElementById('brand-app').media = 'not all'; });
     assert.notEqual(onPanels, await panelToken('--accent'), 'the theme would otherwise keep its own');
     await win.evaluate(() => { document.getElementById('brand-app').media = ''; });
+    for (const theme of ['blue', 'dark', 'light']) {
+      await win.evaluate((t) => window.reader.setSettings({ theme: t }), theme);
+      await win.waitForFunction((t) => document.documentElement.dataset.theme === t, theme);
+      assert.equal(await win.evaluate(() => getComputedStyle(document.getElementById('btn-open')).backgroundColor), 'rgb(43, 138, 62)', `Open is your exact colour in ${theme}`);
+    }
     await menu('customize-theme');
     await win.waitForSelector('#theme-dlg[open]');
     await win.click('#panel-swatches [data-color="#12355b"]');

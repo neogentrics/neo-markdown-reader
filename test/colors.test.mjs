@@ -142,6 +142,17 @@ test('custom theme: your button colour can be read on every theme\'s panels', ()
   }
 });
 
+test('custom theme: filled buttons are exactly your colour, with text that can be read', () => {
+  for (const accent of [...ACCENTS, ...EVERY]) {
+    const css = appCss({ accent });
+    assert.ok(css.includes(`--accent-fill: ${accent}`), accent);
+    const on = /--on-fill: (#[0-9a-f]{6})/.exec(css)[1];
+    assert.ok(contrast(on, accent) >= 4.5, `text on ${accent}`);
+  }
+  assert.doesNotMatch(appCss({ panel: '#12355b' }), /--accent-fill/, 'no colour chosen: the theme keeps its own');
+  assert.match(appCss({ accent: '#c2255c' }), /:not\(\[data-theme="contrast"\]\) \{ --accent-fill/, 'High Contrast keeps its own');
+});
+
 test('custom theme: a colour that already reads on a panel isn\'t changed', () => {
   assert.equal(panelAccent('#0b3d91', THEME_PANELS.light).accent, '#0b3d91');
 });
