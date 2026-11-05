@@ -175,7 +175,7 @@ const BLOCK_TAGS = new Set(['callout', 'toggle', 'quote', 'columns', 'column', '
   'pdf', 'audio', 'video', 'image', 'bookmark', 'embed', 'unknown', 'custom-block', 'table-of-contents', 'colgroup', 'col', 'tr', 'td', 'th']);
 const ANY_TAG = /(?<!\\)<(\/?)([a-z][a-z0-9-]*)(?:\s[^<>]*?)?(\/?)>/gi;
 const FENCE = /^ {0,3}(`{3,}|~{3,})/;
-const noCode = (line) => line.replace(/(`+)(?:[\s\S]*?[^`])?\1(?!`)/g, '');
+const noCode = (line) => line.replace(/<code>[\s\S]*?<\/code>/g, '').replace(/(`+)(?:[\s\S]*?[^`])?\1(?!`)/g, '');
 const known = (name) => BLOCK_TAGS.has(name) || name.startsWith('meeting-notes-section');
 
 /** How far this line moves the nesting of block tags, and whether it has any. */
@@ -257,7 +257,7 @@ const MEDIA = { file: '📎', pdf: '📄', audio: '🔊', video: '🎬' };
 
 function attrsOf(text) {
   const out = {};
-  for (const m of String(text || '').matchAll(/([a-z-]+)="([^"]*)"/gi)) out[m[1].toLowerCase()] = m[2];
+  for (const m of String(text || '').matchAll(/([a-z-]+)="([^"]*)"/gi)) out[m[1].toLowerCase()] = m[2].replace(/&amp;/g, '&');
   return out;
 }
 
@@ -389,6 +389,18 @@ function toMarkdown(nfm) {
 
 const isWeb = (url) => /^https?:/i.test(url);
 
+const ANY_IMAGE = /!\[([^\]]*)\]\(([^)\s]*)[^)]*\)/g;
+const canSend = (url) => isWeb(url) && !HOSTED.test(url);   // a signed link from Notion would stop working within the hour
+const FOOTNOTE_NOTE = /^\[\^(?!http)[^\]]+\]:/m;
+
+/** Notion can't take a picture from your computer or a footnote, so these are what it gets in their place. */
+function asSent(text) {
+  return text
+    .replace(ANY_IMAGE, (whole, alt, url) => (canSend(url) ? whole : `*(Picture left on your computer: ${alt || url.split('/').pop().slice(0, 80) || 'picture'})*`))
+    .replace(/^\[\^((?!http)[^\]]+)\]:[ \t]*/gm, '\\[$1\\] ')
+    .replace(/\[\^((?!http)[^\]]+)\]/g, '\\[$1\\]');
+}
+
 function alertToNotion(raw) {
   const lines = raw.split('\n').map((l) => l.replace(/^>\s?/, ''));
   const type = /^\[!(\w+)\]/.exec(lines[0])[1].toUpperCase();
@@ -413,15 +425,9 @@ function blockToNotion(raw, notes) {
     const tag = Object.keys(LINKED).find((k) => LINKED[k] === linked[1]);
     return `<${tag} url="${linked[3]}">${linked[2]}</${tag}>`;
   }
-  if (/^\[\^[^\]]+\]:/m.test(text)) notes.footnotes += 1;
-  return text
-    .replace(/^#{5,6}(?= )/gm, '####')
-    .replace(/^(#{1,4} .*)\n(?=\S)/gm, '$1\n\n')
-    .replace(/!\[([^\]]*)\]\(([^)\s]*)[^)]*\)/g, (whole, alt, url) => {
-      if (isWeb(url)) return whole;
-      notes.pictures += 1;
-      return `*(Picture left on your computer: ${alt || url.split('/').pop().slice(0, 80) || 'picture'})*`;
-    });
+  if (FOOTNOTE_NOTE.test(text)) notes.footnotes += 1;
+  notes.pictures += [...text.matchAll(ANY_IMAGE)].filter((m) => !canSend(m[2])).length;
+  return asSent(text.replace(/^#{5,6}(?= )/gm, '####').replace(/^(#{1,4} .*)\n(?=\S)/gm, '$1\n\n'));
 }
 
 /** A document as Notion's Markdown, which is CommonMark with GFM tables, so mostly it passes through. */
@@ -433,6 +439,7 @@ function fromMarkdown(md, notes = { pictures: 0, footnotes: 0 }) {
 // ---------------------------------------------------------------- pictures
 
 const NOTION_FILE = /^https:\/\/(?:prod-files-secure\.s3[\w.-]*\.amazonaws\.com|s3[\w.-]*\.amazonaws\.com\/secure\.notion-static\.com|file\.notion\.so)\//i;
+const HOSTED = /https:\/\/(?:prod-files-secure\.s3[\w.-]*\.amazonaws\.com|s3[\w.-]*\.amazonaws\.com\/secure\.notion-static\.com|file\.notion\.so)\//i;
 const LOCAL_COPY = /(?:^|[\\/])notion-([0-9a-f]{8})[^\\/]*$/i;
 const IMAGE = /!\[([^\]]*)\]\(([^)\s]+)\)/g;
 const isNotionFile = (url) => NOTION_FILE.test(String(url || ''));
@@ -486,9 +493,11 @@ function sameness(md) {
   return md.replace(/[ \t]+$/gm, '')
     .replace(IMAGE, (whole, alt, url) => {
       const id = fileId(url) || LOCAL_COPY.exec(url)?.[1]?.toLowerCase();
-      return id ? `![${alt}](notion:${id})` : whole;
+      return id ? `![${alt}](notion:${id})` : asSent(whole);
     })
-    .replace(/\((https:\/\/[^)\s?]+)\?[^)\s]*X-Amz[^)\s]*\)/g, '($1)');
+    .replace(/\((https:\/\/[^)\s?]+)\?[^)\s]*X-Amz[^)\s]*\)/g, '($1)')
+    .replace(/\[\^(?!http)[^\]]+\]/g, (m) => asSent(m))
+    .replace(/^\\\[([^\]\\]+)\\\]:? /gm, '\\[$1\\] ');
 }
 
 // ---------------------------------------------------------------- the changes to send
@@ -526,6 +535,22 @@ function align(a, b) {
   }
   for (let t = tail; t > 0; t--) ops.push(['=', a.length - t, b.length - t]);
   return ops;
+}
+
+/** A block you edited keeps its colour and icon, where what it became is still the same kind of block. */
+function keepStyle(raw, text) {
+  const open = /^<(callout|toggle|quote|p|h[1-4])\b[^>]*>/.exec(raw.trim());
+  if (!open || open[0] === `<${open[1]}>`) return text;
+  const [tag, name] = open;
+  if (name === 'callout') {
+    const m = /^<callout\b([^>]*)>\n?([\s\S]*?)\n?<\/callout>$/.exec(text);
+    return m && attrsOf(m[1]).icon === attrsOf(tag).icon ? `${tag}\n${m[2]}\n</callout>` : text;
+  }
+  if (name === 'toggle') return text.startsWith('<toggle>') ? tag + text.slice('<toggle>'.length) : text;
+  if (name === 'quote') return text.startsWith('>') ? `${tag}\n${text.split('\n').map((l) => l.replace(/^>\s?/, '')).join('\n')}\n</quote>` : text;
+  if (name === 'p') return /^(?:[<#>|-]|\d+\.\s|```|\$\$)/.test(text) ? text : `${tag}\n${text}\n</p>`;
+  const heading = new RegExp(`^#{${name[1]}} (.*)$`).exec(text);
+  return heading ? `${tag}\n${heading[1]}\n</${name}>` : text;
 }
 
 /** Notion applies edits in order, so an earlier one mustn't give a later one a second place to match. */
@@ -577,18 +602,52 @@ function planEdits(nfm, body, notes = { pictures: 0, footnotes: 0 }) {
     if (op[0] === '+') hunk.adds.push(newParts[op[1]].text);
   }
 
+  // Notion gives out a new link to its own files on every read, so a block holding one can never be matched, and sending
+  // that link back would swap the file for a copy that expires. Those blocks stay out of every edit.
+  const hosted = (i) => HOSTED.test(blocks[i].raw);
+  const moved = new Set(oldParts.filter((p) => hosted(p.block) && touched.has(p.block)).map((p) => p.key));
+  const safe = [];
+  for (const h of hunks) {
+    h.adds = h.adds.filter((text) => !moved.has(sameness(text)));   // a picture you moved stays where it is on Notion
+    if (h.first === null) {
+      if (h.adds.length) safe.push(h);
+      continue;
+    }
+    const runs = [];
+    let run = null;
+    for (let i = h.first; i <= h.last; i++) {
+      if (hosted(i)) {
+        notes.hosted = (notes.hosted || 0) + 1;
+        run = null;
+      } else if (run) {
+        run.last = i;
+      } else {
+        run = { first: i, last: i, after: i - 1, adds: [] };
+        runs.push(run);
+      }
+    }
+    if (runs.length) {
+      runs[0].adds = h.adds;
+      safe.push(...runs);
+    } else if (h.adds.length) {
+      safe.push({ first: null, last: null, after: h.last, adds: h.adds });
+    }
+  }
+
   const silent = new Set(blocks.map((b, i) => (blockToMd(b.raw) ? -1 : i)));
-  const convert = (hunkItem) => {
+  const convert = (h) => {
     const kept = [];
-    if (hunkItem.first !== null) for (let i = hunkItem.first; i <= hunkItem.last; i++) if (silent.has(i)) kept.push(blocks[i].raw);
-    return [fromMarkdown(hunkItem.adds.join('\n\n'), notes), ...kept].filter(Boolean).join('\n\n');
+    if (h.first !== null) for (let i = h.first; i <= h.last; i++) if (silent.has(i)) kept.push(blocks[i].raw);
+    let text = fromMarkdown(h.adds.join('\n\n'), notes);
+    if (h.first !== null && h.first === h.last) text = keepStyle(blocks[h.first].raw, text);
+    return [text, ...kept].filter(Boolean).join('\n\n');
   };
-  const converted = hunks.map(convert);
+  const converted = safe.map(convert);
 
   // The whole page, keeping every untouched block as it is.
   const pieces = [];
   let at = 0;
-  hunks.forEach((h, n) => {
+  safe.forEach((h, n) => {
     const first = h.first ?? h.after + 1;
     const last = h.last ?? h.after;
     for (; at < first; at += 1) pieces.push(blocks[at].raw);
@@ -600,42 +659,53 @@ function planEdits(nfm, body, notes = { pictures: 0, footnotes: 0 }) {
 
   const before = oldParts.map((p) => p.text).join('\n\n');
   const after = newParts.map((p) => p.text).join('\n\n');
-  if (!hunks.length) return { changed: false, edits: [], whole, before, after };
-  if (!blocks.length) return { changed: true, edits: null, whole, before, after };
+  const answer = { changed: true, edits: null, whole, before, after, blocked: HOSTED.test(whole) };
+  if (!safe.length) return { ...answer, changed: false, edits: [], blocked: false };
+  if (!blocks.length) return answer;
 
-  // Small edits, each widened until Notion can find it in exactly one place.
+  // Small edits, each widened until Notion can find it in exactly one place, and never over a file on Notion.
   const once = (s) => s && source.indexOf(s) === source.lastIndexOf(s);
+  const free = (i) => i >= 0 && i < blocks.length && !hosted(i);
   const spans = [];
   const edits = [];
-  for (let n = 0; n < hunks.length; n++) {
-    const h = hunks[n];
-    let lo = h.first ?? Math.max(h.after, 0);
+  for (let n = 0; n < safe.length; n++) {
+    const h = safe[n];
+    const inserting = h.first === null;
+    let point = inserting ? h.after + 1 : h.first;   // new words go before this block
+    if (inserting && !free(point - 1) && !free(point)) {
+      // Between two files on Notion nothing can be matched, so the words go to the nearest place that can.
+      let k = point + 1;
+      while (k < blocks.length && !free(k)) k += 1;
+      if (k >= blocks.length) {
+        k = point - 2;
+        while (k >= 0 && !free(k)) k -= 1;
+        if (k < 0) return answer;
+        point = k + 1;
+      } else point = k;
+    }
+    let lo = h.first ?? (free(point - 1) ? point - 1 : point);
     let hi = h.last ?? lo;
-    const text = converted[n];
     const build = () => {
-      const left = h.first !== null ? source.slice(blocks[lo].start, blocks[h.first].start) : '';
-      const right = h.last !== null ? source.slice(blocks[h.last].end, blocks[hi].end) : '';
-      if (h.first !== null) return { old_str: source.slice(blocks[lo].start, blocks[hi].end), new_str: `${left}${text}${right}` };
       const old = source.slice(blocks[lo].start, blocks[hi].end);
-      return { old_str: old, new_str: h.after < 0 ? `${text}\n\n${old}` : `${old}\n\n${text}` };
+      if (!inserting) return { old_str: old, new_str: `${source.slice(blocks[lo].start, blocks[h.first].start)}${converted[n]}${source.slice(blocks[h.last].end, blocks[hi].end)}` };
+      const left = lo < point ? source.slice(blocks[lo].start, blocks[Math.min(point - 1, hi)].end) : '';
+      const right = hi >= point ? source.slice(blocks[Math.max(point, lo)].start, blocks[hi].end) : '';
+      return { old_str: old, new_str: [left, converted[n], right].filter(Boolean).join('\n\n') };
     };
     let edit = build();
-    while (!once(edit.old_str) && (lo > 0 || hi < blocks.length - 1)) {
-      if (h.first === null) {
-        if (h.after < 0 || lo === 0) hi = Math.min(hi + 1, blocks.length - 1);
-        else lo -= 1;
-      } else {
-        lo = Math.max(lo - 1, 0);
-        hi = Math.min(hi + 1, blocks.length - 1);
-      }
+    while (!once(edit.old_str)) {
+      const down = free(lo - 1);
+      const up = free(hi + 1);
+      if (!down && !up) return answer;
+      if (down) lo -= 1;
+      if (up) hi += 1;
       edit = build();
     }
-    if (!once(edit.old_str)) return { changed: true, edits: null, whole, before, after };
     spans.push([lo, hi]);
     edits.push(edit);
   }
   const overlap = spans.some(([lo], i) => i > 0 && lo <= spans[i - 1][1]);
-  return { changed: true, edits: overlap || !landsOnce(source, edits) ? null : edits, whole, before, after };
+  return overlap || !landsOnce(source, edits) ? answer : { ...answer, edits, blocked: false };
 }
 
 // ---------------------------------------------------------------- documents

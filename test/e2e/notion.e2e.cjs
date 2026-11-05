@@ -26,7 +26,7 @@ const title = (text) => ({ Name: { type: 'title', title: [{ plain_text: text }] 
 const pages = new Map([
   [PAGE, {
     title: 'Plan', edited: '2026-11-01T10:00:00.000Z',
-    markdown: `<p color="red">Stay red</p>\n\nChange this line\n\n<callout icon="💡" color="blue_bg">\nA tip\n</callout>\n\n<page url="https://www.notion.so/${CHILD}">Child</page>`,
+    markdown: `<p color="red">\nStay red\n</p>\n\nChange this line\n\n<callout icon="💡" color="blue_bg">\nA tip\n</callout>\n\n<page url="https://www.notion.so/${CHILD}">\nChild\n</page>`,
   }],
   [PARENT, { title: 'Home', edited: '2026-11-01T09:00:00.000Z', markdown: 'Home page' }],
 ]);
@@ -80,13 +80,15 @@ function answer(req, body) {
   let next = page.markdown;
   if (body.type === 'update_content') {
     for (const edit of body.update_content.content_updates) {
+      // Like the real Notion: a signed link is made new on each read, so it never matches what's stored.
+      if (/X-Amz/.test(edit.old_str)) return fail(400, 'validation_error', `No matches found for ${edit.old_str.slice(0, 60)}`);
       const count = next.split(edit.old_str).length - 1;
       if (count !== 1) return fail(400, 'validation_error', `old_str matched ${count} times`);
       next = next.replace(edit.old_str, () => edit.new_str);
     }
   } else next = body.replace_content.new_str;
   const allowed = (body.update_content || body.replace_content).allow_deleting_content;
-  for (const tag of page.markdown.match(/<page url="[^"]+">/g) || []) {
+  for (const tag of page.markdown.match(/<page url="[^"]+">/g) || []) {   // the opening tag, however its title is laid out
     if (!next.includes(tag) && !allowed) return fail(400, 'validation_error', 'This would delete child page Child. Set allow_deleting_content to true.');
   }
   page.markdown = next;
@@ -228,7 +230,7 @@ async function until(fn, what, ms = 8000) {
     await click('notion-go');
     await toasted(/^Sent to Notion$/);
     const page = pages.get(PAGE);
-    assert.ok(page.markdown.includes('<p color="red">Stay red</p>'), 'the colour stayed');
+    assert.ok(page.markdown.includes('<p color="red">\nStay red\n</p>'), 'the colour stayed');
     assert.ok(page.markdown.includes('<callout icon="💡" color="blue_bg">'), 'the callout stayed');
     assert.ok(page.markdown.includes('A better line'));
     const patch = seen.find((s) => s.route === `PATCH /v1/pages/${PAGE}/markdown`);

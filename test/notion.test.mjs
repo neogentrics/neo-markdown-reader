@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
 const notion = require('../src/main/notion.js');
@@ -220,6 +221,136 @@ test('whatever is changed, Notion ends up with what you wrote', () => {
     assert.equal(toMarkdown(result), toMarkdown(plan.whole), JSON.stringify({ page, body }));
     assert.equal(toMarkdown(result), body, JSON.stringify({ page, body, result }));
   }
+});
+
+// A page as Notion really writes it, read back from a test page on 2026-11-05.
+const realPage = readFileSync(new URL('./fixtures/notion-page.md', import.meta.url), 'utf8').replace(/\r\n/g, '\n').trim();
+
+test('a real Notion page reads as clean Markdown', () => {
+  const md = toMarkdown(realPage);
+  assert.ok(!/<(?:p|b|i|s|callout|toggle|quote|table|tr|td|columns|column|page|database|image|bookmark|date|span|table-of-contents)\b/.test(md.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '').replace(/<details>|<summary>/g, '')), md);
+  assert.match(md, /This one has \*\*bold\*\*, \*italic\*, ~~struck~~, <u>underlined<\/u>, `code <b>`, a \[link\]\(https:\/\/example\.com\), blue words, and 2026-11-04\./);
+  assert.match(md, /> \[!TIP\]\n> A tip callout\./);
+  assert.match(md, /> \[!NOTE\]\n> 📌 A pinned callout\n>\n> - with a child/);
+  assert.match(md, /\| Styled \| Table \|\n\| --- \| --- \|\n\| Green \| Plain<br>second line \|/);
+  assert.match(md, /\[📄 A test subpage\]\(https:\/\/app\.notion\.com\/p\/a4bc1b7a3a8147cba50a17d58a73cfb0\)/);
+  assert.match(md, /\[🗃️ RT test tasks\]/);
+  assert.equal(picturesIn(md)[0].id, '8ca577a4');
+});
+
+test('a real Notion page sends nothing until you change it, then only the change', () => {
+  const md = toMarkdown(realPage);
+  assert.equal(planEdits(realPage, md).changed, false);
+  const plan = planEdits(realPage, md.replace('Change this line in the test.', 'Changed.'));
+  assert.deepEqual(plan.edits, [{ old_str: 'Change this line in the test.', new_str: 'Changed.' }]);
+  assert.ok(plan.whole.includes('<p color="red">\nThis whole paragraph is red and must stay red.\n</p>'));
+  assert.ok(plan.whole.includes('data-source-url="collection://a6bc25da-0f0d-4e6e-9955-8e9b3e897898"'));
+});
+
+test('links on Notion’s new address are understood', () => {
+  assert.equal(pageIdOf('https://app.notion.com/p/40fad37812e8818f8ffecf6057ab3cf1?pvs=204'), '40fad378-12e8-818f-8ffe-cf6057ab3cf1');
+  assert.equal(fromMarkdown('[📄 Child](https://app.notion.com/p/a4bc1b7a3a8147cba50a17d58a73cfb0)'), '<page url="https://app.notion.com/p/a4bc1b7a3a8147cba50a17d58a73cfb0">Child</page>');
+});
+
+test('code that looks like a tag doesn’t hold blocks together', () => {
+  assert.equal(splitBlocks('Use <code><callout></code> here\n\nNext').length, 2);
+});
+
+const hostedPicture = `<image source="${S3('cat.png', 'aaa')}">\nCat\n</image>`;
+
+test('a file on Notion is never part of an edit, because its link changes on every read', () => {
+  const page = `One\n\n${hostedPicture}\n\nThe end`;
+  const md = toMarkdown(page).replace(/!\[Cat\]\(.*\)/, '![Cat](images/notion-deadbeef-cat.png)');
+  const plan = planEdits(page, md.replace('The end', 'New words\n\nThe end'));
+  assert.deepEqual(plan.edits, [{ old_str: 'The end', new_str: 'New words\n\nThe end' }]);
+  const start = planEdits(`${hostedPicture}\n\nThe end`, 'New\n\n![Cat](images/notion-deadbeef-cat.png)\n\nThe end');
+  assert.ok(!start.edits[0].old_str.includes('amazonaws'), JSON.stringify(start.edits));
+});
+
+test('an edit that needs a neighbour to be unique doesn’t reach over a file on Notion', () => {
+  const page = `Same\n\n${hostedPicture}\n\nSame\n\nEnd`;
+  const md = '![Cat](images/notion-deadbeef-cat.png)';
+  const plan = planEdits(page, `Same\n\n${md}\n\nOther\n\nEnd`);
+  assert.equal(plan.edits[0].old_str, 'Same\n\nEnd');
+  assert.equal(plan.edits[0].new_str, 'Other\n\nEnd');
+});
+
+test('removing a file on Notion can’t be done from here, and you’re told', () => {
+  const notes = { pictures: 0, footnotes: 0 };
+  const plan = planEdits(`One\n\n${hostedPicture}\n\nTwo`, 'One\n\nTwo', notes);
+  assert.equal(plan.changed, false);
+  assert.equal(notes.hosted, 1);
+});
+
+test('the whole page is never sent over a file on Notion', () => {
+  const plan = planEdits(`Same\n\n${hostedPicture}\n\nSame`, `Same\n\n![Cat](images/notion-deadbeef-cat.png)\n\nOther`);
+  assert.equal(plan.edits, null);
+  assert.equal(plan.blocked, true);
+});
+
+test('new words between two files on Notion go to the nearest place that can be matched', () => {
+  const two = hostedPicture.replace('deadbeef', 'cafebabe');
+  const plan = planEdits(`${hostedPicture}\n\n${two}\n\nEnd`, `![a](images/notion-deadbeef-a.png)\n\nNew\n\n![b](images/notion-cafebabe-b.png)\n\nEnd`.replace('![a]', '![Cat]').replace('![b]', '![Cat]'));
+  assert.deepEqual(plan.edits, [{ old_str: 'End', new_str: 'New\n\nEnd' }]);
+});
+
+test('whatever is changed around a file on Notion, no edit touches it', () => {
+  let seed = 777;
+  const rand = (n) => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed % n; };
+  const pool = ['One', 'Two', 'Same', 'Same', hostedPicture, hostedPicture.replace('deadbeef', 'cafebabe'), '<callout icon="💡">\nTip\n</callout>'];
+  const fresh = ['New', 'Same', 'Other words'];
+  let sent = 0;
+  for (let round = 0; round < 3000; round++) {
+    const page = Array.from({ length: 1 + rand(7) }, () => pool[rand(pool.length)]).join('\n\n');
+    const parts = splitBlocks(toMarkdown(page)).map((b) => b.raw);
+    for (let k = 1 + rand(3); k > 0; k--) {
+      const at = rand(parts.length + 1);
+      const what = rand(3);
+      if (what === 0) parts.splice(at, 0, fresh[rand(fresh.length)]);
+      else if (at < parts.length && !parts[at].startsWith('![')) {
+        if (what === 1) parts.splice(at, 1); else parts[at] = fresh[rand(fresh.length)];
+      }
+    }
+    const plan = planEdits(page, parts.join('\n\n'));
+    if (!plan.changed) continue;
+    if (!plan.edits) { assert.equal(plan.blocked, /amazonaws/.test(plan.whole), page); continue; }
+    sent += 1;
+    let result = page;
+    for (const e of plan.edits) {
+      assert.ok(!/amazonaws/.test(e.old_str), JSON.stringify({ page, e }));
+      assert.ok(!/amazonaws/.test(e.new_str), JSON.stringify({ page, e }));
+      assert.equal(result.split(e.old_str).length, 2, JSON.stringify({ page, e, result }));
+      result = result.replace(e.old_str, () => e.new_str);
+    }
+    assert.equal((result.match(/amazonaws/g) || []).length, (page.match(/amazonaws/g) || []).length, 'every file is still there');
+  }
+  assert.ok(sent > 1000, `only ${sent} rounds sent anything`);
+});
+
+test('an edited block keeps its colour and icon', () => {
+  const edit = (page, body) => planEdits(page, body).edits[0].new_str;
+  assert.equal(edit('<callout icon="💡" color="blue_bg">\nOld\n</callout>', '> [!TIP]\n> New'), '<callout icon="💡" color="blue_bg">\nNew\n</callout>');
+  assert.equal(edit('<callout icon="💡" color="blue_bg">\nOld\n</callout>', '> [!WARNING]\n> New'), '<callout icon="⚠️" color="yellow_bg">\nNew\n</callout>');
+  assert.equal(edit('<p color="red">\nOld\n</p>', 'New'), '<p color="red">\nNew\n</p>');
+  assert.equal(edit('<p color="red">\nOld\n</p>', '## New'), '## New');
+  assert.equal(edit('<h2 color="red">\nOld\n</h2>', '## New'), '<h2 color="red">\nNew\n</h2>');
+  assert.equal(edit('<h2 color="red">\nOld\n</h2>', '### New'), '### New');
+  assert.equal(edit('<toggle heading="h2">\nOld\n\nIn\n</toggle>', '<details><summary>New</summary>\n\nIn\n\n</details>'), '<toggle heading="h2">\nNew\n\nIn\n</toggle>');
+  assert.equal(edit('<quote color="red">\nOld\n</quote>', '> New'), '<quote color="red">\nNew\n</quote>');
+});
+
+test('footnotes arrive as plain marks, and don’t count as changes afterwards', () => {
+  const notes = { pictures: 0, footnotes: 0 };
+  const sent = fromMarkdown('Text[^1]\n\n[^1]: A note.', notes);
+  assert.equal(sent, 'Text\\[1\\]\n\n\\[1\\] A note.');
+  assert.equal(notes.footnotes, 1);
+  assert.equal(planEdits(sent, 'Text[^1]\n\n[^1]: A note.').changed, false);
+  assert.equal(fromMarkdown('See [^https://x.test]'), 'See [^https://x.test]');
+});
+
+test('a picture left behind doesn’t count as a change afterwards', () => {
+  const sent = fromMarkdown('![Cat](images/cat.png)');
+  assert.equal(planEdits(sent.replace(/^\*(.*)\*$/, '<i>$1</i>'), '![Cat](images/cat.png)').changed, false);
 });
 
 test('a subpage whose link you removed is asked for, so Notion can refuse', () => {

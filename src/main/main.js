@@ -2004,8 +2004,9 @@ function registerIpc() {
     const rename = title && title !== meta.title ? title : '';
     if (!plan.changed && !rename) {
       markNotionSeen(id, meta.edited);
-      return { same: true };
+      return { same: true, hosted: notes.hosted || 0 };
     }
+    if (plan.blocked) throw new notion.NotionError('This change can’t be made around the pictures and files stored on this page. Make it in Notion instead.', 'blocked');
     const token = crypto.randomUUID();
     notionJobs.set(token, { kind: 'update', id, plan, rename });
     const known = notionSeen()[id];

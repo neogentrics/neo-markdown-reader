@@ -173,6 +173,7 @@ export function createNotionUi(ctx) {
   function showNotes(notes, extra = []) {
     const lines = [...extra];
     if (notes?.pictures) lines.push(notes.pictures === 1 ? '1 picture on your computer stays behind: Notion can only take pictures from the web.' : `${notes.pictures} pictures on your computer stay behind: Notion can only take pictures from the web.`);
+    if (notes?.hosted) lines.push('Pictures and files stored on Notion can’t be changed from here, so those stay as they are.');
     if (notes?.footnotes) lines.push('Notion has no footnotes, so yours go over as plain text.');
     say('notion-send-notes', lines.join(' '));
   }
@@ -183,7 +184,11 @@ export function createNotionUi(ctx) {
     return connected(async () => {
       const res = await api.notionPrepare(docOf(tab));
       if (res.error) { toast(res.error); return; }
-      if (res.same) { if (dlg.open) dlg.close(); toast('This document and its Notion page already match.'); return; }
+      if (res.same) {
+        if (dlg.open) dlg.close();
+        toast(res.hosted ? 'Pictures and files stored on Notion can’t be changed from here. Do that in Notion.' : 'This document and its Notion page already match.');
+        return;
+      }
       if (res.unlinked) { chooseParent(tab); return; }
       job = { token: res.token, tab, created: false };
       say('notion-send-h', 'Send to Notion');
