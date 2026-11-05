@@ -38,7 +38,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v3.3](#v33--your-ai-your-choice) | Your AI, your choice | ✅ Released ([3.3.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.3.0)) |
 | [v3.4](#v34--claude-connected) | Claude, connected, and a first-run tutorial | ✅ Released ([3.4.1](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.4.1)) |
 | [v3.5](#v35--listen--speak) | Listen & speak | ✅ Released ([3.5.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.5.0)) |
-| [v3.6](#v36--study--research) | Study & research | 🔨 In progress |
+| [v3.6](#v36--study--research) | Study & research | ✅ Released ([3.6.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.6.0)) |
 | [v3.7](#v37--automate-with-n8n) | Automate with n8n | Planned |
 | [v3.8](#v38--notion) | Notion | Planned |
 | [v3.9](#v39--your-home-server) | Your home server | Planned |
@@ -250,7 +250,7 @@ updates itself from here on.
 
 ## v3.6 — Study & research
 
-🔨 **In progress.** For coursework, research and reference notes, with more colour for the themes that came before 3.5.
+✅ **Released in [3.6.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.6.0).** For coursework, research and reference notes, with more colour for the themes that came before 3.5.
 
 | Feature | Size | Details |
 |---|:-:|---|
