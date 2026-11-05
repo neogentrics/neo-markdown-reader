@@ -759,10 +759,10 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Prefere
 - **v3.5** added MP3 and audiobook export, a pronunciation list, offline dictation, a choice of speakers and
   microphone, read aloud in presentation mode, a read-aloud bar you can see and move, Blue, Red and Yellow themes,
   a Glass look, colour-safe colours and fifteen fonts.
+- **v3.6** added search by meaning with related documents, citations and reference lists, flashcards and quizzes,
+  links with other Recon Towers apps, richer colours for the older themes, and more choices in Customize Theme.
 
 Coming next:
-- **v3.6 — Study & research:** search by meaning, citations and bibliographies, and flashcards, plus richer
-  colours for the older themes and more choices in Customize Theme.
 - **v3.7 — Automate with n8n:** send a document, a selection or a folder to your n8n workflows (or any webhook)
   and get the result back as a document or a suggested change.
 - **v3.8 — Notion:** bring Notion pages in as Markdown, send documents to Notion, and keep the two in step.
