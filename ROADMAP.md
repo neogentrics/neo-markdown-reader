@@ -39,7 +39,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v3.4](#v34--claude-connected) | Claude, connected, and a first-run tutorial | ✅ Released ([3.4.1](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.4.1)) |
 | [v3.5](#v35--listen--speak) | Listen & speak | ✅ Released ([3.5.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.5.0)) |
 | [v3.6](#v36--study--research) | Study & research | ✅ Released ([3.6.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.6.0)) |
-| [v3.7](#v37--automate-with-n8n) | Automate with n8n | Planned |
+| [v3.7](#v37--automate-with-n8n) | Automate with n8n | 🔨 In progress |
 | [v3.8](#v38--notion) | Notion | Planned |
 | [v3.9](#v39--your-home-server) | Your home server | Planned |
 | [v3.10](#v310--publish-anywhere) | Publish anywhere | Planned |
@@ -263,7 +263,7 @@ updates itself from here on.
 
 ## v3.7 — Automate with n8n
 
-🙋 Your own automations, run on your documents. n8n and similar tools will never know about this app, so the
+🔨 **In progress.** 🙋 Your own automations, run on your documents. n8n and similar tools will never know about this app, so the
 app learns to talk to them (decision 12).
 
 | Feature | Size | Details |
@@ -271,6 +271,7 @@ app learns to talk to them (decision 12).
 | 🙋🛡️ Run n8n workflows | M | Pick a workflow and send it the open document, the selection, or documents from the open folder. What it answers opens as a new document or appears as a change you accept or reject. With your n8n API key, the list shows your workflows by name; the app always shows what will be sent before it goes. |
 | 🛡️ Your own actions | S | Any webhook (n8n, Make, Zapier, Home Assistant, or your own script) becomes a command in the menu and in `Ctrl+K`, with its own name and what it receives. |
 | 🛡️ Let workflows open documents | M | Off until you turn it on: an address on this computer that your workflows can call to open, create or add to a document, protected by a key only you have. Every change still goes through the edit-permission prompt. |
+| 🙋 Find Google Drive however it's set up | S | Sync already works through Google Drive for desktop. It now finds Drive on any drive letter, and in mirrored folders too. |
 
 ## v3.8 — Notion
 
@@ -345,6 +346,6 @@ From a folder of chapters to a finished book or website.
 9. **Natural voices: on the computer, or a cloud service?** The voices Microsoft Edge reads with come from an online service only Edge can use. The choices were neural voices that run offline on your computer, Microsoft's Azure voices with your own key, or reaching Edge's service unofficially. ✅ *Decided:* offline voices that run on your computer — free, private, and working without internet (3.2).
 10. **Which AI services come first?** ✅ *Decided:* all of them in 3.3: Claude, OpenAI, Gemini, Mistral, OpenRouter, and local models (Ollama, LM Studio, or any OpenAI-compatible server). The model lists come from each service, so new models appear without an app update.
 11. **Signing in with a Claude account.** Anthropic doesn't currently offer a "Sign in with Claude" that lets other apps use a Claude plan. ✅ *Decided:* 3.4 goes through the Claude apps instead: the connector lets Claude use the reader, and Claude Code lets the reader use Claude. If Anthropic adds a sign-in for apps, it can replace the Claude Code step.
-12. **How should the app talk to n8n?** *Proposed:* through workflow webhooks, which every n8n setup has (self-hosted or n8n Cloud); an n8n API key is optional, only to list workflows by name. The app never runs a workflow without showing what it will send.
+12. **How should the app talk to n8n?** *Decided:* through workflow webhooks, which every n8n setup has (self-hosted or n8n Cloud); an n8n API key is optional, only to list workflows by name. The app never runs a workflow without showing what it will send.
 13. **How should the app sign in to Notion?** *Proposed:* with a Notion *internal integration* token that you create in Notion and share with the pages you choose. Notion's full sign-in (OAuth) needs a web server in the middle, which this app doesn't have.
 14. **Updating an install for everyone on the computer.** Those files need administrator rights to replace. Running the whole app as administrator would remove the prompt, but a document viewer shouldn't run with those rights, because every file it opens would be handled with full control of the computer. *Proposed:* keep the single Windows prompt for now; the Recon Towers app store can later bring a small background updater that asks once, at install.
