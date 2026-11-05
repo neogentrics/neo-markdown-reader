@@ -97,4 +97,8 @@ function guessLang(text) {
   return a >= 0.08 && a >= b * 1.3 ? best : null;
 }
 
-module.exports = { applyPronunciation, LANGS, modelLang, prepare, chunks, guessLang };
+/** The natural voices' names. The ids are what's saved, so a name can change without losing anyone's choice. */
+const VOICE_NAMES = { F1: 'Clara', F2: 'Maya', F3: 'Nora', F4: 'Sofia', F5: 'Zoe', M1: 'Ethan', M2: 'Leo', M3: 'Marcus', M4: 'Owen', M5: 'Theo' };
+const voiceLabel = (id) => `${VOICE_NAMES[id] || id} (${id[0] === 'F' ? 'female' : 'male'})`;
+
+module.exports = { VOICE_NAMES, voiceLabel, applyPronunciation, LANGS, modelLang, prepare, chunks, guessLang };

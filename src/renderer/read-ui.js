@@ -1,7 +1,7 @@
 // Read, listen (2.4): read aloud with the computer's own voices, focus mode, folding sections under their
 // headings, and hover previews of footnotes and of links to other documents.
 // Natural voices (3.2): read aloud with the Supertonic voices, made on this computer (src/main/voices.js).
-import { modelLang, guessLang, applyPronunciation } from '../main/voice-text.js';
+import { modelLang, guessLang, applyPronunciation, voiceLabel } from '../main/voice-text.js';
 
 const $ = (id) => document.getElementById(id);
 const NATURAL = 'natural:';
@@ -10,6 +10,38 @@ const NATURAL = 'natural:';
 const SKIP = 'pre, script, style, button, svg, .katex, .mermaid-diagram, .mermaid-src, .chart, .chart-error, .copy-btn, .run-output, .footnote-ref, .footnote-backref, .fold-btn, .data-note, .nb-in, .nb-out, .img-missing';
 const BLOCK = 'p, li, h1, h2, h3, h4, h5, h6, td, th, dt, dd, figcaption, blockquote, .doc-meta-title, .doc-meta-sub';
 const HEADING = /^H[1-6]$/;
+
+/**
+ * Where "next section" or "previous section" goes from sentence `at`, or -1 if there's no section that way.
+ * Going back from inside a section goes to its own heading first.
+ */
+export function sectionFrom(items, at, dir) {
+  // A heading can be several sentences ("I. The Beginning"), and it's still one section.
+  const first = (i) => { let s = i; while (s > 0 && items[s - 1].block === items[i].block) s--; return s; };
+  if (dir > 0) {
+    for (let i = at + 1; i < items.length; i++) if (items[i].heading && items[i].block !== items[at].block) return i;
+    return -1;
+  }
+  let own = at;
+  while (own > 0 && !items[own].heading) own--;
+  if (!items[own].heading) return -1;
+  own = first(own);
+  if (own < at) return own;
+  for (let i = own - 1; i >= 0; i--) if (items[i].heading) return first(i);
+  return -1;
+}
+
+/** Where "next paragraph" or "previous paragraph" goes from sentence `at`. Going back from inside one goes to its start first. */
+export function paragraphFrom(items, at, dir) {
+  const start = (i) => { let s = i; while (s > 0 && items[s - 1].block === items[i].block) s--; return s; };
+  if (dir < 0) {
+    const own = start(at);
+    return own < at ? own : at > 0 ? start(at - 1) : 0;
+  }
+  let i = at + 1;
+  while (i < items.length && items[i].block === items[at].block) i++;
+  return i < items.length ? i : at;
+}
 
 /** Split text into sentences (the language's own rules where the browser has them). */
 export function sentences(text, lang = undefined) {
@@ -117,7 +149,6 @@ export function createReadUi(ctx) {
   const audio = new Map();              // sentence index -> Promise<{ samples, sampleRate } | { error }>
   let player = null;                    // the sentence playing now: { stop }
   const isNatural = () => els.voice.value.startsWith(NATURAL) && natural.installed;
-  const voiceName = (id) => `${id[0] === 'F' ? 'Female' : 'Male'} voice ${id[1]}`;
 
   function fillVoices() {
     const want = ctx.settings().readAloud?.voice || '';
@@ -128,7 +159,7 @@ export function createReadUi(ctx) {
     const nat = document.createElement('optgroup');
     nat.label = 'Natural voices (offline)';
     if (natural.installed) {
-      nat.append(...natural.voices.map((id) => new Option(voiceName(id), NATURAL + id)), new Option('Remove natural voices…', `${NATURAL}remove`));
+      nat.append(...natural.voices.map((id) => new Option(voiceLabel(id), NATURAL + id)), new Option('Remove natural voices…', `${NATURAL}remove`));
     } else if (natural.downloading) {
       const o = new Option(`Downloading natural voices… ${Math.floor((100 * natural.done) / (natural.total || 1))}%`, `${NATURAL}get`);
       o.disabled = true;
@@ -251,13 +282,14 @@ export function createReadUi(ctx) {
     const rect = item.range.getBoundingClientRect();
     const desk = ctx.deskFor(ctx.activeTab());
     const box = desk.getBoundingClientRect();
-    if (rect.top < box.top + 60 || rect.bottom > box.bottom - 90) desk.scrollBy({ top: rect.top - box.top - box.height * 0.3, behavior: 'smooth' });
+    // To a place, not by an amount: skipping again during the glide would otherwise add to it and overshoot.
+    if (rect.top < box.top + 60 || rect.bottom > box.bottom - 90) desk.scrollTo({ top: desk.scrollTop + rect.top - box.top - box.height * 0.3, behavior: 'smooth' });
   }
 
   /** The first sentence on this slide, or the next one after it if the slide has none to read. */
   function itemOnSlide(i) {
     const slides = ctx.presenter();
-    const at = items.findIndex((it) => slides.slideOf(it.block) >= i);
+    const at = items.findIndex((it) => slides.slideOf(it.range) >= i);
     return at < 0 ? items.length : at;
   }
 
@@ -342,18 +374,24 @@ export function createReadUi(ctx) {
     if (!focusMode) clearFocus();
   }
 
+  /** Read from sentence i, or show it if reading is paused. What was being made ahead is no longer needed. */
+  function moveTo(i) {
+    if (i === index && !playing) return;
+    audio.clear();
+    api.voiceCancel?.();
+    if (playing) { speakAt(i); return; }
+    index = i;
+    showItem(items[i]);
+    els.status.textContent = `${i + 1} of ${items.length}`;
+  }
+
   function jumpSection(dir) {
-    if (!items.length) return;
-    let i = index + dir;
-    while (i >= 0 && i < items.length && !items[i].heading) i += dir;
-    if (dir < 0) {
-      // "Previous" from inside a section goes to its own heading first.
-      let own = index;
-      while (own > 0 && !items[own].heading) own--;
-      if (own < index && items[own].heading) i = own;
-    }
-    i = Math.min(Math.max(i, 0), items.length - 1);
-    if (playing) speakAt(i); else { index = i; highlight(items[i].range); focusOn(items[i].block); els.status.textContent = `${i + 1} of ${items.length}`; }
+    const i = sectionFrom(items, index, dir);
+    if (items.length) moveTo(i < 0 ? paragraphFrom(items, index, dir) : i);
+  }
+
+  function jumpParagraph(dir) {
+    if (items.length) moveTo(paragraphFrom(items, index, dir));
   }
 
   // ---------------------------------------------------------------- moving the bar
@@ -416,6 +454,8 @@ export function createReadUi(ctx) {
   $('speak-stop').onclick = stop;
   $('speak-prev').onclick = () => jumpSection(-1);
   $('speak-next').onclick = () => jumpSection(1);
+  $('speak-prev-para').onclick = () => jumpParagraph(-1);
+  $('speak-next-para').onclick = () => jumpParagraph(1);
   const saveConf = () => api.setSettings({ readAloud: { rate: Number(els.rate.value) || 1, voice: els.voice.value } });
   const restart = () => { audio.clear(); api.voiceCancel?.(); if (playing) speakAt(index); };
   els.rate.onchange = () => { saveConf(); restart(); };

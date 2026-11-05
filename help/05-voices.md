@@ -1,6 +1,6 @@
 # Voices and reading aloud
 
-**View → Read Aloud** (`Ctrl+Shift+U`) reads the document to you and marks each sentence as it goes. A bar in the window has play, skip, speed and voice. Drag it anywhere, by its handle or any empty part of it. Double-click it to put it back at the bottom.
+**View → Read Aloud** (`Ctrl+Shift+U`) reads the document to you and marks each sentence as it goes. A bar in the window has play, skip by section or paragraph, speed and voice. Drag it anywhere, by its handle or any empty part of it. Double-click it to put it back at the bottom.
 
 [Start reading aloud](#do=read-aloud)
 
@@ -9,7 +9,7 @@
 Open [Preferences → Reading Aloud](#do=preferences:voices), or use the **Voice** list in the bar while reading. You can choose:
 
 - **This computer's voices**, which are already installed. They can sound robotic.
-- **Natural voices**: ten voices, five female and five male, that sound like a person.
+- **Natural voices**: ten voices that sound like a person. Clara, Maya, Nora, Sofia and Zoe are female, and Ethan, Leo, Marcus, Owen and Theo are male.
 
 ## Getting the natural voices
 

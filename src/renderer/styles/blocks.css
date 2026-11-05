@@ -46,6 +46,10 @@
 .present-slide.markdown-body { box-sizing: border-box; width: 1280px; height: 720px; padding: 64px 96px; font-size: 30px; line-height: 1.45;
   display: flex; flex-direction: column; justify-content: flex-start; overflow: hidden; }
 .present-slide.short { justify-content: center; }
+.present-slide.markdown-body { position: relative; }
+#present-slide { overflow-y: auto; scrollbar-width: thin; }
+/* The later slides of a long section say which section they carry on. */
+#present-slide[data-continues]::before { content: attr(data-continues) " …"; position: absolute; top: 26px; left: 96px; right: 96px; font-size: 15px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .present-slide > * { flex: 0 0 auto; }
 .present-slide h1 { font-size: 2.1em; margin: 0 0 .45em; }
 .present-slide h2 { font-size: 1.6em; margin: 0 0 .5em; border-bottom: 0; padding-bottom: 0; }
