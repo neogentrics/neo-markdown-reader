@@ -299,9 +299,9 @@ app learns to talk to them (decision 12).
 
 | Feature | Size | Details |
 |---|:-:|---|
-| 🛡️ WordPress & Ghost drafts | M | Send a document as a draft post, with its title, tags, featured picture and pictures, to WordPress (including a self-hosted site) or Ghost. You publish it from there. |
-| 🛡️ Share to Discord | S | Post a document, or a summary of it, to a Discord channel through its webhook. |
-| Publishing history | S | Each document remembers where it was sent and when, with links back to it. |
+| ✅ 🛡️ WordPress & Ghost drafts | M | Send a document as a draft post, with its title, tags, featured picture and pictures, to WordPress (including a self-hosted site) or Ghost. You publish it from there. |
+| ✅ 🛡️ Share to Discord | S | Post a document, or a summary of it, to a Discord channel through its webhook. |
+| ✅ Publishing history | S | Each document remembers where it was sent and when, with links back to it. |
 
 ## v4.0 — Writing studio
 

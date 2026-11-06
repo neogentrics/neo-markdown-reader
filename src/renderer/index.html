@@ -389,10 +389,10 @@
     <section id="srv-edit-page" hidden>
       <h3 id="srv-edit-h">Add a server</h3>
       <div class="auto-two">
-        <label class="field">Kind<select id="srv-kind"><option value="nextcloud">Nextcloud or ownCloud</option><option value="webdav">Other WebDAV server</option><option value="bookstack" translate="no">BookStack</option><option value="wikijs" translate="no">Wiki.js</option><option value="outline" translate="no">Outline</option></select></label>
+        <label class="field">Kind<select id="srv-kind"><option value="nextcloud">Nextcloud or ownCloud</option><option value="webdav">Other WebDAV server</option><option value="bookstack" translate="no">BookStack</option><option value="wikijs" translate="no">Wiki.js</option><option value="outline" translate="no">Outline</option><option value="wordpress" translate="no">WordPress</option><option value="ghost" translate="no">Ghost</option><option value="discord">Discord channel</option></select></label>
         <label class="field">Name<input id="srv-name" type="text" autocomplete="off" maxlength="60" placeholder="Optional"></label>
       </div>
-      <label class="field">Address<input id="srv-url" type="url" spellcheck="false" autocomplete="off"></label>
+      <label class="field" id="srv-url-row">Address<input id="srv-url" type="url" spellcheck="false" autocomplete="off"></label>
       <p class="hint-text" id="srv-plain"></p>
       <label class="field" id="srv-user-row">Name on the server<input id="srv-user" type="text" spellcheck="false" autocomplete="off"></label>
       <label class="field"><span id="srv-secret-label">Password</span><input id="srv-secret" type="password" spellcheck="false" autocomplete="off"></label>
@@ -418,6 +418,39 @@
       <label class="field" id="srv-new-row" hidden><span id="srv-new-label">Name</span><input id="srv-new-place" type="text" spellcheck="false" autocomplete="off"></label>
       <p class="hint-text" id="srv-publish-msg" role="status"></p>
       <div class="auto-actions"><span class="spacer"></span><button type="button" class="link-btn" id="srv-publish-cancel">Close</button><button type="button" class="link-btn" id="srv-publish-open" hidden>Open on the Wiki</button><button type="button" class="big-btn sm" id="srv-publish-go">Publish</button></div>
+    </section>
+  </dialog>
+
+  <dialog class="shortcuts auto-dlg" id="send-dlg" aria-labelledby="send-blog-h">
+    <section id="send-blog-page">
+      <h3 id="send-blog-h">Send as a Draft</h3>
+      <label class="field" id="send-site-row" hidden>Blog<select id="send-site"></select></label>
+      <label class="field">Title<input id="send-title" type="text" autocomplete="off" maxlength="300"></label>
+      <label class="field">Tags<input id="send-tags" type="text" spellcheck="false" autocomplete="off" placeholder="Separated by commas"></label>
+      <label class="field" id="send-featured-row">Featured picture<select id="send-featured"></select></label>
+      <p class="auto-what" id="send-blog-what"></p>
+      <p class="hint-text">It goes as a draft, so nobody sees it until you publish it from your blog.</p>
+      <p class="hint-text" id="send-blog-msg" role="status"></p>
+      <div class="auto-actions"><span class="spacer"></span><button type="button" class="link-btn" id="send-blog-cancel">Close</button><button type="button" class="link-btn" id="send-blog-open" hidden>Open the Draft</button><button type="button" class="big-btn sm" id="send-blog-go">Send Draft</button></div>
+    </section>
+    <section id="send-discord-page" hidden>
+      <h3>Share to Discord</h3>
+      <label class="field" id="send-channel-row" hidden>Channel<select id="send-channel"></select></label>
+      <label class="field">What to post<select id="send-mode"><option value="whole">The whole document</option><option value="summary">A summary</option></select></label>
+      <div id="send-summary-row" hidden>
+        <label class="field">Summary<textarea id="send-summary" rows="6"></textarea></label>
+        <div class="auto-actions"><button type="button" class="link-btn" id="send-ai" hidden>Write It with AI</button></div>
+      </div>
+      <p class="auto-what" id="send-discord-what"></p>
+      <p class="hint-text">Everyone in that channel sees this straight away. Nobody is pinged by it.</p>
+      <p class="hint-text" id="send-discord-msg" role="status"></p>
+      <div class="auto-actions"><span class="spacer"></span><button type="button" class="link-btn" id="send-discord-cancel">Close</button><button type="button" class="link-btn" id="send-discord-open" hidden>Open in Discord</button><button type="button" class="big-btn sm" id="send-discord-go">Post to Discord</button></div>
+    </section>
+    <section id="sent-page" hidden>
+      <h3>Where This Was Sent</h3>
+      <ul class="auto-rows" id="sent-rows"></ul>
+      <p class="hint-text" id="sent-none">This document hasn’t been sent anywhere yet.</p>
+      <div class="auto-actions"><button type="button" class="link-btn" id="sent-forget" hidden>Forget This List</button><span class="spacer"></span><button type="button" class="link-btn" id="sent-close">Close</button></div>
     </section>
   </dialog>
 
