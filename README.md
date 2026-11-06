@@ -771,9 +771,10 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Prefere
   note when a linked page has moved on.
 - **v3.9** added your home server: folders on Nextcloud and WebDAV opened like local ones, publishing to BookStack, Wiki.js
   and Outline, and one list of your servers.
+- **v3.10** added publishing anywhere: drafts on WordPress and Ghost, posts to Discord, and a list of where each
+  document has gone.
 
 Coming next:
-- **v3.10 — Publish anywhere:** send a document as a WordPress or Ghost draft, or share it to Discord.
 - **v4.0 — Writing studio:** book projects exported as EPUB, print-ready PDF and Word, Git built in,
   a folder published as a website, and an add-on gallery.
 - **Later, if needed:** shared review, a phone companion, writing together live.

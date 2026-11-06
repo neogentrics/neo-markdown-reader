@@ -4,7 +4,7 @@ All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [3.10.0] - Unreleased
+## [3.10.0] - 2026-11-05
 
 Send finished writing where people will read it.
 
