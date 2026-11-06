@@ -7,7 +7,8 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const ID = 'storytracker';
+const ID = 'rt-story-tracker';
+const IDS = [ID, 'storytracker'];   // 3.7.0 still calls itself storytracker, so a link to it counts too
 const NAME = 'RT Story Tracker';
 const SENT_FOLDER = /^rtmr-send-[0-9a-f]{16}$/;
 const HANDOVER_MS = 120_000;        // long enough for it to start on a slow computer and read the file
@@ -96,4 +97,4 @@ class Handover {
   }
 }
 
-module.exports = { ID, NAME, Handover, storyPlaces, startWith, handoverName };
+module.exports = { ID, IDS, NAME, Handover, storyPlaces, startWith, handoverName };

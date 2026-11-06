@@ -1271,9 +1271,10 @@ const storyHandover = new storyTracker.Handover();
 /** Send to StoryTracker: through the link if there is one and it's running, and the same way as Open With if not. */
 async function sendToStory(doc) {
   const attachments = await linkPictures.attachmentsFor(doc.text, doc.path);
-  if (linkServer && Object.hasOwn(loadLinks(), storyTracker.ID)) {
+  const links = linkServer ? loadLinks() : {};
+  for (const id of storyTracker.IDS.filter((known) => Object.hasOwn(links, known))) {
     try {
-      return await linkServer.send(storyTracker.ID, { name: doc.name, text: doc.text, attachments });
+      return await linkServer.send(id, { name: doc.name, text: doc.text, attachments });
     } catch (err) {
       if (!['not_running', 'not_linked'].includes(err.code)) return { error: linkMessage(err) };
     }

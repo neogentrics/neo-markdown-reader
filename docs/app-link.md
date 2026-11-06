@@ -88,7 +88,7 @@ Needs no key. Returns `protocol`, `app`, `name`, `version` and `accepts`, the ki
 Asks the person to link. Only ask because they just chose to, never in the background.
 
 ```json
-{ "id": 3, "method": "pair", "params": { "app": "storytracker", "name": "StoryTracker" } }
+{ "id": 3, "method": "pair", "params": { "app": "rt-story-tracker", "name": "RT Story Tracker" } }
 ```
 
 The answer can take up to two minutes, so wait for it. If they say yes:
@@ -108,8 +108,8 @@ Pairing again replaces the old key.
 Sends a document for the person to work on. Give `text`, or `path` for a file on this computer.
 
 ```json
-{ "id": 4, "method": "open_document", "params": { "app": "storytracker", "key": "…", "name": "Chapter 1.md", "text": "# Chapter 1\n" } }
-{ "id": 5, "method": "open_document", "params": { "app": "storytracker", "key": "…", "path": "C:\\Books\\Chapter 1.md" } }
+{ "id": 4, "method": "open_document", "params": { "app": "rt-story-tracker", "key": "…", "name": "Chapter 1.md", "text": "# Chapter 1\n" } }
+{ "id": 5, "method": "open_document", "params": { "app": "rt-story-tracker", "key": "…", "path": "C:\\Books\\Chapter 1.md" } }
 ```
 
 Returns `{ "opened": true }`.
@@ -127,7 +127,7 @@ Two more fields are optional. An app that doesn't know them ignores them, so the
 | `kind` | A hint at what the document is: `chapter`, `record`, `page`, `note` or `research`. The person still chooses. |
 
 ```json
-{ "id": 7, "method": "open_document", "params": { "app": "storytracker", "key": "…", "name": "Chapter 2.md", "text": "![Map](map.png)\n", "kind": "chapter", "attachments": [{ "name": "map.png", "path": "C:\\Books\\images\\map.png" }] } }
+{ "id": 7, "method": "open_document", "params": { "app": "rt-story-tracker", "key": "…", "name": "Chapter 2.md", "text": "![Map](map.png)\n", "kind": "chapter", "attachments": [{ "name": "map.png", "path": "C:\\Books\\images\\map.png" }] } }
 ```
 
 `attachments`:
@@ -156,7 +156,7 @@ RT Markdown Reader doesn't use `kind`: it accepts it and ignores it.
 ### `unlink`
 
 ```json
-{ "id": 6, "method": "unlink", "params": { "app": "storytracker", "key": "…" } }
+{ "id": 6, "method": "unlink", "params": { "app": "rt-story-tracker", "key": "…" } }
 ```
 
 The key stops working and returns `{ "unlinked": true }`. Forget the key when you receive this, and send it when the
@@ -212,7 +212,9 @@ Pictures don't go this way: a path can only name one file, so the app sending sa
 Each app looks where the other's installers put it. If it isn't there, the app says so rather than opening some other
 program. An app installed somewhere else, or an AppImage, can't be found this way, but it works once it's linked and running.
 
-RT Story Tracker takes a path it's started with from version 3.7.
+RT Story Tracker takes a path it's started with from version 3.7. Its App Link id is `rt-story-tracker` from 3.7.1. Version
+3.7.0 reports `storytracker`, and RT Markdown Reader's *Send to StoryTracker* accepts a link under either id for now. A link made
+under the old id doesn't follow the app to 3.7.1, so link the two again after updating.
 
 ## Not in version 1
 

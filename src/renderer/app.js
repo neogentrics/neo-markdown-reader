@@ -999,7 +999,7 @@ api.onCommand(({ cmd, arg }) => {
     case 'export-pptx': publish.exportAs('pptx'); break;
     case 'export-audio': audioUi.open(); break;
     case 'send-linked': sendToLinkedApp(); break;
-    case 'send-story': sendToLinkedApp('storytracker'); break;
+    case 'send-story': sendToLinkedApp('rt-story-tracker'); break;
     case 'addons': addonsUi.open(); break;
     case 'sync': syncUi.open(); break;
     case 'about': aboutUi.open(); break;

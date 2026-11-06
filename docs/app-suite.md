@@ -5,7 +5,7 @@ How the apps fit together, so each one can be planned and built on its own and s
 | App | App Link id | Its job | State |
 |---|---|---|---|
 | RT Markdown Reader | `rt-markdown-reader` | Read, edit, listen to and publish documents | Released |
-| RT Story Tracker | `storytracker` | Write the book, and keep the story bible | Released |
+| RT Story Tracker | `rt-story-tracker` | Write the book, and keep the story bible | Released |
 | RT Author Desk | `rt-author-desk` | The business of being an author: catalog, accounts, launches, royalties | Being planned |
 | RT Press | `rt-press` | Designed print interiors and cover wraps | Being planned |
 | RT Audio Studio | `rt-audio-studio` | Audiobooks and podcasts, recorded and finished here | Being planned, the slow one |

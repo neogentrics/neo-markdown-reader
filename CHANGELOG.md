@@ -14,6 +14,7 @@ Working with RT Story Tracker.
 
 ### Changed
 - `docs/app-link.md` adds the optional `attachments` and `kind` fields on `open_document`, the road with no link, and which app starts the other. It's still protocol version 1.
+- RT Story Tracker's App Link id is now `rt-story-tracker`, from its 3.7.1. *Send to StoryTracker* accepts a link under the old `storytracker` id as well, for 3.7.0.
 
 ### Security
 - A password-locked document is never sent by either road, and never written to a temporary file. Only pictures are read from a list another app sends, checked by their first bytes, and never from another computer.

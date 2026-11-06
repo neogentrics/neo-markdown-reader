@@ -118,7 +118,7 @@ function standIn(id = 'stand-in', name = 'Stand-In App') {
   });
 
   await step('an app that isn’t linked can’t send anything', async () => {
-    const { error } = await ask(endpoint, 'open_document', { app: 'storytracker', key: 'nope', text: 'x' });
+    const { error } = await ask(endpoint, 'open_document', { app: 'rt-story-tracker', key: 'nope', text: 'x' });
     assert.equal(error.code, 'not_linked');
   });
 
@@ -134,7 +134,7 @@ function standIn(id = 'stand-in', name = 'Stand-In App') {
 
   await step('saying yes gives a key, and the name shown has no hidden characters', async () => {
     await answer(0);
-    const { result } = await ask(endpoint, 'pair', { app: 'storytracker', name: 'Story‮Tracker\u0007' });
+    const { result } = await ask(endpoint, 'pair', { app: 'rt-story-tracker', name: 'Story‮Tracker\u0007' });
     assert.match(result.key, /^[0-9a-f]{64}$/);
     key = result.key;
     assert.match((await asked()).at(-1), /^Link StoryTracker with RT Markdown Reader\?/);
@@ -142,7 +142,7 @@ function standIn(id = 'stand-in', name = 'Stand-In App') {
 
   await step('a linked app can send text, which opens unsaved', async () => {
     const before = fs.readdirSync(tmp).length;
-    const { result } = await ask(endpoint, 'open_document', { app: 'storytracker', key, name: '../../Chapter 1', text: '# Sent across\n' });
+    const { result } = await ask(endpoint, 'open_document', { app: 'rt-story-tracker', key, name: '../../Chapter 1', text: '# Sent across\n' });
     assert.deepEqual(result, { opened: true });
     await win.waitForFunction(() => /Sent across/.test(document.querySelector('.cm-content')?.textContent || ''));
     assert.ok((await tabTitles()).includes('Chapter 1'), 'the name has no folders in it');
@@ -150,11 +150,11 @@ function standIn(id = 'stand-in', name = 'Stand-In App') {
   });
 
   await step('a linked app can open a Markdown file by its path, and nothing else', async () => {
-    assert.deepEqual((await ask(endpoint, 'open_document', { app: 'storytracker', key, path: note })).result, { opened: true });
+    assert.deepEqual((await ask(endpoint, 'open_document', { app: 'rt-story-tracker', key, path: note })).result, { opened: true });
     await win.waitForFunction(() => /From a path/.test(document.body.textContent));
-    assert.equal((await ask(endpoint, 'open_document', { app: 'storytracker', key, path: locked })).error.code, 'not_allowed');
-    assert.equal((await ask(endpoint, 'open_document', { app: 'storytracker', key, path: picture })).error.code, 'not_allowed');
-    assert.equal((await ask(endpoint, 'open_document', { app: 'storytracker', key, path: path.join(tmp, 'gone.md') })).error.code, 'not_found');
+    assert.equal((await ask(endpoint, 'open_document', { app: 'rt-story-tracker', key, path: locked })).error.code, 'not_allowed');
+    assert.equal((await ask(endpoint, 'open_document', { app: 'rt-story-tracker', key, path: picture })).error.code, 'not_allowed');
+    assert.equal((await ask(endpoint, 'open_document', { app: 'rt-story-tracker', key, path: path.join(tmp, 'gone.md') })).error.code, 'not_found');
   });
 
   await step('pictures sent with a document show, and anything else on the list is dropped', async () => {
@@ -163,7 +163,7 @@ function standIn(id = 'stand-in', name = 'Stand-In App') {
       { name: 'map.png', path: map }, { name: 'extra.png', path: extra }, { name: 'fake.png', path: fake }, { name: 'note.png', path: note },
       { name: 'near.png', path: 'pics/map.png' }, { name: 'far.png', path: '\\\\127.0.0.1\\share\\map.png' }, { name: 'gone.png', path: path.join(tmp, 'gone.png') }, 'map.png',
     ];
-    const { result } = await ask(endpoint, 'open_document', { app: 'storytracker', key, name: 'Mapped', text: '# Mapped\n\n![The map](images/map.png)\n\n![No such](fake.png)\n', attachments, kind: 'chapter' });
+    const { result } = await ask(endpoint, 'open_document', { app: 'rt-story-tracker', key, name: 'Mapped', text: '# Mapped\n\n![The map](images/map.png)\n\n![No such](fake.png)\n', attachments, kind: 'chapter' });
     assert.deepEqual(result, { opened: true });
     await win.waitForFunction(() => document.querySelectorAll('img[src^="data:image/png"]').length === 2);
     await win.waitForFunction(() => [...document.querySelectorAll('img')].some((i) => i.getAttribute('alt') === 'The map' && i.naturalWidth === 1));
@@ -186,8 +186,8 @@ function standIn(id = 'stand-in', name = 'Stand-In App') {
   });
 
   await step('the wrong key is refused, and so is a method that doesn’t exist', async () => {
-    assert.equal((await ask(endpoint, 'open_document', { app: 'storytracker', key: `${key.slice(1)}0`, text: 'x' })).error.code, 'not_linked');
-    assert.equal((await ask(endpoint, 'write_file', { app: 'storytracker', key })).error.code, 'unknown_method');
+    assert.equal((await ask(endpoint, 'open_document', { app: 'rt-story-tracker', key: `${key.slice(1)}0`, text: 'x' })).error.code, 'not_linked');
+    assert.equal((await ask(endpoint, 'write_file', { app: 'rt-story-tracker', key })).error.code, 'unknown_method');
   });
 
   await step('the link survives turning App Link off and on', async () => {
@@ -195,12 +195,12 @@ function standIn(id = 'stand-in', name = 'Stand-In App') {
     assert.equal(fs.existsSync(registration), false);
     await win.evaluate(() => window.reader.linkSet(true));
     endpoint = JSON.parse(fs.readFileSync(registration, 'utf8')).endpoint;
-    assert.deepEqual((await ask(endpoint, 'open_document', { app: 'storytracker', key, name: 'Again', text: 'again' })).result, { opened: true });
+    assert.deepEqual((await ask(endpoint, 'open_document', { app: 'rt-story-tracker', key, name: 'Again', text: 'again' })).result, { opened: true });
   });
 
   await step('an app can unlink itself, and its key stops working', async () => {
-    assert.deepEqual((await ask(endpoint, 'unlink', { app: 'storytracker', key })).result, { unlinked: true });
-    assert.equal((await ask(endpoint, 'open_document', { app: 'storytracker', key, text: 'x' })).error.code, 'not_linked');
+    assert.deepEqual((await ask(endpoint, 'unlink', { app: 'rt-story-tracker', key })).result, { unlinked: true });
+    assert.equal((await ask(endpoint, 'open_document', { app: 'rt-story-tracker', key, text: 'x' })).error.code, 'not_linked');
   });
 
   const { state, server } = await standIn();
@@ -255,8 +255,8 @@ function standIn(id = 'stand-in', name = 'Stand-In App') {
     await win.click('#prefs-done');
   });
 
-  const story = await standIn('storytracker', 'RT Story Tracker');
-  const storySend = (doc) => win.evaluate((d) => window.reader.linkSend({ to: 'storytracker', ...d }), doc);
+  const story = await standIn('rt-story-tracker', 'RT Story Tracker');
+  const storySend = (doc) => win.evaluate((d) => window.reader.linkSend({ to: 'rt-story-tracker', ...d }), doc);
   const setStoryApp = (file) => app.evaluate((_e, f) => { process.env.NMR_STORY_APP = f; }, file);
   const waitForGot = async () => {
     for (let i = 0; i < 100 && !fs.existsSync(got); i++) await new Promise((r) => setTimeout(r, 100));
@@ -276,13 +276,26 @@ function standIn(id = 'stand-in', name = 'Stand-In App') {
 
   await step('with a link it goes across, with its pictures', async () => {
     story.state.key = crypto.randomBytes(32).toString('hex');
-    assert.deepEqual(await win.evaluate(() => window.reader.linkPair('storytracker')), { name: 'RT Story Tracker' });
+    assert.deepEqual(await win.evaluate(() => window.reader.linkPair('rt-story-tracker')), { name: 'RT Story Tracker' });
     assert.deepEqual(await storySend({ name: 'illustrated.md', path: illustrated, text: illustratedText }), { name: 'RT Story Tracker' });
     const sentDoc = story.state.received.at(-1);
     assert.equal(sentDoc.name, 'illustrated.md');
     assert.equal(sentDoc.text, illustratedText);
     assert.deepEqual(sentDoc.attachments, [{ name: 'map.png', path: map }]);
     assert.equal(fs.existsSync(got), false, 'nothing went the other way');
+  });
+
+  await step('a link to 3.7.0, which still calls itself storytracker, works too', async () => {
+    const older = await standIn('storytracker', 'RT Story Tracker');
+    older.state.key = crypto.randomBytes(32).toString('hex');
+    fs.rmSync(path.join(shared, 'rt-story-tracker.json'));
+    assert.deepEqual(await win.evaluate(() => window.reader.linkPair('storytracker')), { name: 'RT Story Tracker' });
+    assert.deepEqual(await storySend({ name: 'illustrated.md', path: illustrated, text: illustratedText }), { name: 'RT Story Tracker' });
+    assert.deepEqual(older.state.received.at(-1).attachments, [{ name: 'map.png', path: map }]);
+    await win.evaluate(() => window.reader.linkUnlink('storytracker'));
+    older.server.close();
+    fs.rmSync(path.join(shared, 'storytracker.json'));
+    fs.writeFileSync(path.join(shared, 'rt-story-tracker.json'), JSON.stringify({ protocol: 1, id: 'rt-story-tracker', name: 'RT Story Tracker', version: '1.0.0', endpoint: story.state.endpoint }));
   });
 
   await step('a password-locked document is never sent, by either road', async () => {
@@ -301,7 +314,7 @@ function standIn(id = 'stand-in', name = 'Stand-In App') {
   });
 
   await step('a linked app that’s closed is started the same way as Open With', async () => {
-    const stopped = path.join(shared, 'storytracker.json');
+    const stopped = path.join(shared, 'rt-story-tracker.json');
     const saved = fs.readFileSync(stopped);
     fs.rmSync(stopped);
     assert.deepEqual(await storySend({ name: 'Closed.md', text: script }), { name: 'RT Story Tracker', picturesLeft: 0 });
@@ -311,7 +324,7 @@ function standIn(id = 'stand-in', name = 'Stand-In App') {
   });
 
   await step('with no link it starts the app with a plain copy of what’s on screen', async () => {
-    await win.evaluate(() => window.reader.linkUnlink('storytracker'));
+    await win.evaluate(() => window.reader.linkUnlink('rt-story-tracker'));
     assert.deepEqual(await storySend({ name: 'Chapter: 2?.mdx', text: script }), { name: 'RT Story Tracker', picturesLeft: 0 });
     const [file, ...text] = (await waitForGot()).split('\n');
     assert.equal(path.basename(file), 'Chapter 2.md');
