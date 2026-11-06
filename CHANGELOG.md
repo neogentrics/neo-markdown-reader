@@ -18,7 +18,7 @@ Working with RT Story Tracker.
 ### Security
 - A password-locked document is never sent by either road, and never written to a temporary file. Only pictures are read from a list another app sends, checked by their first bytes, and never from another computer.
 
-## [3.10.0] - Unreleased
+## [3.10.0] - 2026-11-05
 
 Send finished writing where people will read it.
 

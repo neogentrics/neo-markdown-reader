@@ -358,6 +358,18 @@ test('posting: Discord asking to slow down is obeyed, and a stop says how far it
   assert.deepEqual(waits, [2100]);
 });
 
+test('testing a webhook waits when Discord asks, and a busy Discord is said plainly', async () => {
+  const waits = [];
+  const replies = [answer(429, { message: 'You are being rate limited.', retry_after: 1.5 }), answer(200, { guild_id: 'g' })];
+  const channel = createChannel({ fetch: async () => replies.shift(), webhook: 'https://discord.com/api/webhooks/1/a', wait: async (ms) => { waits.push(ms); } });
+  assert.equal((await channel.test()).guild_id, 'g');
+  assert.deepEqual(waits, [1600]);
+  const busy = createChannel({ fetch: async () => answer(429, { message: 'You are being rate limited.', retry_after: 1 }), webhook: 'https://discord.com/api/webhooks/1/a', wait: async () => {} });
+  await assert.rejects(busy.test(), { code: 'busy', message: 'Discord is asking for a pause. Try again in a minute.' });
+  const gone = createChannel({ fetch: async () => answer(404, { code: 10015, message: 'Unknown Webhook' }), webhook: 'https://discord.com/api/webhooks/1/a' });
+  await assert.rejects(gone.test(), /doesn’t know that webhook/);
+});
+
 test('the message limit is there to stop a flood', () => {
   assert.ok(messagesFrom('word '.repeat(10000)).length > MAX_MESSAGES);
 });

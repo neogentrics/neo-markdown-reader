@@ -83,6 +83,7 @@ The site didn’t accept that key. Use the Admin API key of a custom integration
 That key isn’t allowed to do that.	Esa clave no tiene permiso para hacerlo.	Cette clé n’a pas ce droit.	Dieser Schlüssel darf das nicht.
 That doesn’t look like an Admin API key. It has two parts with a colon between them.	Eso no parece una clave de la API de administración. Tiene dos partes separadas por dos puntos.	Cela ne ressemble pas à une clé d’API Admin. Elle a deux parties séparées par deux-points.	Das sieht nicht nach einem Admin-API-Schlüssel aus. Er hat zwei Teile mit einem Doppelpunkt dazwischen.
 Discord doesn’t know that webhook any more. Make a new one in the channel’s settings.	Discord ya no reconoce ese webhook. Cree uno nuevo en los ajustes del canal.	Discord ne connaît plus ce webhook. Créez-en un nouveau dans les paramètres du salon.	Discord kennt diesen Webhook nicht mehr. Erstellen Sie in den Kanaleinstellungen einen neuen.
+Discord is asking for a pause. Try again in a minute.	Discord pide una pausa. Inténtelo de nuevo en un minuto.	Discord demande une pause. Réessayez dans une minute.	Discord bittet um eine Pause. Versuchen Sie es in einer Minute erneut.
 That’s too large for Discord to take.	Es demasiado grande para Discord.	C’est trop volumineux pour Discord.	Das ist zu groß für Discord.
 Discord said: {0}	Discord dijo: {0}	Discord a répondu : {0}	Discord sagte: {0}
 Discord answered {0}.	Discord respondió {0}.	Discord a répondu {0}.	Discord antwortete {0}.
