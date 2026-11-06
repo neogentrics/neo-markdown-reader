@@ -1,4 +1,5 @@
-// Home server (3.9) in the page: your servers, choosing a folder on one, and publishing to a wiki.
+// Home server (3.9) in the page: your servers, choosing a folder on one, and publishing to a wiki. Blogs and Discord
+// channels (3.10) are in the same list; send-ui.js does the sending.
 // Requests are made by the main process, which keeps your passwords and keys.
 
 const $ = (id) => document.getElementById(id);
@@ -8,6 +9,9 @@ const HINTS = {
   bookstack: 'From your profile, under API Tokens: the token ID, a colon, then the secret, like id:secret.',
   wikijs: 'An API key, from Administration, then API Access.',
   outline: 'An API key, from Settings, then API.',
+  wordpress: 'Your user name, and an application password from Users, then Profile. WordPress only offers these on an https address.',
+  ghost: 'The Admin API key of a custom integration, from Settings, then Integrations.',
+  discord: 'In Discord, open the channel’s settings, then Integrations, then Webhooks, and copy the webhook’s address. Anyone who has it can post, so it’s kept with your keys.',
 };
 
 /** @param {{ api: any, toast: (m: string) => void, activeTab: () => any, textOf: (t: any) => string }} ctx */
@@ -78,7 +82,8 @@ export function createServersUi(ctx) {
   function fieldsFor(kind) {
     const info = state.kinds[kind];
     $('srv-user-row').hidden = !info.user;
-    say('srv-secret-label', info.user ? 'Password' : 'Key');
+    say('srv-secret-label', kind === 'wordpress' ? 'Application password' : kind === 'discord' ? 'Webhook address' : info.user ? 'Password' : 'Key');
+    $('srv-url-row').hidden = !!info.url;
     say('srv-hint', HINTS[kind] || '');
     $('srv-url').placeholder = kind === 'webdav' ? 'https://nas.home/dav/notes' : 'https://server.home';
   }
@@ -104,7 +109,7 @@ export function createServersUi(ctx) {
     say('srv-edit-msg', '');
     page('edit');
     show();
-    $('srv-url').focus();
+    $('srv-name').focus();
   }
 
   const draft = () => ({ id: editing?.id, kind: $('srv-kind').value, name: $('srv-name').value, url: $('srv-url').value, user: $('srv-user').value, secret: $('srv-secret').value });
@@ -257,5 +262,12 @@ export function createServersUi(ctx) {
   $('srv-publish-cancel').onclick = () => dlg.close();
   dlg.addEventListener('close', () => { if (!dlg.open) job = null; });
 
-  return { list: openList, browse: openBrowse, publish: openPublish };
+  async function addKind(kind) {
+    await load();
+    openEdit();
+    $('srv-kind').value = kind;
+    fieldsFor(kind);
+  }
+
+  return { list: openList, browse: openBrowse, publish: openPublish, add: addKind };
 }

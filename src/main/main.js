@@ -36,6 +36,9 @@ const notion = require('./notion');
 const servers = require('./servers');
 const webdav = require('./webdav');
 const wikis = require('./wikis');
+const blogs = require('./blogs');
+const discord = require('./discord');
+const sent = require('./sent');
 const { Inbound, newKey: newInboundKey, networkAddresses } = require('./inbound');
 const { SyncEngine } = require('./sync');
 const { VoiceStore, VOICES, LICENSE_URL } = require('./voices');
@@ -687,6 +690,15 @@ function rebuildMenu() {
             cmd('reveal', 'Show in Folder'),
             cmd('copy-path', 'Copy File Path'),
             cmd('send-linked', 'Send to Linked App…'),
+            {
+              label: 'Send This Document',
+              submenu: [
+                cmd('send-blog', 'As a Draft on My Blog…'),
+                cmd('send-discord', 'To Discord…'),
+                { type: 'separator' },
+                cmd('sent-list', 'Where This Was Sent'),
+              ],
+            },
             cmd('open-claude-code', 'Open Folder in Claude Code'),
             { type: 'separator' },
             cmd('lock-protect', 'Protect with Password…'),
@@ -1343,6 +1355,23 @@ const serverAnswer = (fn) => async (e, req = {}) => {
     return { error: err instanceof webdav.DavError || err instanceof wikis.WikiError ? err.message : 'That didn’t work.', code: err.code };
   }
 };
+
+// ---------------------------------------------------------------- sending to blogs and Discord (3.10)
+let sentCache = null;
+const sentLog = () => { sentCache ??= sent.createSent({ file: path.join(app.getPath('userData'), 'sent.json') }); return sentCache; };
+
+/** One document that's about to leave this computer. Locked documents never do. */
+async function sendable(e, req) {
+  const st = stateFor(e);
+  if (!st) throw new wikis.WikiError('Open a document first.', 'empty');
+  return (await publishDocs(st, { ...req, scope: 'doc' }))[0];
+}
+
+function sendTarget(id, kind) {
+  const server = serverById(id);
+  if (!server || !servers.KINDS[server.kind][kind]) throw new wikis.WikiError('That isn’t in your list any more.', 'gone');
+  return { server, secret: serverSecret(server.id) };
+}
 
 // ---------------------------------------------------------------- Notion (3.8)
 const notionJobs = new Map();     // what's been fetched or is about to be sent, so the page only has to name it
@@ -2047,8 +2076,11 @@ function registerIpc() {
   ipcMain.handle('srv:save', serverAnswer(async (_e, req) => {
     const clean = servers.cleanServer(req);
     if (!clean) throw new webdav.DavError('Check the address. It needs to start with http:// or https://.', 'bad_url');
-    const secret = (typeof req.secret === 'string' && req.secret.trim()) || (typeof req.id === 'string' ? serverSecret(req.id) : '');
-    if (!secret) throw new webdav.DavError(servers.KINDS[clean.kind].user ? 'Type your password.' : 'Paste your key.', 'no_key');
+    const typed = typeof req.secret === 'string' ? req.secret.trim() : '';
+    const info = servers.KINDS[clean.kind];
+    const secret = (info.channel && typed ? discord.cleanWebhook(typed, process.env.NMR_DISCORD_URL) : typed) || (!typed && typeof req.id === 'string' ? serverSecret(req.id) : '');
+    if (info.channel && !secret) throw new webdav.DavError('Paste the whole webhook address, from the channel’s settings, under Integrations.', 'no_key');
+    if (!secret) throw new webdav.DavError(info.user ? 'Type your password.' : 'Paste your key.', 'no_key');
     await servers.testServer({ fetch: net.fetch, server: clean, secret });
     saveSecrets({ servers: { ...loadSecrets().servers, [clean.id]: secret } });
     const list = settings.get().servers;
@@ -2140,8 +2172,68 @@ function registerIpc() {
     saveWikiRecords(server.id, res.known);
     publishJobs.delete(req.token);
     const { made, updated, same, missing, failed, pages } = res.report;
+    for (const p of pages) sentLog().add(p.key, { kind: server.kind, where: server.name, what: 'page', url: p.url });
     return { made, updated, same, missing, failed, url: pages.length === 1 || docs.length === 1 ? res.known[docs[0].key]?.url : pages[0]?.url };
   }));
+
+  // ---- Blogs and Discord: nothing goes until you've seen what's going and where, and pressed the button.
+  ipcMain.handle('send:prepare', serverAnswer(async (e, req) => {
+    const doc = await sendable(e, req);
+    const post = blogs.postFrom(doc.text, doc.name);
+    const list = serverList().servers;
+    return { ...post, opening: discord.openingOf(post.body), sites: list.filter((x) => servers.KINDS[x.kind].blog), channels: list.filter((x) => servers.KINDS[x.kind].channel) };
+  }));
+  ipcMain.handle('send:status', serverAnswer(async (_e, req) => {
+    const { server, secret } = sendTarget(req.id, 'blog');
+    const record = isStr(req.path, 4096) ? sentLog().post(req.path, server.id) : null;
+    if (!record) return { state: 'new' };
+    const state = await servers.blogClient({ fetch: net.fetch, server, secret }).status(record.id);
+    return { state: state || 'gone', url: record.url };
+  }));
+  ipcMain.handle('send:draft', serverAnswer(async (e, req) => {
+    const doc = await sendable(e, req);
+    const { server, secret } = sendTarget(req.id, 'blog');
+    const title = typeof req.title === 'string' ? req.title.trim().slice(0, 300) : '';
+    if (!title) throw new wikis.WikiError('Give it a title first.', 'no_title');
+    const tags = Array.isArray(req.tags) ? req.tags.filter((t) => isStr(t, 100)).slice(0, 20) : [];
+    const res = await blogs.sendDraft({
+      blog: servers.blogClient({ fetch: net.fetch, server, secret }),
+      post: { title, html: typeof req.html === 'string' ? req.html : '', excerpt: typeof req.excerpt === 'string' ? req.excerpt : '', tags, featured: isStr(req.featured, 2000) ? req.featured : '' },
+      record: sentLog().post(doc.key, server.id),
+      dir: doc.dir,
+      readFile: (file) => fs.promises.readFile(file).catch(() => null),
+    });
+    sentLog().setPost(doc.key, server.id, res.record);
+    sentLog().add(doc.key, { kind: server.kind, where: server.name, what: res.action === 'updated' ? 'update' : 'draft', url: res.url });
+    return { url: res.url, action: res.action, published: res.published, ...res.report };
+  }));
+  const discordMessages = (doc, req) => {
+    const post = blogs.postFrom(doc.text, doc.name);
+    const summary = req.summary === true;
+    const messages = discord.messagesFrom(summary ? String(req.words || '') : post.body, post.title);
+    if (messages.length > discord.MAX_MESSAGES) throw new wikis.WikiError(`That would take ${messages.length} messages, which is too many for one channel. Send a summary instead.`, 'too_long');
+    return { messages, summary };
+  };
+  ipcMain.handle('send:plan', serverAnswer(async (e, req) => {
+    const { messages } = discordMessages(await sendable(e, req), req);
+    return { messages: messages.length, pictures: messages.reduce((n, m) => n + m.pictures.length, 0) };
+  }));
+  ipcMain.handle('send:discord', serverAnswer(async (e, req) => {
+    const doc = await sendable(e, req);
+    const { server, secret } = sendTarget(req.id, 'channel');
+    const { messages, summary } = discordMessages(doc, req);
+    const remember = (url) => sentLog().add(doc.key, { kind: 'discord', where: server.name, what: summary ? 'summary' : 'post', url });
+    try {
+      const res = await discord.post({ channel: servers.channelClient({ fetch: net.fetch, secret }), messages, dir: doc.dir, readFile: (file) => fs.promises.readFile(file).catch(() => null) });
+      remember(res.url);
+      return { url: res.url, ...res.report };
+    } catch (err) {
+      if (err.partial) remember(err.partial.url);
+      throw err;
+    }
+  }));
+  ipcMain.handle('sent:list', (_e, p) => (isStr(p, 4096) ? sentLog().list(p) : []));
+  ipcMain.handle('sent:forget', (_e, p) => { if (isStr(p, 4096)) sentLog().forget(p); return {}; });
 
   // ---- Notion: your key stays here, and what's sent is what you were shown.
   ipcMain.handle('notion:state', () => ({ hasKey: !!loadSecrets().notion, secure: secureStorage() }));
@@ -2256,12 +2348,14 @@ function registerIpc() {
       const made = await client.create(job);
       notionJobs.delete(req.token);
       markNotionSeen(made.id, made.edited);
+      if (isStr(req.path, 4096)) sentLog().add(req.path, { kind: 'notion', where: 'Notion', what: 'page', url: notionUrl(made.id, made.url) });
       return { text: notion.withLink(job.text, notionUrl(made.id, made.url)) };
     }
     const missed = job.plan.changed ? await client.edit(job.id, job.plan) : 0;
     if (job.rename) await client.rename(job.id, job.rename);
     notionJobs.delete(req.token);
     markNotionSeen(job.id, (await client.meta(job.id)).edited);
+    if (isStr(req.path, 4096)) sentLog().add(req.path, { kind: 'notion', where: 'Notion', what: 'update', url: notionUrl(job.id) });
     return { missed };
   }));
 
@@ -2746,6 +2840,7 @@ function registerIpc() {
     const files = idx?.files;                        // as they were before the rename: the folder watcher refreshes the index while the question below is open
     try { await fs.promises.rename(p, target); } catch (err) { return { error: errorMessage(err, p) }; }
     cardStore.move(p, target);
+    sentLog().move(p, target);
     editing.sessionGrants(st).add(editing.key(target));
     let updated = 0;
     let missed = 0;

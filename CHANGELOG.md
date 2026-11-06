@@ -4,6 +4,16 @@ All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.10.0] - Unreleased
+
+Send finished writing where people will read it.
+
+### Added
+- **Drafts on your blog.** *File → This Document → Send This Document → As a Draft on My Blog…* sends a document to WordPress or Ghost as a draft, with its title, tags, excerpt, featured picture and pictures. You publish it from your blog. Sending again updates the same draft, and a post you've published is never changed from here: you get a new draft instead.
+- **Share to Discord.** Post a document or a summary to a channel through its webhook, with its pictures. Long documents are split at paragraphs, and nobody is pinged. The summary starts from the document's opening, and AI assist can write it if you've set that up.
+- **Where This Was Sent.** Each document remembers where it went and when, with links back to it. It covers blogs, Discord, your wikis and Notion, and follows the document when you rename it.
+- Blogs and Discord channels are in *My Servers*, with their passwords, keys and webhooks encrypted on this computer.
+
 ## [3.9.0] - 2026-11-05
 
 Documents and publishing on servers you run yourself.

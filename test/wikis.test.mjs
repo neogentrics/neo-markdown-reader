@@ -194,7 +194,7 @@ test('servers are checked before they’re kept', () => {
   assert.ok(!('secret' in s));
   assert.equal(cleanServer({ kind: 'outline', url: 'https://x', user: 'me' }).user, '');
   assert.equal(cleanServers([{ kind: 'webdav', url: 'https://x' }, null, { kind: 'webdav', url: 'bad' }]).length, 1);
-  assert.deepEqual(Object.keys(KINDS), ['nextcloud', 'webdav', 'bookstack', 'wikijs', 'outline']);
+  assert.deepEqual(Object.keys(KINDS), ['nextcloud', 'webdav', 'bookstack', 'wikijs', 'outline', 'wordpress', 'ghost', 'discord']);
 });
 
 test('addresses that aren’t encrypted are noticed', () => {

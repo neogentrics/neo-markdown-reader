@@ -175,8 +175,10 @@ const LINK = /(?<!!)\[([^\]]+)\]\((?:<([^>]+)>|([^)\s]+))\)/g;
 const MARKDOWN = /\.(?:md|markdown|mdown|mkd)$/i;
 
 /** A document as a wiki page: its title (the first heading, or its name) and what follows. */
+const stripFront = (text) => String(text || '').replace(/\r\n/g, '\n').replace(FRONT, '').trim();
+
 function pageFrom(text, name) {
-  const body = String(text || '').replace(/\r\n/g, '\n').replace(FRONT, '').trim();
+  const body = stripFront(text);
   const heading = /^# +(.+?)[ \t]*(?:\n+|$)/.exec(body);
   const title = heading ? heading[1].replace(/\s+#+$/, '') : String(name || 'Untitled').replace(/\.[^.]+$/, '');
   return { title, text: heading ? body.slice(heading[0].length).trim() : body };
@@ -301,7 +303,7 @@ async function publish({ wiki, place, docs, known = {}, readFile, onStep = () =>
       }
       next[p.key] = { id: saved.id, url: saved.url, hash, pictures };
       p.record = next[p.key];
-      report.pages.push({ title: p.title, url: saved.url });
+      report.pages.push({ key: p.key, title: p.title, url: saved.url });
       if (p.isNew) report.made += 1; else report.updated += 1;
     } catch (err) {
       if (p.isNew) next[p.key] = { ...p.record, hash: '' };
@@ -312,4 +314,4 @@ async function publish({ wiki, place, docs, known = {}, readFile, onStep = () =>
   return { known: next, report };
 }
 
-module.exports = { WikiError, createWiki, isWiki, pageFrom, localPictures, pictureFile, swapPictures, swapLinks, publish, form, slug };
+module.exports = { WikiError, PICTURE, createWiki, isWiki, pageFrom, stripFront, localPictures, pictureFile, typeOf, swapPictures, swapLinks, publish, form, slug };

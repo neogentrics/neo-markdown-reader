@@ -1,0 +1,93 @@
+en	es	fr	de
+Send This Document	Enviar este documento	Envoyer ce document	Dieses Dokument senden
+As a Draft on My Blog…	Como borrador en mi blog…	Comme brouillon sur mon blog…	Als Entwurf in meinem Blog…
+To Discord…	A Discord…	Vers Discord…	An Discord…
+Where This Was Sent	Dónde se envió	Où il a été envoyé	Wohin es gesendet wurde
+Discord channel	Canal de Discord	Salon Discord	Discord-Kanal
+Send as a Draft	Enviar como borrador	Envoyer comme brouillon	Als Entwurf senden
+Blog	Blog	Blog	Blog
+Title	Título	Titre	Titel
+Featured picture	Imagen destacada	Image à la une	Beitragsbild
+It goes as a draft, so nobody sees it until you publish it from your blog.	Se envía como borrador, así que nadie lo verá hasta que lo publique desde su blog.	Il part en brouillon : personne ne le verra tant que vous ne l’aurez pas publié depuis votre blog.	Es geht als Entwurf raus, niemand sieht es, bis Sie es in Ihrem Blog veröffentlichen.
+Open the Draft	Abrir el borrador	Ouvrir le brouillon	Entwurf öffnen
+Send Draft	Enviar borrador	Envoyer le brouillon	Entwurf senden
+Share to Discord	Compartir en Discord	Partager sur Discord	Auf Discord teilen
+Channel	Canal	Salon	Kanal
+What to post	Qué publicar	Quoi publier	Was gepostet wird
+A summary	Un resumen	Un résumé	Eine Zusammenfassung
+Summary	Resumen	Résumé	Zusammenfassung
+Write It with AI	Escribirlo con IA	L’écrire avec l’IA	Mit KI schreiben
+Everyone in that channel sees this straight away. Nobody is pinged by it.	Todos en ese canal lo verán de inmediato. No se notificará a nadie con una mención.	Tout le monde dans ce salon le verra aussitôt. Personne n’est mentionné.	Alle in diesem Kanal sehen das sofort. Niemand wird dadurch erwähnt.
+Open in Discord	Abrir en Discord	Ouvrir dans Discord	In Discord öffnen
+Post to Discord	Publicar en Discord	Publier sur Discord	Auf Discord posten
+This document hasn’t been sent anywhere yet.	Este documento aún no se ha enviado a ningún sitio.	Ce document n’a encore été envoyé nulle part.	Dieses Dokument wurde noch nirgendwohin gesendet.
+Forget This List	Olvidar esta lista	Oublier cette liste	Diese Liste vergessen
+Separated by commas	Separadas por comas	Séparés par des virgules	Durch Kommas getrennt
+Application password	Contraseña de aplicación	Mot de passe d’application	Anwendungspasswort
+Webhook address	Dirección del webhook	Adresse du webhook	Webhook-Adresse
+Your user name, and an application password from Users, then Profile. WordPress only offers these on an https address.	Su nombre de usuario y una contraseña de aplicación, en Usuarios y luego Perfil. WordPress solo las ofrece en una dirección https.	Votre identifiant et un mot de passe d’application, dans Comptes puis Profil. WordPress ne les propose que sur une adresse https.	Ihr Benutzername und ein Anwendungspasswort aus Benutzer, dann Profil. WordPress bietet sie nur auf einer https-Adresse an.
+The Admin API key of a custom integration, from Settings, then Integrations.	La clave de la API de administración de una integración personalizada, en Ajustes y luego Integraciones.	La clé d’API Admin d’une intégration personnalisée, dans Réglages puis Intégrations.	Der Admin-API-Schlüssel einer eigenen Integration, aus Einstellungen, dann Integrationen.
+In Discord, open the channel’s settings, then Integrations, then Webhooks, and copy the webhook’s address. Anyone who has it can post, so it’s kept with your keys.	En Discord, abra los ajustes del canal, luego Integraciones y Webhooks, y copie la dirección del webhook. Quien la tenga puede publicar, así que se guarda con sus claves.	Dans Discord, ouvrez les paramètres du salon, puis Intégrations et Webhooks, et copiez l’adresse du webhook. Quiconque la possède peut publier : elle est donc gardée avec vos clés.	Öffnen Sie in Discord die Kanaleinstellungen, dann Integrationen und Webhooks, und kopieren Sie die Webhook-Adresse. Wer sie hat, kann posten, darum liegt sie bei Ihren Schlüsseln.
+Add your blog first.	Primero añada su blog.	Ajoutez d’abord votre blog.	Fügen Sie zuerst Ihr Blog hinzu.
+Add your Discord channel first.	Primero añada su canal de Discord.	Ajoutez d’abord votre salon Discord.	Fügen Sie zuerst Ihren Discord-Kanal hinzu.
+Open a saved document first.	Primero abra un documento guardado.	Ouvrez d’abord un document enregistré.	Öffnen Sie zuerst ein gespeichertes Dokument.
+Asking the site…	Consultando el sitio…	Interrogation du site…	Website wird gefragt…
+This makes a new draft.	Esto crea un borrador nuevo.	Cela crée un nouveau brouillon.	Das erstellt einen neuen Entwurf.
+This updates the draft you sent before.	Esto actualiza el borrador que envió antes.	Cela met à jour le brouillon envoyé précédemment.	Das aktualisiert den zuvor gesendeten Entwurf.
+You’ve published the last one, so this makes a new draft and leaves that post alone.	Ya publicó el anterior, así que esto crea un borrador nuevo y no toca esa entrada.	Vous avez publié le précédent : cela crée un nouveau brouillon sans toucher à cet article.	Sie haben den letzten veröffentlicht, darum entsteht ein neuer Entwurf und dieser Beitrag bleibt unberührt.
+The last draft isn’t there any more, so this makes a new one.	El último borrador ya no está, así que esto crea uno nuevo.	Le dernier brouillon n’existe plus : cela en crée un nouveau.	Der letzte Entwurf ist nicht mehr da, darum entsteht ein neuer.
+1 picture goes with it.	Se envía 1 imagen.	1 image l’accompagne.	1 Bild geht mit.
+{0} pictures go with it.	Se envían {0} imágenes.	{0} images l’accompagnent.	{0} Bilder gehen mit.
+Give it a title first.	Primero póngale un título.	Donnez-lui d’abord un titre.	Geben Sie ihm zuerst einen Titel.
+Sending…	Enviando…	Envoi…	Wird gesendet…
+Your draft is updated.	Su borrador está actualizado.	Votre brouillon est à jour.	Ihr Entwurf ist aktualisiert.
+Your draft is there.	Su borrador ya está allí.	Votre brouillon y est.	Ihr Entwurf ist da.
+1 picture wasn’t found.	No se encontró 1 imagen.	1 image est introuvable.	1 Bild wurde nicht gefunden.
+{0} pictures weren’t found.	No se encontraron {0} imágenes.	{0} images sont introuvables.	{0} Bilder wurden nicht gefunden.
+1 picture was refused: {0}	Se rechazó 1 imagen: {0}	1 image a été refusée : {0}	1 Bild wurde abgelehnt: {0}
+{0} pictures were refused.	Se rechazaron {0} imágenes.	{0} images ont été refusées.	{0} Bilder wurden abgelehnt.
+1 tag couldn’t be added.	No se pudo añadir 1 etiqueta.	1 étiquette n’a pas pu être ajoutée.	1 Schlagwort konnte nicht hinzugefügt werden.
+{0} tags couldn’t be added.	No se pudieron añadir {0} etiquetas.	{0} étiquettes n’ont pas pu être ajoutées.	{0} Schlagwörter konnten nicht hinzugefügt werden.
+1 diagram or chart went as text, or was left out.	1 diagrama o gráfico se envió como texto o se omitió.	1 diagramme ou graphique est parti en texte ou a été omis.	1 Diagramm ging als Text mit oder wurde weggelassen.
+{0} diagrams or charts went as text, or were left out.	{0} diagramas o gráficos se enviaron como texto o se omitieron.	{0} diagrammes ou graphiques sont partis en texte ou ont été omis.	{0} Diagramme gingen als Text mit oder wurden weggelassen.
+Write the summary first.	Primero escriba el resumen.	Rédigez d’abord le résumé.	Schreiben Sie zuerst die Zusammenfassung.
+1 message	1 mensaje	1 message	1 Nachricht
+{0} messages	{0} mensajes	{0} messages	{0} Nachrichten
+1 picture	1 imagen	1 image	1 Bild
+{0} pictures	{0} imágenes	{0} images	{0} Bilder
+Asking the AI…	Consultando a la IA…	Interrogation de l’IA…	KI wird gefragt…
+Check it before you post it.	Revíselo antes de publicarlo.	Vérifiez-le avant de le publier.	Prüfen Sie es vor dem Posten.
+Posting…	Publicando…	Publication…	Wird gepostet…
+Posted.	Publicado.	Publié.	Gepostet.
+Posted in {0} messages.	Publicado en {0} mensajes.	Publié en {0} messages.	In {0} Nachrichten gepostet.
+1 picture was too large for Discord.	1 imagen era demasiado grande para Discord.	1 image était trop lourde pour Discord.	1 Bild war zu groß für Discord.
+{0} pictures were too large for Discord.	{0} imágenes eran demasiado grandes para Discord.	{0} images étaient trop lourdes pour Discord.	{0} Bilder waren zu groß für Discord.
+Draft	Borrador	Brouillon	Entwurf
+Draft updated	Borrador actualizado	Brouillon mis à jour	Entwurf aktualisiert
+Posted	Publicado	Publié	Gepostet
+Summary posted	Resumen publicado	Résumé publié	Zusammenfassung gepostet
+Page	Página	Page	Seite
+The site can’t be reached. Check the address and that you’re online.	No se puede acceder al sitio. Revise la dirección y su conexión.	Impossible de joindre le site. Vérifiez l’adresse et votre connexion.	Die Website ist nicht erreichbar. Prüfen Sie die Adresse und Ihre Verbindung.
+That address moves somewhere else. Use the one your browser shows, with https:// if it has it.	Esa dirección lleva a otro sitio. Use la que muestra su navegador, con https:// si lo tiene.	Cette adresse mène ailleurs. Utilisez celle qu’affiche votre navigateur, avec https:// le cas échéant.	Diese Adresse führt woandershin. Nutzen Sie die aus Ihrem Browser, mit https://, falls vorhanden.
+That address moves to {0}. Use that one.	Esa dirección lleva a {0}. Use esa.	Cette adresse mène à {0}. Utilisez celle-ci.	Diese Adresse führt zu {0}. Nutzen Sie diese.
+That doesn’t look like a blog. Check the address.	Eso no parece un blog. Revise la dirección.	Cela ne ressemble pas à un blog. Vérifiez l’adresse.	Das sieht nicht nach einem Blog aus. Prüfen Sie die Adresse.
+That doesn’t look like a WordPress site. Check the address.	Eso no parece un sitio de WordPress. Revise la dirección.	Cela ne ressemble pas à un site WordPress. Vérifiez l’adresse.	Das sieht nicht nach einer WordPress-Website aus. Prüfen Sie die Adresse.
+Application passwords are turned off on that site.	Las contraseñas de aplicación están desactivadas en ese sitio.	Les mots de passe d’application sont désactivés sur ce site.	Anwendungspasswörter sind auf dieser Website deaktiviert.
+The site didn’t accept that. Use your user name with an application password, not your sign-in password.	El sitio no lo aceptó. Use su nombre de usuario con una contraseña de aplicación, no la de inicio de sesión.	Le site a refusé. Utilisez votre identifiant avec un mot de passe d’application, pas votre mot de passe de connexion.	Die Website hat das nicht angenommen. Nutzen Sie Ihren Benutzernamen mit einem Anwendungspasswort, nicht Ihr Anmeldepasswort.
+Your account on that site isn’t allowed to do that.	Su cuenta en ese sitio no tiene permiso para hacerlo.	Votre compte sur ce site n’a pas ce droit.	Ihr Konto auf dieser Website darf das nicht.
+That isn’t on the site any more.	Eso ya no está en el sitio.	Cela n’est plus sur le site.	Das ist nicht mehr auf der Website.
+That’s too large for the site to take.	Es demasiado grande para el sitio.	C’est trop volumineux pour le site.	Das ist zu groß für die Website.
+The site said: {0}	El sitio dijo: {0}	Le site a répondu : {0}	Die Website sagte: {0}
+The site answered {0}.	El sitio respondió {0}.	Le site a répondu {0}.	Die Website antwortete {0}.
+The site didn’t accept that key. Use the Admin API key of a custom integration.	El sitio no aceptó esa clave. Use la clave de la API de administración de una integración personalizada.	Le site a refusé cette clé. Utilisez la clé d’API Admin d’une intégration personnalisée.	Die Website hat diesen Schlüssel nicht angenommen. Nutzen Sie den Admin-API-Schlüssel einer eigenen Integration.
+That key isn’t allowed to do that.	Esa clave no tiene permiso para hacerlo.	Cette clé n’a pas ce droit.	Dieser Schlüssel darf das nicht.
+That doesn’t look like an Admin API key. It has two parts with a colon between them.	Eso no parece una clave de la API de administración. Tiene dos partes separadas por dos puntos.	Cela ne ressemble pas à une clé d’API Admin. Elle a deux parties séparées par deux-points.	Das sieht nicht nach einem Admin-API-Schlüssel aus. Er hat zwei Teile mit einem Doppelpunkt dazwischen.
+Discord doesn’t know that webhook any more. Make a new one in the channel’s settings.	Discord ya no reconoce ese webhook. Cree uno nuevo en los ajustes del canal.	Discord ne connaît plus ce webhook. Créez-en un nouveau dans les paramètres du salon.	Discord kennt diesen Webhook nicht mehr. Erstellen Sie in den Kanaleinstellungen einen neuen.
+That’s too large for Discord to take.	Es demasiado grande para Discord.	C’est trop volumineux pour Discord.	Das ist zu groß für Discord.
+Discord said: {0}	Discord dijo: {0}	Discord a répondu : {0}	Discord sagte: {0}
+Discord answered {0}.	Discord respondió {0}.	Discord a répondu {0}.	Discord antwortete {0}.
+Discord can’t be reached. Check that you’re online.	No se puede acceder a Discord. Revise su conexión.	Impossible de joindre Discord. Vérifiez votre connexion.	Discord ist nicht erreichbar. Prüfen Sie Ihre Verbindung.
+Stopped after {0} of {1} messages. {2}	Se detuvo tras {0} de {1} mensajes. {2}	Arrêté après {0} messages sur {1}. {2}	Nach {0} von {1} Nachrichten gestoppt. {2}
+That isn’t in your list any more.	Eso ya no está en su lista.	Cela n’est plus dans votre liste.	Das steht nicht mehr in Ihrer Liste.
+That would take {0} messages, which is too many for one channel. Send a summary instead.	Harían falta {0} mensajes, demasiados para un canal. Envíe un resumen.	Il faudrait {0} messages, c’est trop pour un salon. Envoyez plutôt un résumé.	Das wären {0} Nachrichten, zu viele für einen Kanal. Senden Sie stattdessen eine Zusammenfassung.
+Paste the whole webhook address, from the channel’s settings, under Integrations.	Pegue la dirección completa del webhook, de los ajustes del canal, en Integraciones.	Collez l’adresse complète du webhook, depuis les paramètres du salon, sous Intégrations.	Fügen Sie die ganze Webhook-Adresse ein, aus den Kanaleinstellungen unter Integrationen.

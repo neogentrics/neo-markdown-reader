@@ -18,6 +18,7 @@ import { createCiteUi } from './cite-ui.js';
 import { createAutoUi } from './auto-ui.js';
 import { createNotionUi } from './notion-ui.js';
 import { createServersUi } from './servers-ui.js';
+import { createSendUi } from './send-ui.js';
 import { createHistoryUi } from './history-ui.js';
 import { createKeysUi } from './keys-ui.js';
 import { createNotesUi } from './notes-ui.js';
@@ -72,6 +73,7 @@ let citeUi = null;
 let autoUi = null;
 let notionUi = null;
 let serversUi = null;
+let sendUi = null;
 let themeUi = null;
 let lockUi = null;
 let aiUi = null;
@@ -1025,6 +1027,9 @@ api.onCommand(({ cmd, arg }) => {
     case 'server-publish': serversUi.publish('doc'); break;
     case 'server-publish-folder': serversUi.publish('folder'); break;
     case 'server-list': serversUi.list(); break;
+    case 'send-blog': sendUi.blog(); break;
+    case 'send-discord': sendUi.discord(); break;
+    case 'sent-list': sendUi.list(); break;
     case 'notion-bring': notionUi.bring(); break;
     case 'notion-send': notionUi.send(); break;
     case 'notion-compare': notionUi.compare(); break;
@@ -1335,6 +1340,11 @@ autoUi = createAutoUi({
 serversUi = createServersUi({
   api, toast, activeTab,
   textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
+});
+sendUi = createSendUi({
+  api, toast, activeTab, render,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
+  addServer: (kind) => serversUi.add(kind),
 });
 notionUi = createNotionUi({
   api, toast, activeTab, openCompare,

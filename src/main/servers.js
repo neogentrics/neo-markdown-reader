@@ -1,8 +1,11 @@
 'use strict';
 // Home server presets (3.9): one place for your servers' addresses, with their passwords and keys kept encrypted by main.js.
+// Blogs and Discord channels (3.10) live in the same list.
 const crypto = require('node:crypto');
 const webdav = require('./webdav');
 const wikis = require('./wikis');
+const blogs = require('./blogs');
+const discord = require('./discord');
 
 const KINDS = {
   nextcloud: { name: 'Nextcloud', folders: true, user: true },
@@ -10,6 +13,9 @@ const KINDS = {
   bookstack: { name: 'BookStack', wiki: true },
   wikijs: { name: 'Wiki.js', wiki: true },
   outline: { name: 'Outline', wiki: true },
+  wordpress: { name: 'WordPress', blog: true, user: true },
+  ghost: { name: 'Ghost', blog: true },
+  discord: { name: 'Discord', channel: true, url: 'https://discord.com' },
 };
 const MAX_SERVERS = 40;
 
@@ -23,7 +29,7 @@ function cleanUrl(text) {
 /** A server as settings keep it: nothing here is a secret. */
 function cleanServer(s) {
   if (!s || typeof s !== 'object' || !Object.hasOwn(KINDS, s.kind)) return null;
-  const url = cleanUrl(s.url);
+  const url = cleanUrl(KINDS[s.kind].url || s.url);
   if (!url) return null;
   const id = typeof s.id === 'string' && /^[a-z0-9-]{6,40}$/.test(s.id) ? s.id : crypto.randomUUID();
   const name = String(s.name || '').trim().slice(0, 60) || KINDS[s.kind].name;
@@ -36,11 +42,14 @@ const plainAddress = (url) => /^http:/i.test(url) && !/^http:\/\/(?:localhost|12
 
 const davClient = ({ fetch, server, secret }) => webdav.createClient({ fetch, url: webdav.davUrl(server), user: server.user, password: secret });
 const wikiClient = ({ fetch, server, secret }) => wikis.createWiki({ kind: server.kind, fetch, url: server.url, secret });
+const blogClient = ({ fetch, server, secret }) => blogs.createBlog({ kind: server.kind, fetch, url: server.url, user: server.user, secret });
+const channelClient = ({ fetch, secret }) => discord.createChannel({ fetch, webhook: secret });
 
 /** Does this server answer, and take this password or key? */
 async function testServer({ fetch, server, secret }) {
-  const client = KINDS[server.kind].folders ? davClient({ fetch, server, secret }) : wikiClient({ fetch, server, secret });
-  await client.test();
+  const { folders, blog, channel } = KINDS[server.kind];
+  const make = folders ? davClient : blog ? blogClient : channel ? channelClient : wikiClient;
+  await make({ fetch, server, secret }).test();
 }
 
-module.exports = { KINDS, cleanServer, cleanServers, cleanUrl, plainAddress, davClient, wikiClient, testServer };
+module.exports = { KINDS, cleanServer, cleanServers, cleanUrl, plainAddress, davClient, wikiClient, blogClient, channelClient, testServer };

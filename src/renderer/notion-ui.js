@@ -241,7 +241,7 @@ export function createNotionUi(ctx) {
     if (!now) return;
     $('notion-go').disabled = true;
     say('notion-send-msg', 'Sending…');
-    const res = await api.notionSend({ token: now.token });
+    const res = await api.notionSend({ token: now.token, path: now.tab?.doc.path || '' });
     $('notion-go').disabled = false;
     if (job !== now) return;
     if (res.error) { say('notion-send-msg', res.error); return; }
