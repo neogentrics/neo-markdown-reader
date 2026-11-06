@@ -43,6 +43,7 @@ major version, 4.0, is kept for a change to what the app is: the writing studio.
 | [v3.8](#v38--notion) | Notion | ✅ Released ([3.8.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.8.0)) |
 | [v3.9](#v39--your-home-server) | Your home server | ✅ Released ([3.9.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.9.0)) |
 | [v3.10](#v310--publish-anywhere) | Publish anywhere | ✅ Released ([3.10.0](https://github.com/neogentrics/rt-markdown-reader/releases/tag/v3.10.0)) |
+| [v3.11](#v311--working-with-rt-story-tracker) | Working with RT Story Tracker | 🔨 In progress |
 | [v4.0](#v40--writing-studio) | Writing studio | Planned |
 | [Later](#later--only-if-needed) | Only if needed | Ideas |
 | [Ongoing](#ongoing--polish--distribution) | Polish & distribution | Ongoing |
@@ -302,6 +303,16 @@ app learns to talk to them (decision 12).
 | ✅ 🛡️ WordPress & Ghost drafts | M | Send a document as a draft post, with its title, tags, featured picture and pictures, to WordPress (including a self-hosted site) or Ghost. You publish it from there. |
 | ✅ 🛡️ Share to Discord | S | Post a document, or a summary of it, to a Discord channel through its webhook. |
 | ✅ Publishing history | S | Each document remembers where it was sent and when, with links back to it. |
+
+## v3.11 — Working with RT Story Tracker
+
+🔨 **In progress.** The rest of what RT Story Tracker 3.7 asked of App Link version 1. It waits for the owner's review.
+
+| Feature | Size | Details |
+|---|:-:|---|
+| ✅ 🙋 Send to StoryTracker | S | In the File menu, with or without a link. With a link it goes across. With no link, or with RT Story Tracker closed, it starts RT Story Tracker with a temporary `.md`, which is removed afterwards. A password-locked document is never sent. |
+| ✅ Pictures on App Link | S | Optional `attachments` on `open_document`, both ways: pictures go with a document, show straight away when one arrives, and move beside it when it's saved. |
+| ✅ App Link rules | S | `docs/app-link.md` adds `attachments` and `kind`, the road with no link, and which app starts the other. |
 
 ## v4.0 — Writing studio
 

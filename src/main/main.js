@@ -21,6 +21,8 @@ const ai = require('./ai');
 const providers = require('./ai-providers');
 const connector = require('./connector');
 const appLink = require('./app-link');
+const linkPictures = require('./link-pictures');
+const storyTracker = require('./story-tracker');
 const claudeCode = require('./claude-code');
 const ABOUT_WEBSITE = 'https://recontowers.com/projects/neo-markdown-reader/';
 const i18n = require('./i18n');
@@ -690,6 +692,7 @@ function rebuildMenu() {
             cmd('reveal', 'Show in Folder'),
             cmd('copy-path', 'Copy File Path'),
             cmd('send-linked', 'Send to Linked App…'),
+            cmd('send-story', 'Send to StoryTracker'),
             {
               label: 'Send This Document',
               submenu: [
@@ -1246,8 +1249,8 @@ async function askToLink({ name }) {
   return response === 0;
 }
 
-/** A document from a linked app. Text opens unsaved; a path opens like any Markdown file. */
-async function openFromLink({ from, name, text, path: file }) {
+/** A document from a linked app. Text opens unsaved, with its pictures; a path opens like any Markdown file, with the pictures beside it. */
+async function openFromLink({ from, name, text, path: file, attachments }) {
   if (file) {
     const full = path.resolve(file);
     if (isLockedPath(full)) throw new appLink.LinkError('not_allowed', 'Password-locked documents can’t be opened this way.');
@@ -1259,7 +1262,26 @@ async function openFromLink({ from, name, text, path: file }) {
   const st = targetState();
   if (!st) throw new appLink.LinkError('failed', 'RT Markdown Reader has no window open.');
   focusState(st);
-  st.win.webContents.send('link:document', { from, name, content: text });
+  const pictures = await linkPictures.readAttachments(attachments);
+  st.win.webContents.send('link:document', { from, name, content: linkPictures.showEveryPicture(text, pictures), pictures });
+}
+
+const storyHandover = new storyTracker.Handover();
+
+/** Send to StoryTracker: through the link if there is one and it's running, and the same way as Open With if not. */
+async function sendToStory(doc) {
+  const attachments = await linkPictures.attachmentsFor(doc.text, doc.path);
+  const links = linkServer ? loadLinks() : {};
+  for (const id of storyTracker.IDS.filter((known) => Object.hasOwn(links, known))) {
+    try {
+      return await linkServer.send(id, { name: doc.name, text: doc.text, attachments });
+    } catch (err) {
+      if (!['not_running', 'not_linked'].includes(err.code)) return { error: linkMessage(err) };
+    }
+  }
+  try {
+    return { ...(await storyHandover.send({ name: doc.name, text: doc.text })), picturesLeft: attachments.length };
+  } catch (err) { return { error: err.message }; }
 }
 
 // ---------------------------------------------------------------- your home server (3.9)
@@ -2916,8 +2938,9 @@ function registerIpc() {
     return linkStatus();
   });
   ipcMain.handle('link:send', async (e, doc) => {
+    if (typeof doc?.text !== 'string' || doc.locked || (doc.path && isLockedPath(doc.path))) return { error: 'Password-locked documents can’t be sent.' };
+    if (doc.to === storyTracker.ID) return sendToStory(doc);
     if (!linkServer) return { error: 'Turn on App Link in Preferences first.' };
-    if (typeof doc?.text !== 'string' || (doc.path && isLockedPath(doc.path))) return { error: 'Password-locked documents can’t be sent.' };
     const ready = (await linkServer.list()).filter((a) => a.linked && a.running);
     if (!ready.length) return { error: 'No linked app is running.' };
     let choice = ready[0];
@@ -2927,7 +2950,9 @@ function registerIpc() {
       choice = ready[response];
       if (!choice) return {};
     }
-    try { return await linkServer.send(choice.id, { name: doc.name, text: doc.text }); } catch (err) { return { error: linkMessage(err) }; }
+    try {
+      return await linkServer.send(choice.id, { name: doc.name, text: doc.text, attachments: await linkPictures.attachmentsFor(doc.text, doc.path) });
+    } catch (err) { return { error: linkMessage(err) }; }
   });
   ipcMain.handle('claude:open-terminal', (e) => {
     const st = stateFor(e);
@@ -3299,6 +3324,7 @@ app.whenReady().then(() => {
   sync.start();
   applyConnector().catch(() => {});
   applyLink().catch(() => {});
+  storyHandover.sweep();
   applyInbound().catch(() => {});
   voices = new VoiceStore({
     root: path.join(app.getPath('userData'), 'voices'),
@@ -3363,6 +3389,7 @@ app.on('before-quit', (e) => {
 app.on('will-quit', () => {
   connectorServer?.stop();
   linkServer?.stop();
+  storyHandover.clear();
   persistSession();
   settings?.flush();
   annotations?.flush();

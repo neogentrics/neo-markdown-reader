@@ -25,6 +25,7 @@ test('an endpoint is a pipe or a socket on this computer, nothing else', () => {
 });
 
 test('app ids are short lowercase names', () => {
+  assert.equal(validId('rt-story-tracker'), true);
   assert.equal(validId('storytracker'), true);
   assert.equal(validId('rt-markdown-reader'), true);
   for (const id of ['', 'Story', '../x', '-x', 'a'.repeat(65), 7, '__proto__']) assert.equal(validId(id), false, String(id));

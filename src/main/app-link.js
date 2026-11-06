@@ -95,7 +95,7 @@ class AppLink {
    * @param {() => object} o.load             the saved links: { id: { name, key } }
    * @param {(links: object) => void} o.save
    * @param {(asker: { id, name }) => Promise<boolean>} o.ask
-   * @param {(doc: { from, name, text, path }) => Promise<void>} o.open
+   * @param {(doc: { from, name, text, path, attachments, kind }) => Promise<void>} o.open
    */
   constructor({ folder, dataDir, version, load, save, ask, open, platform = process.platform }) {
     Object.assign(this, { folder, dataDir, version, load, save, ask, open, platform });
@@ -201,9 +201,9 @@ class AppLink {
 
   async openRequest(params) {
     const from = this.caller(params);
-    const { name, text, path: file } = params;
-    if (typeof file === 'string' && file) await this.open({ from: from.name, path: file });
-    else if (typeof text === 'string') await this.open({ from: from.name, name: documentName(name), text });
+    const { name, text, path: file, attachments, kind } = params;
+    if (typeof file === 'string' && file) await this.open({ from: from.name, path: file, attachments, kind });
+    else if (typeof text === 'string') await this.open({ from: from.name, name: documentName(name), text, attachments, kind });
     else throw new LinkError('bad_request', 'Give the document’s text or its path.');
     return { opened: true };
   }
@@ -257,11 +257,12 @@ class AppLink {
     return { name: app.name };
   }
 
-  async send(id, { name, text }) {
+  async send(id, { name, text, attachments = [] }) {
     const link = this.load()[id];
     if (!link) throw new LinkError('not_linked', 'That app isn’t linked.');
     const app = await this.reach(id);
-    await call(app.endpoint, 'open_document', { app: APP_ID, key: link.key, name: documentName(name), text }, 15_000);
+    const pictures = attachments.length ? { attachments } : {};
+    await call(app.endpoint, 'open_document', { app: APP_ID, key: link.key, name: documentName(name), text, ...pictures }, 15_000);
     return { name: link.name };
   }
 

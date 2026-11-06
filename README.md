@@ -65,7 +65,7 @@ The builds aren't code-signed yet, so Windows may show a SmartScreen warning the
 | **Image viewer & rich copy** | Click any image to see it full size and zoom in; *Copy as Formatted Text* pastes into Word or email with formatting |
 | **Automatic updates** | The installed app downloads new versions; *Restart to update* installs them without any installer screens |
 | **Listen & speak** *(new in 3.5)* | Export a document as an MP3 or an audiobook with chapters, dictate instead of typing, read aloud through your slides, teach the voices how to say names, and choose your speakers and microphone ([details](#listen--speak)) |
-| **Linked apps** *(new in 3.6)* | Link other Recon Towers apps on your computer and send documents between them, with no accounts ([details](help/09-sync.md)) |
+| **Linked apps** *(new in 3.6)* | Link other Recon Towers apps on your computer and send documents between them, with their pictures and no accounts. *Send to StoryTracker* works with no link at all ([details](help/09-sync.md)) |
 | **Automations** *(3.7)* | Send documents to n8n, Make, Zapier, Home Assistant or your own script, and get the answer back as a document or a change ([details](help/07-ai.md)) |
 | **Notion** *(3.8)* | Bring Notion pages in as Markdown and databases as tables, send documents back with only your changes, and see when a linked page has moved on ([details](docs/notion.md)). |
 | **Publish anywhere** *(new in 3.10)* | Send a document to WordPress or Ghost as a draft, with its tags and pictures, or post it or a summary to a Discord channel. Each document remembers where it went ([details](docs/publish-anywhere.md)). |
@@ -775,6 +775,8 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Prefere
   document has gone.
 
 Coming next:
+- **v3.11 — Working with RT Story Tracker:** *Send to StoryTracker*, with or without a link, and pictures that travel with a
+  document.
 - **v4.0 — Writing studio:** book projects exported as EPUB, print-ready PDF and Word, Git built in,
   a folder published as a website, and an add-on gallery.
 - **Later, if needed:** shared review, a phone companion, writing together live.
