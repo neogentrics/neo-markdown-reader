@@ -768,10 +768,10 @@ On macOS use `Cmd` instead of `Ctrl`. Any of these can be changed under *Prefere
   call to open documents.
 - **v3.8** added Notion: pages in as Markdown and databases as tables, documents sent back with only your changes, and a
   note when a linked page has moved on.
+- **v3.9** added your home server: folders on Nextcloud and WebDAV opened like local ones, publishing to BookStack, Wiki.js
+  and Outline, and one list of your servers.
 
 Coming next:
-- **v3.9 — Your home server:** open and save documents on Nextcloud or any WebDAV server, and publish to
-  self-hosted wikis (BookStack, Wiki.js, Outline).
 - **v3.10 — Publish anywhere:** send a document as a WordPress or Ghost draft, or share it to Discord.
 - **v4.0 — Writing studio:** book projects exported as EPUB, print-ready PDF and Word, Git built in,
   a folder published as a website, and an add-on gallery.
