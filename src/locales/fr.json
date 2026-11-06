@@ -425,6 +425,7 @@
  "Discord can’t be reached. Check that you’re online.": "Impossible de joindre Discord. Vérifiez votre connexion.",
  "Discord channel": "Salon Discord",
  "Discord doesn’t know that webhook any more. Make a new one in the channel’s settings.": "Discord ne connaît plus ce webhook. Créez-en un nouveau dans les paramètres du salon.",
+ "Discord is asking for a pause. Try again in a minute.": "Discord demande une pause. Réessayez dans une minute.",
  "Discord said: {0}": "Discord a répondu : {0}",
  "Dismiss": "Ignorer",
  "Divider line": "Ligne de séparation",

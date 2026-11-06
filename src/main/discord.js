@@ -25,6 +25,7 @@ function cleanWebhook(text, test = '') {
 
 function refusal(status, data) {
   if (status === 401 || status === 403 || status === 404) return new DiscordError('Discord doesn’t know that webhook any more. Make a new one in the channel’s settings.', 'key');
+  if (status === 429) return new DiscordError('Discord is asking for a pause. Try again in a minute.', 'busy');
   if (status === 413 || data?.code === 40005) return new DiscordError('That’s too large for Discord to take.', 'too_large');
   return new DiscordError(data?.message ? `Discord said: ${String(data.message).slice(0, 300)}` : `Discord answered ${status}.`, 'failed');
 }
@@ -49,13 +50,20 @@ function createChannel({ fetch, webhook, wait = (ms) => new Promise((r) => setTi
     }
   };
   const json = async (res) => { try { return JSON.parse(await res.text()); } catch { return null; } };
+  /** Discord says how long to wait when it's had enough, so wait that long and go again. */
+  const patient = async (request) => {
+    for (let attempt = 0; ; attempt++) {
+      const res = await request();
+      const data = await json(res);
+      if (res.ok) return data || {};
+      if (res.status !== 429 || attempt >= 3) throw refusal(res.status, data);
+      const seconds = Number(data?.retry_after ?? res.headers.get('retry-after')) || 1;
+      await wait(Math.min(seconds * 1000 + 100, MAX_WAIT_MS));
+    }
+  };
   let about = null;
   const info = async () => {
-    if (about) return about;
-    const res = await ask(webhook, { method: 'GET' });
-    const data = await json(res);
-    if (!res.ok) throw refusal(res.status, data);
-    about = data || {};
+    about ??= await patient(() => ask(webhook, { method: 'GET' }));
     return about;
   };
   return {
@@ -66,19 +74,12 @@ function createChannel({ fetch, webhook, wait = (ms) => new Promise((r) => setTi
         allowed_mentions: { parse: [] },
         ...(files.length ? { attachments: files.map((f, id) => ({ id, filename: f.filename })) } : {}),
       };
-      for (let attempt = 0; ; attempt++) {
-        const f = files.length ? multipart(payload, files) : null;
-        const res = await ask(`${webhook}?wait=true`, {
-          method: 'POST',
-          headers: { 'content-type': f ? f.type : 'application/json' },
-          body: f ? f.body : JSON.stringify(payload),
-        });
-        const data = await json(res);
-        if (res.ok) return data || {};
-        if (res.status !== 429 || attempt >= 3) throw refusal(res.status, data);
-        const seconds = Number(data?.retry_after ?? res.headers.get('retry-after')) || 1;
-        await wait(Math.min(seconds * 1000 + 100, MAX_WAIT_MS));
-      }
+      const f = files.length ? multipart(payload, files) : null;
+      return patient(() => ask(`${webhook}?wait=true`, {
+        method: 'POST',
+        headers: { 'content-type': f ? f.type : 'application/json' },
+        body: f ? f.body : JSON.stringify(payload),
+      }));
     },
     async linkTo(message) {
       const { guild_id: guild } = await info().catch(() => ({}));
