@@ -30,3 +30,11 @@ Choose **File → Notion → Bring In a Notion Page…** to open a page as Markd
 When a linked page changes in Notion, a note appears at the top. **Compare** shows both, and **Bring In Changes** puts Notion's version in the editor for you to save.
 
 Pictures on your computer aren't sent, and password-locked documents never are. Pictures and files stored on Notion can't be removed or moved from here, so do that in Notion.
+
+## Your home server
+
+Add your servers in **File → Home Server → My Servers…**. The app tests each one before keeping it.
+
+**Open a Folder on My Server…** works with Nextcloud, ownCloud and any WebDAV server. The app keeps its own copy of the folder's documents and pictures, so everything works as it does for a folder on your computer, even offline. Your changes go up by themselves, and changes on the server come down within a minute, or when you press Refresh in the Files panel. Nothing on your server is deleted from here. If a document changed in both places, the server's version stays and yours is kept beside it as a copy.
+
+**Publish This Document to My Wiki…** and **Publish This Folder to My Wiki…** send your writing to BookStack, Wiki.js or Outline, with pictures, and links between your documents become links between pages. Publishing again updates the same pages. Nothing on a wiki is deleted from here.

@@ -377,6 +377,50 @@
     </section>
   </dialog>
 
+  <dialog class="shortcuts auto-dlg" id="srv-dlg" aria-labelledby="srv-h">
+    <section id="srv-list-page">
+      <div class="ai-head"><h3 id="srv-h">My Servers</h3><button type="button" class="tb-btn sm" id="srv-close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <p class="hint-text">One place for your servers. Passwords and keys are kept encrypted on this computer, and only go to the server they’re for.</p>
+      <ul class="auto-rows" id="srv-rows"></ul>
+      <p class="hint-text" id="srv-none">No servers yet.</p>
+      <p class="hint-text" id="srv-list-msg" role="status"></p>
+      <div class="auto-actions"><button type="button" class="big-btn sm" id="srv-add">Add a Server…</button></div>
+    </section>
+    <section id="srv-edit-page" hidden>
+      <h3 id="srv-edit-h">Add a server</h3>
+      <div class="auto-two">
+        <label class="field">Kind<select id="srv-kind"><option value="nextcloud">Nextcloud or ownCloud</option><option value="webdav">Other WebDAV server</option><option value="bookstack" translate="no">BookStack</option><option value="wikijs" translate="no">Wiki.js</option><option value="outline" translate="no">Outline</option></select></label>
+        <label class="field">Name<input id="srv-name" type="text" autocomplete="off" maxlength="60" placeholder="Optional"></label>
+      </div>
+      <label class="field">Address<input id="srv-url" type="url" spellcheck="false" autocomplete="off"></label>
+      <p class="hint-text" id="srv-plain"></p>
+      <label class="field" id="srv-user-row">Name on the server<input id="srv-user" type="text" spellcheck="false" autocomplete="off"></label>
+      <label class="field"><span id="srv-secret-label">Password</span><input id="srv-secret" type="password" spellcheck="false" autocomplete="off"></label>
+      <p class="hint-text" id="srv-hint"></p>
+      <p class="hint-text" id="srv-insecure" hidden>This computer has no safe place to keep keys, so they last until the app closes.</p>
+      <p class="hint-text" id="srv-edit-msg" role="status"></p>
+      <div class="auto-actions"><button type="button" class="link-btn" id="srv-remove" hidden>Remove</button><span class="spacer"></span><button type="button" class="link-btn" id="srv-edit-cancel">Cancel</button><button type="button" class="big-btn sm" id="srv-save">Test and Save</button></div>
+    </section>
+    <section id="srv-browse-page" hidden>
+      <h3>Open a Folder on My Server</h3>
+      <label class="field" id="srv-browse-server-row" hidden>Server<select id="srv-browse-server"></select></label>
+      <div class="auto-actions"><span class="auto-to" id="srv-browse-at" translate="no"></span><button type="button" class="link-btn" id="srv-browse-up" hidden>Up One Folder</button></div>
+      <ul class="auto-rows notion-rows" id="srv-folders"></ul>
+      <p class="hint-text" id="srv-browse-msg" role="status"></p>
+      <p class="hint-text">Its documents and pictures are copied to this computer, so it works like any folder, even offline. Changes go both ways. Nothing on your server is deleted from here.</p>
+      <div class="auto-actions"><span class="spacer"></span><button type="button" class="link-btn" id="srv-browse-cancel">Cancel</button><button type="button" class="big-btn sm" id="srv-open">Open This Folder</button></div>
+    </section>
+    <section id="srv-publish-page" hidden>
+      <h3>Publish to My Wiki</h3>
+      <label class="field" id="srv-wiki-row" hidden>Wiki<select id="srv-wiki"></select></label>
+      <p class="auto-what" id="srv-publish-what"></p>
+      <label class="field" id="srv-place-row"><span id="srv-place-label">Book</span><select id="srv-place"></select></label>
+      <label class="field" id="srv-new-row" hidden><span id="srv-new-label">Name</span><input id="srv-new-place" type="text" spellcheck="false" autocomplete="off"></label>
+      <p class="hint-text" id="srv-publish-msg" role="status"></p>
+      <div class="auto-actions"><span class="spacer"></span><button type="button" class="link-btn" id="srv-publish-cancel">Close</button><button type="button" class="link-btn" id="srv-publish-open" hidden>Open on the Wiki</button><button type="button" class="big-btn sm" id="srv-publish-go">Publish</button></div>
+    </section>
+  </dialog>
+
   <dialog class="shortcuts auto-dlg" id="notion-dlg" aria-labelledby="notion-setup-h">
     <section id="notion-setup-page">
       <h3 id="notion-setup-h">Connect to Notion</h3>
@@ -787,7 +831,7 @@ Term
           <p class="hint-text" id="pref-link-status"></p>
         </section>
         <section class="prefs-pane" data-pane="automate" hidden>
-          <div class="pref-auto-buttons"><button type="button" class="big-btn sm" id="pref-auto-open">Manage Automations…</button><button type="button" class="big-btn sm" id="pref-notion-open">Notion Connection…</button></div>
+          <div class="pref-auto-buttons"><button type="button" class="big-btn sm" id="pref-auto-open">Manage Automations…</button><button type="button" class="big-btn sm" id="pref-notion-open">Notion Connection…</button><button type="button" class="big-btn sm" id="pref-servers-open">My Servers…</button></div>
           <label class="check"><input type="checkbox" id="pref-inbound"> Let my workflows open and add to documents</label>
           <p class="hint-text">Off until you turn it on. Workflows need the key below, web pages can’t use this address, and every change to a file still asks you first.</p>
           <div id="pref-inbound-on" hidden>

@@ -2,6 +2,7 @@
 // JSON settings store kept in the per-user app-data folder
 // (Windows: %APPDATA%\RT Markdown Reader\settings.json, or Neo Markdown Reader for anyone who used the app under that name).
 const automations = require('./automations');
+const { cleanServers } = require('./servers');
 const fs = require('node:fs');
 const { cleanAiSettings } = require('./ai-providers');
 const path = require('node:path');
@@ -34,6 +35,8 @@ const DEFAULTS = Object.freeze({
   wikiLinks: 'wiki',      // wiki | markdown — what the editor inserts when you pick a document after [[
   automations: [],        // your webhooks as commands (3.7); any secrets are kept apart, encrypted
   n8nUrl: '',             // your n8n server, for listing workflows by name
+  servers: [],            // your home servers (3.9); passwords and keys are kept apart, encrypted
+  serverFolders: [],      // folders on those servers, with where this computer keeps its copy
   inbound: false,         // let workflows open documents (3.7): off until you turn it on
   inboundNetwork: false,  // ...from other computers on your network as well
   smartSearch: false,     // search by meaning (3.6): off until you turn it on; never synced
@@ -178,6 +181,10 @@ function sanitize(input) {
   if (['apa', 'mla', 'chicago', 'ieee', 'harvard'].includes(input.citeStyle)) s.citeStyle = input.citeStyle;
   if (typeof input.smartSearch === 'boolean') s.smartSearch = input.smartSearch;
   s.automations = automations.cleanActions(input.automations);
+  s.servers = cleanServers(input.servers);
+  s.serverFolders = (Array.isArray(input.serverFolders) ? input.serverFolders : [])
+    .filter((f) => f && typeof f.server === 'string' && typeof f.remote === 'string' && typeof f.root === 'string' && f.root.length <= 4096 && f.remote.length <= 4096)
+    .map((f) => ({ server: f.server, remote: f.remote, root: f.root })).slice(0, 100);
   if (typeof input.n8nUrl === 'string') s.n8nUrl = automations.n8nBase(input.n8nUrl);
   if (typeof input.inbound === 'boolean') s.inbound = input.inbound;
   if (typeof input.inboundNetwork === 'boolean') s.inboundNetwork = input.inboundNetwork;

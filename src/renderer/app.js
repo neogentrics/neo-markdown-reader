@@ -17,6 +17,7 @@ import { createCardsUi } from './cards-ui.js';
 import { createCiteUi } from './cite-ui.js';
 import { createAutoUi } from './auto-ui.js';
 import { createNotionUi } from './notion-ui.js';
+import { createServersUi } from './servers-ui.js';
 import { createHistoryUi } from './history-ui.js';
 import { createKeysUi } from './keys-ui.js';
 import { createNotesUi } from './notes-ui.js';
@@ -70,6 +71,7 @@ let cardsUi = null;
 let citeUi = null;
 let autoUi = null;
 let notionUi = null;
+let serversUi = null;
 let themeUi = null;
 let lockUi = null;
 let aiUi = null;
@@ -1019,6 +1021,10 @@ api.onCommand(({ cmd, arg }) => {
     case 'ai-cards': cardsUi.openDraft(); break;
     case 'citations': citeUi.open(); break;
     case 'automations': autoUi.open(); break;
+    case 'server-open': serversUi.browse(); break;
+    case 'server-publish': serversUi.publish('doc'); break;
+    case 'server-publish-folder': serversUi.publish('folder'); break;
+    case 'server-list': serversUi.list(); break;
     case 'notion-bring': notionUi.bring(); break;
     case 'notion-send': notionUi.send(); break;
     case 'notion-compare': notionUi.compare(); break;
@@ -1325,6 +1331,10 @@ autoUi = createAutoUi({
     await editMode.enter(tab);
     return (tab.editing && tab.editor?.view) || null;
   },
+});
+serversUi = createServersUi({
+  api, toast, activeTab,
+  textOf: (t) => (t.editing && t.editor ? t.editor.getText() : t.doc.content),
 });
 notionUi = createNotionUi({
   api, toast, activeTab, openCompare,

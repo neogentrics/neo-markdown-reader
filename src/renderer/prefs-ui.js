@@ -47,6 +47,7 @@ export function createPrefsUi({ api, settings, toast, refreshVoices, openHelp })
   $('pref-inbound-copy').onclick = async () => { await api.copyText($('pref-inbound-key').value); toast('Copied'); };
   $('pref-auto-open').onclick = () => { dlg.close(); api.runCommand('automations'); };
   $('pref-notion-open').onclick = () => { dlg.close(); api.runCommand('notion-setup'); };
+  $('pref-servers-open').onclick = () => { dlg.close(); api.runCommand('server-list'); };
 
   async function paintLink(given) {
     const link = given || await api.linkStatus();

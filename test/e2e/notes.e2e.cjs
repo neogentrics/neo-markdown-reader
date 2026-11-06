@@ -223,6 +223,9 @@ const step = async (name, fn) => { await fn(); console.log('ok -', name); };
   await step('typing [[ in the editor suggests documents; the link style can be standard Markdown', async () => {
     await win.click('.tab >> text=home');
     await waitTab('home');
+    // The rename above changed this file, and open files are polled, so the new text can land after edit mode opens.
+    // "Plan B" is one letter shorter than "Roadmap": a late reload leaves the cursor one short of the end.
+    await win.waitForSelector(`${page} a.wikilink[data-wiki="Roadmap"]`);
     await answer(0);                                          // Just This Time
     await menu('toggle-edit');
     await win.waitForSelector('.editor-host:not([hidden]) .cm-content');

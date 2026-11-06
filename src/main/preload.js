@@ -106,6 +106,14 @@ contextBridge.exposeInMainWorld('reader', {
   peekDoc: invoke('doc:peek'),
   aiEdit: invoke('ai:edit'),
   // automations (3.7)
+  srvList: invoke('srv:list'),
+  srvSave: invoke('srv:save'),
+  srvRemove: invoke('srv:remove'),
+  srvTest: invoke('srv:test'),
+  srvFolders: invoke('srv:folders'),
+  srvOpenFolder: invoke('srv:open-folder'),
+  srvPublishPrepare: invoke('srv:publish-prepare'),
+  srvPublish: invoke('srv:publish'),
   notionState: invoke('notion:state'),
   notionConnect: invoke('notion:connect'),
   notionForget: invoke('notion:forget'),
@@ -192,6 +200,7 @@ contextBridge.exposeInMainWorld('reader', {
   setAnnotations: invoke('annotations:set'),
   toggleBookmark: invoke('bookmarks:toggle'),
   onFolderOpened: on('folder:opened'),
+  onServerSynced: on('srv:synced'),
   onFolderChanged: on('folder:changed'),
   // updates
   installUpdate: invoke('update:install'),
