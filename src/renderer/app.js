@@ -155,7 +155,7 @@ function renderInto(tab, doc, { preview = false } = {}) {
     return Promise.resolve();
   }
   tab.el.classList.remove('locked-page');
-  const result = render(doc.content, { baseUrl: doc.baseUrl, wiki: wikiResolver(doc), citeFor: citeUi?.forDoc(doc) });
+  const result = render(doc.content, { baseUrl: doc.baseUrl, wiki: wikiResolver(doc), citeFor: citeUi?.forDoc(doc), pictures: doc.pictures });
   if (!preview) tab.doc = doc;
   tab.result = result;
   tab.el.innerHTML = result.html;
@@ -918,12 +918,13 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('mouseup', (e) => { if (e.button === 3) goBack(); });
 
 // ================================================================ menu commands
-/** File > Send to Linked App: what's on screen, saved or not. */
-async function sendToLinkedApp() {
+/** File > Send to Linked App, or Send to StoryTracker with `to`: what's on screen, saved or not. */
+async function sendToLinkedApp(to) {
   const tab = activeTab();
   if (!tab) { toast('Open a document first'); return; }
-  const res = await api.linkSend({ name: tab.doc.name, path: tab.doc.path, text: tab.editing && tab.editor ? tab.editor.getText() : tab.doc.content });
+  const res = await api.linkSend({ to, name: tab.doc.name, path: tab.doc.path, locked: !!tab.doc.locked, text: tab.editing && tab.editor ? tab.editor.getText() : tab.doc.content });
   if (res?.error) toast(res.error);
+  else if (res?.picturesLeft) toast(`Sent to ${res.name}, without its pictures. Those need a link.`);
   else if (res?.name) toast(`Sent to ${res.name}`);
 }
 
@@ -932,8 +933,8 @@ api.onInboundDocument(async ({ name, content }) => {
   toast('Sent by a workflow');
 });
 
-api.onLinkDocument(async ({ from, name, content }) => {
-  await editMode.newDocument('blank', { name, content });
+api.onLinkDocument(async ({ from, name, content, pictures }) => {
+  await editMode.newDocument('blank', { name, content, pictures });
   toast(`Sent from ${from}`);
 });
 
@@ -998,6 +999,7 @@ api.onCommand(({ cmd, arg }) => {
     case 'export-pptx': publish.exportAs('pptx'); break;
     case 'export-audio': audioUi.open(); break;
     case 'send-linked': sendToLinkedApp(); break;
+    case 'send-story': sendToLinkedApp('storytracker'); break;
     case 'addons': addonsUi.open(); break;
     case 'sync': syncUi.open(); break;
     case 'about': aboutUi.open(); break;

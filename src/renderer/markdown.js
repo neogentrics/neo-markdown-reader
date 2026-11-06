@@ -7,6 +7,7 @@ import taskLists from 'markdown-it-task-lists';
 import { full as emoji } from 'markdown-it-emoji';
 import deflist from 'markdown-it-deflist';
 import { citationsPlugin } from './citations.js';
+import { sentPicture } from './sent-pictures.js';
 import mark from 'markdown-it-mark';
 import sub from 'markdown-it-sub';
 import sup from 'markdown-it-sup';
@@ -247,11 +248,13 @@ function collectToc(tokens) {
 export function createRenderer(window) {
   const purify = createDOMPurify(window);
   let currentBase = '';
+  let currentPictures = null;
 
   purify.addHook('afterSanitizeAttributes', (node) => {
     const attr = MEDIA_ATTRS[node.nodeName];
     if (attr && node.hasAttribute(attr)) {
-      node.setAttribute(attr, resolveMediaUrl(node.getAttribute(attr), currentBase));
+      const sent = node.nodeName === 'IMG' && sentPicture(node.getAttribute(attr), currentPictures);
+      node.setAttribute(attr, sent ? sent.url : resolveMediaUrl(node.getAttribute(attr), currentBase));
     }
     if (node.nodeName === 'IMG') {
       node.setAttribute('decoding', 'async');
@@ -288,7 +291,7 @@ export function createRenderer(window) {
     return box.innerHTML;
   }
 
-  const render = function render(markdown, { baseUrl = '', wiki = null, citeFor = null } = {}) {
+  const render = function render(markdown, { baseUrl = '', wiki = null, citeFor = null, pictures = null } = {}) {
     const state = { frontMatterRaw: null };
     const md = buildMarkdownIt(state);
     const src = String(markdown ?? '').replace(/^﻿/, '');
@@ -300,8 +303,10 @@ export function createRenderer(window) {
     if (fm) body = renderFrontMatter(fm) + body;
 
     currentBase = baseUrl;
+    currentPictures = pictures;
     const html = purify.sanitize(body, purifyConfig);
     currentBase = '';
+    currentPictures = null;
 
     const toc = collectToc(tokens);
     const plain = src.replace(/```[\s\S]*?```/g, ' ').replace(/<[^>]+>/g, ' ');

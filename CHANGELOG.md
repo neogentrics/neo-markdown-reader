@@ -4,6 +4,20 @@ All notable changes to RT Markdown Reader (Neo Markdown Reader until 3.4.1) are 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.11.0] - Unreleased
+
+Working with RT Story Tracker.
+
+### Added
+- **Send to StoryTracker.** *File → This Document → Send to StoryTracker* sends what's on screen to RT Story Tracker 3.7 or later, with or without a link. With a link, and RT Story Tracker open, it goes straight across. With no link, or with RT Story Tracker closed, it starts RT Story Tracker with a temporary copy, the same way as Open With, and removes the copy afterwards.
+- **Pictures travel with a document.** Over a link, a saved document now takes the pictures it shows, with *Send to StoryTracker* and with *Send to Linked App*. A document sent to you shows its pictures straight away, and they go in an `images` folder beside it when you save it. Pictures don't go when there's no link, and you're told if any stayed behind.
+
+### Changed
+- `docs/app-link.md` adds the optional `attachments` and `kind` fields on `open_document`, the road with no link, and which app starts the other. It's still protocol version 1.
+
+### Security
+- A password-locked document is never sent by either road, and never written to a temporary file. Only pictures are read from a list another app sends, checked by their first bytes, and never from another computer.
+
 ## [3.10.0] - Unreleased
 
 Send finished writing where people will read it.

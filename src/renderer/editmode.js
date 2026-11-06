@@ -3,6 +3,7 @@
 // this module only asks for them and keeps the editor, preview and tab state in step.
 import { TEMPLATES } from './templates.js';
 import { parseTable, formatTable, blankTable } from './tables.js';
+import { swapSentPictures, pictureBytes } from './sent-pictures.js';
 import { createTableUi } from './table-ui.js';
 
 /**
@@ -172,6 +173,7 @@ export function createEditMode(ctx) {
     const res = await api.saveAs({ content, suggestedName: name, defaultDir: tab.doc.dir || undefined, eol: tab.doc.eol, bom: tab.doc.bom });
     if (!res.ok) { if (res.reason !== 'cancelled') ctx.toast('Couldn’t save the file'); return false; }
     const { doc } = res;
+    const sent = tab.doc.pictures;
     tab.untitled = false;
     tab.doc = { ...doc, content };
     tab.savedText = content;
@@ -184,7 +186,23 @@ export function createEditMode(ctx) {
     refresh();
     ctx.syncSoon();
     ctx.toast(`Saved as ${doc.name}`);
+    if (sent?.length) await keepSentPictures(tab, sent);
     return true;
+  }
+
+  /** A document from another app has just been saved: its pictures go beside it, and its links follow them. */
+  async function keepSentPictures(tab, pictures) {
+    const saved = new Map();
+    for (const p of pictures) {
+      const res = await api.saveImage({ path: tab.doc.path, name: p.name, data: pictureBytes(p.url) });
+      if (res.ok) saved.set(p.name, res.rel);
+    }
+    if (saved.size < pictures.length) ctx.toast('Some pictures couldn’t be saved with this document');
+    if (!saved.size) return;
+    if (!tab.editing) await enter(tab);
+    if (!tab.editing) return;
+    tab.editor.setText(swapSentPictures(tab.editor.getText(), saved));
+    await save(tab);
   }
 
   // ---------------------------------------------------------------- pictures & tables
@@ -241,6 +259,7 @@ export function createEditMode(ctx) {
     const doc = {
       path: null, name, dir: '', baseUrl: '', content: given ? String(given.content || '') : t.content(), mtime: NaN,
       eol: ctx.platform() === 'win32' ? '\r\n' : '\n', bom: false, writable: true, position: 0,
+      ...(given?.pictures?.length ? { pictures: given.pictures } : {}),
     };
     const tab = await ctx.openInTab(doc, { duplicate: true, scroll: 0 });
     tab.untitled = true;

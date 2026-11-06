@@ -12,7 +12,10 @@ This is protocol version **1**. A later version only adds to it: an app must ign
 2. Another app reads that file and connects.
 3. The first time, it asks to link. The person answers in the app being asked.
 4. If they say yes, both apps keep the same key, and every later request carries it.
-5. With the key, either app can send the other a document.
+5. With the key, either app can send the other a document, with its pictures.
+
+There's a second road with no link at all, for one document a person chooses to hand over. It goes through the system, and
+it also starts an app that isn't running. See [With no link](#with-no-link).
 
 ## Finding an app
 
@@ -116,6 +119,40 @@ Returns `{ "opened": true }`.
 - `name` is a suggestion. Clean it before you show it.
 - Password-locked documents are never sent or opened this way.
 
+Two more fields are optional. An app that doesn't know them ignores them, so they need no new protocol version.
+
+| Field | What it is |
+|---|---|
+| `attachments` | The pictures that go with the document, as a list of `{ "name": "map.png", "path": "C:\\Books\\images\\map.png" }`. |
+| `kind` | A hint at what the document is: `chapter`, `record`, `page`, `note` or `research`. The person still chooses. |
+
+```json
+{ "id": 7, "method": "open_document", "params": { "app": "storytracker", "key": "…", "name": "Chapter 2.md", "text": "![Map](map.png)\n", "kind": "chapter", "attachments": [{ "name": "map.png", "path": "C:\\Books\\images\\map.png" }] } }
+```
+
+`attachments`:
+
+- Pictures only: PNG, JPEG, WebP and GIF. Drop anything else on the list, and still open the document.
+- `path` is a full path on this computer, so a list stays small however big the pictures are. Never follow a path to another
+  computer, such as `\\server\share\map.png`.
+- `name` is the picture's file name. Clean it before you show it, as you would a document's.
+- A sender can remove its copies later, so read a picture when you take the document, or say how long you need it.
+- The list is for a document sent as `text`. A file sent as `path` has its pictures beside it, and RT Markdown Reader ignores
+  a list that comes with one.
+
+What RT Markdown Reader does with them:
+
+- It sends the pictures a saved document shows, found from the document's own folder, and leaves out any that aren't real
+  pictures or aren't there. An unsaved document has no folder, so it sends none.
+- It reads the ones it's sent at once and holds them with the unsaved document, checking each by its first bytes. Nothing is
+  written to disk until the person saves, and at most 50 pictures of 25 MB each, 100 MB in all, are taken.
+- A link in the text finds a picture by its file name, whichever folder the link says it's in. A picture the text doesn't
+  show is added at the end of the document, so it's seen.
+- When the person saves, the pictures go in an `images` folder beside the document, as pasted pictures do, and the links
+  follow them.
+
+RT Markdown Reader doesn't use `kind`: it accepts it and ignores it.
+
 ### `unlink`
 
 ```json
@@ -134,8 +171,50 @@ person removes a link on your side.
 - Treat everything it receives as untrusted, as it would a file downloaded from the web.
 - Never change or save a document because of a request. The person does that.
 
+## With no link
+
+A person can hand one document to another app with no link, and with neither app's App Link turned on. This road doesn't use
+the protocol, so it needs no key. It's the same as choosing *Open With*:
+
+1. The app sending it writes the document as a temporary `.md` file, in a folder of its own.
+2. It starts the other app with that file's path, or asks the system to.
+3. The other app takes the file as if the person had opened it.
+
+It's safe with no key because a person just chose it, and it can only offer a document: an app that's handed a file saves
+nothing until the person says so.
+
+The app taking a file:
+
+- Takes a path it's started with, and a path handed to the copy that's already running. On macOS that's the `open-file` event.
+- Reads the file straight away, because the sender will remove it.
+- Refuses a password-locked document and any file it doesn't handle, as it would over the link.
+
+The app sending a file:
+
+- Sends only because the person just chose to, never in the background.
+- Never sends a password-locked document this way, and never writes one to a temporary file.
+- Removes the temporary file when it's done. RT Markdown Reader removes it two minutes after handing it over, or when it
+  closes if that's sooner, and sweeps up at its next start anything a crash left behind. Sweep only your own folders.
+- Starts the other app with no shell in between.
+
+Pictures don't go this way: a path can only name one file, so the app sending says they stayed behind.
+
+### Which app starts the other
+
+**The app the person is in starts the other one.** There's no background service, and an app never starts another by itself.
+
+| | RT Markdown Reader sends | RT Story Tracker sends |
+|---|---|---|
+| **The command** | *Send to StoryTracker* | *Open in RT Markdown Reader* |
+| **Linked, and the other app is running** | `open_document`, with pictures | `open_document` |
+| **Not linked, or the other app is closed** | Starts it with a temporary `.md`, without pictures | Starts it with a temporary `.md` |
+
+Each app looks where the other's installers put it. If it isn't there, the app says so rather than opening some other
+program. An app installed somewhere else, or an AppImage, can't be found this way, but it works once it's linked and running.
+
+RT Story Tracker takes a path it's started with from version 3.7.
+
 ## Not in version 1
 
 - **Another computer.** Pairing by a one-time code, then a key kept by both apps.
 - **Sync.** Keeping a document the same in both apps. It depends on how StoryTracker stores its data.
-- **Starting an app that isn't running.**

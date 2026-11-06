@@ -16,8 +16,20 @@ Other Recon Towers apps on this computer can link with RT Markdown Reader, so yo
 2. Start the link from either app, and answer the question that appears. You only do this once for each app.
 3. Choose *File → This Document → Send to Linked App* to send what's on screen, including changes you haven't saved.
 
-A document sent to you opens as a new, unsaved document, so nothing is saved until you save it. A linked app can't read
-or change your documents on its own, and password-locked documents are never sent. Remove a link in the same place.
+A document sent to you opens as a new, unsaved document, so nothing is saved until you save it. Pictures sent with it show
+straight away, and go in an `images` folder beside the document when you save it. A linked app can't read or change your
+documents on its own, and password-locked documents are never sent. Remove a link in the same place.
+
+### Send to RT Story Tracker
+
+*File → This Document → Send to StoryTracker* sends what's on screen to RT Story Tracker, which asks you where it goes. It
+works with or without a link:
+
+- **Linked, with RT Story Tracker open:** the document goes across with the pictures it shows.
+- **Not linked, or RT Story Tracker is closed:** it starts RT Story Tracker with a temporary copy of the document, and removes
+  the copy soon after. Pictures don't go this way, and you're told if any stayed behind.
+
+This needs RT Story Tracker 3.7 or later. If it isn't where its installer puts it, you're told so.
 
 ## Notion
 
